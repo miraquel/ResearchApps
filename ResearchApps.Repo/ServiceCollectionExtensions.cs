@@ -29,6 +29,13 @@ public static class ServiceCollectionExtensions
         });
         
         services.AddScoped<IItemTypeRepo, ItemTypeRepo>();
+        services.AddScoped<IItemRepo, ItemRepo>();
+        services.AddScoped<IWarehouseRepo, WarehouseRepo>();
+        services.AddScoped<IItemDeptRepo, ItemDeptRepo>();
+        services.AddScoped<IStatusRepo, StatusRepo>();
+        services.AddScoped<IUnitRepo, UnitRepo>();
+        services.AddScoped<IPrRepo, PrRepo>();
+        services.AddScoped<IPrLineRepo, PrLineRepo>();
 
         return services;
     }

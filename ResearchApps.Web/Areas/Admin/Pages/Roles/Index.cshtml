@@ -1,0 +1,91 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Role Management";
+}
+
+<div class="card">
+    <div class="card-header d-flex align-items-center">
+        <h1 class="card-title mb-0">Role Management</h1>
+        <div class="ms-auto">
+            <a asp-page="Create" class="btn btn-primary btn-sm">
+                <i class="ri-add-line align-bottom me-1"></i>
+                Create New Role
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Role Name</th>
+                    <th>Description</th>
+                    <th>Role Id</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td>@role.Name</td>
+                    <td>@role.Description</td>
+                    <td>@role.Id</td>
+                    <td class="text-center">
+                        <a asp-page="RolePermissions" asp-route-id="@role.Id" class="btn btn-sm btn-secondary">
+                            Assign Permissions
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="d-flex justify-content-end">
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-PageSize="@Model.PageSize">Previous</a>
+                    </li>
+                    @{
+                        var startPage = Math.Max(1, Model.PageNumber - 3);
+                        var endPage = Math.Min(Model.TotalPages, Model.PageNumber + 3);
+
+                        if (startPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-route-PageNumber="1" asp-route-PageSize="@Model.PageSize">1</a>
+                            </li>
+                            if (startPage > 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                        }
+
+                        for (var i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" asp-route-PageNumber="@i" asp-route-PageSize="@Model.PageSize">@i</a>
+                            </li>
+                        }
+
+                        if (endPage < Model.TotalPages)
+                        {
+                            if (endPage < Model.TotalPages - 1)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" asp-route-PageNumber="@Model.TotalPages" asp-route-PageSize="@Model.PageSize">@Model.TotalPages</a>
+                            </li>
+                        }
+                    }
+                    <li class="page-item @(Model.PageNumber == Model.TotalPages || Model.TotalPages == 0 ? "disabled" : "")">
+                        <a class="page-link" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-PageSize="@Model.PageSize">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

@@ -29,9 +29,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Areas\Api\" />
+      <Folder Include="Areas\Admin\Data\" />
+      <Folder Include="Areas\Admin\Models\" />
+      <Folder Include="Areas\Admin\Views\" />
       <Folder Include="Context\" />
       <Folder Include="Context\Data\" />
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -40,6 +43,44 @@
       <ProjectReference Include="..\ResearchApps.Service.Interface\ResearchApps.Service.Interface.csproj" />
       <ProjectReference Include="..\ResearchApps.Service.Vm\ResearchApps.Service.Vm.csproj" />
       <ProjectReference Include="..\ResearchApps.Service\ResearchApps.Service.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Areas\Identity\Pages\Account\LoginWithRecoveryCode.cshtml" />
+      <Content Remove="Areas\Identity\Pages\Account\RegisterConfirmation.cshtml" />
+      <Content Remove="Areas\Identity\Pages\Account\ConfirmEmailChange.cshtml" />
+      <Content Update="package.old.json">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Areas\Identity\Pages\Account\ConfirmEmailChange.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\ResetPassword.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\ExternalLogin.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\LoginWith2fa.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\ConfirmEmail.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\AccessDenied.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\Logout.cshtml.cs" />
+      <Compile Remove="Areas\Identity\Pages\Account\Manage\SetPassword.cshtml.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Roles\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Roles\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Roles\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Users\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Users\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Users\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Users\UserRoles.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Users\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Prs\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Prs\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Prs\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Prs\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Prs\Index.cshtml" />
     </ItemGroup>
 
 </Project>

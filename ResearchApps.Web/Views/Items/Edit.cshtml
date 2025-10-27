@@ -1,0 +1,136 @@
+﻿@model ResearchApps.Service.Vm.ItemVm
+
+@{
+    ViewBag.Title = "Edit Item";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card mt-3">
+    <div class="card-header">
+        <h4 class="card-title">Edit Item</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="ItemId" />
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="ItemName"></label></div>
+                <div class="col-lg-9"><input asp-for="ItemName" class="form-control" /></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="ItemTypeId"></label></div>
+                <div class="col-lg-9"><select asp-for="ItemTypeId" class="form-control select2"></select></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="ItemDeptId"></label></div>
+                <div class="col-lg-9"><select asp-for="ItemDeptId" class="form-control select2"></select></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="BufferStock"></label></div>
+                <div class="col-lg-9"><input asp-for="BufferStock" class="form-control" type="number" step="0.01" /></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="UnitId"></label></div>
+                <div class="col-lg-9"><select asp-for="UnitId" class="form-control select2"></select></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="PurchasePrice"></label></div>
+                <div class="col-lg-9"><input asp-for="PurchasePrice" class="form-control" type="number" step="0.01" /></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="SalesPrice"></label></div>
+                <div class="col-lg-9"><input asp-for="SalesPrice" class="form-control" type="number" step="0.01" /></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="CostPrice"></label></div>
+                <div class="col-lg-9"><input asp-for="CostPrice" class="form-control" type="number" step="0.01" /></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="Image"></label></div>
+                <div class="col-lg-9">
+                    <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                    @if (!string.IsNullOrEmpty(Model.Image)) {
+                        <img src="@Model.Image" alt="Image" style="max-width:80px;max-height:80px;" />
+                    }
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3"><label asp-for="Notes"></label></div>
+                <div class="col-lg-9"><textarea asp-for="Notes" class="form-control"></textarea></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3">
+                    <label><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></label>
+                </div>
+                <div class="col-lg-9">
+                    <select asp-for="StatusId" data-selected="@Model.StatusId" id="statusId" class="select2 select2-container select2-container--default select2-container--above"></select>
+                </div>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        const statusId = $('#statusId');
+        statusId.select2({
+            placeholder: "Select Status",
+            ajax: {
+                url: '/api/Status/',
+                type: 'GET',
+                dataType: 'json',
+                delay: 500,
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                data: function (params) {
+                    return {
+                        filters: {
+                            term: params.term ? `%${params.term}%` : '',
+                        }
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data.map(item => ({
+                            id: item.statusId,
+                            text: item.statusName
+                        }))
+                    };
+                },
+            }
+        });
+        $.ajax({
+            url: '/api/Status/',
+            type: 'GET',
+            dataType: 'json',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            data: {
+                id: @Model.StatusId,
+            },
+        }).done(function (data) {
+            const option = new Option(data.data[0].statusName, data.data[0].statusId, true, true);
+            statusId.append(option).trigger('change');
+            statusId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    </script>
+}
