@@ -7,6 +7,7 @@ public class ItemType
     public string ItemTypeName { get; set; } = string.Empty;
 
     public int StatusId { get; set; }
+    public string StatusName { get; set; } = string.Empty;
 
     public DateTime CreatedDate { get; set; }
 

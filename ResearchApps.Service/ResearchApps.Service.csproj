@@ -19,12 +19,12 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Riok.Mapperly" Version="4.2.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\ResearchApps.Common\ResearchApps.Common.csproj" />
       <ProjectReference Include="..\ResearchApps.Domain\ResearchApps.Domain.csproj" />
+      <ProjectReference Include="..\ResearchApps.Mapper\ResearchApps.Mapper.csproj" />
       <ProjectReference Include="..\ResearchApps.Repo.Interface\ResearchApps.Repo.Interface.csproj" />
       <ProjectReference Include="..\ResearchApps.Service.Interface\ResearchApps.Service.Interface.csproj" />
       <ProjectReference Include="..\ResearchApps.Service.Vm\ResearchApps.Service.Vm.csproj" />

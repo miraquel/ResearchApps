@@ -1,0 +1,179 @@
+﻿@model ResearchApps.Service.Vm.UnitVm
+
+@{
+    ViewBag.Title = "Units";
+    ViewBag.pTitle = "Units";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col-12">
+        <table id="unit-table" class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" style="width: 100%;">
+            <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.UnitId)</th>
+                <th>@Html.DisplayNameFor(m => m.UnitName)</th>
+                <th>@Html.DisplayNameFor(m => m.StatusName)</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.UnitId)</th>
+                <th>@Html.DisplayNameFor(m => m.UnitName)</th>
+                <th>@Html.DisplayNameFor(m => m.StatusName)</th>
+                <th>Actions</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/js/datatables.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        $(document).ready(function() {
+            // Initialize datatables
+            $('#unit-table').DataTable({
+                searchDelay: 1000,
+                layout: {
+                    topEnd: {
+                        buttons: [
+                            // 'copy', 'excel', 'pdf'
+                            {
+                                // Add Item Type button
+                                text: '<i class="ri-add-line align-bottom me-1"></i> Add Item Type',
+                                className: 'btn btn-primary btn-sm',
+                                action: function () {
+                                    window.location.href = '/Units/Create';
+                                }
+                            },
+                        ]
+                    }
+                },
+                ajax: {
+                    url: `/api/Units/`,
+                    data: function(d) {
+                        const query = {
+                            pageNumber: (d.start / d.length) + 1,
+                            pageSize: d.length,
+                        };
+                        if (d.search && d.search.value) {
+                            query.Search = d.search.value;
+                        }
+                        if (d.order && d.order.length) {
+                            query.SortBy = d.columns[d.order[0].column].data;
+                            query.IsSortAscending = d.order[0].dir === 'asc';
+                        }
+
+                        d.columns.forEach((column, _) => {
+                            if (column.search && column.search.value) {
+                                query[`Filters.${column.data.charAt(0).toUpperCase() + column.data.slice(1)}`] = column.search.value;
+                            }
+                        });
+
+                        return query;
+                    },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("RequestVerificationToken", token);
+                    },
+                    dataSrc: function(json) {
+                        if (json.data && Array.isArray(json.data.items)) {
+                            json.recordsTotal = json.data.totalCount;
+                            json.recordsFiltered = json.data.totalCount;
+                            return json.data.items;
+                        }
+                        return json;
+                    },
+                    error: function(err){
+                        alert(err.responseJSON?.errorMessage || "An error occurred while fetching data");
+                    }
+                },
+                columns: [
+                    { data: 'unitId', width: '50px' },
+                    { data: 'unitName' },
+                    { data: 'statusName', width: '50px' },
+                    {
+                        data: null,
+                        width: '50px',
+                        defaultContent: '',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-more-fill align-middle"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" style="">
+                                        <li><a href="/Units/Details/${row.unitId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
+                                        <li><a href="/Units/Edit/${row.unitId}" class="dropdown-item edit-item-btn"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
+                                        <li><a href="/Units/Delete/${row.unitId}" class="dropdown-item remove-item-btn"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</a>
+                                        </li>
+                                    </ul>
+                                </div>`;
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        targets: [0, 2, 3],
+                        className: 'text-center'
+                    }
+                ],
+                processing: true,
+                paging: true,
+                serverSide: true,
+                searching: true,
+                ordering: true,
+                autoWidth: false,
+                responsive: true,
+                scrollX: true,
+                initComplete: function () {
+                    $('.dt-button').removeClass('dt-button');
+                    // add horizontal gap between elements in dt-length class
+                    //$('.dt-length').addClass('hstack gap-2');
+                    this.api()
+                        .columns()
+                        .every(function () {
+                            let column = this;
+                            let title = column.footer().textContent;
+
+                            let header = column.header();
+                            header.style.backgroundColor = '#4F81BD';
+                            header.style.color = 'white';
+
+                            // Skip rendering input for the Actions column (last column)
+                            if (column.index() === (this.columns().count() - 1)) {
+                                column.footer().replaceChildren(); // Clear footer cell
+                                return;
+                            }
+
+                            let input = document.createElement('input');
+                            input.placeholder = title;
+                            input.className = "form-control";
+                            input.style.width = '100%';
+                            column.footer().replaceChildren(input);
+
+                            input.addEventListener('keyup', debounce(() => {
+                                if (column.search() !== input.value) {
+                                    column.search(input.value).draw();
+                                }
+                            }, 1000));
+                        });
+                }
+            });
+        });
+    </script>
+}

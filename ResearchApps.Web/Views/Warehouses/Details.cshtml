@@ -1,0 +1,79 @@
+﻿@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.WarehouseVm
+
+@{
+    ViewBag.Title = "Warehouse Details";
+    Layout = "_Layout";
+}
+
+<div class="card mt-3">
+    <div class="card-header">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h4 class="card-title mb-0">Warehouse Details</h4>
+            </div>
+            <div class="col-auto">
+                @if(User.HasClaim("permission", PermissionConstants.Warehouses.Edit))
+                {
+                    <a href="@Url.Action("Edit", "Warehouses", new { id = Model.WhId })" class="btn btn-sm btn-success me-2">
+                        <i class="ri-edit-line"></i> Edit
+                    </a>
+                }
+                @if (User.HasClaim("permission", PermissionConstants.Warehouses.Delete))
+                {
+                    <a href="@Url.Action("Delete", "Warehouses", new { id = Model.WhId })" class="btn btn-sm btn-danger">
+                        <i class="ri-delete-bin-line"></i> Delete
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.WhId)</strong></div>
+                    <div class="col-9">@Model.WhId</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.WhName)</strong></div>
+                    <div class="col-9">@Model.WhName</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
+                    <div class="col-9">@Model.StatusName</div>
+                </div>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                    <div class="col-9">@Model.CreatedDate</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                    <div class="col-9">@Model.CreatedBy</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                    <div class="col-9">@Model.ModifiedDate</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                    <div class="col-9">@Model.ModifiedBy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-0">
+            <h4 class="mb-sm-0">@ViewBag.ptitle</h4>
+
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    @{
+                        var segments = Context.Request.Path.Value?.Trim('/').Split('/');
+                        var url = "/";
+                        string Friendly(string s)
+                        {
+                            if (string.IsNullOrEmpty(s))
+                                return "";
+
+                            var replaced = s.Replace("-", " ").Replace("_", " ");
+                            // Insert spaces before uppercase letters (except the first letter)
+                            var withSpaces = System.Text.RegularExpressions.Regex.Replace(
+                                replaced, 
+                                "(?<!^)([A-Z])", 
+                                " $1"
+                            );
+                            return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(withSpaces.Trim());
+                        }
+
+                        // Detect area from route data
+                        var area = Context.Request.RouteValues.ContainsKey("area") ? Context.Request.RouteValues["area"]?.ToString() : null;
+                        var startIdx = 0;
+                        if (!string.IsNullOrEmpty(area) && segments is { Length: > 0 } && string.Equals(segments[0], area, StringComparison.OrdinalIgnoreCase))
+                        {
+                            startIdx = 1; // skip area segment in breadcrumb display
+                        }
+
+                        if (segments != null)
+                        {
+                            for (var i = 0; i < segments.Length; i++)
+                            {
+                                url += segments[i];
+                                var isLast = i == segments.Length - 1;
+                                if (string.IsNullOrEmpty(segments[i]))
+                                {
+                                    continue;
+                                }
+
+                                // Only display breadcrumb if not the area segment
+                                if (i >= startIdx)
+                                {
+                                    if (isLast)
+                                    {
+                                        <li class="breadcrumb-item active">@Friendly(segments[i])</li>
+                                    }
+                                    else
+                                    {
+                                        <li class="breadcrumb-item">
+                                            <a href="@url">@Friendly(segments[i])</a>
+                                        </li>
+                                    }
+                                }
+
+                                url += "/";
+                            }
+                        }
+                    }
+                </ol>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- end page title -->

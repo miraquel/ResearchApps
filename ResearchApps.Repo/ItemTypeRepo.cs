@@ -18,23 +18,21 @@ public class ItemTypeRepo : IItemTypeRepo
         _dbTransaction = dbTransaction;
     }
 
-    public async Task<IEnumerable<ItemType>> ItemTypeSelectAsync(PagedListRequest listRequest, CancellationToken cancellationToken)
+    public async Task<PagedList<ItemType>> ItemTypeSelectAsync(PagedListRequest listRequest, CancellationToken cancellationToken)
     {
         const string query = "ItemTypeSelect";
         var parameters = new DynamicParameters();
         // loop Filters
         foreach (var filter in listRequest.Filters)
         {
-            var dynamicParameters = new DynamicParameters();
             if (filter.Value is { } strValue && strValue.Contains('%'))
             {
-                dynamicParameters.Add($"@{filter.Key}", strValue);
+                parameters.Add($"@{filter.Key}", strValue);
             }
             else
             {
-                dynamicParameters.Add($"@{filter.Key}", filter.Value);
+                parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
             }
-            parameters.Add($"@{filter.Key}", filter.Value);
         }
         
         parameters.Add("@PageNumber", listRequest.PageNumber);
@@ -48,8 +46,12 @@ public class ItemTypeRepo : IItemTypeRepo
             _dbTransaction,
             cancellationToken: cancellationToken,
             commandType: CommandType.StoredProcedure);
+
+        var result = await _dbConnection.QueryMultipleAsync(command);
+        var items = result.Read<ItemType>().ToList();
+        var totalCount = result.ReadSingle<int>();
         
-        return await _dbConnection.QueryAsync<ItemType>(command);
+        return new PagedList<ItemType>(items, listRequest.PageNumber, listRequest.PageSize, totalCount);
     }
 
     public async Task<ItemType> ItemTypeSelectByIdAsync(int itemTypeId, CancellationToken cancellationToken)
@@ -75,7 +77,7 @@ public class ItemTypeRepo : IItemTypeRepo
         const string query = "ItemTypeInsert";
         var parameters = new DynamicParameters();
         parameters.Add("@ItemTypeName", itemType.ItemTypeName);
-        parameters.Add("@StatusId", itemType.StatusId);
+        // parameters.Add("@StatusId", itemType.StatusId);
         parameters.Add("@CreatedBy", itemType.CreatedBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
@@ -134,18 +136,25 @@ public class ItemTypeRepo : IItemTypeRepo
         }
     }
 
-    public async Task<IEnumerable<ItemType>> ItemTypeCbo(PagedListRequest listRequest, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ItemType>> ItemTypeCbo(CboRequest pagedCboRequest,
+        CancellationToken cancellationToken)
     {
         const string query = "ItemTypeCbo";
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        var parameters = new DynamicParameters();
+
+        if (!string.IsNullOrEmpty(pagedCboRequest.Term))
+        {
+            parameters.Add("@Term", pagedCboRequest.Term.Contains('%') ? pagedCboRequest.Term : $"%{pagedCboRequest.Term}%");
+        }
         
         var command = new CommandDefinition(
             query,
-            new { listRequest.PageNumber, listRequest.PageSize },
+            parameters,
             _dbTransaction,
             cancellationToken: cancellationToken,
             commandType: CommandType.StoredProcedure);
         
-        return await _dbConnection.QueryAsync<ItemType>(command) ?? throw new RepoException("Failed to retrieve ItemType combo list.");
+        return await _dbConnection.QueryAsync<ItemType>(command);
     }
 }

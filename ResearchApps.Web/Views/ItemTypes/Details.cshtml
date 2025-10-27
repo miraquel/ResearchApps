@@ -1,0 +1,81 @@
+﻿@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.ItemTypeVm
+
+@{
+    ViewBag.Title = "Item Type Details";
+    ViewBag.pTitle = "Item Type Details";
+    Layout = "_Layout";
+}
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                    <!-- Add more tabs as needed -->
+                </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if(User.HasClaim("permission", PermissionConstants.ItemTypes.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "ItemTypes", new { id = Model.ItemTypeId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.ItemTypes.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "ItemTypes", new { id = Model.ItemTypeId })" class="btn btn-sm btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemTypeId)</strong></div>
+                    <div class="col-9">@Model.ItemTypeId</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemTypeName)</strong></div>
+                    <div class="col-9">@Model.ItemTypeName</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></div>
+                    <div class="col-9">@Model.StatusId</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
+                    <div class="col-9">@Model.StatusName</div>
+                </div>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                    <div class="col-9">@Model.CreatedDate</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                    <div class="col-9">@Model.CreatedBy</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                    <div class="col-9">@Model.ModifiedDate</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                    <div class="col-9">@Model.ModifiedBy</div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

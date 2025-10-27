@@ -1,0 +1,98 @@
+﻿@model ResearchApps.Service.Vm.UnitVm
+
+@{
+    ViewBag.Title = "Edit Unit";
+    Layout = "_Layout";
+}
+
+@section styles
+{
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card mt-3">
+    <div class="card-header">
+        <h4 class="card-title">Edit Unit</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="UnitId"/>
+            <div class="row mb-3">
+                <div class="col-lg-3">
+                    <label><strong>@Html.DisplayNameFor(m => m.UnitName)</strong></label>
+                </div>
+                <div class="col-lg-9">
+                    <input asp-for="UnitName" class="form-control"/>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3">
+                    <label><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></label>
+                </div>
+                <div class="col-lg-9">
+                    <select asp-for="StatusId" data-selected="@Model.StatusId" id="statusId" class="select2 select2-container select2-container--default select2-container--above"></select>
+                </div>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        const statusId = $('#statusId');
+        statusId.select2({
+            placeholder: "Select Status",
+            ajax: {
+                url: '/api/Status/',
+                type: 'GET',
+                dataType: 'json',
+                delay: 500,
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                data: function (params) {
+                    return {
+                        term : params.term ? `%${params.term}%` : '',
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data.map(item => ({
+                            id: item.statusId,
+                            text: item.statusName
+                        }))
+                    };
+                },
+            }
+        });
+        $.ajax({
+            url: '/api/Status/',
+            type: 'GET',
+            dataType: 'json',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            data: {
+                id: @Model.StatusId
+            },
+        }).done(function (data) {
+            const option = new Option(data.data[0].statusName, data.data[0].statusId, true, true);
+            statusId.append(option).trigger('change');
+            statusId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+    </script>
+}

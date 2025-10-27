@@ -1,0 +1,42 @@
+﻿@model ResearchApps.Service.Vm.UnitVm
+
+@{
+    ViewBag.Title = "Create Unit";
+    ViewBag.pTitle = "Create Unit";
+    Layout = "_Layout";
+}
+
+@section styles
+{
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Create Unit</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div class="row mb-3">
+                <div class="col-lg-3">
+                    <label asp-for="UnitName"></label>
+                </div>
+                <div class="col-lg-9">
+                    <input asp-for="UnitName" class="form-control"/>
+                </div>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        // get AntiForgeryToken using jquery
+    </script>
+}
