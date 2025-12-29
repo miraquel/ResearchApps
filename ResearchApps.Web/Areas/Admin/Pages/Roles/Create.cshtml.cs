@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ResearchApps.Common.Constants;
+using ResearchApps.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ResearchApps.Domain;
 
 namespace ResearchApps.Web.Areas.Admin.Pages.Roles;
 
+[Authorize(PermissionConstants.Roles.Create)]
 public class CreateModel : PageModel
 {
     private readonly RoleManager<AppIdentityRole> _roleManager;

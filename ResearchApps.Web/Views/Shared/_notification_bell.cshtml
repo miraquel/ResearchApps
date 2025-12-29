@@ -1,0 +1,371 @@
+﻿@* Notification Bell Icon with Dynamic Content *@
+<div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
+    <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
+            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
+        <i class='bx bx-bell fs-22'></i>
+        <span id="notification-badge" class="position-absolute topbar-badge fs-10 translate-middle badge rounded-pill bg-danger d-none">
+            0<span class="visually-hidden">unread messages</span>
+        </span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+         aria-labelledby="page-header-notifications-dropdown">
+
+        <div class="dropdown-head bg-primary bg-pattern rounded-top">
+            <div class="p-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 class="m-0 fs-16 fw-semibold text-white"> Notifications </h6>
+                    </div>
+                    <div class="col-auto dropdown-tabs">
+                        <span id="notification-count-badge" class="badge badge-soft-light fs-13">0 New</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-2 pt-2">
+                <ul class="nav nav-tabs dropdown-tabs nav-tabs-custom" data-dropdown-tabs="true"
+                    id="notificationItemsTab" role="tablist">
+                    <li class="nav-item waves-effect waves-light">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#all-noti-tab" role="tab"
+                           aria-selected="true">
+                            All (<span id="all-notification-count">0</span>)
+                        </a>
+                    </li>
+                    <li class="nav-item waves-effect waves-light">
+                        <a class="nav-link" data-bs-toggle="tab" href="#approval-tab" role="tab"
+                           aria-selected="false">
+                            Approvals
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-content position-relative" id="notificationItemsTabContent">
+            <div class="tab-pane fade show active py-2 ps-2" id="all-noti-tab" role="tabpanel">
+                <div id="notification-list" data-simplebar style="max-height: 300px;" class="pe-2">
+                    <!-- Notifications will be loaded here dynamically -->
+                    <div id="no-notifications" class="text-center py-4">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/gsqxdxog.json"
+                            trigger="loop"
+                            colors="primary:#405189,secondary:#0ab39c"
+                            style="width:80px;height:80px">
+                        </lord-icon>
+                        <h5 class="mt-2 mb-0">No Notifications</h5>
+                        <p class="text-muted mb-0 fs-12">You're all caught up!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade py-2 ps-2" id="approval-tab" role="tabpanel">
+                <div id="approval-notification-list" data-simplebar style="max-height: 300px;" class="pe-2">
+                    <!-- Approval notifications will be loaded here dynamically -->
+                    <div id="no-approval-notifications" class="text-center py-4">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/gsqxdxog.json"
+                            trigger="loop"
+                            colors="primary:#405189,secondary:#0ab39c"
+                            style="width:80px;height:80px">
+                        </lord-icon>
+                        <h5 class="mt-2 mb-0">No Pending Approvals</h5>
+                        <p class="text-muted mb-0 fs-12">Nothing requires your approval</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="my-3 text-center view-all">
+            <button type="button" class="btn btn-soft-success waves-effect waves-light" onclick="NotificationManager.markAllAsRead()">
+                Mark All as Read <i class="ri-check-double-line align-middle"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Notification Manager - handles UI updates for notifications
+    const NotificationManager = (function() {
+        let notifications = [];
+        let unreadCount = 0;
+        
+        // Initialize - load notifications when page loads
+        async function init() {
+            await loadNotifications();
+            await loadNotificationCount();
+            
+            // Listen for SignalR notifications
+            document.addEventListener('prPendingApproval', function(e) {
+                playNotificationSound();
+                showToast(e.detail.Message, 'Pending Approval', 'warning');
+                loadNotifications();
+                loadNotificationCount();
+            });
+            
+            document.addEventListener('prRejected', function(e) {
+                playNotificationSound();
+                showToast(e.detail.Message, 'PR Rejected', 'danger');
+                loadNotifications();
+                loadNotificationCount();
+            });
+            
+            document.addEventListener('prNotification', function(e) {
+                loadNotifications();
+                loadNotificationCount();
+            });
+        }
+        
+        // Load notifications from API
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/api/Notifications?take=20', {
+                    headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+                });
+                if (response.ok) {
+                    notifications = await response.json();
+                    renderNotifications();
+                }
+            } catch (error) {
+                console.error('Failed to load notifications:', error);
+            }
+        }
+        
+        // Load notification count
+        async function loadNotificationCount() {
+            try {
+                const response = await fetch('/api/Notifications/count', {
+                    headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    unreadCount = data.unreadCount;
+                    updateBadge(unreadCount);
+                }
+            } catch (error) {
+                console.error('Failed to load notification count:', error);
+            }
+        }
+        
+        // Render notifications in the dropdown
+        function renderNotifications() {
+            const container = document.getElementById('notification-list');
+            const approvalContainer = document.getElementById('approval-notification-list');
+            const noNotifications = document.getElementById('no-notifications');
+            const noApprovalNotifications = document.getElementById('no-approval-notifications');
+            
+            // Clear existing notifications except the "no notifications" message
+            container.querySelectorAll('.notification-item').forEach(el => el.remove());
+            approvalContainer.querySelectorAll('.notification-item').forEach(el => el.remove());
+            
+            if (notifications.length === 0) {
+                noNotifications.style.display = 'block';
+                noApprovalNotifications.style.display = 'block';
+                return;
+            }
+            
+            noNotifications.style.display = 'none';
+            let hasApprovalNotifications = false;
+            
+            notifications.forEach(notification => {
+                const html = createNotificationHtml(notification);
+                container.insertAdjacentHTML('afterbegin', html);
+                
+                if (notification.notificationType === 'PendingApproval') {
+                    approvalContainer.insertAdjacentHTML('afterbegin', html);
+                    hasApprovalNotifications = true;
+                }
+            });
+            
+            if (hasApprovalNotifications) {
+                noApprovalNotifications.style.display = 'none';
+            } else {
+                noApprovalNotifications.style.display = 'block';
+            }
+            
+            // Update tab counts
+            document.getElementById('all-notification-count').textContent = notifications.length;
+        }
+        
+        // Create HTML for a single notification
+        function createNotificationHtml(notification) {
+            const iconClass = getNotificationIcon(notification.notificationType);
+            const bgClass = getNotificationBgClass(notification.notificationType);
+            const isUnread = !notification.isRead;
+            
+            return `
+                <div class="text-reset notification-item d-block dropdown-item position-relative ${isUnread ? 'active' : ''}" 
+                     data-notification-id="${notification.notificationId}">
+                    <div class="d-flex">
+                        <div class="avatar-xs me-3 flex-shrink-0">
+                            <span class="avatar-title ${bgClass} rounded-circle fs-16">
+                                <i class="${iconClass}"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <a href="${notification.url || '#'}" class="stretched-link" 
+                               onclick="NotificationManager.markAsRead(${notification.notificationId})">
+                                <h6 class="mt-0 mb-1 fs-13 fw-semibold">${notification.title}</h6>
+                            </a>
+                            <div class="fs-13 text-muted">
+                                <p class="mb-1">${notification.message}</p>
+                            </div>
+                            <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
+                                <span><i class="mdi mdi-clock-outline"></i> ${notification.timeAgo}</span>
+                            </p>
+                        </div>
+                        <div class="px-2 fs-15">
+                            <div class="form-check notification-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       ${isUnread ? '' : 'checked'} 
+                                       onchange="NotificationManager.markAsRead(${notification.notificationId})">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Get icon class based on notification type
+        function getNotificationIcon(type) {
+            switch(type) {
+                case 'PendingApproval': return 'ri-time-line';
+                case 'PrApproved': 
+                case 'PrFullyApproved': return 'ri-checkbox-circle-line';
+                case 'PrRejected': return 'ri-close-circle-line';
+                case 'PrRecalled': return 'ri-arrow-go-back-line';
+                case 'PrSubmitted': return 'ri-send-plane-line';
+                default: return 'ri-notification-3-line';
+            }
+        }
+        
+        // Get background class based on notification type
+        function getNotificationBgClass(type) {
+            switch(type) {
+                case 'PendingApproval': return 'bg-soft-warning text-warning';
+                case 'PrApproved': 
+                case 'PrFullyApproved': return 'bg-soft-success text-success';
+                case 'PrRejected': return 'bg-soft-danger text-danger';
+                case 'PrRecalled': return 'bg-soft-warning text-warning';
+                case 'PrSubmitted': return 'bg-soft-info text-info';
+                default: return 'bg-soft-primary text-primary';
+            }
+        }
+        
+        // Update the badge with unread count
+        function updateBadge(count) {
+            const badge = document.getElementById('notification-badge');
+            const countBadge = document.getElementById('notification-count-badge');
+            
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.remove('d-none');
+                countBadge.textContent = `${count} New`;
+            } else {
+                badge.classList.add('d-none');
+                countBadge.textContent = '0 New';
+            }
+        }
+        
+        // Mark a single notification as read
+        async function markAsRead(notificationId) {
+            try {
+                await fetch(`/api/Notifications/${notificationId}/read`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+                });
+                await loadNotifications();
+                await loadNotificationCount();
+            } catch (error) {
+                console.error('Failed to mark notification as read:', error);
+            }
+        }
+        
+        // Mark all notifications as read
+        async function markAllAsRead() {
+            try {
+                await fetch('/api/Notifications/read-all', {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+                });
+                await loadNotifications();
+                await loadNotificationCount();
+            } catch (error) {
+                console.error('Failed to mark all notifications as read:', error);
+            }
+        }
+        
+        // Play notification sound
+        function playNotificationSound() {
+            try {
+                const audio = new Audio('/assets/sounds/notification.mp3');
+                audio.volume = 0.5;
+                audio.play().catch(e => console.log('Audio play prevented:', e));
+            } catch (error) {
+                console.log('Could not play notification sound:', error);
+            }
+        }
+        
+        // Show toast notification
+        function showToast(message, title, type = 'info') {
+            if (typeof Toastify !== 'undefined') {
+                let backgroundColor = '#299cdb'; // info
+                switch (type) {
+                    case 'success': backgroundColor = '#0ab39c'; break;
+                    case 'warning': backgroundColor = '#f7b84b'; break;
+                    case 'danger': backgroundColor = '#f06548'; break;
+                }
+                
+                Toastify({
+                    text: `<strong>${title}</strong><br/>${message}`,
+                    duration: 5000,
+                    close: true,
+                    gravity: 'top',
+                    position: 'right',
+                    escapeMarkup: false,
+                    style: { background: backgroundColor },
+                    onClick: function() {
+                        loadNotifications();
+                    }
+                }).showToast();
+            } else {
+                // Fallback to Bootstrap toast
+                const toastHtml = `
+                    <div class="toast show" role="alert">
+                        <div class="toast-header bg-${type}">
+                            <strong class="me-auto text-white">${title}</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">${message}</div>
+                    </div>
+                `;
+                const container = document.getElementById('notification-toast-container');
+                if (container) {
+                    container.insertAdjacentHTML('beforeend', toastHtml);
+                }
+            }
+        }
+        
+        // Get anti-forgery token
+        function getAntiForgeryToken() {
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            return tokenInput ? tokenInput.value : '';
+        }
+        
+        // Public API
+        return {
+            init: init,
+            loadNotifications: loadNotifications,
+            loadNotificationCount: loadNotificationCount,
+            markAsRead: markAsRead,
+            markAllAsRead: markAllAsRead,
+            playNotificationSound: playNotificationSound,
+            showToast: showToast
+        };
+    })();
+    
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        NotificationManager.init();
+    });
+</script>
+

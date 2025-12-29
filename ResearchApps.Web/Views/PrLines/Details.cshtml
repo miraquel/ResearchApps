@@ -1,8 +1,102 @@
-﻿@model dynamic
+﻿@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.PrLineVm
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "PR Line Details";
+    ViewBag.pTitle = "PR Line Details";
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if(User.HasClaim("permission", PermissionConstants.PrLines.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "PrLines", new { id = Model.PrLineId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.PrLines.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "PrLines", new { id = Model.PrLineId })" class="btn btn-sm btn-danger me-2">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                    <a href="@Url.Action("Details", "Prs", new { id = Model.PrRecId })" class="btn btn-sm btn-secondary">
+                        <i class="ri-arrow-left-line"></i> Back to PR
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrLineId)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.PrLineId)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrId)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.PrId)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemName)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.ItemName)</div>
+                </div>
+                <div class="row mb-4">
+                        <div class="col-3"><strong>@Html.DisplayNameFor(m => m.RequestDate)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.RequestDateStr)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Qty)</strong></div>
+                    <div class="col-9">@Model.Qty.ToString("N2")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.UnitName)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.UnitName)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Price)</strong></div>
+                    <div class="col-9">@Model.Price.ToString("N0")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Amount)</strong></div>
+                    <div class="col-9">@(Model.Amount?.ToString("N0") ?? "0")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Notes)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.Notes)</div>
+                </div>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                    <div class="col-9">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.CreatedBy)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                    <div class="col-9">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                    <div class="col-9">@Model.ModifiedBy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

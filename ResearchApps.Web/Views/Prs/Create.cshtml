@@ -26,36 +26,18 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label asp-for="PrDate" class="form-label"></label>
-                                <input asp-for="PrDate" type="text" class="form-control flatpickr-input" id="prDate" />
+                                <div class="input-group">
+                                    <input asp-for="PrDate" type="text" class="form-control flatpickr-input" id="prDate" />
+                                    <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                </div>
                                 <span asp-validation-for="PrDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="BudgetId" class="form-label"></label>
-                                <select asp-for="BudgetId" class="form-select" id="budgetId">
-                                    <option value="">Select Budget</option>
-                                </select>
-                                <span asp-validation-for="BudgetId" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="PrStatusId" class="form-label"></label>
-                                <select asp-for="PrStatusId" class="form-select select2" id="prStatusId">
-                                    <option value="">Select Status</option>
-                                </select>
-                                <span asp-validation-for="PrStatusId" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Total" class="form-label"></label>
-                                <input asp-for="Total" type="number" step="0.01" class="form-control" />
-                                <span asp-validation-for="Total" class="text-danger"></span>
+                                <label asp-for="PrName" class="form-label"></label>
+                                <input asp-for="PrName" type="text" class="form-control" />
+                                <span asp-validation-for="PrName" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -63,15 +45,26 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label asp-for="Notes" class="form-label"></label>
-                                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
-                                <span asp-validation-for="Notes" class="text-danger"></span>
+                                <label asp-for="BudgetId" class="form-label"></label>
+                                <select asp-for="BudgetId" class="form-select select2" id="budgetId">
+                                    <option value="">Select Budget</option>
+                                </select>
+                                <span asp-validation-for="BudgetId" class="text-danger"></span>
+                            </div>  
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Notes" class="form-label">Notes (Optional)</label>
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Enter notes (optional)"></textarea>
                             </div>
                         </div>
                     </div>
                     
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="button" class="btn btn-primary" id="create-pr-btn">Create</button>
                         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>
@@ -85,39 +78,92 @@
     <script src="/assets/libs/select2/js/select2.min.js"></script>
     <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
     <script src="/assets/js/pages/form-pickers.init.js"></script>
+    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        
         $(document).ready(function() {
-            // Initialize Select2
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                width: '100%'
+            var form = $('form');
+            
+            // Initialize Select2 for Budget
+            $('#budgetId').select2({
+                theme: 'bootstrap5',
+                placeholder: "Select Budget",
+                ajax: {
+                    url: '/api/Budgets/cbo',
+                    type: 'GET',
+                    dataType: 'json',
+                    delay: 500,
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    data: function (params) {
+                        return {
+                            term: params.term ? `%${params.term}%` : '',
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.data.map(item => ({
+                                id: item.budgetId,
+                                text: item.budgetName
+                            }))
+                        };
+                    },
+                }
             });
             
             // Initialize flatpickr for date
             flatpickr("#prDate", {
-                dateFormat: "Y-m-d",
+                dateFormat: "d M Y",
                 defaultDate: new Date()
             });
             
-            // Load Status dropdown
-            $.ajax({
-                url: '/api/Statuses',
-                method: 'GET',
-                success: function(response) {
-                    if (response.data && Array.isArray(response.data.items)) {
-                        const statusSelect = $('#prStatusId');
-                        response.data.items.forEach(function(status) {
-                            statusSelect.append(new Option(status.statusName, status.statusId));
-                        });
-                    }
-                },
-                error: function(err) {
-                    console.error('Failed to load statuses:', err);
+            // Confirmation modal handler with validation
+            $('#create-pr-btn').on('click', function() {
+                form.validate();
+                if (form.valid()) {
+                    var modal = new bootstrap.Modal(document.getElementById('createPrModal'));
+                    modal.show();
                 }
             });
-            
-            // Note: Budget dropdown would need a Budget API endpoint
-            // For now, leaving it as a placeholder
+
+            $('#confirm-create-pr').on('click', function() {
+                form.submit();
+            });
         });
     </script>
 }
+
+<!-- Confirmation Modal -->
+<div id="createPrModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/exymduqj.json"
+                        trigger="loop"
+                        delay="2000"
+                        stroke="light"
+                        state="hover-line"
+                        style="width:100px;height:100px">
+                    </lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>Are you sure?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to create this purchase requisition?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn w-sm btn-primary" id="confirm-create-pr">Yes, Create It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

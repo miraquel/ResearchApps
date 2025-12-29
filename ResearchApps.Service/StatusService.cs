@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
-using ResearchApps.Domain;
 using ResearchApps.Mapper;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
@@ -21,7 +18,7 @@ namespace ResearchApps.Service
         {
             var statuses = await _statusRepo.StatusCboAsync(_mapper.MapToEntity(cboRequestVm), cancellationToken);
             var statusVms = _mapper.MapToVm(statuses);
-            return ServiceResponse<IEnumerable<StatusVm>>.Success(statusVms,"Statuses retrieved successfully.", StatusCodes.Status200OK);
+            return ServiceResponse<IEnumerable<StatusVm>>.Success(statusVms,"Statuses retrieved successfully.");
         }
     }
 }

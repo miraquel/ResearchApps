@@ -1,8 +1,8 @@
 ﻿@model ResearchApps.Service.Vm.PrVm
 
 @{
-    ViewBag.Title = "Edit PR";
-    ViewBag.pTitle = "Edit Purchase Requisition";
+    ViewBag.Title = "Edit Purchase Requisition";
+    ViewBag.pTitle = $"Edit Purchase Requisition No. {Model.PrId}";
     Layout = "_Layout";
 }
 
@@ -14,9 +14,6 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Edit PR #@Model.PrId</h5>
-            </div>
             <div class="card-body">
                 <form asp-action="Edit" method="post">
                     @Html.AntiForgeryToken()
@@ -31,36 +28,30 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label asp-for="PrDate" class="form-label"></label>
-                                <input asp-for="PrDate" type="text" class="form-control flatpickr-input" id="prDate" />
+                                <div class="input-group">
+                                    <input asp-for="PrDate" type="text" class="form-control flatpickr-input" id="prDate" />
+                                    <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                </div>
                                 <span asp-validation-for="PrDate" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label asp-for="BudgetId" class="form-label"></label>
-                                <select asp-for="BudgetId" class="form-select" id="budgetId">
-                                    <option value="">Select Budget</option>
-                                </select>
-                                <span asp-validation-for="BudgetId" class="text-danger"></span>
+                                <label asp-for="PrName" class="form-label"></label>
+                                <input asp-for="PrName" type="text" class="form-control" />
+                                <span asp-validation-for="PrName" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label asp-for="PrStatusId" class="form-label"></label>
-                                <select asp-for="PrStatusId" class="form-select select2" id="prStatusId">
-                                    <option value="">Select Status</option>
+                                <label asp-for="BudgetId" class="form-label"></label>
+                                <select asp-for="BudgetId" class="form-select select2" id="budgetId">
+                                    <option value="">Select Budget</option>
                                 </select>
-                                <span asp-validation-for="PrStatusId" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Total" class="form-label"></label>
-                                <input asp-for="Total" type="number" step="0.01" class="form-control" />
-                                <span asp-validation-for="Total" class="text-danger"></span>
+                                <span asp-validation-for="BudgetId" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -76,8 +67,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                        <a asp-action="Details" asp-route-id="@Model.PrId" class="btn btn-secondary">Cancel</a>
+                        <button type="button" class="btn btn-primary" id="save-pr-btn">Save Changes</button>
+                        <a asp-action="Details" asp-route-id="@Model.RecId" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -91,46 +82,92 @@
     <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
     <script src="/assets/js/pages/form-pickers.init.js"></script>
     <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        
         $(document).ready(function() {
-            // Initialize Select2
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                width: '100%'
+            // Initialize Select2 for Budget
+            $('#budgetId').select2({
+                theme: 'bootstrap5',
+                placeholder: "Select Budget",
+                ajax: {
+                    url: '/api/Budgets/cbo',
+                    type: 'GET',
+                    dataType: 'json',
+                    delay: 500,
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    data: function (params) {
+                        return {
+                            term: params.term ? `%${params.term}%` : '',
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.data.map(item => ({
+                                id: item.budgetId,
+                                text: item.budgetName
+                            }))
+                        };
+                    },
+                }
             });
             
             // Initialize flatpickr for date
             flatpickr("#prDate", {
-                dateFormat: "Y-m-d",
+                dateFormat: "d M Y",
                 defaultDate: "@Model.PrDate.ToString("yyyy-MM-dd")"
             });
             
-            // Load Status dropdown
-            $.ajax({
-                url: '/api/Statuses',
-                method: 'GET',
-                success: function(response) {
-                    if (response.data && Array.isArray(response.data.items)) {
-                        const statusSelect = $('#prStatusId');
-                        const currentStatusId = @Model.PrStatusId;
-                        response.data.items.forEach(function(status) {
-                            const option = new Option(status.statusName, status.statusId, false, status.statusId === currentStatusId);
-                            statusSelect.append(option);
-                        });
-                        statusSelect.trigger('change');
-                    }
-                },
-                error: function(err) {
-                    console.error('Failed to load statuses:', err);
-                }
-            });
-            
-            // Note: Budget dropdown would need a Budget API endpoint
-            // For now, leaving it as a placeholder with current value
+            // Load Budget dropdown with current value
             const currentBudgetId = @Model.BudgetId;
             const currentBudgetName = "@Model.BudgetName";
             if (currentBudgetId > 0) {
-                $('#budgetId').append(new Option(currentBudgetName, currentBudgetId, true, true));
+                const option = new Option(currentBudgetName, currentBudgetId, true, true);
+                $('#budgetId').append(option).trigger('change');
             }
+        });
+
+        // Confirmation modal handler
+        $('#save-pr-btn').on('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('savePrModal'));
+            modal.show();
+        });
+
+        $('#confirm-save-pr').on('click', function() {
+            $('form').submit();
         });
     </script>
 }
+
+<!-- Confirmation Modal -->
+<div id="savePrModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/exymduqj.json"
+                        trigger="loop"
+                        delay="2000"
+                        stroke="light"
+                        state="hover-line"
+                        style="width:100px;height:100px">
+                    </lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>Are you sure?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to update this purchase requisition?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn w-sm btn-primary" id="confirm-save-pr">Yes, Update It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

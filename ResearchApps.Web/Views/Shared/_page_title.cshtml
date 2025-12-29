@@ -1,28 +1,37 @@
-<!-- start page title -->
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-0">
-            <h4 class="mb-sm-0">@ViewBag.ptitle</h4>
+@{
+    var controller = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
+    var action = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
+    var hidePageTitle = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+}
 
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    @{
-                        var segments = Context.Request.Path.Value?.Trim('/').Split('/');
-                        var url = "/";
-                        string Friendly(string s)
-                        {
-                            if (string.IsNullOrEmpty(s))
-                                return "";
+@if (!hidePageTitle)
+{
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-0">
+                <h4 class="mb-sm-0">@ViewBag.ptitle</h4>
 
-                            var replaced = s.Replace("-", " ").Replace("_", " ");
-                            // Insert spaces before uppercase letters (except the first letter)
-                            var withSpaces = System.Text.RegularExpressions.Regex.Replace(
-                                replaced, 
-                                "(?<!^)([A-Z])", 
-                                " $1"
-                            );
-                            return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(withSpaces.Trim());
-                        }
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        @{
+                            var segments = Context.Request.Path.Value?.Trim('/').Split('/');
+                            var url = "/";
+                            string Friendly(string s)
+                            {
+                                if (string.IsNullOrEmpty(s))
+                                    return "";
+
+                                var replaced = s.Replace("-", " ").Replace("_", " ");
+                                // Insert spaces before uppercase letters (except the first letter)
+                                var withSpaces = System.Text.RegularExpressions.Regex.Replace(
+                                    replaced, 
+                                    "(?<!^)([A-Z])", 
+                                    " $1"
+                                );
+                                return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(withSpaces.Trim());
+                            }
 
                         // Detect area from route data
                         var area = Context.Request.RouteValues.ContainsKey("area") ? Context.Request.RouteValues["area"]?.ToString() : null;
@@ -69,3 +78,4 @@
     </div>
 </div>
 <!-- end page title -->
+}

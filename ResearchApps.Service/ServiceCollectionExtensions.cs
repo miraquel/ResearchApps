@@ -5,7 +5,7 @@ namespace ResearchApps.Service;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    public static void AddServices(this IServiceCollection services)
     {
         // Register service interfaces and their implementations
         services.AddScoped<IItemTypeService, ItemTypeService>();
@@ -16,7 +16,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitService, UnitService>();
         services.AddScoped<IPrService, PrService>();
         services.AddScoped<IPrLineService, PrLineService>();
-        
-        return services;
+        services.AddScoped<IBudgetService, BudgetService>();
+        services.AddScoped<IPrStatusService, PrStatusService>();
+        services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<INotificationService, NotificationService>();
     }
 }

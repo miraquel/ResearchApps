@@ -1,9 +1,5 @@
 ﻿using System.Data;
-using System.Net;
 using Microsoft.AspNetCore.Http;
-using ResearchApps.Common.Exceptions;
-using ResearchApps.Domain;
-using ResearchApps.Domain.Common;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
 using ResearchApps.Service.Interface;

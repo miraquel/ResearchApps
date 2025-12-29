@@ -57,7 +57,7 @@ public class WarehousesController : ControllerBase
     {
         // For DeleteAsync, the service expects a modifiedBy string, but API does not provide it directly.
         // You may want to extract the username from User.Identity.Name or similar.
-        var modifiedBy = User?.Identity?.Name ?? "";
+        var modifiedBy = User.Identity?.Name ?? "";
         var response = await _warehouseService.DeleteAsync(whId, modifiedBy, cancellationToken);
         return StatusCode(response.StatusCode, response);
     }

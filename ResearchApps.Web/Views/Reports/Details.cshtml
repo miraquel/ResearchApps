@@ -1,0 +1,269 @@
+﻿@using System.Linq
+@model ResearchApps.Service.Vm.ReportVm
+
+@{
+    ViewBag.Title = "Report Details";
+    ViewBag.pTitle = "Report Details";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0 flex-grow-1">Report Details</h5>
+                <div class="flex-shrink-0">
+                    <a asp-action="Generate" asp-route-id="@Model.ReportId" class="btn btn-success btn-sm">
+                        <i class="ri-play-fill align-bottom me-1"></i> Generate Report
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.ReportId" class="btn btn-primary btn-sm">
+                        <i class="ri-pencil-fill align-bottom me-1"></i> Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary btn-sm">
+                        <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ReportId)</dt>
+                            <dd class="col-sm-8">@Model.ReportId</dd>
+                            
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ReportName)</dt>
+                            <dd class="col-sm-8">@Model.ReportName</dd>
+                            
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Description)</dt>
+                            <dd class="col-sm-8">@(Model.Description ?? "-")</dd>
+                            
+                            <dt class="col-sm-4">Report Type</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.ReportType == 1)
+                                {
+                                    <span class="badge bg-primary">Fully Generated</span>
+                                    <small class="text-muted d-block">Generates the entire report including header, table, and footer.</small>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">Partially Generated</span>
+                                    <small class="text-muted d-block">Generates only main information for pre-printed continuous paper.</small>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PageSize)</dt>
+                            <dd class="col-sm-8">@Model.PageSize</dd>
+                            
+                            <dt class="col-sm-4">Orientation</dt>
+                            <dd class="col-sm-8">@Model.OrientationName</dd>
+                            
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.StatusName)</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.StatusId == 1)
+                                {
+                                    <span class="badge bg-success">@Model.StatusName</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@Model.StatusName</span>
+                                }
+                            </dd>
+                            
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CreatedDate)</dt>
+                            <dd class="col-sm-8">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm") by @Model.CreatedBy</dd>
+                            
+                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ModifiedDate)</dt>
+                            <dd class="col-sm-8">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm") by @Model.ModifiedBy</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.SqlQuery))
+                {
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-muted">SQL Query / Stored Procedure</h6>
+                            <pre class="bg-light p-3 rounded"><code>@Model.SqlQuery</code></pre>
+                        </div>
+                    </div>
+                }
+
+                @if (Model.ReportType == 1 && Model.HasTemplateFile)
+                {
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary bg-opacity-10">
+                                    <h6 class="mb-0"><i class="ri-file-upload-line me-2"></i>Template File</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <i class="ri-file-line fs-2 me-3 text-primary"></i>
+                                        <div class="flex-grow-1">
+                                            <strong>@Model.TemplateFileName</strong>
+                                            <br /><small class="text-muted">@Model.TemplateContentType</small>
+                                        </div>
+                                        <a href="/@Model.TemplatePath" class="btn btn-outline-primary btn-sm" target="_blank">
+                                            <i class="ri-download-line me-1"></i> Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.ReportType == 1)
+                {
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-warning mb-0">
+                                <i class="ri-alert-line me-2"></i>
+                                No template file uploaded for this fully generated report.
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Parameters Section -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Report Parameters (@Model.Parameters.Count)</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Parameters.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Parameter Name</th>
+                                    <th>Display Label</th>
+                                    <th>Data Type</th>
+                                    <th>Required</th>
+                                    <th>Default Value</th>
+                                    <th>Placeholder</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var param in Model.Parameters.OrderBy(p => p.DisplayOrder))
+                                {
+                                    <tr>
+                                        <td class="text-center">@param.DisplayOrder</td>
+                                        <td><code>@param.ParameterName</code></td>
+                                        <td>@param.DisplayLabel</td>
+                                        <td><span class="badge bg-secondary">@param.DataTypeName</span></td>
+                                        <td class="text-center">
+                                            @if (param.IsRequired)
+                                            {
+                                                <i class="ri-checkbox-circle-fill text-success"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="ri-close-circle-fill text-muted"></i>
+                                            }
+                                        </td>
+                                        <td>@(param.DefaultValue ?? "-")</td>
+                                        <td>@(param.Placeholder ?? "-")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="ri-file-list-3-line fs-1"></i>
+                        <p class="mt-2">No parameters defined for this report.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Field Coordinates Section (for Partially Generated Reports) -->
+        @if (Model.ReportType == 2)
+        {
+            <div class="card mt-3">
+                <div class="card-header bg-success bg-opacity-10">
+                    <h5 class="card-title mb-0"><i class="ri-focus-3-line me-2"></i>Field Coordinates (@Model.FieldCoordinates.Count)</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.FieldCoordinates.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 50px;">#</th>
+                                        <th>Field Name</th>
+                                        <th>Display Label</th>
+                                        <th>Position (X, Y)</th>
+                                        <th>Size (W × H)</th>
+                                        <th>Font</th>
+                                        <th>Alignment</th>
+                                        <th>Repeating</th>
+                                        <th>Data Binding</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var coord in Model.FieldCoordinates.OrderBy(c => c.DisplayOrder))
+                                    {
+                                        <tr>
+                                            <td class="text-center">@coord.DisplayOrder</td>
+                                            <td><code>@coord.FieldName</code></td>
+                                            <td>@coord.DisplayLabel</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">
+                                                    X: @coord.XPosition mm, Y: @coord.YPosition mm
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">
+                                                    @coord.Width × @coord.Height mm
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span style="font-family: @coord.FontFamily; font-weight: @(coord.IsBold ? "bold" : "normal"); font-style: @(coord.IsItalic ? "italic" : "normal");">
+                                                    @coord.FontFamily @coord.FontSize pt
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary">@coord.AlignmentName</span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (coord.IsRepeating)
+                                                {
+                                                    <i class="ri-checkbox-circle-fill text-success"></i>
+                                                    <small class="d-block text-muted">+@coord.RowIncrement mm</small>
+                                                }
+                                                else
+                                                {
+                                                    <i class="ri-close-circle-fill text-muted"></i>
+                                                }
+                                            </td>
+                                            <td><code>@(coord.DataBinding ?? "-")</code></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="ri-focus-3-line fs-1"></i>
+                            <p class="mt-2">No field coordinates defined for this report.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

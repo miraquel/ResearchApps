@@ -1,10 +1,13 @@
+using ResearchApps.Common.Constants;
+using ResearchApps.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ResearchApps.Domain;
 
 namespace ResearchApps.Web.Areas.Admin.Pages.Users;
 
+[Authorize(PermissionConstants.Users.UserRoles)]
 public class UserRolesModel : PageModel
 {
     private readonly UserManager<AppIdentityUser> _userManager;
@@ -52,7 +55,7 @@ public class UserRolesModel : PageModel
         {
             Id = r.Id,
             Name = r.Name ?? string.Empty,
-            Description = r.Description ?? string.Empty,
+            Description = r.Description,
             Assigned = r.Name != null && userRoles.Contains(r.Name)
         }).ToList();
             

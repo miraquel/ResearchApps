@@ -1,0 +1,179 @@
+﻿@model ResearchApps.Service.Vm.ReportVm
+
+@{
+    ViewBag.Title = "Reports";
+    ViewBag.pTitle = "Report Management";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Report List</h5>
+            </div>
+            <div class="card-body">
+                <table id="reports-table" class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" style="width: 100%;">
+                    <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.ReportId)</th>
+                        <th>@Html.DisplayNameFor(m => m.ReportName)</th>
+                        <th>Report Type</th>
+                        <th>Page Size</th>
+                        <th>@Html.DisplayNameFor(m => m.StatusName)</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.ReportId)</th>
+                        <th>@Html.DisplayNameFor(m => m.ReportName)</th>
+                        <th>Report Type</th>
+                        <th>Page Size</th>
+                        <th>@Html.DisplayNameFor(m => m.StatusName)</th>
+                        <th>Actions</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/js/datatables.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        
+        function getReportTypeName(type) {
+            switch(type) {
+                case 1: return '<span class="badge bg-primary">Fully Generated</span>';
+                case 2: return '<span class="badge bg-info">Partially Generated</span>';
+                default: return '<span class="badge bg-secondary">Unknown</span>';
+            }
+        }
+        
+        $(document).ready(function() {
+            $('#reports-table').DataTable({
+                searchDelay: 1000,
+                layout: {
+                    topEnd: {
+                        buttons: [
+                            {
+                                text: '<i class="ri-add-line align-bottom me-1"></i> Add Report',
+                                className: 'btn btn-primary btn-sm',
+                                action: function () {
+                                    window.location.href = '/Reports/Create';
+                                }
+                            },
+                        ]
+                    }
+                },
+                ajax: {
+                    url: `/Reports/GetReports`,
+                    type: 'POST',
+                    data: function(d) {
+                        return {
+                            draw: d.draw,
+                            pageNumber: (d.start / d.length) + 1,
+                            pageSize: d.length,
+                            __RequestVerificationToken: token
+                        };
+                    },
+                    dataSrc: function(json) {
+                        return json.data || [];
+                    },
+                    error: function(err){
+                        console.error(err);
+                        alert(err.responseJSON?.errorMessage || "An error occurred while fetching data");
+                    }
+                },
+                columns: [
+                    { data: 'reportId', width: '60px' },
+                    { data: 'reportName' },
+                    { 
+                        data: 'reportType', 
+                        width: '150px',
+                        render: function(data) {
+                            return getReportTypeName(data);
+                        }
+                    },
+                    { data: 'pageSize', width: '80px' },
+                    { data: 'statusName', width: '80px' },
+                    {
+                        data: null,
+                        width: '120px',
+                        defaultContent: '',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return `
+                                <div class="dropdown d-inline-block">
+                                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ri-more-fill align-middle"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a href="/Reports/Generate/${row.reportId}" class="dropdown-item"><i class="ri-play-fill align-bottom me-2 text-success"></i> Generate</a></li>
+                                        <li><a href="/Reports/Details/${row.reportId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
+                                        <li><a href="/Reports/Edit/${row.reportId}" class="dropdown-item edit-item-btn"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a href="/Reports/Delete/${row.reportId}" class="dropdown-item remove-item-btn text-danger"><i class="ri-delete-bin-fill align-bottom me-2"></i> Delete</a></li>
+                                    </ul>
+                                </div>`;
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        targets: [0, 2, 3, 4, 5],
+                        className: 'text-center'
+                    }
+                ],
+                processing: true,
+                paging: true,
+                serverSide: true,
+                searching: true,
+                ordering: true,
+                autoWidth: false,
+                responsive: true,
+                scrollX: true,
+                initComplete: function () {
+                    $('.dt-button').removeClass('dt-button');
+                    this.api()
+                        .columns()
+                        .every(function () {
+                            let column = this;
+                            let title = column.footer().textContent;
+                            let header = column.header();
+                            header.style.backgroundColor = '#4F81BD';
+                            header.style.color = 'white';
+                            if (column.index() === (this.columns().count() - 1)) {
+                                column.footer().replaceChildren();
+                                return;
+                            }
+                            let input = document.createElement('input');
+                            input.placeholder = title;
+                            input.className = "form-control form-control-sm";
+                            input.style.width = '100%';
+                            column.footer().replaceChildren(input);
+                            input.addEventListener('keyup', debounce(() => {
+                                if (column.search() !== input.value) {
+                                    column.search(input.value).draw();
+                                }
+                            }, 1000));
+                        });
+                }
+            });
+        });
+    </script>
+}
+

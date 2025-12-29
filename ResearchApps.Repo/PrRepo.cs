@@ -51,7 +51,7 @@ public class PrRepo : IPrRepo
         parameters.Add("@PrName", pr.PrName);
         parameters.Add("@BudgetId", pr.BudgetId);
         parameters.Add("@RequestDate", pr.RequestDate);
-        parameters.Add("@Notes", pr.Notes);
+        parameters.Add("@Notes", pr.Notes ?? string.Empty);
         parameters.Add("@PrStatusId", pr.PrStatusId);
         
         if (!string.IsNullOrEmpty(pr.CreatedBy))
@@ -146,7 +146,7 @@ public class PrRepo : IPrRepo
         parameters.Add("@PrName", pr.PrName);
         parameters.Add("@BudgetId", pr.BudgetId);
         parameters.Add("@RequestDate", pr.RequestDate);
-        parameters.Add("@Notes", pr.Notes);
+        parameters.Add("@Notes", pr.Notes ?? string.Empty);
         parameters.Add("@ModifiedBy", pr.ModifiedBy);
 
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
@@ -164,5 +164,90 @@ public class PrRepo : IPrRepo
         {
             throw new RepoException($"PR with Id {pr.RecId} could not be updated.");
         }
+    }
+
+    public async Task<Pr> PrSubmitById(int id, string modifiedBy, CancellationToken cancellationToken)
+    {
+        const string query = "Pr_SubmitById";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RecId", id);
+        parameters.Add("@ModifiedBy", modifiedBy);
+
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        
+        var result = await _dbConnection.QueryFirstOrDefaultAsync<Pr>(command);
+        
+        if (result == null)
+        {
+            throw new RepoException($"PR with Id {id} could not be submitted.");
+        }
+
+        return result;
+    }
+
+    public async Task PrApproveById(int id, string notes, string modifiedBy, CancellationToken cancellationToken)
+    {
+        const string query = "Pr_ApproveById";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RecId", id);
+        parameters.Add("@Notes", notes);
+        parameters.Add("@ModifiedBy", modifiedBy);
+
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        
+        await _dbConnection.ExecuteAsync(command);
+    }
+
+    public async Task PrRejectById(int id, string notes, string modifiedBy, CancellationToken cancellationToken)
+    {
+        const string query = "Pr_RejectById";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RecId", id);
+        parameters.Add("@Notes", notes);
+        parameters.Add("@ModifiedBy", modifiedBy);
+
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        
+        await _dbConnection.ExecuteAsync(command);
+    }
+
+    public async Task PrRecallById(int id, string modifiedBy, CancellationToken cancellationToken)
+    {
+        const string query = "Pr_RecallById";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RecId", id);
+        parameters.Add("@ModifiedBy", modifiedBy);
+
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        
+        await _dbConnection.ExecuteAsync(command);
     }
 }

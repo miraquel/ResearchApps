@@ -25,19 +25,19 @@ public class ItemDeptService : IItemDeptService
     public async Task<ServiceResponse> CboAsync(CboRequestVm requestVm, CancellationToken cancellationToken)
     {
         var itemTypes = await _itemDeptRepo.CboAsync(_mapper.MapToEntity(requestVm), cancellationToken);
-        return ServiceResponse<IEnumerable<ItemDeptVm>>.Success(_mapper.MapToVm(itemTypes),"ItemDepts for combo box retrieved successfully.", StatusCodes.Status200OK);
+        return ServiceResponse<IEnumerable<ItemDeptVm>>.Success(_mapper.MapToVm(itemTypes),"ItemDepts for combo box retrieved successfully.");
     }
 
     public async Task<ServiceResponse> SelectByIdAsync(int itemDeptId, CancellationToken cancellationToken)
     {
         var warehouse = await _itemDeptRepo.SelectByIdAsync(itemDeptId, cancellationToken);
-        return ServiceResponse<ItemDeptVm>.Success(_mapper.MapToVm(warehouse),"Warehouse retrieved successfully.", StatusCodes.Status200OK);
+        return ServiceResponse<ItemDeptVm>.Success(_mapper.MapToVm(warehouse),"Warehouse retrieved successfully.");
     }
 
     public async Task<ServiceResponse> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken)
     {
         var itemTypes = await _itemDeptRepo.SelectAsync(_mapper.MapToEntity(listRequest), cancellationToken);
-        return ServiceResponse<PagedListVm<ItemDeptVm>>.Success(_mapper.MapToVm(itemTypes),"ItemDepts retrieved successfully.", StatusCodes.Status200OK);
+        return ServiceResponse<PagedListVm<ItemDeptVm>>.Success(_mapper.MapToVm(itemTypes),"ItemDepts retrieved successfully.");
     }
 
     public async Task<ServiceResponse> InsertAsync(ItemDeptVm itemDeptVm, CancellationToken cancellationToken)
@@ -55,7 +55,7 @@ public class ItemDeptService : IItemDeptService
         entity.ModifiedBy = _userClaimDto.Username;
         var updatedItemDept = await _itemDeptRepo.UpdateAsync(entity, cancellationToken);
         _dbTransaction.Commit();
-        return ServiceResponse<ItemDeptVm>.Success(_mapper.MapToVm(updatedItemDept),"ItemDept updated successfully.", StatusCodes.Status200OK);
+        return ServiceResponse<ItemDeptVm>.Success(_mapper.MapToVm(updatedItemDept),"ItemDept updated successfully.");
     }
 
     public async Task<ServiceResponse> DeleteAsync(int itemDeptId, string modifiedBy, CancellationToken cancellationToken)

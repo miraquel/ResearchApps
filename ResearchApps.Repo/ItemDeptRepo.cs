@@ -45,17 +45,21 @@ public class ItemDeptRepo : IItemDeptRepo
 
     public async Task<ItemDept> SelectByIdAsync(int itemDeptId, CancellationToken cancellationToken)
     {
+        // SP Name
         const string query = "ItemDeptSelectById";
+        
+        // Parameters
         var parameters = new DynamicParameters();
         parameters.Add("@ItemDeptId", itemDeptId);
         
+        // Execute
         var command = new CommandDefinition(
             query,
             parameters,
             transaction: _dbTransaction,
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);
-        
+
         var result = await _dbConnection.QuerySingleOrDefaultAsync<ItemDept>(command);
         return result ?? throw new KeyNotFoundException($"ItemDept with ID {itemDeptId} not found.");
     }

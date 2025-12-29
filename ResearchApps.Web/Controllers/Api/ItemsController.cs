@@ -58,4 +58,12 @@ public class ItemsController : ControllerBase
         var response = await _itemService.DeleteAsync(itemId, cancellationToken);
         return StatusCode(response.StatusCode, response);
     }
+
+    [HttpGet("cbo")]
+    [Authorize(PermissionConstants.Items.Index)]
+    public async Task<IActionResult> CboAsync([FromQuery] CboRequestVm cboRequestVm, CancellationToken cancellationToken)
+    {
+        var response = await _itemService.CboAsync(cboRequestVm, cancellationToken);
+        return StatusCode(response.StatusCode, response);
+    }
 }

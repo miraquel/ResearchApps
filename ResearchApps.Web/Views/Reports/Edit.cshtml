@@ -1,0 +1,803 @@
+﻿@model ResearchApps.Service.Vm.ReportVm
+
+@{
+    ViewBag.Title = "Edit Report";
+    ViewBag.pTitle = "Edit Report";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0 flex-grow-1">Edit Report: @Model.ReportName</h5>
+                <div class="flex-shrink-0">
+                    <a asp-action="Details" asp-route-id="@Model.ReportId" class="btn btn-info btn-sm">
+                        <i class="ri-eye-line align-bottom me-1"></i> View
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary btn-sm">
+                        <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post" id="editReportForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReportId" />
+                    <input type="hidden" asp-for="CreatedDate" />
+                    <input type="hidden" asp-for="CreatedBy" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ReportName" class="form-label">Report Name <span class="text-danger">*</span></label>
+                                <input asp-for="ReportName" class="form-control" placeholder="Enter report name" />
+                                <span asp-validation-for="ReportName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="StatusId" class="form-label">Status <span class="text-danger">*</span></label>
+                                <select asp-for="StatusId" class="form-select">
+                                    <option value="1">Active</option>
+                                    <option value="2">Inactive</option>
+                                </select>
+                                <span asp-validation-for="StatusId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter report description"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="ReportType" class="form-label">Report Type <span class="text-danger">*</span></label>
+                                <select asp-for="ReportType" class="form-select" id="reportTypeSelect">
+                                    <option value="1">Fully Generated</option>
+                                    <option value="2">Partially Generated (Continuous Paper)</option>
+                                </select>
+                                <small class="text-muted" id="reportTypeHelp"></small>
+                                <span asp-validation-for="ReportType" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="PageSize" class="form-label">Page Size</label>
+                                <select asp-for="PageSize" class="form-select">
+                                    <option value="A4">A4</option>
+                                    <option value="A3">A3</option>
+                                    <option value="A5">A5</option>
+                                    <option value="Letter">Letter</option>
+                                    <option value="Legal">Legal</option>
+                                    <option value="Custom">Custom (Continuous)</option>
+                                </select>
+                                <span asp-validation-for="PageSize" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Orientation" class="form-label">Orientation</label>
+                                <select asp-for="Orientation" class="form-select">
+                                    <option value="1">Portrait</option>
+                                    <option value="2">Landscape</option>
+                                </select>
+                                <span asp-validation-for="Orientation" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="SqlQuery" class="form-label">SQL Query / Stored Procedure</label>
+                                <textarea asp-for="SqlQuery" class="form-control font-monospace" rows="5" placeholder="Enter SQL query or stored procedure name"></textarea>
+                                <small class="text-muted">Enter the SQL query or stored procedure name that will fetch the report data.</small>
+                                <span asp-validation-for="SqlQuery" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template Upload Section (Fully Generated) -->
+                    <div class="row" id="templateUploadSection" style="@(Model.ReportType == 1 ? "" : "display: none;")">
+                        <div class="col-md-12">
+                            <div class="card border-primary mb-3">
+                                <div class="card-header bg-primary bg-opacity-10">
+                                    <h6 class="mb-0"><i class="ri-file-upload-line me-2"></i>Template File (Fully Generated)</h6>
+                                </div>
+                                <div class="card-body">
+                                    @if (Model.HasTemplateFile)
+                                    {
+                                        <div class="alert alert-info d-flex align-items-center mb-3" id="currentTemplateInfo">
+                                            <i class="ri-file-line me-2 fs-4"></i>
+                                            <div class="flex-grow-1">
+                                                <strong>Current Template:</strong> @Model.TemplateFileName
+                                                <br /><small class="text-muted">@Model.TemplateContentType</small>
+                                            </div>
+                                            <a href="/@Model.TemplatePath" class="btn btn-sm btn-outline-primary me-2" target="_blank">
+                                                <i class="ri-download-line"></i> Download
+                                            </a>
+                                        </div>
+                                    }
+                                    <div class="mb-3">
+                                        <label class="form-label">@(Model.HasTemplateFile ? "Replace Template File" : "Upload Template File")</label>
+                                        <input type="file" name="templateFile" class="form-control" id="templateFileInput" 
+                                               accept=".xlsx,.xls,.docx,.doc,.html,.htm,.rdlc,.frx" />
+                                        <small class="text-muted">Supported formats: Excel (.xlsx, .xls), Word (.docx, .doc), HTML (.html, .htm), RDLC (.rdlc), FastReport (.frx)</small>
+                                    </div>
+                                    <input type="hidden" asp-for="TemplatePath" />
+                                    <input type="hidden" asp-for="TemplateFileName" />
+                                    <input type="hidden" asp-for="TemplateContentType" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Field Coordinates Section (Partially Generated) -->
+                    <div class="row" id="fieldCoordinatesSection" style="@(Model.ReportType == 2 ? "" : "display: none;")">
+                        <div class="col-md-12">
+                            <div class="card border-success mb-3">
+                                <div class="card-header bg-success bg-opacity-10 d-flex align-items-center">
+                                    <h6 class="mb-0 flex-grow-1"><i class="ri-focus-3-line me-2"></i>Field Coordinates (Continuous Paper)</h6>
+                                    <button type="button" class="btn btn-outline-success btn-sm" id="addCoordinateBtn">
+                                        <i class="ri-add-line align-bottom me-1"></i> Add Field
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted small mb-3">
+                                        <i class="ri-information-line me-1"></i>
+                                        Define the exact X,Y coordinates (in millimeters) where each field should be printed on the continuous paper.
+                                    </p>
+                                    <div id="coordinatesContainer">
+                                        @for (var i = 0; i < Model.FieldCoordinates.Count; i++)
+                                        {
+                                            var coord = Model.FieldCoordinates[i];
+                                            <div class="card mb-3 coordinate-card border-success" data-coord-index="@i">
+                                                <div class="card-header d-flex align-items-center py-2 bg-success bg-opacity-10">
+                                                    <span class="badge bg-success me-2">Field #<span class="coord-number">@(i + 1)</span></span>
+                                                    <span class="coord-name-display flex-grow-1">- @coord.FieldName</span>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-coord-btn">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="hidden" name="FieldCoordinates[@i].CoordinateId" value="@coord.CoordinateId" />
+                                                    <input type="hidden" name="FieldCoordinates[@i].ReportId" value="@Model.ReportId" />
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Field Name <span class="text-danger">*</span></label>
+                                                                <input type="text" name="FieldCoordinates[@i].FieldName" class="form-control coord-name-input" value="@coord.FieldName" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Display Label <span class="text-danger">*</span></label>
+                                                                <input type="text" name="FieldCoordinates[@i].DisplayLabel" class="form-control" value="@coord.DisplayLabel" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Data Binding</label>
+                                                                <input type="text" name="FieldCoordinates[@i].DataBinding" class="form-control" value="@coord.DataBinding" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Format String</label>
+                                                                <input type="text" name="FieldCoordinates[@i].FormatString" class="form-control" value="@coord.FormatString" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">X Position (mm)</label>
+                                                                <input type="number" name="FieldCoordinates[@i].XPosition" class="form-control" value="@coord.XPosition" step="0.1" min="0" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Y Position (mm)</label>
+                                                                <input type="number" name="FieldCoordinates[@i].YPosition" class="form-control" value="@coord.YPosition" step="0.1" min="0" required />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Width (mm)</label>
+                                                                <input type="number" name="FieldCoordinates[@i].Width" class="form-control" value="@coord.Width" step="0.1" min="1" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Height (mm)</label>
+                                                                <input type="number" name="FieldCoordinates[@i].Height" class="form-control" value="@coord.Height" step="0.1" min="1" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Font Size</label>
+                                                                <input type="number" name="FieldCoordinates[@i].FontSize" class="form-control" value="@coord.FontSize" step="0.5" min="6" max="72" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Alignment</label>
+                                                                <select name="FieldCoordinates[@i].Alignment" class="form-select">
+                                                                    <option value="1" selected="@(coord.Alignment == 1)">Left</option>
+                                                                    <option value="2" selected="@(coord.Alignment == 2)">Center</option>
+                                                                    <option value="3" selected="@(coord.Alignment == 3)">Right</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Font Family</label>
+                                                                <select name="FieldCoordinates[@i].FontFamily" class="form-select">
+                                                                    <option value="Arial" selected="@(coord.FontFamily == "Arial")">Arial</option>
+                                                                    <option value="Times New Roman" selected="@(coord.FontFamily == "Times New Roman")">Times New Roman</option>
+                                                                    <option value="Courier New" selected="@(coord.FontFamily == "Courier New")">Courier New</option>
+                                                                    <option value="Consolas" selected="@(coord.FontFamily == "Consolas")">Consolas</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Style</label>
+                                                                <div class="d-flex gap-3 mt-2">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" name="FieldCoordinates[@i].IsBold" class="form-check-input" value="true" @(coord.IsBold ? "checked" : "") />
+                                                                        <label class="form-check-label"><b>B</b></label>
+                                                                    </div>
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" name="FieldCoordinates[@i].IsItalic" class="form-check-input" value="true" @(coord.IsItalic ? "checked" : "") />
+                                                                        <label class="form-check-label"><i>I</i></label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Order</label>
+                                                                <input type="number" name="FieldCoordinates[@i].DisplayOrder" class="form-control" value="@coord.DisplayOrder" min="1" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Repeating Field?</label>
+                                                                <div class="form-check form-switch mt-2">
+                                                                    <input type="checkbox" name="FieldCoordinates[@i].IsRepeating" class="form-check-input is-repeating-check" value="true" @(coord.IsRepeating ? "checked" : "") />
+                                                                    <label class="form-check-label">Yes</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="mb-3 row-increment-field" style="@(coord.IsRepeating ? "" : "display: none;")">
+                                                                <label class="form-label">Row Increment (mm)</label>
+                                                                <input type="number" name="FieldCoordinates[@i].RowIncrement" class="form-control" value="@coord.RowIncrement" step="0.1" min="0" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="text-center py-3" id="noCoordinatesMessage" style="@(Model.FieldCoordinates.Count > 0 ? "display: none;" : "")">
+                                        <p class="text-muted mb-0">No field coordinates added yet. Click "Add Field" to define print positions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Parameters Section -->
+                    <div class="d-flex align-items-center mb-3">
+                        <h5 class="mb-0 flex-grow-1">Report Parameters</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="addParameterBtn">
+                            <i class="ri-add-line align-bottom me-1"></i> Add Parameter
+                        </button>
+                    </div>
+
+                    <div id="parametersContainer">
+                        @for (var i = 0; i < Model.Parameters.Count; i++)
+                        {
+                            var param = Model.Parameters[i];
+                            <div class="card mb-3 parameter-card" data-index="@i">
+                                <div class="card-header d-flex align-items-center py-2">
+                                    <span class="badge bg-secondary me-2">Parameter #<span class="param-number">@(i + 1)</span></span>
+                                    <span class="param-name-display flex-grow-1">- @param.ParameterName</span>
+                                    <button type="button" class="btn btn-outline-danger btn-sm remove-param-btn">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <input type="hidden" name="Parameters[@i].ParameterId" value="@param.ParameterId" />
+                                    <input type="hidden" name="Parameters[@i].ReportId" value="@Model.ReportId" />
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Parameter Name <span class="text-danger">*</span></label>
+                                                <input type="text" name="Parameters[@i].ParameterName" class="form-control param-name-input" value="@param.ParameterName" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Display Label <span class="text-danger">*</span></label>
+                                                <input type="text" name="Parameters[@i].DisplayLabel" class="form-control" value="@param.DisplayLabel" required />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label class="form-label">Data Type <span class="text-danger">*</span></label>
+                                                <select name="Parameters[@i].DataType" class="form-select">
+                                                    <option value="1" selected="@(param.DataType == 1)">String</option>
+                                                    <option value="2" selected="@(param.DataType == 2)">Integer</option>
+                                                    <option value="3" selected="@(param.DataType == 3)">Decimal</option>
+                                                    <option value="4" selected="@(param.DataType == 4)">DateTime</option>
+                                                    <option value="5" selected="@(param.DataType == 5)">Date</option>
+                                                    <option value="6" selected="@(param.DataType == 6)">Boolean</option>
+                                                    <option value="7" selected="@(param.DataType == 7)">Dropdown</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label class="form-label">Display Order</label>
+                                                <input type="number" name="Parameters[@i].DisplayOrder" class="form-control display-order-input" value="@param.DisplayOrder" min="1" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="mb-3">
+                                                <label class="form-label">Required</label>
+                                                <div class="form-check form-switch mt-2">
+                                                    <input type="checkbox" name="Parameters[@i].IsRequired" class="form-check-input" value="true" @(param.IsRequired ? "checked" : "") />
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Default Value</label>
+                                                <input type="text" name="Parameters[@i].DefaultValue" class="form-control" value="@param.DefaultValue" placeholder="Optional default value" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Placeholder</label>
+                                                <input type="text" name="Parameters[@i].Placeholder" class="form-control" value="@param.Placeholder" placeholder="Placeholder text" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Lookup Source (for Dropdown)</label>
+                                                <input type="text" name="Parameters[@i].LookupSource" class="form-control" value="@param.LookupSource" placeholder="SQL query or table name" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="text-center py-3" id="noParametersMessage" style="@(Model.Parameters.Count > 0 ? "display: none;" : "")">
+                        <p class="text-muted mb-0">No parameters added yet. Click "Add Parameter" to add report parameters.</p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" data-confirm="Are you sure you want to update this report?">
+                            <i class="ri-save-line align-bottom me-1"></i> Update Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Parameter Template -->
+<template id="parameterTemplate">
+    <div class="card mb-3 parameter-card" data-index="__INDEX__">
+        <div class="card-header d-flex align-items-center py-2">
+            <span class="badge bg-secondary me-2">Parameter #<span class="param-number">__NUMBER__</span></span>
+            <span class="param-name-display flex-grow-1"></span>
+            <button type="button" class="btn btn-outline-danger btn-sm remove-param-btn">
+                <i class="ri-delete-bin-line"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <input type="hidden" name="Parameters[__INDEX__].ParameterId" value="0" />
+            <input type="hidden" name="Parameters[__INDEX__].ReportId" value="@Model.ReportId" />
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Parameter Name <span class="text-danger">*</span></label>
+                        <input type="text" name="Parameters[__INDEX__].ParameterName" class="form-control param-name-input" placeholder="e.g., StartDate" required />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Display Label <span class="text-danger">*</span></label>
+                        <input type="text" name="Parameters[__INDEX__].DisplayLabel" class="form-control" placeholder="e.g., Start Date" required />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Data Type <span class="text-danger">*</span></label>
+                        <select name="Parameters[__INDEX__].DataType" class="form-select">
+                            <option value="1">String</option>
+                            <option value="2">Integer</option>
+                            <option value="3">Decimal</option>
+                            <option value="4">DateTime</option>
+                            <option value="5">Date</option>
+                            <option value="6">Boolean</option>
+                            <option value="7">Dropdown</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Display Order</label>
+                        <input type="number" name="Parameters[__INDEX__].DisplayOrder" class="form-control display-order-input" value="__NUMBER__" min="1" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Required</label>
+                        <div class="form-check form-switch mt-2">
+                            <input type="checkbox" name="Parameters[__INDEX__].IsRequired" class="form-check-input" value="true" checked />
+                            <label class="form-check-label">Yes</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Default Value</label>
+                        <input type="text" name="Parameters[__INDEX__].DefaultValue" class="form-control" placeholder="Optional default value" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Placeholder</label>
+                        <input type="text" name="Parameters[__INDEX__].Placeholder" class="form-control" placeholder="Placeholder text" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Lookup Source (for Dropdown)</label>
+                        <input type="text" name="Parameters[__INDEX__].LookupSource" class="form-control" placeholder="SQL query or table name" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Field Coordinate Template -->
+<template id="coordinateTemplate">
+    <div class="card mb-3 coordinate-card border-success" data-coord-index="__COORD_INDEX__">
+        <div class="card-header d-flex align-items-center py-2 bg-success bg-opacity-10">
+            <span class="badge bg-success me-2">Field #<span class="coord-number">__COORD_NUMBER__</span></span>
+            <span class="coord-name-display flex-grow-1"></span>
+            <button type="button" class="btn btn-outline-danger btn-sm remove-coord-btn">
+                <i class="ri-delete-bin-line"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <input type="hidden" name="FieldCoordinates[__COORD_INDEX__].CoordinateId" value="0" />
+            <input type="hidden" name="FieldCoordinates[__COORD_INDEX__].ReportId" value="@Model.ReportId" />
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Field Name <span class="text-danger">*</span></label>
+                        <input type="text" name="FieldCoordinates[__COORD_INDEX__].FieldName" class="form-control coord-name-input" placeholder="e.g., CustomerName" required />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Display Label <span class="text-danger">*</span></label>
+                        <input type="text" name="FieldCoordinates[__COORD_INDEX__].DisplayLabel" class="form-control" placeholder="e.g., Customer Name" required />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Data Binding</label>
+                        <input type="text" name="FieldCoordinates[__COORD_INDEX__].DataBinding" class="form-control" placeholder="SQL Column name" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Format String</label>
+                        <input type="text" name="FieldCoordinates[__COORD_INDEX__].FormatString" class="form-control" placeholder="e.g., N2, dd/MM/yyyy" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">X Position (mm) <span class="text-danger">*</span></label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].XPosition" class="form-control" value="10" step="0.1" min="0" required />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Y Position (mm) <span class="text-danger">*</span></label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].YPosition" class="form-control" value="10" step="0.1" min="0" required />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Width (mm)</label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].Width" class="form-control" value="50" step="0.1" min="1" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Height (mm)</label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].Height" class="form-control" value="5" step="0.1" min="1" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Font Size</label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].FontSize" class="form-control" value="10" step="0.5" min="6" max="72" />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Alignment</label>
+                        <select name="FieldCoordinates[__COORD_INDEX__].Alignment" class="form-select">
+                            <option value="1">Left</option>
+                            <option value="2">Center</option>
+                            <option value="3">Right</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Font Family</label>
+                        <select name="FieldCoordinates[__COORD_INDEX__].FontFamily" class="form-select">
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Consolas">Consolas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Style</label>
+                        <div class="d-flex gap-3 mt-2">
+                            <div class="form-check">
+                                <input type="checkbox" name="FieldCoordinates[__COORD_INDEX__].IsBold" class="form-check-input" value="true" />
+                                <label class="form-check-label"><b>B</b></label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="FieldCoordinates[__COORD_INDEX__].IsItalic" class="form-check-input" value="true" />
+                                <label class="form-check-label"><i>I</i></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label class="form-label">Order</label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].DisplayOrder" class="form-control" value="__COORD_NUMBER__" min="1" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Repeating Field?</label>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="FieldCoordinates[__COORD_INDEX__].IsRepeating" class="form-check-input is-repeating-check" value="true" />
+                                <label class="form-check-label">Yes</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3 row-increment-field" style="display: none;">
+                        <label class="form-label">Row Increment (mm)</label>
+                        <input type="number" name="FieldCoordinates[__COORD_INDEX__].RowIncrement" class="form-control" value="5" step="0.1" min="0" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            let parameterIndex = @Model.Parameters.Count;
+            let coordinateIndex = @Model.FieldCoordinates.Count;
+            
+            // Initialize report type sections
+            updateReportTypeSections();
+            
+            // Handle report type change
+            $('#reportTypeSelect').on('change', function() {
+                updateReportTypeSections();
+            });
+            
+            function updateReportTypeSections() {
+                const value = $('#reportTypeSelect').val();
+                if (value === '2') {
+                    // Partially Generated - show coordinates, hide template upload
+                    $('#templateUploadSection').hide();
+                    $('#fieldCoordinatesSection').show();
+                    $('#reportTypeHelp').text('Partially Generated: Prints only main info on pre-printed continuous paper.');
+                } else {
+                    // Fully Generated - show template upload, hide coordinates
+                    $('#templateUploadSection').show();
+                    $('#fieldCoordinatesSection').hide();
+                    $('#reportTypeHelp').text('Fully Generated: Creates complete PDF with header, table, and footer.');
+                }
+            }
+            
+            // Add parameter
+            $('#addParameterBtn').on('click', function() {
+                const template = $('#parameterTemplate').html();
+                const html = template
+                    .replace(/__INDEX__/g, parameterIndex)
+                    .replace(/__NUMBER__/g, parameterIndex + 1);
+                
+                $('#parametersContainer').append(html);
+                $('#noParametersMessage').hide();
+                parameterIndex++;
+                updateParameterNumbers();
+            });
+            
+            // Remove parameter
+            $(document).on('click', '.remove-param-btn', function() {
+                $(this).closest('.parameter-card').remove();
+                updateParameterNumbers();
+                reindexParameters();
+                if ($('.parameter-card').length === 0) {
+                    $('#noParametersMessage').show();
+                }
+            });
+            
+            // Update parameter name display
+            $(document).on('input', '.param-name-input', function() {
+                const card = $(this).closest('.parameter-card');
+                const name = $(this).val();
+                card.find('.param-name-display').text(name ? `- ${name}` : '');
+            });
+            
+            // Add coordinate
+            $('#addCoordinateBtn').on('click', function() {
+                const template = $('#coordinateTemplate').html();
+                const html = template
+                    .replace(/__COORD_INDEX__/g, coordinateIndex)
+                    .replace(/__COORD_NUMBER__/g, coordinateIndex + 1);
+                
+                $('#coordinatesContainer').append(html);
+                $('#noCoordinatesMessage').hide();
+                coordinateIndex++;
+                updateCoordinateNumbers();
+            });
+            
+            // Remove coordinate
+            $(document).on('click', '.remove-coord-btn', function() {
+                $(this).closest('.coordinate-card').remove();
+                updateCoordinateNumbers();
+                reindexCoordinates();
+                if ($('.coordinate-card').length === 0) {
+                    $('#noCoordinatesMessage').show();
+                }
+            });
+            
+            // Update coordinate name display
+            $(document).on('input', '.coord-name-input', function() {
+                const card = $(this).closest('.coordinate-card');
+                const name = $(this).val();
+                card.find('.coord-name-display').text(name ? `- ${name}` : '');
+            });
+            
+            // Handle repeating field toggle
+            $(document).on('change', '.is-repeating-check', function() {
+                const card = $(this).closest('.coordinate-card');
+                if ($(this).is(':checked')) {
+                    card.find('.row-increment-field').show();
+                } else {
+                    card.find('.row-increment-field').hide();
+                }
+            });
+            
+            function updateParameterNumbers() {
+                $('.parameter-card').each(function(index) {
+                    $(this).find('.param-number').text(index + 1);
+                });
+            }
+            
+            function reindexParameters() {
+                $('.parameter-card').each(function(index) {
+                    const card = $(this);
+                    card.attr('data-index', index);
+                    card.find('[name^="Parameters["]').each(function() {
+                        const name = $(this).attr('name');
+                        const newName = name.replace(/Parameters\[\d+\]/, `Parameters[${index}]`);
+                        $(this).attr('name', newName);
+                    });
+                });
+                parameterIndex = $('.parameter-card').length;
+            }
+            
+            function updateCoordinateNumbers() {
+                $('.coordinate-card').each(function(index) {
+                    $(this).find('.coord-number').text(index + 1);
+                });
+            }
+            
+            function reindexCoordinates() {
+                $('.coordinate-card').each(function(index) {
+                    const card = $(this);
+                    card.attr('data-coord-index', index);
+                    card.find('[name^="FieldCoordinates["]').each(function() {
+                        const name = $(this).attr('name');
+                        const newName = name.replace(/FieldCoordinates\[\d+\]/, `FieldCoordinates[${index}]`);
+                        $(this).attr('name', newName);
+                    });
+                });
+                coordinateIndex = $('.coordinate-card').length;
+            }
+            
+            // Form submission with confirmation
+            $('#editReportForm').on('submit', function(e) {
+                const confirmMessage = $('#submitBtn').data('confirm');
+                if (confirmMessage && !confirm(confirmMessage)) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                const reportName = $('[name="ReportName"]').val().trim();
+                if (!reportName) {
+                    e.preventDefault();
+                    alert('Report name is required.');
+                    return false;
+                }
+                
+                const reportType = $('#reportTypeSelect').val();
+                // Validate partially generated requires at least one coordinate
+                if (reportType === '2' && $('.coordinate-card').length === 0) {
+                    if (!confirm('No field coordinates defined. Continue anyway?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+        });
+    </script>
+}
+

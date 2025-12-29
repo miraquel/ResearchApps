@@ -1,33 +1,179 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "User Management";
+    ViewBag.Title = "User Management";
+    ViewBag.pTitle = "User Management";
 }
 
-<h1>User Management</h1>
+@section styles
+{
+    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Email</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Phone Number</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    @foreach (var user in Model.Users)
-    {
-        <tr>
-            <td>@user.Email</td>
-            <td>@user.FirstName</td>
-            <td>@user.LastName</td>
-            <td>@user.PhoneNumber</td>
-            <td>
-                <a asp-page="UserRoles" asp-route-userId="@user.Id" class="btn btn-sm btn-outline-primary">Assign Roles</a>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
+@Html.AntiForgeryToken()
+
+<!-- Display TempData or ViewData messages -->
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["StatusMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<!-- Users List Table -->
+<div class="row">
+    <div class="col-12">
+        <table id="users-table" class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" style="width: 100%;">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- DataTables will populate this -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/js/datatables.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        $(document).ready(function () {
+            const table = $('#users-table').DataTable({
+                processing: true,
+                paging: true,
+                serverSide: true,
+                searching: true,
+                ordering: true,
+                autoWidth: false,
+                responsive: true,
+                searchDelay: 1000,
+                layout: {
+                    topStart: {
+                        buttons: [
+                            {
+                                text: '<i class="ri-add-line me-1"></i> Add New User',
+                                className: 'btn btn-primary',
+                                action: function () {
+                                    window.location.href = '/Admin/Users/Create';
+                                }
+                            }
+                        ]
+                    },
+                    topEnd: 'search',
+                    bottomStart: 'info',
+                    bottomEnd: 'paging'
+                },
+                order: [[0, 'asc']],
+                ajax: {
+                    url: '/api/users',
+                    type: 'GET',
+                    data: function (d) {
+                        const query = {
+                            pageNumber: (d.start / d.length) + 1,
+                            pageSize: d.length,
+                        };
+                        if (d.search && d.search.value) {
+                            query.Search = d.search.value;
+                        }
+                        if (d.order && d.order.length) {
+                            query.SortBy = d.order[0].column ? d.columns[d.order[0].column].name : "FirstName";
+                            query.IsSortAscending = d.order[0].dir ? d.order[0].dir === 'asc' : true;
+                        }
+                        return query;
+                    },
+                    dataSrc: function (json) {
+                        if (json.data && Array.isArray(json.data.items)) {
+                            json.recordsTotal = json.data.totalCount;
+                            json.recordsFiltered = json.data.totalFilteredCount;
+                            return json.data.items;
+                        }
+                        return json;
+                    },
+                    error: function (err) {
+                        alert(err.responseJSON?.errorMessage || "An error occurred while fetching data");
+                    }
+                },
+                columns: [
+                    {
+                        data: 'userName',
+                        name: 'UserName',
+                        render: function (data, type, row) {
+                            const initials = ((row.firstName?.charAt(0) || '') + (row.lastName?.charAt(0) || '')).trim();
+                            const name = ((row.firstName || '') + ' ' + (row.lastName || '')).trim();
+                            return `
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-3">
+                                        <div class="avatar-xs">
+                                            <span class="avatar-title rounded-circle bg-primary-subtle text-primary">${initials}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="fs-14 mb-0">
+                                            <a href="/Admin/Users/Details?id=${row.id}" class="text-body">${name}</a>
+                                        </h5>
+                                        <p class="text-muted mb-0">${row.userName}</p>
+                                    </div>
+                                </div>`;
+                        }
+                    },
+                    {
+                        data: 'email',
+                        name: 'Email',
+                    },
+                    {
+                        data: 'roles',
+                        name: 'Roles',
+                        render: function (data) {
+                            return `<span class="badge bg-primary-subtle text-primary">${data || 'No Role'}</span>`;
+                        }
+                    },
+                    {
+                        data: 'active',
+                        name: 'Active',
+                        render: function (data, type, row) {
+                            if (data === false) {
+                                return `<span class="badge bg-danger">Inactive</span>`;
+                            }
+                            return `<span class="badge bg-success">Active</span>`;
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <div class="hstack gap-2">
+                                    <a href="/Admin/Users/Edit?id=${row.id}" class="btn btn-sm btn-soft-info edit-list" title="Edit">
+                                        <i class="ri-pencil-fill align-bottom"></i>
+                                    </a>
+                                    <a href="/Admin/Users/UserRoles?userId=${row.id}" class="btn btn-sm btn-soft-primary" title="Assign Roles">
+                                        <i class="ri-user-settings-line align-bottom"></i>
+                                    </a>
+                                    <a href="/Admin/Users/ChangePassword?id=${row.id}" class="btn btn-sm btn-soft-warning" title="Change Password">
+                                        <i class="ri-lock-password-line align-bottom"></i>
+                                    </a>
+                                    <a href="/Admin/Users/Suspend?id=${row.id}" class="btn btn-sm btn-soft-danger" title="Suspend">
+                                        <i class="ri-pause-circle-line align-bottom"></i>
+                                    </a>
+                                </div>`;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+}

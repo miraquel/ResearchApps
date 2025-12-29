@@ -1,91 +1,119 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Role Management";
+    ViewBag.Title = "Role Management";
+    ViewBag.pTitle = "Role Management";
 }
 
-<div class="card">
-    <div class="card-header d-flex align-items-center">
-        <h1 class="card-title mb-0">Role Management</h1>
-        <div class="ms-auto">
-            <a asp-page="Create" class="btn btn-primary btn-sm">
-                <i class="ri-add-line align-bottom me-1"></i>
-                Create New Role
-            </a>
-        </div>
-    </div>
-    <div class="card-body">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Role Name</th>
-                    <th>Description</th>
-                    <th>Role Id</th>
-                    <th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var role in Model.Roles)
-            {
-                <tr>
-                    <td>@role.Name</td>
-                    <td>@role.Description</td>
-                    <td>@role.Id</td>
-                    <td class="text-center">
-                        <a asp-page="RolePermissions" asp-route-id="@role.Id" class="btn btn-sm btn-secondary">
-                            Assign Permissions
-                        </a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+@section styles
+{
+    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
 
-        <!-- Pagination Controls -->
-        <div class="d-flex justify-content-end">
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-                        <a class="page-link" asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-PageSize="@Model.PageSize">Previous</a>
-                    </li>
-                    @{
-                        var startPage = Math.Max(1, Model.PageNumber - 3);
-                        var endPage = Math.Min(Model.TotalPages, Model.PageNumber + 3);
 
-                        if (startPage > 1)
+@Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-end align-items-center">
+                <a href="/Admin/Roles/Create" class="btn btn-primary btn-sm">
+                    <i class="ri-add-line me-1"></i> Create New Role
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="roles-table" class="table table-bordered table-striped align-middle nowrap" style="width: 100%;">
+                        <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Role Id</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if (Model.Roles.Any())
                         {
-                            <li class="page-item">
-                                <a class="page-link" asp-route-PageNumber="1" asp-route-PageSize="@Model.PageSize">1</a>
-                            </li>
-                            if (startPage > 2)
+                            @foreach (var role in Model.Roles)
                             {
-                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <tr>
+                                    <td><span class="fw-medium">@role.Name</span></td>
+                                    <td><span>@role.Description</span></td>
+                                    <td><span class="text-muted small">@role.Id</span></td>
+                                    <td class="text-center">
+                                        <div class="hstack gap-2 justify-content-center">
+                                            <a href="/Admin/Roles/RolePermissions?id=@role.Id" class="btn btn-sm btn-soft-primary" title="Assign Permissions">
+                                                <i class="ri-settings-3-line align-bottom"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
                             }
                         }
-
-                        for (var i = startPage; i <= endPage; i++)
+                        else
                         {
-                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                                <a class="page-link" asp-route-PageNumber="@i" asp-route-PageSize="@Model.PageSize">@i</a>
-                            </li>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No roles found</td>
+                            </tr>
                         }
-
-                        if (endPage < Model.TotalPages)
-                        {
-                            if (endPage < Model.TotalPages - 1)
+                        </tbody>
+                    </table>
+                </div>
+                
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Role pagination">
+                        <ul class="pagination justify-content-end mt-3">
+                            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                <a class="page-link" href="?pageNumber=@(Model.PageNumber - 1)&pageSize=@Model.PageSize" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            
+                            @for (int i = 1; i <= Model.TotalPages; i++)
                             {
-                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                <li class="page-item @(Model.PageNumber == i ? "active" : "")">
+                                    <a class="page-link" href="?pageNumber=@i&pageSize=@Model.PageSize">@i</a>
+                                </li>
                             }
-                            <li class="page-item">
-                                <a class="page-link" asp-route-PageNumber="@Model.TotalPages" asp-route-PageSize="@Model.PageSize">@Model.TotalPages</a>
+                            
+                            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" href="?pageNumber=@(Model.PageNumber + 1)&pageSize=@Model.PageSize" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
                             </li>
-                        }
-                    }
-                    <li class="page-item @(Model.PageNumber == Model.TotalPages || Model.TotalPages == 0 ? "disabled" : "")">
-                        <a class="page-link" asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-PageSize="@Model.PageSize">Next</a>
-                    </li>
-                </ul>
-            </nav>
+                        </ul>
+                    </nav>
+                }
+            </div>
         </div>
     </div>
 </div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/js/datatables.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTables with client-side processing only for search and sort
+            $('#roles-table').DataTable({
+                paging: false, // Use server-side pagination
+                searching: true,
+                ordering: true,
+                autoWidth: false,
+                responsive: true,
+                info: false,
+                layout: {
+                    topStart: null,
+                    topEnd: 'search',
+                    bottomStart: null,
+                    bottomEnd: null
+                }
+            });
+        });
+    </script>
+}

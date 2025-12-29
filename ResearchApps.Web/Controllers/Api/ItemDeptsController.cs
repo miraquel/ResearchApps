@@ -55,7 +55,7 @@ public class ItemDeptsController : ControllerBase
     [Authorize(PermissionConstants.ItemDepts.Delete)]
     public async Task<IActionResult> DeleteAsync(int itemDeptId, CancellationToken cancellationToken)
     {
-        var modifiedBy = User?.Identity?.Name ?? "";
+        var modifiedBy = User.Identity?.Name ?? "";
         var response = await _itemDeptService.DeleteAsync(itemDeptId, modifiedBy, cancellationToken);
         return StatusCode(response.StatusCode, response);
     }

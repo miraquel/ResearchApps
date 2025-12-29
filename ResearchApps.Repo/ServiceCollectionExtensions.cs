@@ -8,7 +8,7 @@ namespace ResearchApps.Repo;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    public static void AddRepositories(this IServiceCollection services)
     {
         // register IDbConnection
         services.AddScoped<IDbConnection>(sp =>
@@ -36,7 +36,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitRepo, UnitRepo>();
         services.AddScoped<IPrRepo, PrRepo>();
         services.AddScoped<IPrLineRepo, PrLineRepo>();
-
-        return services;
+        services.AddScoped<IBudgetRepo, BudgetRepo>();
+        services.AddScoped<IPrStatusRepo, PrStatusRepo>();
+        services.AddScoped<IReportRepo, ReportRepo>();
+        services.AddScoped<IReportParameterRepo, ReportParameterRepo>();
+        services.AddScoped<INotificationRepo, NotificationRepo>();
     }
 }

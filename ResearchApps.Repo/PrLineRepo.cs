@@ -44,12 +44,12 @@ public class PrLineRepo : IPrLineRepo
         const string query = "PrLine_Insert";
         var parameters = new DynamicParameters();
 
-        parameters.Add("@RecId", prLine.RecId);
+        parameters.Add("@RecId", prLine.PrRecId);
         parameters.Add("@ItemId",  prLine.ItemId);
         parameters.Add("@RequestDate", prLine.RequestDate);
         parameters.Add("@Qty", prLine.Qty);
         parameters.Add("@Price", prLine.Price);
-        parameters.Add("@Notes", prLine.Notes);
+        parameters.Add("@Notes", prLine.Notes ?? string.Empty);
         parameters.Add("@CreatedBy", prLine.CreatedBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
@@ -112,12 +112,11 @@ public class PrLineRepo : IPrLineRepo
         var parameters = new DynamicParameters();
 
         parameters.Add("@PrLineId", prLine.PrLineId);
-        parameters.Add("@RecId", prLine.RecId);
         parameters.Add("@ItemId",  prLine.ItemId);
         parameters.Add("@RequestDate", prLine.RequestDate);
         parameters.Add("@Qty", prLine.Qty);
         parameters.Add("@Price", prLine.Price);
-        parameters.Add("@Notes", prLine.Notes);
+        parameters.Add("@Notes", prLine.Notes ?? string.Empty);
         parameters.Add("@ModifiedBy", prLine.ModifiedBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);

@@ -1,6 +1,5 @@
 ﻿using ResearchApps.Domain;
 using ResearchApps.Domain.Common;
-using System.Threading;
 
 namespace ResearchApps.Repo.Interface;
 

@@ -88,4 +88,40 @@ public partial class MapperlyMapper
     public partial PrLineVm MapToVm(PrLine prLine);
     public partial IEnumerable<PrLineVm> MapToVm(IEnumerable<PrLine> prLineDto);
     public partial PagedListVm<PrLineVm> MapToVm(PagedList<PrLine> pagedListDto);
+    
+    // Budget
+    public partial Budget MapToEntity(BudgetVm budgetDto);
+    public partial IEnumerable<Budget> MapToEntity(IEnumerable<BudgetVm> budgetDto);
+    public partial PagedList<Budget> MapToEntity(PagedListVm<BudgetVm> pagedListDto);
+    public partial BudgetVm MapToVm(Budget budget);
+    public partial IEnumerable<BudgetVm> MapToVm(IEnumerable<Budget> budgetDto);
+    public partial PagedListVm<BudgetVm> MapToVm(PagedList<Budget> pagedListDto);
+    
+    // PrStatus
+    public partial PrStatus MapToEntity(PrStatusVm prStatusDto);
+    public partial IEnumerable<PrStatus> MapToEntity(IEnumerable<PrStatusVm> prStatusDto);
+    public partial PagedList<PrStatus> MapToEntity(PagedListVm<PrStatusVm> pagedListDto);
+    public partial PrStatusVm MapToVm(PrStatus prStatus);
+    public partial IEnumerable<PrStatusVm> MapToVm(IEnumerable<PrStatus> prStatusDto);
+    public partial PagedListVm<PrStatusVm> MapToVm(PagedList<PrStatus> pagedListDto);
+    
+    // Report
+    public partial Report MapToEntity(ReportVm reportDto);
+    public partial IEnumerable<Report> MapToEntity(IEnumerable<ReportVm> reportDto);
+    public partial PagedList<Report> MapToEntity(PagedListVm<ReportVm> pagedListDto);
+    public partial ReportVm MapToVm(Report report);
+    public partial IEnumerable<ReportVm> MapToVm(IEnumerable<Report> reportDto);
+    public partial PagedListVm<ReportVm> MapToVm(PagedList<Report> pagedListDto);
+    
+    // ReportParameter
+    public partial ReportParameter MapToEntity(ReportParameterVm reportParameterDto);
+    public partial IEnumerable<ReportParameter> MapToEntity(IEnumerable<ReportParameterVm> reportParameterDto);
+    public partial ReportParameterVm MapToVm(ReportParameter reportParameter);
+    public partial IEnumerable<ReportParameterVm> MapToVm(IEnumerable<ReportParameter> reportParameterDto);
+    
+    // ReportFieldCoordinate
+    public partial ReportFieldCoordinate MapToEntity(ReportFieldCoordinateVm reportFieldCoordinateDto);
+    public partial IEnumerable<ReportFieldCoordinate> MapToEntity(IEnumerable<ReportFieldCoordinateVm> reportFieldCoordinateDto);
+    public partial ReportFieldCoordinateVm MapToVm(ReportFieldCoordinate reportFieldCoordinate);
+    public partial IEnumerable<ReportFieldCoordinateVm> MapToVm(IEnumerable<ReportFieldCoordinate> reportFieldCoordinateDto);
 }

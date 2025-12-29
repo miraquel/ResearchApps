@@ -5,6 +5,8 @@ namespace ResearchApps.Repo.Interface;
 
 public interface IItemRepo
 {
+    // ItemCbo
+    Task<IEnumerable<Item>> CboAsync(CboRequest cboRequest, CancellationToken cancellationToken);
     // ItemDelete
     Task DeleteAsync(int itemId, CancellationToken cancellationToken);
     // ItemInsert

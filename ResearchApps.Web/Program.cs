@@ -9,12 +9,37 @@ using ResearchApps.Service;
 using ResearchApps.Service.Vm.Common;
 using ResearchApps.Web.Context;
 using ResearchApps.Web.Exceptions;
+using ResearchApps.Web.Hubs;
+using ResearchApps.Web.Services;
 using ResearchApps.Web.Swagger;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "Logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
-// Add services to the container.
+try
+{
+    Log.Information("Starting ResearchApps application...");
+
+    var builder = WebApplication.CreateBuilder(args);
+
+    // Use Serilog for logging
+    builder.Host.UseSerilog();
+
+    // Add services to the container.
 builder.Services.AddProblemDetails(configure =>
 {
     configure.CustomizeProblemDetails = options =>
@@ -72,6 +97,15 @@ builder.Services.AddScoped(serviceProvider =>
 builder.Services.AddRepositories();
 builder.Services.AddServices();
 
+// Register report generator service
+builder.Services.AddScoped<IReportGeneratorService, ReportGeneratorService>();
+
+// Register SignalR
+builder.Services.AddSignalR();
+
+// Register PR Notification service
+builder.Services.AddScoped<IPrNotificationService, PrNotificationService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -110,8 +144,16 @@ app.MapControllerRoute(
 app.MapRazorPages()
     .WithStaticAssets();
 
-// app.MapControllers();
+// Map SignalR hub for PR notifications
+app.MapHub<PrNotificationHub>("/hubs/pr-notifications");
 
-//app.MapIdentityApi<IdentityUser>(); 
-
-app.Run();
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

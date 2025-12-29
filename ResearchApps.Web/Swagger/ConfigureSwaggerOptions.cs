@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ResearchApps.Web.Swagger;
@@ -18,11 +18,10 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
             BearerFormat = "JWT"
         });
 
-        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        options.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
         {
             {
-                new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-                Array.Empty<string>()
+                new OpenApiSecuritySchemeReference("Bearer"), []
             }
         });
     }

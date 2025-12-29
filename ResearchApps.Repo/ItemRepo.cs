@@ -18,6 +18,32 @@ public class ItemRepo : IItemRepo
         _dbTransaction = dbTransaction;
     }
 
+    public async Task<IEnumerable<Item>> CboAsync(CboRequest cboRequest, CancellationToken cancellationToken)
+    {
+        const string query = "ItemCbo";
+        var parameters = new DynamicParameters();
+        
+        if (cboRequest.Id > 0)
+        {
+            parameters.Add("@Id", cboRequest.Id);
+        }
+        
+        if (!string.IsNullOrEmpty(cboRequest.Term))
+        {
+            parameters.Add("@Term", cboRequest.Term);
+        }
+        
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        var result = await _dbConnection.QueryAsync<Item>(command);
+        return result;
+    }
+
     public async Task DeleteAsync(int itemId, CancellationToken cancellationToken)
     {
         const string query = "ItemDelete";

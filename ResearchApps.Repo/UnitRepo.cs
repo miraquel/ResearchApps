@@ -91,11 +91,11 @@ public class UnitRepo : IUnitRepo
         var parameters = new DynamicParameters();
         foreach (var filter in listRequest.Filters)
         {
-            if (filter.Value is string strValue && !string.IsNullOrEmpty(strValue) && strValue.Contains('%'))
+            if (filter.Value is { } strValue && !string.IsNullOrEmpty(strValue) && strValue.Contains('%'))
             {
                 parameters.Add($"@{filter.Key}", strValue);
             }
-            else if (filter.Value != null)
+            else
             {
                 parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
             }

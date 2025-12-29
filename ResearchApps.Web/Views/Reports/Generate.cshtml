@@ -1,0 +1,251 @@
+﻿@model ResearchApps.Service.Vm.ReportGenerateVm
+
+@{
+    ViewBag.Title = "Generate Report";
+    ViewBag.pTitle = "Generate Report";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div class="flex-grow-1">
+                    <h5 class="card-title mb-0">Generate Report</h5>
+                    <p class="text-muted mb-0">@Model.ReportName</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <a asp-action="Details" asp-route-id="@Model.ReportId" class="btn btn-info btn-sm">
+                        <i class="ri-eye-line align-bottom me-1"></i> View Details
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary btn-sm">
+                        <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="ri-error-warning-line me-2"></i>
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-action="Generate" method="post" id="generateReportForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReportId" />
+                    <input type="hidden" asp-for="ReportName" />
+                    <input type="hidden" asp-for="ReportType" />
+
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-info" role="alert">
+                                <i class="ri-information-line me-2"></i>
+                                @if (Model.ReportType == 1)
+                                {
+                                    <strong>Fully Generated Report:</strong>
+                                    <span>This report will generate a complete PDF document with header, table data, and footer.</span>
+                                }
+                                else
+                                {
+                                    <strong>Partially Generated Report:</strong>
+                                    <span>This report will print only the main information fields for use with pre-printed continuous paper forms.</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.Parameters.Count > 0)
+                    {
+                        <h6 class="mb-3">
+                            <i class="ri-settings-3-line me-1"></i> Report Parameters
+                        </h6>
+                        <div class="row">
+                            @foreach (var param in Model.Parameters.OrderBy(p => p.DisplayOrder))
+                            {
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            @param.DisplayLabel
+                                            @if (param.IsRequired)
+                                            {
+                                                <span class="text-danger">*</span>
+                                            }
+                                        </label>
+                                        
+                                        @switch (param.DataType)
+                                        {
+                                            case 4: // DateTime
+                                                <input type="text" 
+                                                       name="ParameterValues[@param.ParameterName]" 
+                                                       class="form-control datetime-picker" 
+                                                       value="@param.DefaultValue"
+                                                       placeholder="@(param.Placeholder ?? "Select date and time")"
+                                                       @(param.IsRequired ? "required" : "") />
+                                                break;
+                                            case 5: // Date
+                                                <input type="text" 
+                                                       name="ParameterValues[@param.ParameterName]" 
+                                                       class="form-control date-picker" 
+                                                       value="@param.DefaultValue"
+                                                       placeholder="@(param.Placeholder ?? "Select date")"
+                                                       @(param.IsRequired ? "required" : "") />
+                                                break;
+                                            case 2: // Integer
+                                                <input type="number" 
+                                                       name="ParameterValues[@param.ParameterName]" 
+                                                       class="form-control" 
+                                                       value="@param.DefaultValue"
+                                                       placeholder="@(param.Placeholder ?? "Enter number")"
+                                                       step="1"
+                                                       @(param.IsRequired ? "required" : "") />
+                                                break;
+                                            case 3: // Decimal
+                                                <input type="number" 
+                                                       name="ParameterValues[@param.ParameterName]" 
+                                                       class="form-control" 
+                                                       value="@param.DefaultValue"
+                                                       placeholder="@(param.Placeholder ?? "Enter decimal value")"
+                                                       step="0.01"
+                                                       @(param.IsRequired ? "required" : "") />
+                                                break;
+                                            case 6: // Boolean
+                                                <div class="form-check form-switch mt-2">
+                                                    <input type="checkbox" 
+                                                           name="ParameterValues[@param.ParameterName]" 
+                                                           class="form-check-input" 
+                                                           value="true"
+                                                           @(param.DefaultValue?.ToLower() == "true" ? "checked" : "") />
+                                                    <label class="form-check-label">@param.DisplayLabel</label>
+                                                </div>
+                                                break;
+                                            case 7: // Dropdown
+                                                <select name="ParameterValues[@param.ParameterName]" 
+                                                        class="form-select dropdown-param"
+                                                        data-lookup="@param.LookupSource"
+                                                        @(param.IsRequired ? "required" : "")>
+                                                    <option value="">-- Select --</option>
+                                                </select>
+                                                break;
+                                            default: // String
+                                                <input type="text" 
+                                                       name="ParameterValues[@param.ParameterName]" 
+                                                       class="form-control" 
+                                                       value="@param.DefaultValue"
+                                                       placeholder="@(param.Placeholder ?? "Enter value")"
+                                                       @(param.IsRequired ? "required" : "") />
+                                                break;
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="ri-file-list-3-line fs-1"></i>
+                            <p class="mt-2">This report has no parameters. Click the button below to generate.</p>
+                        </div>
+                    }
+
+                    <hr class="my-4">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Output Format</label>
+                                <select asp-for="OutputFormat" class="form-select">
+                                    <option value="1">PDF</option>
+                                    <option value="2" disabled>Excel (Coming Soon)</option>
+                                    <option value="3" disabled>HTML (Coming Soon)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-success" id="generateBtn">
+                            <i class="ri-play-fill align-bottom me-1"></i> Generate Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize date pickers
+            $('.date-picker').flatpickr({
+                dateFormat: 'Y-m-d',
+                allowInput: true
+            });
+            
+            // Initialize datetime pickers
+            $('.datetime-picker').flatpickr({
+                dateFormat: 'Y-m-d H:i',
+                enableTime: true,
+                allowInput: true
+            });
+            
+            // Initialize Select2 for dropdowns
+            $('.dropdown-param').each(function() {
+                const $select = $(this);
+                const lookupSource = $select.data('lookup');
+                
+                if (lookupSource) {
+                    // In a real implementation, this would fetch data from the server
+                    // For now, we'll just initialize Select2
+                    $select.select2({
+                        placeholder: '-- Select --',
+                        allowClear: true
+                    });
+                }
+            });
+            
+            // Form validation
+            $('#generateReportForm').on('submit', function(e) {
+                const requiredFields = $(this).find('[required]');
+                let isValid = true;
+                
+                requiredFields.each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please fill in all required fields.');
+                    return false;
+                }
+                
+                // Show loading state
+                $('#generateBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Generating...');
+            });
+            
+            // Remove invalid class on input
+            $('input, select').on('change input', function() {
+                $(this).removeClass('is-invalid');
+            });
+        });
+    </script>
+}
+

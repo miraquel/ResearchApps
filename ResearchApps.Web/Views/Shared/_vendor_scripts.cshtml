@@ -3,6 +3,16 @@
 <script src="~/assets/libs/simplebar/simplebar.min.js"></script>
 <script src="~/assets/libs/node-waves/waves.min.js"></script>
 <script src="~/assets/libs/feather-icons/feather.min.js"></script>
-<script src="~/assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
+@* <script src="~/assets/js/pages/plugins/lord-icon-2.1.0.js"></script> *@
+@* <script src="https://cdn.lordicon.com/lordicon.js"></script> *@
+<script src="~/assets/libs/@("@lordicon")/element/index.js"></script>
 <script src="~/assets/js/plugins.js"></script>
 <script src="~/assets/js/app.js"></script>
+
+<!-- SignalR and PR Notifications -->
+<script src="~/assets/libs/@("@microsoft")/signalr/dist/browser/signalr.min.js"></script>
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7fs5fHftyZ1HfKJbR7mGbKAfCDPJXCnC1FR98cvnLtJBUFfhqCVjqeK5VpfJC6X+P0TNHsGYT5l3LqFEh6sLIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
+<script src="~/assets/js/pr-notifications.js"></script>
+
+<!-- Toast notification container -->
+<div id="notification-toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>

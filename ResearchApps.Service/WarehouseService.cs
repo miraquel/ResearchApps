@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Http;
-using ResearchApps.Domain;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
 using ResearchApps.Service.Interface;

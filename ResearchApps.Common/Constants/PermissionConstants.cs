@@ -40,6 +40,8 @@ public static class PermissionConstants
         public const string Delete = "Users.Delete";
         public const string Details = "Users.Details";
         public const string UserRoles = "Users.UserRoles";
+        public const string ChangePassword = "Users.ChangePassword";
+        public const string Suspend = "Users.Suspend";
     }
     
     public static class Warehouses
@@ -81,6 +83,10 @@ public static class PermissionConstants
         public const string Edit = "Prs.Edit";
         public const string Delete = "Prs.Delete";
         public const string Details = "Prs.Details";
+        public const string Submit = "Prs.Submit";
+        public const string Approve = "Prs.Approve";
+        public const string Reject = "Prs.Reject";
+        public const string Recall = "Prs.Recall";
     }
     
     public class PrLines
@@ -90,6 +96,16 @@ public static class PermissionConstants
         public const string Edit = "PrLines.Edit";
         public const string Delete = "PrLines.Delete";
         public const string Details = "PrLines.Details";
+    }
+    
+    public class Reports
+    {
+        public const string Index = "Reports.Index";
+        public const string Create = "Reports.Create";
+        public const string Edit = "Reports.Edit";
+        public const string Delete = "Reports.Delete";
+        public const string Details = "Reports.Details";
+        public const string Generate = "Reports.Generate";
     }
     
     // Get all permissions from PermissionConstants

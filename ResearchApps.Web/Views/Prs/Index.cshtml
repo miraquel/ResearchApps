@@ -20,7 +20,7 @@
             <tr>
                 <th>@Html.DisplayNameFor(m => m.PrId)</th>
                 <th>@Html.DisplayNameFor(m => m.PrDate)</th>
-                <th>@Html.DisplayNameFor(m => m.BudgetName)</th>
+                <th>@Html.DisplayNameFor(m => m.PrName)</th>
                 <th>@Html.DisplayNameFor(m => m.Total)</th>
                 <th>@Html.DisplayNameFor(m => m.PrStatusName)</th>
                 <th>Actions</th>
@@ -30,7 +30,7 @@
             <tr>
                 <th>@Html.DisplayNameFor(m => m.PrId)</th>
                 <th>@Html.DisplayNameFor(m => m.PrDate)</th>
-                <th>@Html.DisplayNameFor(m => m.BudgetName)</th>
+                <th>@Html.DisplayNameFor(m => m.PrName)</th>
                 <th>@Html.DisplayNameFor(m => m.Total)</th>
                 <th>@Html.DisplayNameFor(m => m.PrStatusName)</th>
                 <th>Actions</th>
@@ -53,12 +53,13 @@
             // Initialize datatables
             $('#pr-table').DataTable({
                 searchDelay: 1000,
+                order: [[0, 'desc']], // Default order: descending by PR ID
                 layout: {
                     topEnd: {
                         buttons: [
                             {
-                                // Add PR button
-                                text: '<i class="ri-add-line align-bottom me-1"></i> Add PR',
+                                // Create PR button
+                                text: '<i class="ri-add-line align-bottom me-1"></i> Create',
                                 className: 'btn btn-primary btn-sm',
                                 action: function () {
                                     window.location.href = '/Prs/Create';
@@ -109,15 +110,25 @@
                     { data: 'prId', width: '50px' },
                     { 
                         data: 'prDate',
-                        render: function(data) {
-                            return data ? new Date(data).toLocaleDateString() : '';
+                        render: function(data, type) {
+                            // For sorting/filtering use the raw date
+                            if (type === 'sort' || type === 'filter') {
+                                return data ? data : '';
+                            }
+                            // For display, round and format with thousands separator
+                            return data ? moment(data).format("DD MMM YYYY") : ''
                         }
                     },
-                    { data: 'budgetName' },
+                    { data: 'prName' },
                     { 
                         data: 'total',
-                        render: function(data) {
-                            return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                        render: function(data, type) {
+                            // For sorting/filtering use the raw number
+                            if (type === 'sort' || type === 'filter') {
+                                return data ? parseFloat(data) : 0;
+                            }
+                            // For display, round and format with thousands separator
+                            return data ? numberFormat.format(data) : '';
                         }
                     },
                     { data: 'prStatusName', width: '100px' },
@@ -127,24 +138,18 @@
                         defaultContent: '',
                         orderable: false,
                         render: function(data, type, row) {
-                            return `
-                                <div class="dropdown d-inline-block">
-                                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ri-more-fill align-middle"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" style="">
-                                        <li><a href="/Prs/Details/${row.recId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
-                                        <li><a href="/Prs/Edit/${row.recId}" class="dropdown-item edit-item-btn"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
-                                        <li><a href="/Prs/Delete/${row.recId}" class="dropdown-item remove-item-btn"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</a>
-                                        </li>
-                                    </ul>
-                                </div>`;
-                        }
-                    },
+                            // use the shared helper to render the action dropdown; spread attrs if needed
+                            return window.renderActionDropdown([
+                                { href: `/Prs/Details/${row.recId}`, icon: 'ri-eye-fill', text: 'View' },
+                                { href: `/Prs/Edit/${row.recId}`, icon: 'ri-pencil-fill', text: 'Edit', class: 'edit-item-btn' },
+                                { href: `/Prs/Delete/${row.recId}`, icon: 'ri-delete-bin-fill', text: 'Delete', class: 'remove-item-btn' }
+                            ]);
+                         }
+                     },
                 ],
                 columnDefs: [
                     {
-                        targets: [0, 3, 4, 5],
+                        targets: [0, 1, 4, 5],
                         className: 'text-center'
                     }
                 ],

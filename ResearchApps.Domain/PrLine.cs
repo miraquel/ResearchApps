@@ -4,6 +4,7 @@ public class PrLine
 {
     public int PrLineId { get; set; }
     public string PrId { get; set; } = string.Empty;
+    public int PrRecId { get; set; }
     public int ItemId { get; set; }
     public string ItemName { get; set; } = string.Empty;
     public DateTime? RequestDate { get; set; }
@@ -16,6 +17,8 @@ public class PrLine
     public decimal? Amount { get; set; }
     public int PrStatusId { get; set; }
     public int RecId { get; set; }
+    public DateTime CreatedDate { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
+    public DateTime ModifiedDate { get; set; }
     public string ModifiedBy { get; set; } = string.Empty;
 }

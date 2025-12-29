@@ -10,8 +10,8 @@
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="ladylip" data-sidebar-size="lg">
 
 <head>
-    @Html.Partial("~/Views/Shared/_title_meta.cshtml")
-    @Html.Partial("~/Views/Shared/_head_css.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/_title_meta.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/_head_css.cshtml")
 </head>
 
 <body>
@@ -30,7 +30,7 @@
                                         <div class="bg-overlay"></div>
                                         <div class="position-relative h-100 d-flex flex-column">
                                             <div class="mb-4">
-                                                <a href="@Url.Action("Index", "Dashboard")" class="d-block">
+                                                <a href="@Url.Action("Index", "Home")" class="d-block">
                                                     <img src="~/assets/images/logo-light.png" alt="" height="18">
                                                 </a>
                                             </div>
@@ -106,7 +106,7 @@
     </div>
     <!-- end auth-page-wrapper -->
 
-    @Html.Partial("~/Views/Shared/_vendor_scripts.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/_vendor_scripts.cshtml")
     <script src="~/assets/js/pages/password-addon.init.js"></script>
     <partial name="_ValidationScriptsPartial" />
 </body>

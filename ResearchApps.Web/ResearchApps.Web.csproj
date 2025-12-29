@@ -1,39 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>aspnet-ResearchApps.Web-8b3f4fd1-6f2a-4992-84d7-0eb691ad46ad</UserSecretsId>
+        <LangVersion>14</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
+        <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.8" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+        <PackageReference Include="QuestPDF" Version="2025.12.0" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.10.3" />
         <PackageReference Include="Serilog" Version="4.3.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.3" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
+        <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+        <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+        <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Areas\Admin\Data\" />
-      <Folder Include="Areas\Admin\Models\" />
-      <Folder Include="Areas\Admin\Views\" />
       <Folder Include="Context\" />
-      <Folder Include="Context\Data\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 
@@ -81,6 +83,11 @@
       <_ContentIncludedByDefault Remove="Pages\Prs\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\Prs\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Pages\Prs\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Index.cshtml" />
     </ItemGroup>
 
 </Project>
+

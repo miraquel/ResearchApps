@@ -8,7 +8,9 @@ public class PrLineVm
     public int PrLineId { get; set; }
     [Display(Name = "PR ID")]
     public string PrId { get; set; } = string.Empty;
-    [Display(Name = "Item ID")]
+    [Display(Name = "PR Record ID")]
+    public int PrRecId { get; set; }
+    [Display(Name = "Item")]
     public int ItemId { get; set; }
     [Display(Name = "Item Name")]
     public string ItemName { get; set; } = string.Empty;
@@ -18,7 +20,7 @@ public class PrLineVm
     public string? RequestDateStr { get; set; }
     [Display(Name = "Quantity")]
     public decimal Qty { get; set; }
-    [Display(Name = "Unit ID")]
+    [Display(Name = "Unit")]
     public int UnitId { get; set; }
     [Display(Name = "Unit Name")]
     public string UnitName { get; set; } = string.Empty;
@@ -30,4 +32,12 @@ public class PrLineVm
     public decimal? Amount { get; set; }
     [Display(Name = "PR Status ID")]
     public int PrStatusId { get; set; }
+    [Display(Name = "Created Date")]
+    public DateTime CreatedDate { get; set; }
+    [Display(Name = "Created By")]
+    public string CreatedBy { get; set; } = string.Empty;
+    [Display(Name = "Modified Date")]
+    public DateTime ModifiedDate { get; set; }
+    [Display(Name = "Modified By")]
+    public string ModifiedBy { get; set; } = string.Empty;
 }

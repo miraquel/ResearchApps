@@ -30,11 +30,59 @@
                 <label asp-for="Input.LastName" class="form-label"></label>
                 <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+            <button id="update-profile-button" type="button" class="w-100 btn btn-lg btn-primary">Save</button>
         </form>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="updateProfileModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/exymduqj.json"
+                        trigger="loop"
+                        delay="2000"
+                        stroke="light"
+                        state="hover-line"
+                        style="width:100px;height:100px">
+                    </lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>Are you sure?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to update your profile?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn w-sm btn-primary" id="confirm-update-profile">Yes, Update It!</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            var form = $('#profile-form');
+            
+            $('#update-profile-button').on('click', function() {
+                form.validate();
+                if (form.valid()) {
+                    var modal = new bootstrap.Modal(document.getElementById('updateProfileModal'));
+                    modal.show();
+                }
+            });
+            
+            $('#confirm-update-profile').on('click', function() {
+                form.submit();
+            });
+        });
+    </script>
 }

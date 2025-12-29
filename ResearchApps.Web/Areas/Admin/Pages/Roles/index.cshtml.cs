@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using ResearchApps.Common.Constants;
+using ResearchApps.Domain;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ResearchApps.Domain;
 
 namespace ResearchApps.Web.Areas.Admin.Pages.Roles;
 
+[Authorize(PermissionConstants.Roles.Index)]
 public class IndexModel : PageModel
 {
     private readonly RoleManager<AppIdentityRole> _roleManager;

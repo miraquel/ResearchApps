@@ -5,6 +5,8 @@ namespace ResearchApps.Service.Interface;
 
 public interface IItemService
 {
+    // ItemCbo
+    Task<ServiceResponse> CboAsync(CboRequestVm cboRequestVm, CancellationToken cancellationToken);
     // ItemDelete
     Task<ServiceResponse> DeleteAsync(int itemId, CancellationToken cancellationToken);
     // ItemInsert

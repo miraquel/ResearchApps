@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ResearchApps.Domain;
-using Microsoft.AspNetCore.Identity;
-using ResearchApps.Common.Constants;
 
 namespace ResearchApps.Web.Context;
 

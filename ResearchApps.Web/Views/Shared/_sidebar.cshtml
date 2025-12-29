@@ -68,6 +68,11 @@
                         <i class="ri-file-list-3-fill"></i> <span data-key="t-prs">Purchase Requisitions</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link" href="@Url.Action("Index", "Reports", new { Area = "" })">
+                        <i class="ri-file-chart-fill"></i> <span data-key="t-reports">Reports</span>
+                    </a>
+                </li>
                 @if(User.IsInRole("Admin"))
                 {
                     <li class="menu-title"><span data-key="t-admin">Admin</span></li>
@@ -83,45 +88,11 @@
                     {
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="@Url.Action("Index", "Roles", new { Area = "Admin" })">
-                                <i class="ri-shield-fill"></i> <span data-key="t-permissions">Permissions</span>
+                                <i class="ri-shield-fill"></i> <span data-key="t-permissions">Roles</span>
                             </a>
                         </li>
                     }
                 }
-                @* <li class="nav-item"> *@
-                @*     <a class="nav-link menu-link" href="#sidebarDashboards" data-bs-toggle="collapse" role="button" *@
-                @*        aria-expanded="false" aria-controls="sidebarDashboards"> *@
-                @*         <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboards</span> *@
-                @*     </a> *@
-                @*     <div class="collapse menu-dropdown" id="sidebarDashboards"> *@
-                @*         <ul class="nav nav-sm flex-column"> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("Analytics", "Dashboard")" class="nav-link" data-key="t-analytics"> Analytics </a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("CRM", "Dashboard")" class="nav-link" data-key="t-crm"> CRM </a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("Index", "Dashboard")" class="nav-link" data-key="t-ecommerce"> Ecommerce </a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("Crypto", "Dashboard")" class="nav-link" data-key="t-crypto"> Crypto </a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("Projects", "Dashboard")" class="nav-link" data-key="t-projects"> Projects </a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("NFT", "Dashboard")" class="nav-link" data-key="t-nft"> NFT</a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("Job", "Dashboard")" class="nav-link" data-key="t-job">Job</a> *@
-                @*             </li> *@
-                @*             <li class="nav-item"> *@
-                @*                 <a href="@Url.Action("Blog", "Dashboard")" class="nav-link"><span data-key="t-blog">Blog</span> <span class="badge bg-success" data-key="t-new">New</span></a> *@
-                @*             </li> *@
-                @*         </ul> *@
-                @*     </div> *@
-                @* </li> <!-- end Dashboard Menu --> *@
             </ul>
         </div>
         <!-- Sidebar -->

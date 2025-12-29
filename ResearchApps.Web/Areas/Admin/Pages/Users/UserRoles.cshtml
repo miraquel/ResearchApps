@@ -1,47 +1,105 @@
 ﻿@page
 @model UserRolesModel
 @{
-    ViewData["Title"] = "Assign Roles";
+    ViewBag.Title = "Assign Roles to User";
+    ViewBag.pTitle = "Assign Roles to User";
 }
 
-<h1>Assign Roles to User</h1>
-
-@if (Model.UserEntity != null)
-{
-    <div class="mb-3">
-        <strong>User:</strong> @Model.UserEntity.Email
+<div class="card">
+    <div class="card-body">
+        @if (Model.UserEntity != null)
+        {
+            <div class="mb-3">
+                <strong>User:</strong> @Model.UserEntity.Email
+            </div>
+            <form method="post" class="form-horizontal">
+                <input type="hidden" asp-for="UserId" />
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                <div class="mb-4">
+                    <label class="fw-bold mb-2">Available Roles</label>
+                    <div class="row">
+                        @foreach (var t in Model.Roles)
+                        {
+                            var roleId = $"role_{t.Name}";
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="SelectedRoles"
+                                           value="@t.Name"
+                                           id="@roleId"
+                                           @(t.Assigned ? "checked" : "") />
+                                    <label class="form-check-label" for="@roleId">
+                                        <span class="fw-bold">@t.Name</span>
+                                        <span class="text-muted small d-block">@t.Description</span>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="row justify-content-end">
+                    <div class="col">
+                        <button type="button" class="btn btn-primary" id="save-roles-btn">Save Roles</button>
+                        <a asp-page="./Index" class="btn btn-secondary ms-2">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-danger">User not found.</div>
+        }
     </div>
-    <form method="post">
-        <input type="hidden" asp-for="UserId" />
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Assign</th>
-                    <th>Role Name</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var t in Model.Roles)
-            {
-                <tr>
-                    <td>
-                        <input type="checkbox"
-                               name="SelectedRoles"
-                               value="@t.Name"
-                               @(t.Assigned ? "checked" : "")/>
-                    </td>
-                    <td>@t.Name</td>
-                    <td>@t.Description</td>
-                </tr>
-            }
-            </tbody>
-        </table>
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a asp-page="./Index" class="btn btn-secondary">Cancel</a>
-    </form>
-}
-else
-{
-    <div class="alert alert-danger">User not found.</div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="saveRolesModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/exymduqj.json"
+                        trigger="loop"
+                        delay="2000"
+                        stroke="light"
+                        state="hover-line"
+                        style="width:100px;height:100px">
+                    </lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>Are you sure?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to update the roles for this user?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn w-sm btn-primary" id="confirm-save-roles">Yes, Save It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var form = $('form');
+            
+            $('#save-roles-btn').on('click', function() {
+                var modal = new bootstrap.Modal(document.getElementById('saveRolesModal'));
+                modal.show();
+            });
+            
+            $('#confirm-save-roles').on('click', function() {
+                form.submit();
+            });
+        });
+    </script>
 }
