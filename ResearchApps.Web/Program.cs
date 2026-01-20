@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using OfficeOpenXml;
+using QuestPDF.Infrastructure;
 using ResearchApps.Common.Constants;
 using ResearchApps.Domain;
 using ResearchApps.Repo;
@@ -14,6 +16,12 @@ using ResearchApps.Web.Services;
 using ResearchApps.Web.Swagger;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
+
+// Configure QuestPDF License
+QuestPDF.Settings.License = LicenseType.Community;
+
+// Configure EPPlus License
+ExcelPackage.License.SetNonCommercialOrganization("Research Apps"); //This will also set the Company property to the organization name provided in the argument.
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -106,22 +114,27 @@ builder.Services.AddSignalR();
 // Register PR Notification service
 builder.Services.AddScoped<IPrNotificationService, PrNotificationService>();
 
+// Register CO Notification service
+builder.Services.AddScoped<ICoNotificationService, CoNotificationService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 else
 {
+    app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseExceptionHandler("/Home/Error");
+app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -146,6 +159,9 @@ app.MapRazorPages()
 
 // Map SignalR hub for PR notifications
 app.MapHub<PrNotificationHub>("/hubs/pr-notifications");
+
+// Map SignalR hub for CO notifications
+app.MapHub<CoNotificationHub>("/hubs/co-notifications");
 
     app.Run();
 }

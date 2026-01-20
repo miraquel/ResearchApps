@@ -1,0 +1,557 @@
+@model ResearchApps.Service.Vm.PoVm
+
+@{
+    ViewBag.Title = $"Edit Purchase Order - {Model.Header.PoId}";
+    ViewBag.pTitle = $"Edit Purchase Order - {Model.Header.PoId}";
+    Layout = "_Layout";
+    
+    // Serialize lines for Alpine.js with camelCase
+    var linesJson = System.Text.Json.JsonSerializer.Serialize(Model.Lines.Select(l => new {
+        recId = l.RecId,
+        poLineId = l.PoLineId,
+        poId = l.PoId,
+        prLineId = l.PrLineId,
+        prLineName = l.PrLineName ?? "",
+        itemId = l.ItemId,
+        itemName = l.ItemName,
+        deliveryDate = l.DeliveryDate?.ToString("yyyy-MM-dd"),
+        qty = l.Qty,
+        unitId = l.UnitId,
+        unitName = l.UnitName,
+        price = l.Price,
+        amount = l.Amount,
+        notes = l.Notes ?? "",
+        poStatusId = l.PoStatusId,
+        requestedQty = l.RequestedQty,
+        orderedQty = l.OrderedQty,
+        outstandingQty = l.OutstandingQty,
+        createdDate = l.CreatedDate,
+        createdBy = l.CreatedBy,
+        modifiedDate = l.ModifiedDate,
+        modifiedBy = l.ModifiedBy
+    }));
+    
+    // Config object for poEdit component
+    var configJson = System.Text.Json.JsonSerializer.Serialize(new {
+        recId = Model.Header.RecId,
+        poId = Model.Header.PoId,
+        poDate = Model.Header.PoDate.ToString("yyyy-MM-dd"),
+        supplierId = Model.Header.SupplierId,
+        supplierName = Model.Header.SupplierName
+    });
+}
+
+<div x-data="{ ...poEdit(@linesJson, @configJson), workflow: createWorkflowComponent({ recId: @Model.Header.RecId, refId: '@Model.Header.PoId', baseUrl: '/Pos' }) }" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <div class="row">
+        <div class="col-12">
+            <!-- Header Card -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-file-text-line me-2"></i>Purchase Order Header - @Model.Header.PoId
+                        <span class="badge @(Model.Header.PoStatusId switch {
+                            0 => "bg-secondary",
+                            1 => "bg-success",
+                            4 => "bg-info",
+                            5 => "bg-success",
+                            6 => "bg-danger",
+                            _ => "bg-secondary"
+                        }) ms-2">
+                            @Model.Header.PoStatusName
+                        </span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="po-header-form" method="post" action="/Pos/Edit">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="Header.RecId" value="@Model.Header.RecId" />
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="Header_PoDate" class="form-label">
+                                    PO Date <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           id="Header_PoDate" 
+                                           name="Header.PoDate" 
+                                           class="form-control"
+                                           x-ref="poDatePicker"
+                                           data-flatpickr
+                                           required />
+                                    <span class="input-group-text">
+                                        <i class="ri-calendar-line"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_SupplierId" class="form-label">
+                                    Supplier <span class="text-danger">*</span>
+                                </label>
+                                <select id="Header_SupplierId" 
+                                        name="Header.SupplierId" 
+                                        class="form-control"
+                                        x-ref="supplierSelect"
+                                        data-tomselect
+                                        data-url="/api/Suppliers/cbo"
+                                        required>
+                                    <option value="">Select Supplier</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_Pic" class="form-label">PIC</label>
+                                <input type="text" 
+                                       id="Header_Pic" 
+                                       name="Header.Pic" 
+                                       class="form-control"
+                                       placeholder="Person in Charge"
+                                       maxlength="20"
+                                       value="@Model.Header.Pic" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_RefNo" class="form-label">Reference No.</label>
+                                <input type="text" 
+                                       id="Header_RefNo" 
+                                       name="Header.RefNo" 
+                                       class="form-control"
+                                       placeholder="External reference number"
+                                       maxlength="100"
+                                       value="@Model.Header.RefNo" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_IsPpn" class="form-label">PPN</label>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" 
+                                           id="Header_IsPpn" 
+                                           name="Header.IsPpn" 
+                                           class="form-check-input"
+                                           value="true"
+                                           @(Model.Header.IsPpn ? "checked" : "") />
+                                    <label class="form-check-label" for="Header_IsPpn">
+                                        Include 11% PPN/VAT
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="Header_Notes" class="form-label">Notes</label>
+                                <textarea id="Header_Notes" 
+                                          name="Header.Notes" 
+                                          class="form-control"
+                                          rows="3"
+                                          maxlength="500">@Model.Header.Notes</textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" 
+                                    class="btn btn-primary" 
+                                    :disabled="isHeaderSaving">
+                                <span x-show="!isHeaderSaving">
+                                    <i class="ri-save-line me-1"></i> Update Header
+                                </span>
+                                <span x-show="isHeaderSaving" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                                </span>
+                            </button>
+                            <a href="/Pos/Details/@Model.Header.RecId" class="btn btn-secondary">
+                                <i class="ri-eye-line me-1"></i> View Details
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lines Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-list-check-2 me-2"></i>Purchase Order Lines
+                        </h5>
+                        <button type="button" 
+                                class="btn btn-sm btn-success" 
+                                @@click="showLineModal('add')">
+                            <i class="ri-add-line me-1"></i> Add Line
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-end">Qty</th>
+                                    <th>Unit</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Amount</th>
+                                    <th>Notes</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="line in lines" :key="line.poLineId">
+                                    <tr>
+                                        <td x-text="line.itemName"></td>
+                                        <td class="text-end" x-text="formatNumber(line.qty)"></td>
+                                        <td x-text="line.unitName"></td>
+                                        <td class="text-end" x-text="formatNumber(line.price)"></td>
+                                        <td class="text-end" x-text="formatNumber(line.amount)"></td>
+                                        <td><span x-text="line.notes || '-'" class="text-muted"></span></td>
+                                        <td class="text-center">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-soft-primary" 
+                                                    @@click="showLineModal('edit', line)"
+                                                    title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-soft-danger" 
+                                                    @@click="confirmDeleteLine(line)"
+                                                    title="Delete">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-if="lines.length === 0">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4 text-muted">
+                                            <i class="ri-inbox-line" style="font-size: 3rem;"></i>
+                                            <p class="mt-2">No line items yet. Click "Add Line" to get started.</p>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot class="table-light" x-show="lines.length > 0">
+                                <tr>
+                                    <th colspan="5" class="text-end">Total:</th>
+                                    <th class="text-end" x-text="formatNumber(calculateTotal())"></th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Line Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': lineModal.show }" 
+         :style="lineModal.show ? 'background: rgba(0,0,0,0.5);' : ''"
+         x-show="lineModal.show" 
+         x-cloak
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title mb-0">
+                        <i class="ri-add-circle-line text-success me-1" x-show="lineModal.mode === 'add'"></i>
+                        <i class="ri-edit-line text-primary me-1" x-show="lineModal.mode === 'edit'"></i>
+                        <span x-text="lineModal.mode === 'add' ? 'Add Line Item' : 'Edit Line Item'"></span>
+                    </h6>
+                    <button type="button" class="btn-close" @@click="closeLineModal()"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label mb-1 small">PR Line <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" 
+                                       class="form-control bg-light" 
+                                       x-model="lineModal.data.prLineName"
+                                       readonly 
+                                       placeholder="Click browse to select PR Line" />
+                                <button type="button" 
+                                        class="btn btn-outline-primary" 
+                                        @@click="openPrLineSelector()"
+                                        x-show="lineModal.mode === 'add'">
+                                    <i class="ri-search-line"></i> Browse
+                                </button>
+                            </div>
+                            <small class="text-danger" x-show="lineModal.errors.prLineId" x-text="lineModal.errors.prLineId"></small>
+                            <small class="text-muted" x-show="lineModal.mode === 'edit'">PR Line cannot be changed after creation</small>
+                        </div>
+                        <div class="col-8">
+                            <label class="form-label mb-1 small">Item <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control form-control-sm bg-light" 
+                                   x-model="lineModal.data.itemName"
+                                   readonly />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label mb-1 small">Unit <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control form-control-sm bg-light" 
+                                   x-model="lineModal.data.unitName"
+                                   readonly />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label mb-1 small">Delivery Date</label>
+                            <input type="text" 
+                                   id="lineDeliveryDate"
+                                   class="form-control form-control-sm" 
+                                   x-model="lineModal.data.deliveryDate"
+                                   placeholder="Select date" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label mb-1 small">Outstanding</label>
+                            <input type="text" 
+                                   class="form-control form-control-sm bg-light text-end" 
+                                   x-model="lineModal.data.outstandingQty"
+                                   readonly />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label mb-1 small">Quantity <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control form-control-sm text-end" 
+                                   inputmode="numeric"
+                                   :value="formatNumber(lineModal.data.qty)"
+                                   @@input="lineModal.data.qty = parseNumber($event.target.value); calculateLineAmount();"
+                                   @@blur="$event.target.value = formatNumber(lineModal.data.qty)"
+                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   required />
+                            <small class="text-danger" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></small>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label mb-1 small">Price <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control form-control-sm text-end" 
+                                   inputmode="numeric"
+                                   :value="formatNumber(lineModal.data.price)"
+                                   @@input="lineModal.data.price = parseNumber($event.target.value); calculateLineAmount();"
+                                   @@blur="$event.target.value = formatNumber(lineModal.data.price)"
+                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   required />
+                            <small class="text-danger" x-show="lineModal.errors.price" x-text="lineModal.errors.price"></small>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label mb-1 small">Amount</label>
+                            <input type="text" 
+                                   class="form-control form-control-sm bg-light text-end" 
+                                   :value="formatNumber(lineModal.data.amount)"
+                                   readonly />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label mb-1 small">Notes</label>
+                            <textarea class="form-control form-control-sm" 
+                                      x-model="lineModal.data.notes"
+                                      rows="2"
+                                      maxlength="200"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="closeLineModal()">
+                        Cancel
+                    </button>
+                    <button type="button" 
+                            class="btn btn-primary" 
+                            @@click="saveLine()"
+                            :disabled="lineModal.isSaving">
+                        <span x-show="!lineModal.isSaving">
+                            <i class="ri-save-line me-1"></i> Save
+                        </span>
+                        <span x-show="lineModal.isSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PR Line Selector Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': prLineSelector.show }" 
+         :style="prLineSelector.show ? 'background: rgba(0,0,0,0.5);' : ''"
+         x-show="prLineSelector.show" 
+         x-cloak
+         tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-file-list-line text-primary me-2"></i>Select PR Line
+                    </h5>
+                    <button type="button" class="btn-close" @@click="closePrLineSelector()"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Filters -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label small">PR Number</label>
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   x-model="prLineSelector.filters.prId"
+                                   @@keyup.enter="searchPrLines()"
+                                   placeholder="Enter PR number" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">Item Name</label>
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   x-model="prLineSelector.filters.itemName"
+                                   @@keyup.enter="searchPrLines()"
+                                   placeholder="Enter item name" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">Request Date From</label>
+                            <input type="date" 
+                                   class="form-control form-control-sm" 
+                                   x-model="prLineSelector.filters.dateFrom" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">&nbsp;</label>
+                            <button type="button" 
+                                    class="btn btn-primary btn-sm w-100" 
+                                    @@click="searchPrLines()">
+                                <i class="ri-search-line"></i> Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div x-show="prLineSelector.isLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mt-2">Loading PR lines...</p>
+                    </div>
+
+                    <!-- Table -->
+                    <div x-show="!prLineSelector.isLoading" class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>PR Number</th>
+                                    <th>Item</th>
+                                    <th class="text-end">Requested</th>
+                                    <th class="text-end">Outstanding</th>
+                                    <th class="text-end">Price</th>
+                                    <th>Request Date</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="line in prLineSelector.items" :key="line.prLineId">
+                                    <tr>
+                                        <td x-text="line.prId"></td>
+                                        <td x-text="line.itemName"></td>
+                                        <td class="text-end" x-text="formatNumber(line.requestedQty || line.qty)"></td>
+                                        <td class="text-end text-primary fw-bold" x-text="formatNumber(line.outstandingQty || line.qty)"></td>
+                                        <td class="text-end" x-text="formatNumber(line.price)"></td>
+                                        <td x-text="line.requestDateStr || (line.requestDate ? new Date(line.requestDate).toLocaleDateString() : '')"></td>
+                                        <td class="text-center">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-success" 
+                                                    @@click="selectPrLine(line)">
+                                                <i class="ri-check-line"></i> Select
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="prLineSelector.items.length === 0">
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="ri-inbox-line fs-1"></i>
+                                        <p class="mb-0">No PR lines found</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div x-show="!prLineSelector.isLoading && prLineSelector.totalPages > 1" 
+                         class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="text-muted small">
+                            Showing <span x-text="prLineSelector.items.length"></span> of 
+                            <span x-text="prLineSelector.totalCount"></span> items
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item" :class="{ 'disabled': prLineSelector.pageNumber === 1 }">
+                                    <button class="page-link" @@click="changePrLinePage(prLineSelector.pageNumber - 1)">
+                                        <i class="ri-arrow-left-s-line"></i>
+                                    </button>
+                                </li>
+                                <template x-for="page in prLineSelector.totalPages" :key="page">
+                                    <li class="page-item" :class="{ 'active': page === prLineSelector.pageNumber }">
+                                        <button class="page-link" @@click="changePrLinePage(page)" x-text="page"></button>
+                                    </li>
+                                </template>
+                                <li class="page-item" :class="{ 'disabled': prLineSelector.pageNumber === prLineSelector.totalPages }">
+                                    <button class="page-link" @@click="changePrLinePage(prLineSelector.pageNumber + 1)">
+                                        <i class="ri-arrow-right-s-line"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="closePrLineSelector()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': deleteModal.show }" 
+         :style="deleteModal.show ? 'background: rgba(0,0,0,0.5);' : ''"
+         x-show="deleteModal.show" 
+         x-cloak
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-delete-bin-line text-danger me-2"></i>Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" @@click="deleteModal.show = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this line item?</p>
+                    <p class="text-muted small mb-0">
+                        <strong x-text="deleteModal.line?.itemName"></strong>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="deleteModal.show = false">
+                        Cancel
+                    </button>
+                    <button type="button" 
+                            class="btn btn-danger" 
+                            @@click="deleteLine()"
+                            :disabled="deleteModal.isDeleting">
+                        <span x-show="!deleteModal.isDeleting">
+                            <i class="ri-delete-bin-line me-1"></i> Delete
+                        </span>
+                        <span x-show="deleteModal.isDeleting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1"></span> Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Partials/_WorkflowModal", Model.Header.PoId)
+</div>
+
+@section scripts {
+    <script src="~/js/components/workflow-component.js"></script>
+    <script src="~/js/pos/po-edit.js"></script>
+}

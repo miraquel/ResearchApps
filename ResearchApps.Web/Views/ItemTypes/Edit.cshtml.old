@@ -1,0 +1,148 @@
+﻿@model ResearchApps.Service.Vm.ItemTypeVm
+
+@{
+    ViewBag.Title = "Edit Item Type";
+    ViewBag.pTitle = "Edit Item Type";
+    Layout = "_Layout";
+}
+
+@section styles
+{
+    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card mt-3">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="ItemTypeId"/>
+            <div class="row mb-3">
+                <div class="col-lg-3">
+                    <label><strong>@Html.DisplayNameFor(m => m.ItemTypeName)</strong></label>
+                </div>
+                <div class="col-lg-9">
+                    <input asp-for="ItemTypeName" class="form-control"/>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-3">
+                    <label><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></label>
+                </div>
+                <div class="col-lg-9">
+                    <select asp-for="StatusId" data-selected="@Model.StatusId" id="statusId" class="select2 select2-container select2-container--default select2-container--above"></select>
+                </div>
+            </div>
+            <div class="text-end">
+                <button type="button" class="btn btn-primary" id="save-itemtype-btn">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script>
+        // Get AntiForgeryToken using jQuery
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        const statusId = $('#statusId');
+        statusId.select2({
+            placeholder: "Select Status",
+            ajax: {
+                url: '/api/Status/',
+                type: 'GET',
+                dataType: 'json',
+                delay: 500,
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                data: function (params) {
+                    return {
+                        filters: {
+                            term: params.term ? `%${params.term}%` : '',
+                        }
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.data.map(item => ({
+                            id: item.statusId,
+                            text: item.statusName
+                        }))
+                    };
+                },
+            }
+        });
+
+        // Fetch the preselected item, and add to the control
+        $.ajax({
+            url: '/api/Status/',
+            type: 'GET',
+            dataType: 'json',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            data: {
+                id: @Model.StatusId,
+            },
+        }).done(function (data) {
+            // create the option and append to Select2
+            const option = new Option(data.data[0].statusName, data.data[0].statusId, true, true);
+            statusId.append(option).trigger('change');
+
+            // manually trigger the `select2:select` event
+            statusId.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+
+        // Confirmation modal handler
+        $('#save-itemtype-btn').on('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('saveItemTypeModal'));
+            modal.show();
+        });
+
+        $('#confirm-save-itemtype').on('click', function() {
+            $('form').submit();
+        });
+        
+    </script>
+}
+
+<!-- Confirmation Modal -->
+<div id="saveItemTypeModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon
+                        src="https://cdn.lordicon.com/exymduqj.json"
+                        trigger="loop"
+                        delay="2000"
+                        stroke="light"
+                        state="hover-line"
+                        style="width:100px;height:100px">
+                    </lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>Are you sure?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to update this item type?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn w-sm btn-primary" id="confirm-save-itemtype">Yes, Update It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

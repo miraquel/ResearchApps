@@ -1,0 +1,228 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.DeliveryOrderVm
+
+@{
+    ViewBag.Title = "Delivery Order Details";
+    ViewBag.pTitle = $"Delivery Order {Model.Header.DoId}";
+    Layout = "_Layout";
+}
+
+<div x-data="{ ...doDetails('@Model.Header.DoId', @Model.Header.RecId), showWorkflow: false }" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <div id="doDetails" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col d-flex justify-content-between align-items-center">
+                    <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#lines">Lines</a>
+                        </li>
+                        <li class="nav-item" role="presentation" x-show="showWorkflow">
+                            <a class="nav-link" data-bs-toggle="tab" href="#workflow">Workflow</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                        </li>
+                    </ul>
+                    <div class="position-absolute top-0 end-0">
+                        <!-- Loading Indicator -->
+                        <span x-show="isLoading" x-cloak class="spinner-border spinner-border-sm text-primary"></span>
+                        
+                        @if (Model.Header.DoStatusId == DoStatusConstants.Draft && User.Identity?.Name == Model.Header.CreatedBy)
+                        {
+                            <a href="/DeliveryOrders/Edit/@Model.Header.RecId" class="btn btn-sm btn-success">
+                                <i class="ri-edit-line"></i> Edit
+                            </a>
+                        }
+                        
+                        @if (Model.Header.DoStatusId == DoStatusConstants.Draft && User.Identity?.Name == Model.Header.CreatedBy)
+                        {
+                            <a href="/DeliveryOrders/Delete/@Model.Header.RecId" class="btn btn-sm btn-danger">
+                                <i class="ri-delete-bin-line"></i> Delete
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div class="tab-pane active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">DO No</td>
+                                    <td>@Model.Header.DoId</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">DO Date</td>
+                                    <td>@Model.Header.DoDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Customer</td>
+                                    <td><a href="/Customers/Details/@Model.Header.CustomerId">@Model.Header.CustomerName</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Reference CO</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(Model.Header.CoId))
+                                        {
+                                            <a href="/CustomerOrders/Details?id=@Model.Header.CoRecId">@Model.Header.CoId</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Status</td>
+                                    <td>
+                                        @{
+                                            var badgeClass = Model.Header.DoStatusId switch
+                                            {
+                                                DoStatusConstants.Draft => "bg-secondary",
+                                                DoStatusConstants.Active => "bg-success",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@Model.Header.DoStatusName</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Reference ID</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.RefId) ? "-" : Model.Header.RefId)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Delivery Note</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.Dn) ? "-" : Model.Header.Dn)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Description</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.Descr) ? "-" : Model.Header.Descr)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Notes</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lines Tab -->
+                <div class="tab-pane" id="lines" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>CO No</th>
+                                    <th class="text-center">CO Line</th>
+                                    <th>Item</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th class="text-end" style="width: 120px;">Amount</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int lineNumber = 0; }
+                                @foreach (var line in Model.Lines)
+                                {
+                                    lineNumber++;
+                                    <tr>
+                                        <td class="text-center">@lineNumber</td>
+                                        <td>@line.CoId</td>
+                                        <td class="text-center">@line.CoLineId</td>
+                                        <td>
+                                            <a href="#" 
+                                               @@click.prevent="showLineDetailModal(@System.Text.Json.JsonSerializer.Serialize(line, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))"
+                                               class="text-primary text-decoration-none">
+                                                @line.ItemName
+                                            </a>
+                                        </td>
+                                        <td class="text-end">@line.Qty.ToString("N2")</td>
+                                        <td class="text-center">@line.UnitName</td>
+                                        <td class="text-end">@line.Price.ToString("N0")</td>
+                                        <td class="text-end">@line.Amount.ToString("N0")</td>
+                                        <td>@line.Notes</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="7" class="text-end fw-bold">Total:</td>
+                                    <td class="text-end fw-bold text-primary">@Model.Lines.Sum(l => l.Amount).ToString("N0")</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Workflow Tab -->
+                <div class="tab-pane" id="workflow" role="tabpanel" x-show="showWorkflow">
+                    <div id="workflowHistoryContainer" 
+                         hx-get="@Url.Action("WorkflowHistory", "DeliveryOrders", new { refId = Model.Header.DoId, wfFormId = 4 })"
+                         hx-trigger="load"
+                         hx-swap="innerHTML">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Log Tab -->
+                <div class="tab-pane" id="log" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Created Date</td>
+                                    <td>@Model.Header.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Created By</td>
+                                    <td>@Model.Header.CreatedBy</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Modified Date</td>
+                                    <td>@Model.Header.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Modified By</td>
+                                    <td>@Model.Header.ModifiedBy</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    @await Html.PartialAsync("_Partials/_DoLineDetailModal")
+</div>
+
+@section scripts {
+    <script src="~/js/delivery-orders/do-details.js"></script>
+}

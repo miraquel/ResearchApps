@@ -1,0 +1,187 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.SalesInvoiceVm
+
+@{
+    ViewBag.Title = "Sales Invoice Details";
+    ViewBag.pTitle = $"Sales Invoice {Model.Header.SiId}";
+    Layout = "_Layout";
+}
+
+<div x-data="{ showWorkflow: false }" x-init="">
+    @Html.AntiForgeryToken()
+    
+    <div id="siDetails" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col d-flex justify-content-between align-items-center">
+                    <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#lines">Lines</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                        </li>
+                    </ul>
+                    <div class="position-absolute top-0 end-0">
+                        @if (Model.Header.SiStatusId == SiStatusConstants.Draft && User.Identity?.Name == Model.Header.CreatedBy)
+                        {
+                            <a href="/SalesInvoices/Edit/@Model.Header.RecId" class="btn btn-sm btn-success">
+                                <i class="ri-edit-line"></i> Edit
+                            </a>
+                            <form method="post" action="/SalesInvoices/Delete/@Model.Header.RecId" class="d-inline"
+                                  onsubmit="return confirm('Are you sure you want to delete this Sales Invoice?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="ri-delete-bin-line"></i> Delete
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div class="tab-pane active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Invoice No</td>
+                                    <td>@Model.Header.SiId</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Invoice Date</td>
+                                    <td>@Model.Header.SiDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Customer</td>
+                                    <td><a href="/Customers/Details/@Model.Header.CustomerId">@Model.Header.CustomerName</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Customer Address</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.CustomerAddress) ? "-" : Model.Header.CustomerAddress)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Customer Phone</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.CustomerTelp) ? "-" : Model.Header.CustomerTelp)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Status</td>
+                                    <td>@Html.Raw(Model.Header.SiStatusName)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">PO No</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.PoNo) ? "-" : Model.Header.PoNo)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Tax No</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.TaxNo) ? "-" : Model.Header.TaxNo)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Amount</td>
+                                    <td class="fw-semibold text-primary">@Model.Header.Amount.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Notes</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lines Tab -->
+                <div class="tab-pane" id="lines" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 50px;">#</th>
+                                <th>DO No</th>
+                                <th>Item</th>
+                                <th class="text-end" style="width: 120px;">Qty</th>
+                                <th style="width: 80px;">Unit</th>
+                                <th class="text-end" style="width: 140px;">Price</th>
+                                <th class="text-end" style="width: 160px;">Amount</th>
+                                <th>Notes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @{
+                                var lineNo = 0;
+                                decimal totalAmount = 0;
+                            }
+                            @foreach (var line in Model.Lines)
+                            {
+                                lineNo++;
+                                var lineAmount = line.Qty * line.Price;
+                                totalAmount += lineAmount;
+                                <tr>
+                                    <td class="text-center">@lineNo</td>
+                                    <td>@line.DoId</td>
+                                    <td>@line.ItemName</td>
+                                    <td class="text-end">@line.Qty.ToString("N2")</td>
+                                    <td>@line.UnitName</td>
+                                    <td class="text-end">@line.Price.ToString("N0")</td>
+                                    <td class="text-end fw-semibold">@lineAmount.ToString("N0")</td>
+                                    <td>@(string.IsNullOrEmpty(line.Notes) ? "-" : line.Notes)</td>
+                                </tr>
+                            }
+                            </tbody>
+                            <tfoot class="table-light">
+                            <tr>
+                                <td colspan="6" class="text-end fw-bold">Total:</td>
+                                <td class="text-end fw-bold text-primary">@totalAmount.ToString("N0")</td>
+                                <td></td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Log Tab -->
+                <div class="tab-pane" id="log" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Created By</td>
+                                    <td>@Model.Header.CreatedBy</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Created Date</td>
+                                    <td>@Model.Header.CreatedDate.ToString("dd MMM yyyy HH:mm")</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Modified By</td>
+                                    <td>@Model.Header.ModifiedBy</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Modified Date</td>
+                                    <td>@Model.Header.ModifiedDate.ToString("dd MMM yyyy HH:mm")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/sales-invoices/si-details.js"></script>
+}

@@ -1,0 +1,100 @@
+@* 
+    Delivery Order Line Detail Modal
+    Uses camelCase property names consistently.
+    
+    Requires Alpine.js data properties: lineDetailModal.show, lineDetailModal.line, formatNumber()
+*@
+
+<!-- Line Detail Modal -->
+<div class="modal fade" 
+     :class="{ 'show d-block': lineDetailModal.show }"
+     x-show="lineDetailModal.show"
+     x-cloak
+     tabindex="-1"
+     @@click.self="lineDetailModal.show = false"
+     @@keydown.escape.window="lineDetailModal.show = false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ri-information-line me-2"></i>
+                    Delivery Order Line Details
+                </h5>
+                <button type="button" class="btn-close" @@click="lineDetailModal.show = false"></button>
+            </div>
+            <div class="modal-body" x-show="lineDetailModal.line">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Line Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Line ID</td>
+                                <td x-text="lineDetailModal.line?.doLineId"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">CO No</td>
+                                <td x-text="lineDetailModal.line?.coId"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">CO Line ID</td>
+                                <td x-text="lineDetailModal.line?.coLineId"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Item Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Item Name</td>
+                                <td x-text="lineDetailModal.line?.itemName"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Item ID</td>
+                                <td x-text="lineDetailModal.line?.itemId"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Quantity & Unit</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Quantity</td>
+                                <td>
+                                    <span x-text="formatNumber(lineDetailModal.line?.qty)"></span> 
+                                    <span x-text="lineDetailModal.line?.unitName"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Price</td>
+                                <td x-text="formatNumber(lineDetailModal.line?.price)"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Amount</td>
+                                <td class="fw-bold text-primary fs-5" x-text="formatNumber(lineDetailModal.line?.amount)"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Notes</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Notes</td>
+                                <td x-text="lineDetailModal.line?.notes || '-'"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @@click="lineDetailModal.show = false">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" x-show="lineDetailModal.show" x-cloak></div>

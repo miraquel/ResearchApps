@@ -77,23 +77,65 @@ public class PrRepo : IPrRepo
     {
         const string query = "Pr_Select";
         var parameters = new DynamicParameters();
-        // loop Filters
+        
         foreach (var filter in request.Filters)
         {
-            if (filter.Value is { } strValue && strValue.Contains('%'))
+            if (filter.Value is { } strValue && !string.IsNullOrWhiteSpace(strValue))
             {
-                parameters.Add($"@{filter.Key}", strValue);
-            }
-            else
-            {
-                parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
+                switch (filter.Key)
+                {
+                    // Special handling for date fields
+                    case "PrDate" or "PrDateFrom" or "PrDateTo" or "CreatedDate" or "CreatedDateFrom" or "CreatedDateTo" or "ModifiedDate" or "ModifiedDateFrom" or "ModifiedDateTo":
+                    {
+                        if (DateTime.TryParse(strValue, out var dateValue))
+                        {
+                            parameters.Add($"@{filter.Key}", dateValue);
+                        }
+                        break;
+                    }
+                    // Special handling for numeric fields
+                    case "Total":
+                    {
+                        if (decimal.TryParse(strValue, out var decimalValue))
+                        {
+                            parameters.Add($"@{filter.Key}", decimalValue);
+                        }
+                        break;
+                    }
+                    // Special handling for operator fields
+                    case "TotalOperator":
+                    {
+                        parameters.Add($"@{filter.Key}", strValue);
+                        break;
+                    }
+                    // Special handling for integer fields
+                    case "PrStatusId" or "BudgetId" or "RecId":
+                    {
+                        if (int.TryParse(strValue, out var intValue))
+                        {
+                            parameters.Add($"@{filter.Key}", intValue);
+                        }
+                        break;
+                    }
+                    // Special handling for PrId (it's a string but might be passed as an integer)
+                    case "PrId":
+                    {
+                        // PrId is varchar in database, keep as string
+                        parameters.Add($"@{filter.Key}", strValue);
+                        break;
+                    }
+                    // Default: string fields with LIKE pattern
+                    default:
+                        parameters.Add($"@{filter.Key}", strValue);
+                        break;
+                }
             }
         }
         
         parameters.Add("@PageNumber", request.PageNumber);
         parameters.Add("@PageSize", request.PageSize);
         parameters.Add("@SortOrder", request.IsSortAscending ? "ASC" : "DESC");
-        parameters.Add("@SortColumn", request.SortBy);
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(request.SortBy) ? "PrId" : request.SortBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         

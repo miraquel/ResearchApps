@@ -1,0 +1,147 @@
+@* 
+    Order Line Detail Modal (Simplified)
+    Uses camelCase property names consistently - ensure parent view serializes with camelCase.
+    
+    Requires Alpine.js data properties: lineDetailModal.show, lineDetailModal.line, formatNumber()
+    
+    Usage:
+    1. Include this partial in your view
+    2. Ensure parent component has lineDetailModal state and formatNumber method
+    3. Set showDeliveryInfo to true/false to show/hide delivery section (optional, defaults to true)
+*@
+
+@{
+    var showDeliveryInfo = ViewData["ShowDeliveryInfo"] as bool? ?? true;
+}
+
+<!-- Line Detail Modal -->
+<div class="modal fade" 
+     :class="{ 'show d-block': lineDetailModal.show }"
+     x-show="lineDetailModal.show"
+     x-cloak
+     tabindex="-1"
+     @@click.self="lineDetailModal.show = false"
+     @@keydown.escape.window="lineDetailModal.show = false">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ri-information-line me-2"></i>
+                    Order Line Details
+                </h5>
+                <button type="button" class="btn-close" @@click="lineDetailModal.show = false"></button>
+            </div>
+            <div class="modal-body" x-show="lineDetailModal.line">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Item Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Line ID</td>
+                                <td x-text="lineDetailModal.line?.coLineId"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Item Name</td>
+                                <td x-text="lineDetailModal.line?.itemName"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Item ID</td>
+                                <td x-text="lineDetailModal.line?.itemId"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Quantity & Pricing</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Quantity</td>
+                                <td>
+                                    <span x-text="formatNumber(lineDetailModal.line?.qty)"></span> 
+                                    <span x-text="lineDetailModal.line?.unitName"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Unit Price</td>
+                                <td x-text="formatNumber(lineDetailModal.line?.price)"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Amount</td>
+                                <td class="fw-bold text-primary fs-5" x-text="formatNumber(lineDetailModal.line?.amount)"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Delivery Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 200px;">Wanted Delivery Date</td>
+                                <td x-text="lineDetailModal.line?.wantedDeliveryDateDisplay || '-'"></td>
+                            </tr>
+                            @if (showDeliveryInfo)
+                            {
+                                <tr>
+                                    <td class="fw-bold">Quantity Delivered</td>
+                                    <td x-text="formatNumber(lineDetailModal.line?.qtyDelivered || 0)"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Quantity Outstanding</td>
+                                    <td>
+                                        <span :class="(lineDetailModal.line?.qtyOs || 0) > 0 ? 'text-danger fw-bold' : ''"
+                                              x-text="formatNumber(lineDetailModal.line?.qtyOs || 0)"></span>
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="row mb-3" x-show="lineDetailModal.line?.notes">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Notes</h6>
+                        <p class="text-muted" x-text="lineDetailModal.line?.notes || '-'"></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6 class="text-muted mb-3">Audit Log</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td class="fw-bold" style="width: 120px;">Created Date</td>
+                                        <td class="text-muted" x-text="lineDetailModal.line?.createdDate && lineDetailModal.line.createdDate !== '0001-01-01T00:00:00' ? new Date(lineDetailModal.line.createdDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-'"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Created By</td>
+                                        <td class="text-muted" x-text="lineDetailModal.line?.createdBy || '-'"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td class="fw-bold" style="width: 120px;">Modified Date</td>
+                                        <td class="text-muted" x-text="lineDetailModal.line?.modifiedDate && lineDetailModal.line.modifiedDate !== '0001-01-01T00:00:00' ? new Date(lineDetailModal.line.modifiedDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-'"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Modified By</td>
+                                        <td class="text-muted" x-text="lineDetailModal.line?.modifiedBy || '-'"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @@click="lineDetailModal.show = false">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" x-show="lineDetailModal.show" x-cloak></div>

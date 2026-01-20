@@ -1,0 +1,135 @@
+@{
+    ViewBag.Title = "Purchase Orders";
+    ViewBag.pTitle = "Purchase Orders";
+    Layout = "_Layout";
+}
+
+@Html.AntiForgeryToken()
+
+<div x-data="poIndex()" x-init="init()">
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-soft-secondary" @@click="fetchList()" title="Refresh">
+                            <i class="ri-refresh-line" :class="{ 'spin': isLoading }"></i>
+                        </button>
+                        <button type="button" class="btn btn-soft-warning" @@click="clearFilters()" title="Clear Filters">
+                            <i class="ri-filter-off-line me-1"></i> Clear Filters
+                        </button>
+                        <div x-show.important="isLoading" class="d-flex align-items-center text-muted" x-cloak>
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-success me-2" @@click="exportToExcel()" :disabled="isExporting">
+                        <span x-show="!isExporting">
+                            <i class="ri-file-excel-2-line align-bottom me-1"></i> Export to Excel
+                        </span>
+                        <span x-show="isExporting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Exporting...
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-info me-2" @@click="showReportModal = true">
+                        <i class="ri-file-pdf-line align-bottom me-1"></i> Generate Report
+                    </button>
+                    <a href="/Pos/Create" class="btn btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Create
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div id="po-list-container"
+                 hx-get="/Pos/List"
+                 hx-trigger="load"
+                 hx-swap="innerHTML"
+                 :hx-vals='JSON.stringify({page: currentPage, sortBy: sortBy, sortAsc: sortAsc, filters: filters})'>
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading purchase orders...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Generation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showReportModal }"
+         x-show="showReportModal"
+         x-cloak
+         @@click.self="showReportModal = false"
+         @@keydown.escape.window="showReportModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-file-pdf-line me-2 text-danger"></i>Generate PO Report
+                    </h5>
+                    <button type="button" class="btn-close" @@click="showReportModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Report Type <span class="text-danger">*</span></label>
+                        <select class="form-select" x-model="reportType">
+                            <option value="summary">Summary Report</option>
+                            <option value="detail">Detail Report</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                            <input type="date" 
+                                   class="form-control" 
+                                   x-model="reportStartDate"
+                                   :max="reportEndDate"
+                                   required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Date <span class="text-danger">*</span></label>
+                            <input type="date" 
+                                   class="form-control" 
+                                   x-model="reportEndDate"
+                                   :min="reportStartDate"
+                                   required />
+                        </div>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <i class="ri-information-line me-1"></i>
+                        <span x-text="reportType === 'summary' 
+                            ? 'Summary report shows total amount per supplier.' 
+                            : 'Detail report shows all PO lines with item details and quantities.'"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showReportModal = false">Cancel</button>
+                    <button type="button" 
+                            class="btn btn-primary" 
+                            :disabled="!reportStartDate || !reportEndDate || isGeneratingReport"
+                            @@click="generateReport()">
+                        <span x-show="!isGeneratingReport">
+                            <i class="ri-file-pdf-line me-1"></i> Generate PDF
+                        </span>
+                        <span x-show="isGeneratingReport" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Generating...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showReportModal" x-cloak></div>
+</div>
+
+@section scripts {
+    <script src="~/js/pos/po-index.js"></script>
+}

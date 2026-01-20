@@ -265,11 +265,11 @@ public class ReportsController : Controller
             var report = reportResponse.Data;
 
             // Get parameter values from query string
-            var parameterValues = new Dictionary<string, string?>();
+            var parameterValues = new Dictionary<string, string>();
             foreach (var param in report.Parameters)
             {
                 var value = Request.Query[param.ParameterName].FirstOrDefault();
-                parameterValues[param.ParameterName] = value;
+                parameterValues[param.ParameterName] = value ?? string.Empty;
             }
 
             // Create sample data for demonstration

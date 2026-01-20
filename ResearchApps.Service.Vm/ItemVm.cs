@@ -22,6 +22,8 @@ public class ItemVm
     public int UnitId { get; set; }
     [Display(Name = "Unit Name")]
     public string UnitName { get; set; } = string.Empty;
+    [Display(Name = "Warehouse ID")]
+    public int WhId { get; set; }
     [Display(Name = "Purchase Price")]
     public decimal PurchasePrice { get; set; }
     [Display(Name = "Sales Price")]

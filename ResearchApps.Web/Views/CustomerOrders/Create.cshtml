@@ -1,0 +1,180 @@
+@model ResearchApps.Service.Vm.CustomerOrderVm
+
+@{
+    ViewBag.Title = "Create Customer Order";
+    ViewBag.pTitle = "Create Customer Order";
+    Layout = "_Layout";
+    var customerId = ViewBag.CustomerId as int?;
+}
+
+<div x-data="coCreateForm()" x-init="init(@(customerId.HasValue ? $"{{ preselectedCustomerId: {customerId.Value} }}" : "{}"))">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Create New Customer Order</h5>
+                </div>
+                <div class="card-body">
+                    <form id="co-form" 
+                          method="post"
+                          action="/CustomerOrders/Create">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Validation Summary -->
+                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_CoDate" class="form-label">Order Date <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               id="Header_CoDate" 
+                                               name="Header.CoDate"
+                                               class="form-control"
+                                               x-ref="coDatePicker"
+                                               data-flatpickr
+                                               :class="{ 'is-invalid': errors.CoDate }"
+                                               required />
+                                        <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                    </div>
+                                    <div class="invalid-feedback" x-show="errors.CoDate" x-text="errors.CoDate"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_CustomerId" class="form-label">Customer <span class="text-danger">*</span></label>
+                                    <select class="form-control form-select"
+                                            id="Header_CustomerId" 
+                                            name="Header.CustomerId"
+                                            x-ref="customerSelect"
+                                            data-tomselect
+                                            data-url="/api/Customers/cbo"
+                                            :class="{ 'is-invalid': errors.CustomerId }"
+                                            required>
+                                        <option value="">Select Customer</option>
+                                    </select>
+                                    <div class="invalid-feedback" x-show="errors.CustomerId" x-text="errors.CustomerId"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_CoTypeId" class="form-label">Order Type <span class="text-danger">*</span></label>
+                                    <select class="form-control form-select"
+                                            id="Header_CoTypeId" 
+                                            name="Header.CoTypeId"
+                                            x-ref="coTypeSelect"
+                                            data-tomselect
+                                            data-url="/api/CustomerOrders/types/cbo"
+                                            :class="{ 'is-invalid': errors.CoTypeId }"
+                                            required>
+                                        <option value="">Select Type</option>
+                                    </select>
+                                    <div class="invalid-feedback" x-show="errors.CoTypeId" x-text="errors.CoTypeId"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_PoCustomer" class="form-label">Customer PO (Optional)</label>
+                                    <input type="text" 
+                                           id="Header_PoCustomer" 
+                                           name="Header.PoCustomer"
+                                           class="form-control"
+                                           placeholder="Enter customer PO number"
+                                           maxlength="50" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_RefNo" class="form-label">Reference No (Optional)</label>
+                                    <input type="text" 
+                                           id="Header_RefNo" 
+                                           name="Header.RefNo"
+                                           class="form-control"
+                                           placeholder="Enter reference number"
+                                           maxlength="50" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="Header_Notes" class="form-label">Notes (Optional)</label>
+                                    <textarea id="Header_Notes"
+                                              name="Header.Notes"
+                                              class="form-control" 
+                                              rows="3" 
+                                              placeholder="Enter notes (optional)"
+                                              x-model="form.notes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group d-flex gap-2">
+                            <button type="submit" 
+                                    class="btn btn-primary"
+                                    :disabled="isSubmitting"
+                                    @@click.prevent="confirmCreate()">
+                                <span x-show="!isSubmitting">
+                                    <i class="ri-save-line me-1"></i> Save
+                                </span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    Creating...
+                                </span>
+                            </button>
+                            <a href="/CustomerOrders" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showConfirmModal }"
+         x-show="showConfirmModal"
+         x-cloak
+         tabindex="-1"
+         @@click.self="showConfirmModal = false"
+         @@keydown.escape.window="showConfirmModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Create</h5>
+                    <button type="button" class="btn-close" @@click="showConfirmModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to create this customer order?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showConfirmModal = false">Cancel</button>
+                    <button type="button" class="btn btn-primary" @@click="proceedSubmit()">
+                        <i class="ri-check-line me-1"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showConfirmModal" x-cloak></div>
+</div>
+
+@section scripts {
+    <script src="~/js/customer-orders/co-create.js"></script>
+}

@@ -6,15 +6,15 @@ namespace ResearchApps.Service.Interface;
 public interface IWarehouseService
 {
     // WhCbo
-    Task<ServiceResponse> CboAsync();
+    Task<ServiceResponse<IEnumerable<WarehouseVm>>> CboAsync();
     // WhDelete
     Task<ServiceResponse> DeleteAsync(int whId, string modifiedBy, CancellationToken cancellationToken);
     // WhInsert
-    Task<ServiceResponse> InsertAsync(WarehouseVm warehouseVm, CancellationToken cancellationToken);
+    Task<ServiceResponse<WarehouseVm>> InsertAsync(WarehouseVm warehouseVm, CancellationToken cancellationToken);
     // WhSelect
-    Task<ServiceResponse> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken);
+    Task<ServiceResponse<PagedListVm<WarehouseVm>>> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken);
     // WhSelectById
-    Task<ServiceResponse> SelectByIdAsync(int whId, CancellationToken cancellationToken);
+    Task<ServiceResponse<WarehouseVm>> SelectByIdAsync(int whId, CancellationToken cancellationToken);
     // WhUpdate
-    Task<ServiceResponse> UpdateAsync(WarehouseVm warehouseVm, CancellationToken cancellationToken);
+    Task<ServiceResponse<WarehouseVm>> UpdateAsync(WarehouseVm warehouseVm, CancellationToken cancellationToken);
 }

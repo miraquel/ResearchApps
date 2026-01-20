@@ -1,0 +1,16 @@
+global using System;
+global using System.Collections.Generic;
+global using System.Data;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.Extensions.Logging;
+global using Moq;
+global using ResearchApps.Domain;
+global using ResearchApps.Domain.Common;
+global using ResearchApps.Repo.Interface;
+global using ResearchApps.Service.Interface;
+global using ResearchApps.Service.Vm;
+global using ResearchApps.Service.Vm.Common;
+global using Xunit;

@@ -1,0 +1,649 @@
+@model ResearchApps.Service.Vm.DeliveryOrderVm
+@using ResearchApps.Common.Constants
+
+@{
+    ViewBag.Title = "Edit Delivery Order";
+    ViewBag.pTitle = $"Edit Delivery Order No. {Model.Header.DoId}";
+    Layout = "_Layout";
+    
+    // Serialize lines for Alpine.js with camelCase
+    var linesJson = System.Text.Json.JsonSerializer.Serialize(Model.Lines.Select(l => new {
+        doLineId = l.DoLineId,
+        coId = l.CoId,
+        coLineId = l.CoLineId,
+        itemId = l.ItemId,
+        itemName = l.ItemName,
+        whId = l.WhId,
+        whName = l.WhName ?? "",
+        qty = l.Qty,
+        unitId = l.UnitId,
+        unitName = l.UnitName,
+        notes = l.Notes ?? "",
+        createdDate = l.CreatedDate,
+        createdBy = l.CreatedBy,
+        modifiedDate = l.ModifiedDate,
+        modifiedBy = l.ModifiedBy
+    }));
+    
+    // Config object for doEditForm component
+    var configJson = System.Text.Json.JsonSerializer.Serialize(new {
+        recId = Model.Header.RecId,
+        doId = Model.Header.DoId,
+        doDate = Model.Header.DoDate.ToString("yyyy-MM-dd"),
+        customerId = Model.Header.CustomerId,
+        customerName = Model.Header.CustomerName,
+        coId = Model.Header.CoId ?? "",
+        coRecId = Model.Header.CoRecId,
+        refId = Model.Header.RefId ?? "",
+        descr = Model.Header.Descr ?? "",
+        dn = Model.Header.Dn ?? "",
+        notes = Model.Header.Notes ?? "",
+        doStatusId = Model.Header.DoStatusId,
+        doStatusName = Model.Header.DoStatusName
+    });
+}
+
+<div x-data="doEditForm(@linesJson, @configJson)" 
+     x-init="init()">
+    
+    <!-- Header Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                Delivery Header
+                                @{
+                                    var statusClass = Model.Header.DoStatusId switch {
+                                        DoStatusConstants.Draft => "bg-secondary",
+                                        DoStatusConstants.Active => "bg-success",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @statusClass ms-2">@Model.Header.DoStatusName</span>
+                                <span x-show="isHeaderSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="doForm" method="post" action="/DeliveryOrders/Edit">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="RecId" value="@Model.Header.RecId" />
+                        <input type="hidden" name="DoId" value="@Model.Header.DoId" />
+                        <input type="hidden" name="DoStatusId" value="@Model.Header.DoStatusId" />
+                        <input type="hidden" name="CreatedDate" value="@Model.Header.CreatedDate.ToString("o")" />
+                        <input type="hidden" name="CreatedBy" value="@Model.Header.CreatedBy" />
+                        
+                        <!-- Validation Summary -->
+                        <div x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">DO No</label>
+                                            <input type="text" class="form-control bg-light" value="@Model.Header.DoId" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Customer <span class="text-danger">*</span></label>
+                                            <select id="Header_CustomerId" 
+                                                    name="CustomerId"
+                                                    x-ref="customerSelect"
+                                                    :class="{ 'is-invalid': errors.CustomerId }"
+                                                    required>
+                                                <option value="">Select Customer</option>
+                                            </select>
+                                            <div class="invalid-feedback" x-show="errors.CustomerId" x-text="errors.CustomerId"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Customer Order (CO)</label>
+                                            <select id="Header_CoRecId" 
+                                                    x-ref="coSelect">
+                                                <option value="">Select CO (optional)</option>
+                                            </select>
+                                            <small class="text-warning">⚠️ Changing CO will delete all existing delivery lines</small>
+                                            <!-- Hidden fields for CO binding -->
+                                            <input type="hidden" name="CoRecId" x-model="header.coRecId" />
+                                            <input type="hidden" name="CoId" x-model="header.coId" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Middle Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Delivery Date <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       id="Header_DoDate"
+                                                       name="DoDate"
+                                                       x-ref="doDatePicker"
+                                                       :class="{ 'is-invalid': errors.DoDate }"
+                                                       required />
+                                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                            </div>
+                                            <div class="invalid-feedback" x-show="errors.DoDate" x-text="errors.DoDate"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Delivery Note</label>
+                                            <input type="text"
+                                                   id="Header_Dn" 
+                                                   name="Dn"
+                                                   class="form-control" 
+                                                   value="@Model.Header.Dn" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Reference ID</label>
+                                            <input type="text"
+                                                   id="Header_RefId" 
+                                                   name="RefId"
+                                                   class="form-control" 
+                                                   value="@Model.Header.RefId" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Description</label>
+                                            <textarea id="Header_Descr"
+                                                      name="Descr"
+                                                      class="form-control" 
+                                                      rows="2">@Model.Header.Descr</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Notes (Optional)</label>
+                                            <textarea id="Header_Notes"
+                                                      name="Notes"
+                                                      class="form-control" 
+                                                      rows="2"
+                                                      x-model="header.notes">@Model.Header.Notes</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group d-flex gap-2">
+                            <button type="button" 
+                                    class="btn btn-primary"
+                                    :disabled="isHeaderSaving"
+                                    @@click.prevent="confirmSave()">
+                                <span x-show="!isHeaderSaving">
+                                    <i class="ri-save-line me-1"></i> Save Changes
+                                </span>
+                                <span x-show="isHeaderSaving" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    Saving...
+                                </span>
+                            </button>
+                            <a href="/DeliveryOrders/Details/@Model.Header.RecId" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delivery Lines Section -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Delivery Lines</h5>
+                    <button type="button" 
+                            class="btn btn-primary btn-sm" 
+                            :disabled="isCoChanged"
+                            @@click="openAddLineModal()"
+                            :title="isCoChanged ? 'Please save the CO change first' : 'Add Line'">
+                        <i class="ri-add-line"></i> Add Line
+                    </button>
+                </div>
+                <!-- Warning when CO changed -->
+                <div x-show="isCoChanged" class="alert alert-warning m-3 mb-0" x-cloak>
+                    <i class="ri-alert-line me-1"></i>
+                    <strong>Customer Order has been changed.</strong> Line operations are disabled until you save the changes.
+                    Please click "Save Changes" button above to continue working with delivery lines.
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 60px;">Line</th>
+                                    <th>CO No</th>
+                                    <th class="text-center" style="width: 80px;">CO Line</th>
+                                    <th>Item</th>
+                                    <th>Warehouse</th>
+                                    <th class="text-end">Qty</th>
+                                    <th class="text-center">Unit</th>
+                                    <th>Notes</th>
+                                    <th class="text-center" style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="line in lines" :key="line.doLineId">
+                                    <tr>
+                                        <td class="text-center" x-text="line.doLineId"></td>
+                                        <td x-text="line.coId"></td>
+                                        <td class="text-center" x-text="line.coLineId"></td>
+                                        <td x-text="line.itemName"></td>
+                                        <td x-text="line.whName"></td>
+                                        <td class="text-end" x-text="formatNumber(line.qty)"></td>
+                                        <td class="text-center" x-text="line.unitName"></td>
+                                        <td x-text="line.notes"></td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" 
+                                                        class="btn btn-soft-primary"
+                                                        :disabled="isCoChanged"
+                                                        @@click="openEditLineModal(line)"
+                                                        :title="isCoChanged ? 'Save CO changes first' : 'Edit'">
+                                                    <i class="ri-pencil-line"></i>
+                                                </button>
+                                                <button type="button" 
+                                                        class="btn btn-soft-danger"
+                                                        :disabled="isCoChanged"
+                                                        @@click="openDeleteLineModal(line)"
+                                                        :title="isCoChanged ? 'Save CO changes first' : 'Delete'">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <tr x-show="lines.length === 0">
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        <i class="ri-inbox-line fs-2 d-block mb-2"></i>
+                                        No lines added yet. Click "Add Line" to add delivery items.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Save Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showSaveModal }"
+         x-show="showSaveModal"
+         x-cloak
+         @@click.self="showSaveModal = false"
+         @@keydown.escape.window="showSaveModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Save</h5>
+                    <button type="button" class="btn-close" @@click="showSaveModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to save changes to this delivery order?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showSaveModal = false">Cancel</button>
+                    <button type="button" class="btn btn-primary" @@click="proceedSave()">
+                        <i class="ri-check-line me-1"></i> Yes, Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showSaveModal" x-cloak></div>
+    
+    <!-- CO Change Warning Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showCoChangeWarningModal }"
+         x-show="showCoChangeWarningModal"
+         x-cloak
+         @@keydown.escape.window="cancelCoChange()">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title text-dark">
+                        <i class="ri-alert-line me-2"></i>Warning: Data Loss
+                    </h5>
+                    <button type="button" class="btn-close" @@click="cancelCoChange()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning border-0">
+                        <strong>⚠️ Important Warning!</strong>
+                    </div>
+                    <h6 class="text-danger">Changing Customer Order will:</h6>
+                    <ul class="text-muted">
+                        <li>Delete all <strong><span x-text="lines.length"></span> existing delivery line(s)</strong></li>
+                        <li>Reverse all inventory transactions</li>
+                        <li>Reset the delivery order amount to 0</li>
+                    </ul>
+                    <p class="text-muted mt-3">You will need to add new lines after saving this change.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="cancelCoChange()">Cancel</button>
+                    <button type="button" class="btn btn-danger" @@click="confirmCoChange()">
+                        <i class="ri-error-warning-line me-1"></i> Yes, I Understand
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showCoChangeWarningModal" x-cloak></div>
+    
+    <!-- Add Line Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showAddLineModal }"
+         x-show="showAddLineModal"
+         x-cloak
+         @@click.self="showAddLineModal = false"
+         @@keydown.escape.window="showAddLineModal = false">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Delivery Line</h5>
+                    <button type="button" class="btn-close" @@click="showAddLineModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Loading indicator -->
+                    <div x-show="isLoadingOutstanding" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-2">Loading outstanding CO lines...</div>
+                    </div>
+                    
+                    <!-- Outstanding lines selection -->
+                    <div x-show="!isLoadingOutstanding">
+                        <div class="mb-3" x-show="outstandingLines.length > 0">
+                            <label class="form-label">Select CO Line (Outstanding)</label>
+                            <div class="table-responsive" style="max-height: 300px;">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th></th>
+                                            <th>CO No</th>
+                                            <th>Line</th>
+                                            <th>Item</th>
+                                            <th class="text-end">Outstanding</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="os in outstandingLines" :key="os.coLineId">
+                                            <tr :class="{ 'table-primary': newLine.coLineId === os.coLineId }"
+                                                @@click="selectOutstandingLine(os)"
+                                                style="cursor: pointer;">
+                                                <td>
+                                                    <input type="radio" 
+                                                           class="form-check-input"
+                                                           :checked="newLine.coLineId === os.coLineId" />
+                                                </td>
+                                                <td x-text="os.coId"></td>
+                                                <td x-text="os.coLineId"></td>
+                                                <td x-text="os.itemName"></td>
+                                                <td class="text-end" x-text="formatNumber(os.qtyOs)"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info" x-show="outstandingLines.length === 0">
+                            <i class="ri-information-line me-1"></i>
+                            No outstanding CO lines found for this customer.
+                        </div>
+                        
+                        <!-- Selected line details -->
+                        <div x-show="newLine.coLineId" class="border rounded p-3 mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Selected Item</label>
+                                    <input type="text" class="form-control bg-light" x-model="newLine.itemName" readonly />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Warehouse <span class="text-danger">*</span></label>
+                                    <select id="NewLine_WhId" required>
+                                        <option value="">Select Warehouse</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Max Qty</label>
+                                    <input type="text" class="form-control bg-light" :value="formatNumber(newLine.maxQty)" readonly />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           x-model.number="newLine.qty"
+                                           :max="newLine.maxQty"
+                                           min="0.01"
+                                           step="0.01" />
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <label class="form-label">Notes (Optional)</label>
+                                    <textarea class="form-control" 
+                                              rows="2" 
+                                              x-model="newLine.notes"
+                                              placeholder="Enter notes (optional)"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showAddLineModal = false">Cancel</button>
+                    <button type="button" 
+                            class="btn btn-primary" 
+                            :disabled="!newLine.coLineId || !newLine.whId || isLineSaving"
+                            @@click="addLine()">
+                        <span x-show="!isLineSaving">
+                            <i class="ri-add-line me-1"></i> Add Line
+                        </span>
+                        <span x-show="isLineSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Adding...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showAddLineModal" x-cloak></div>
+    
+    <!-- Edit Line Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showEditLineModal }"
+         x-show="showEditLineModal"
+         x-cloak
+         @@click.self="showEditLineModal = false"
+         @@keydown.escape.window="showEditLineModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Delivery Line</h5>
+                    <button type="button" class="btn-close" @@click="showEditLineModal = false"></button>
+                </div>
+                <div class="modal-body" x-show="editingLine.doLineId">
+                    <div class="alert alert-info mb-3">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">CO Number</small>
+                                <div class="fw-semibold" x-text="editingLine.coId"></div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">CO Line</small>
+                                <div class="fw-semibold" x-text="editingLine.coLineId"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Item</label>
+                            <input type="text" class="form-control bg-light" :value="editingLine.itemName" readonly />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Warehouse <span class="text-danger">*</span></label>
+                            <select id="EditLine_WhId" required>
+                                <option value="">Select Warehouse</option>
+                            </select>
+                            <small class="text-warning">⚠️ Changing warehouse will affect inventory transactions</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Current Qty</label>
+                            <input type="text" class="form-control bg-light" :value="formatNumber(editingLine.originalQty)" readonly />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">CO Outstanding</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-light" :value="formatNumber(editingLine.qtyOutstanding)" readonly />
+                                <span class="input-group-text" x-show="isFetchingOutstanding">
+                                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                                </span>
+                            </div>
+                            <small class="text-muted">Maximum quantity available</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">New Quantity <span class="text-danger">*</span></label>
+                        <input type="number" 
+                               class="form-control" 
+                               :class="{ 'is-invalid': lineErrors.qty }"
+                               x-model.number="editingLine.qty"
+                               :max="editingLine.qtyOutstanding"
+                               min="0.01"
+                               step="0.01"
+                               @@input="lineErrors = {}" />
+                        <small class="text-muted">Max: <span x-text="formatNumber(editingLine.qtyOutstanding)"></span></small>
+                        <div class="invalid-feedback d-block" x-show="lineErrors.qty" x-text="lineErrors.qty"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" 
+                                  rows="2" 
+                                  x-model="editingLine.notes"
+                                  placeholder="Enter notes (optional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showEditLineModal = false">Cancel</button>
+                    <button type="button" 
+                            class="btn btn-primary" 
+                            :disabled="isLineSaving || isFetchingOutstanding"
+                            @@click="updateLine()">
+                        <span x-show="!isLineSaving">
+                            <i class="ri-save-line me-1"></i> Update
+                        </span>
+                        <span x-show="isLineSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Updating...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showEditLineModal" x-cloak></div>
+    
+    <!-- Delete Line Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showDeleteLineModal }"
+         x-show="showDeleteLineModal"
+         x-cloak
+         @@click.self="showDeleteLineModal = false"
+         @@keydown.escape.window="showDeleteLineModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Line</h5>
+                    <button type="button" class="btn-close" @@click="showDeleteLineModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this line?</p>
+                    <div class="alert alert-light" x-show="deletingLine.recId">
+                        <strong>Item:</strong> <span x-text="deletingLine.itemName"></span><br>
+                        <strong>Quantity:</strong> <span x-text="formatNumber(deletingLine.qty)"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showDeleteLineModal = false">Cancel</button>
+                    <button type="button" 
+                            class="btn btn-danger" 
+                            :disabled="isLineSaving"
+                            @@click="deleteLine()">
+                        <span x-show="!isLineSaving">
+                            <i class="ri-delete-bin-line me-1"></i> Delete
+                        </span>
+                        <span x-show="isLineSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showDeleteLineModal" x-cloak></div>
+</div>
+
+@section scripts {
+    <script src="~/js/components/alert-modal.js"></script>
+    <script src="~/js/delivery-orders/do-edit.js"></script>
+}

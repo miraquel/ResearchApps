@@ -6,164 +6,114 @@
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
-}
-
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Create New PR</h5>
-            </div>
-            <div class="card-body">
-                <form asp-action="Create" method="post">
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="PrDate" class="form-label"></label>
-                                <div class="input-group">
-                                    <input asp-for="PrDate" type="text" class="form-control flatpickr-input" id="prDate" />
-                                    <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+<div x-data="prCreateForm()" x-init="init()">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Create New Purchase Requisition</h5>
+                </div>
+                <div class="card-body">
+                    <form id="pr-form" 
+                          method="post"
+                          action="/Prs/Create">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Validation Summary -->
+                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="PrDate" class="form-label">PR Date <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               id="PrDate" 
+                                               name="PrDate"
+                                               class="form-control"
+                                               x-ref="prDatePicker"
+                                               data-flatpickr
+                                               :class="{ 'is-invalid': errors.PrDate }"
+                                               required />
+                                        <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                    </div>
+                                    <div class="invalid-feedback" x-show="errors.PrDate" x-text="errors.PrDate"></div>
                                 </div>
-                                <span asp-validation-for="PrDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="PrName" class="form-label">PR Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           id="PrName" 
+                                           name="PrName"
+                                           class="form-control"
+                                           :class="{ 'is-invalid': errors.PrName }"
+                                           maxlength="200"
+                                           required />
+                                    <div class="invalid-feedback" x-show="errors.PrName" x-text="errors.PrName"></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="PrName" class="form-label"></label>
-                                <input asp-for="PrName" type="text" class="form-control" />
-                                <span asp-validation-for="PrName" class="text-danger"></span>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="BudgetId" class="form-label">Budget <span class="text-danger">*</span></label>
+                                    <select id="BudgetId" 
+                                            name="BudgetId" 
+                                            class="form-control"
+                                            x-ref="budgetSelect"
+                                            data-tomselect
+                                            data-url="/api/Budgets/cbo"
+                                            :class="{ 'is-invalid': errors.BudgetId }"
+                                            required>
+                                        <option value="">Select Budget</option>
+                                    </select>
+                                    <div class="invalid-feedback" x-show="errors.BudgetId" x-text="errors.BudgetId"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label asp-for="BudgetId" class="form-label"></label>
-                                <select asp-for="BudgetId" class="form-select select2" id="budgetId">
-                                    <option value="">Select Budget</option>
-                                </select>
-                                <span asp-validation-for="BudgetId" class="text-danger"></span>
-                            </div>  
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label asp-for="Notes" class="form-label">Notes (Optional)</label>
-                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Enter notes (optional)"></textarea>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="Notes" class="form-label">Notes (Optional)</label>
+                                    <textarea id="Notes" 
+                                              name="Notes"
+                                              class="form-control" 
+                                              rows="3" 
+                                              maxlength="500"
+                                              placeholder="Enter notes (optional)"></textarea>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="button" class="btn btn-primary" id="create-pr-btn">Create</button>
-                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
+                        
+                        <div class="form-group">
+                            <button type="button" 
+                                    class="btn btn-primary"
+                                    @@click="confirmCreate()"
+                                    :disabled="isSubmitting">
+                                <span x-show="!isSubmitting">Create</span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Creating...
+                                </span>
+                            </button>
+                            <a href="/Prs/Index" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
-    <script src="/assets/js/pages/form-pickers.init.js"></script>
-    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
-    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script>
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        
-        $(document).ready(function() {
-            var form = $('form');
-            
-            // Initialize Select2 for Budget
-            $('#budgetId').select2({
-                theme: 'bootstrap5',
-                placeholder: "Select Budget",
-                ajax: {
-                    url: '/api/Budgets/cbo',
-                    type: 'GET',
-                    dataType: 'json',
-                    delay: 500,
-                    headers: {
-                        'RequestVerificationToken': token
-                    },
-                    data: function (params) {
-                        return {
-                            term: params.term ? `%${params.term}%` : '',
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.data.map(item => ({
-                                id: item.budgetId,
-                                text: item.budgetName
-                            }))
-                        };
-                    },
-                }
-            });
-            
-            // Initialize flatpickr for date
-            flatpickr("#prDate", {
-                dateFormat: "d M Y",
-                defaultDate: new Date()
-            });
-            
-            // Confirmation modal handler with validation
-            $('#create-pr-btn').on('click', function() {
-                form.validate();
-                if (form.valid()) {
-                    var modal = new bootstrap.Modal(document.getElementById('createPrModal'));
-                    modal.show();
-                }
-            });
-
-            $('#confirm-create-pr').on('click', function() {
-                form.submit();
-            });
-        });
-    </script>
+    <script src="~/js/purchase-requisitions/pr-create.js"></script>
 }
-
-<!-- Confirmation Modal -->
-<div id="createPrModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mt-2 text-center">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/exymduqj.json"
-                        trigger="loop"
-                        delay="2000"
-                        stroke="light"
-                        state="hover-line"
-                        style="width:100px;height:100px">
-                    </lord-icon>
-                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                        <h4>Are you sure?</h4>
-                        <p class="text-muted mx-4 mb-0">Are you sure you want to create this purchase requisition?</p>
-                    </div>
-                </div>
-                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn w-sm btn-primary" id="confirm-create-pr">Yes, Create It!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 

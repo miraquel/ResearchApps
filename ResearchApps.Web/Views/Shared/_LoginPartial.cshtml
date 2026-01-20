@@ -3,25 +3,54 @@
 @inject SignInManager<AppIdentityUser> SignInManager
 @inject UserManager<AppIdentityUser> UserManager
 
-<ul class="navbar-nav">
-    @if (SignInManager.IsSignedIn(User))
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-        </li>
-        <li class="nav-item">
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-            </form>
-        </li>
-    }
-    else
-    {
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
-        </li>
-    }
-</ul>
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var userName = currentUser?.UserName ?? "User";
+    var userEmail = currentUser?.Email ?? "";
+    var userInitials = string.IsNullOrEmpty(userName) ? "U" : userName[..Math.Min(2, userName.Length)].ToUpper();
+    
+    <div class="dropdown ms-sm-3 header-item topbar-user">
+        <button type="button" class="btn shadow-none" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="d-flex align-items-center">
+                <div class="avatar-xs rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                    <span class="avatar-title rounded-circle bg-primary text-white">
+                        @userInitials
+                    </span>
+                </div>
+                <span class="text-start ms-xl-2">
+                    <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">@userName</span>
+                    <span class="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">@userEmail</span>
+                </span>
+            </span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end">
+            <!-- item-->
+            <h6 class="dropdown-header">Welcome @userName!</h6>
+            <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> 
+                <span class="align-middle">Profile</span>
+            </a>
+            <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                <i class="mdi mdi-lock-outline text-muted fs-16 align-middle me-1"></i>
+                <span class="align-middle">Change Password</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();">
+                <i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> 
+                <span class="align-middle" data-key="t-logout">Logout</span>
+            </a>
+        </div>
+    </div>
+    
+    <form id="logoutForm" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" style="display: none;">
+    </form>
+}
+else
+{
+    <div class="ms-1 header-item d-none d-sm-flex">
+        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary">
+            <i class="ri-login-box-line align-bottom me-1"></i> Login
+        </a>
+    </div>
+}

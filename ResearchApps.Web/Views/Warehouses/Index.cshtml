@@ -2,13 +2,12 @@
 
 @{
     ViewBag.Title = "Warehouses";
-    ViewBag.pTitle = "Warehouses";
+    ViewBag.ptitle = "Warehouses";
     Layout = "_Layout";
 }
 
 @section styles {
     <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 }
 
 @Html.AntiForgeryToken()
@@ -37,128 +36,49 @@
 </div>
 
 @section scripts {
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
     <script src="/assets/js/datatables.min.js"></script>
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/js/helper.js"></script>
-    <script>
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        $(document).ready(function() {
-            $('#warehouse-table').DataTable({
-                searchDelay: 1000,
-                layout: {
-                    topEnd: {
-                        buttons: [
-                            {
-                                text: '<i class="ri-add-line align-bottom me-1"></i> Add Warehouse',
-                                className: 'btn btn-primary btn-sm',
-                                action: function () {
-                                    window.location.href = '/Warehouses/Create';
+    <script type="module">
+        import { DataTableHelper } from '/assets/js/views/view-helpers.js';
+        $(function() {
+            DataTableHelper.init('#warehouse-table', {
+                apiUrl: '/api/Warehouses/',
+                tableOptions: {
+                    layout: {
+                        topEnd: {
+                            buttons: [
+                                {
+                                    text: '<i class="ri-add-line align-bottom me-1"></i> Add Warehouse',
+                                    className: 'btn btn-primary btn-sm',
+                                    action: function() {
+                                        window.location.href = '/Warehouses/Create';
+                                    }
                                 }
-                            },
-                        ]
-                    }
-                },
-                ajax: {
-                    url: `/api/Warehouses/`,
-                    data: function(d) {
-                        const query = {
-                            pageNumber: (d.start / d.length) + 1,
-                            pageSize: d.length,
-                        };
-                        if (d.search && d.search.value) {
-                            query.Search = d.search.value;
+                            ]
                         }
-                        if (d.order && d.order.length) {
-                            query.SortBy = d.columns[d.order[0].column].data;
-                            query.IsSortAscending = d.order[0].dir === 'asc';
-                        }
-                        d.columns.forEach((column, _) => {
-                            if (column.search && column.search.value) {
-                                query[`Filters.${column.data.charAt(0).toUpperCase() + column.data.slice(1)}`] = column.search.value;
-                            }
-                        });
-                        return query;
                     },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("RequestVerificationToken", token);
-                    },
-                    dataSrc: function(json) {
-                        if (json.data && Array.isArray(json.data.items)) {
-                            json.recordsTotal = json.data.totalCount;
-                            json.recordsFiltered = json.data.totalCount;
-                            return json.data.items;
-                        }
-                        return json;
-                    },
-                    error: function(err){
-                        alert(err.responseJSON?.errorMessage || "An error occurred while fetching data");
-                    }
-                },
-                columns: [
-                    { data: 'whId', width: '50px' },
-                    { data: 'whName' },
-                    { data: 'statusName', width: '50px' },
-                    {
-                        data: null,
-                        width: '50px',
-                        defaultContent: '',
-                        orderable: false,
-                        render: function(data, type, row) {
-                            return `
+                    columns: [
+                        { data: 'whId', width: '50px' },
+                        { data: 'whName' },
+                        { data: 'statusName', width: '50px' },
+                        {
+                            data: null,
+                            width: '50px',
+                            defaultContent: '',
+                            orderable: false,
+                            render: (data, type, row) => `
                                 <div class="dropdown d-inline-block">
                                     <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="ri-more-fill align-middle"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" style="">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a href="/Warehouses/Details/${row.whId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
-                                        <li><a href="/Warehouses/Edit/${row.whId}" class="dropdown-item edit-item-btn"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
-                                        <li><a href="/Warehouses/Delete/${row.whId}" class="dropdown-item remove-item-btn"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</a>
-                                        </li>
+                                        <li><a href="/Warehouses/Edit/${row.whId}" class="dropdown-item"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
+                                        <li><a href="/Warehouses/Delete/${row.whId}" class="dropdown-item"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</a></li>
                                     </ul>
-                                </div>`;
+                                </div>`
                         }
-                    },
-                ],
-                columnDefs: [
-                    {
-                        targets: [0, 2, 3],
-                        className: 'text-center'
-                    }
-                ],
-                processing: true,
-                paging: true,
-                serverSide: true,
-                searching: true,
-                ordering: true,
-                autoWidth: false,
-                responsive: true,
-                scrollX: true,
-                initComplete: function () {
-                    $('.dt-button').removeClass('dt-button');
-                    this.api()
-                        .columns()
-                        .every(function () {
-                            let column = this;
-                            let title = column.footer().textContent;
-                            let header = column.header();
-                            header.style.backgroundColor = '#4F81BD';
-                            header.style.color = 'white';
-                            if (column.index() === (this.columns().count() - 1)) {
-                                column.footer().replaceChildren();
-                                return;
-                            }
-                            let input = document.createElement('input');
-                            input.placeholder = title;
-                            input.className = "form-control";
-                            input.style.width = '100%';
-                            column.footer().replaceChildren(input);
-                            input.addEventListener('keyup', debounce(() => {
-                                if (column.search() !== input.value) {
-                                    column.search(input.value).draw();
-                                }
-                            }, 1000));
-                        });
+                    ],
+                    columnDefs: [{ targets: [0, 2, 3], className: 'text-center' }]
                 }
             });
         });

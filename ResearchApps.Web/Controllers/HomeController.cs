@@ -1,24 +1,58 @@
 using System.Diagnostics;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResearchApps.Service.Interface;
 using ResearchApps.Web.Models;
 
 namespace ResearchApps.Web.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IDashboardService _dashboardService;
+
+    public HomeController(IDashboardService dashboardService)
     {
-        return View();
+        _dashboardService = dashboardService;
     }
 
-    public IActionResult Privacy()
+    [Authorize]
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        return View();
+        var userId = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
+        var dashboardData = await _dashboardService.GetDashboardData(userId, cancellationToken);
+        return View("Dashboard", dashboardData.Data);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    public IActionResult Error(int? statusCode = null)
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var errorViewModel = new ErrorViewModel 
+        { 
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            StatusCode = statusCode ?? HttpContext.Response.StatusCode
+        };
+        
+        // Handle specific status codes if needed
+        if (statusCode.HasValue)
+        {
+            switch (statusCode.Value)
+            {
+                case 404:
+                    ViewData["ErrorMessage"] = "Page not found.";
+                    break;
+                case 403:
+                    ViewData["ErrorMessage"] = "Access forbidden.";
+                    break;
+                case 401:
+                    ViewData["ErrorMessage"] = "Unauthorized access.";
+                    break;
+                default:
+                    ViewData["ErrorMessage"] = "An error occurred.";
+                    break;
+            }
+        }
+        
+        return View(errorViewModel);
     }
 }

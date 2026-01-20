@@ -13,6 +13,15 @@ public interface IPrLineService
     Task<ServiceResponse<PrLineVm>> PrLineSelectById(int id, CancellationToken cancellationToken);
     // PrLine_SelectByPr
     Task<ServiceResponse<IEnumerable<PrLineVm>>> PrLineSelectByPr(string prId, CancellationToken cancellationToken);
+    // PrLine_SelectForPo
+    Task<ServiceResponse<IEnumerable<PrLineVm>>> PrLineSelectForPo(
+        int poRecId, 
+        int pageNumber, 
+        int pageSize, 
+        string? prId, 
+        string? itemName, 
+        DateTime? dateFrom, 
+        CancellationToken cancellationToken);
     // PrLine_Update
     Task<ServiceResponse<string>> PrLineUpdate(PrLineVm prLine, CancellationToken cancellationToken);
 }

@@ -1,0 +1,66 @@
+@model ResearchApps.Service.Vm.PoHeaderVm
+
+@{
+    ViewBag.Title = $"Delete Purchase Order - {Model.PoId}";
+    ViewBag.pTitle = $"Delete Purchase Order - {Model.PoId}";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="ri-delete-bin-line me-2"></i>Delete Purchase Order
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="ri-alert-line me-2"></i>
+                    <strong>Warning!</strong> Are you sure you want to delete this purchase order? This action cannot be undone.
+                </div>
+
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <th width="30%">PO ID:</th>
+                            <td><strong>@Model.PoId</strong></td>
+                        </tr>
+                        <tr>
+                            <th>PO Date:</th>
+                            <td>@Model.PoDate.ToString("dd MMM yyyy")</td>
+                        </tr>
+                        <tr>
+                            <th>Supplier:</th>
+                            <td>@Model.SupplierName</td>
+                        </tr>
+                        <tr>
+                            <th>Total Amount:</th>
+                            <td><strong>@((Model.Total).ToString("N2"))</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge bg-secondary">@Model.PoStatusName</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <form method="post" action="/Pos/DeleteConfirmed">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.RecId" />
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ri-delete-bin-line me-1"></i> Yes, Delete
+                        </button>
+                        <a href="/Pos/Details/@Model.RecId" class="btn btn-secondary">
+                            <i class="ri-close-line me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

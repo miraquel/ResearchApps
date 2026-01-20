@@ -6,19 +6,19 @@
         <!-- Dark Logo-->
         <a href="@Url.Action("Index", "Home")" class="logo logo-dark">
             <span class="logo-sm">
-                <img src="~/assets/images/logo-sm.png" alt="" height="22">
+                <img src="~/assets/images/logo-sm.webp" alt="" height="22">
             </span>
             <span class="logo-lg">
-                <img src="~/assets/images/logo-dark.png" alt="" height="17">
+                <img src="~/assets/images/logo.webp" alt="" height="40">
             </span>
         </a>
         <!-- Light Logo-->
         <a href="@Url.Action("Index", "Home")" class="logo logo-light">
             <span class="logo-sm">
-                <img src="~/assets/images/logo-sm.png" alt="" height="22">
+                <img src="~/assets/images/logo-sm.webp" alt="" height="22">
             </span>
             <span class="logo-lg">
-                <img src="~/assets/images/logo-light.png" alt="" height="17">
+                <img src="~/assets/images/logo-dark.webp" alt="" height="40">
             </span>
         </a>
         <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
@@ -33,65 +33,222 @@
             </div>
             <ul class="navbar-nav" id="navbar-nav">
                 <li class="menu-title"><span data-key="t-menu">Menu</span></li>
+                
+                <!-- Dashboard -->
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="@Url.Action("Index", "Home", new { Area = "" })">
                         <i class="ri-home-2-fill"></i> <span data-key="t-home">Home</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "ItemTypes", new { Area = "" })">
-                        <i class="ri-box-1-fill"></i> <span data-key="t-item-type">Item Types</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "Items", new { Area = "" })">
-                        <i class="ri-archive-2-fill"></i> <span data-key="t-items">Items</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "ItemDepts", new { Area = "" })">
-                        <i class="ri-store-2-fill"></i> <span data-key="t-item-departments">Item Departments</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "Warehouses", new { Area = "" })">
-                        <i class="ri-building-4-fill"></i> <span data-key="t-warehouses">Warehouses</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "Units", new { Area = "" })">
-                        <i class="ri-function-fill"></i> <span data-key="t-units">Units</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "Prs", new { Area = "" })">
-                        <i class="ri-file-list-3-fill"></i> <span data-key="t-prs">Purchase Requisitions</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link menu-link" href="@Url.Action("Index", "Reports", new { Area = "" })">
-                        <i class="ri-file-chart-fill"></i> <span data-key="t-reports">Reports</span>
-                    </a>
-                </li>
-                @if(User.IsInRole("Admin"))
+
+                <!-- Sales Management -->
+                @{
+                    var hasSalesAccess = User.HasClaim("permission", PermissionConstants.Customers.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.CustomerOrders.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.DeliveryOrders.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.SalesInvoices.Index);
+                }
+                @if (hasSalesAccess)
                 {
-                    <li class="menu-title"><span data-key="t-admin">Admin</span></li>
-                    @if (User.HasClaim("permission", PermissionConstants.Users.Index))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" href="@Url.Action("Index", "Users", new { Area = "Admin" })">
-                                <i class="ri-user-fill"></i> <span data-key="t-users">Users</span>
-                            </a>
-                        </li>
-                    }
-                    @if(User.HasClaim("permission", PermissionConstants.Roles.Index))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link menu-link" href="@Url.Action("Index", "Roles", new { Area = "Admin" })">
-                                <i class="ri-shield-fill"></i> <span data-key="t-permissions">Roles</span>
-                            </a>
-                        </li>
-                    }
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarSales" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSales">
+                            <i class="ri-store-2-line"></i> <span data-key="t-sales">Sales</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarSales">
+                            <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Customers.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Customers", new { Area = "" })" class="nav-link" data-key="t-customers">
+                                            Customers
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.CustomerOrders.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "CustomerOrders", new { Area = "" })" class="nav-link" data-key="t-customer-orders">
+                                            Customer Orders
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.DeliveryOrders.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "DeliveryOrders", new { Area = "" })" class="nav-link" data-key="t-delivery-orders">
+                                            Delivery Orders
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.SalesInvoices.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "SalesInvoices", new { Area = "" })" class="nav-link" data-key="t-sales-invoices">
+                                            Sales Invoices
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                <!-- Procurement -->
+                @{
+                    var hasProcurementAccess = User.HasClaim("permission", PermissionConstants.Prs.Index) ||
+                                               User.HasClaim("permission", PermissionConstants.Pos.Index) ||
+                                               User.HasClaim("permission", PermissionConstants.Suppliers.Index);
+                }
+                @if (hasProcurementAccess)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarProcurement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProcurement">
+                            <i class="ri-shopping-cart-line"></i> <span data-key="t-procurement">Procurement</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarProcurement">
+                            <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Suppliers.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Suppliers", new { Area = "" })" class="nav-link" data-key="t-suppliers">
+                                            Suppliers
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Prs.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Prs", new { Area = "" })" class="nav-link" data-key="t-prs">
+                                            Purchase Requisitions
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Pos.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Pos", new { Area = "" })" class="nav-link" data-key="t-pos">
+                                            Purchase Orders
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                <!-- Inventory Management -->
+                @{
+                    var hasInventoryAccess = User.HasClaim("permission", PermissionConstants.Items.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.ItemTypes.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.ItemDepts.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.Warehouses.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.Units.Index);
+                }
+                @if (hasInventoryAccess)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarInventory" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarInventory">
+                            <i class="ri-database-2-line"></i> <span data-key="t-inventory">Inventory</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarInventory">
+                            <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Items.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Items", new { Area = "" })" class="nav-link" data-key="t-items">
+                                            Items
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.ItemTypes.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "ItemTypes", new { Area = "" })" class="nav-link" data-key="t-item-types">
+                                            Item Types
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.ItemDepts.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "ItemDepts", new { Area = "" })" class="nav-link" data-key="t-item-departments">
+                                            Item Departments
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Warehouses.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Warehouses", new { Area = "" })" class="nav-link" data-key="t-warehouses">
+                                            Warehouses
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Units.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Units", new { Area = "" })" class="nav-link" data-key="t-units">
+                                            Units
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                <!-- Reports -->
+                @if (User.HasClaim("permission", PermissionConstants.Reports.Index))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="@Url.Action("Index", "Reports", new { Area = "" })">
+                            <i class="ri-file-chart-line"></i> <span data-key="t-reports">Reports</span>
+                        </a>
+                    </li>
+                }
+
+                <!-- Administration -->
+                @{
+                    var hasAdminAccess = User.HasClaim("permission", PermissionConstants.Users.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.Roles.Index);
+                }
+                @if (hasAdminAccess)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarAdmin" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAdmin">
+                            <i class="ri-settings-3-line"></i> <span data-key="t-admin">Administration</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarAdmin">
+                            <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Users.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Users", new { Area = "Admin" })" class="nav-link" data-key="t-users">
+                                            Users
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Roles.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Roles", new { Area = "Admin" })" class="nav-link" data-key="t-roles">
+                                            Roles
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
                 }
             </ul>
         </div>

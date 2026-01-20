@@ -4,6 +4,7 @@ using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
+using ResearchApps.Web.Extensions;
 
 namespace ResearchApps.Web.Controllers.Api;
 
@@ -68,7 +69,16 @@ public class WarehousesController : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _warehouseService.CboAsync();
-        return StatusCode(response.StatusCode, response);
+        // Return TomSelect format if X-TomSelect header is present
+        if (!Request.IsTomSelectRequest() || response is not { IsSuccess: true, Data: not null })
+            return StatusCode(response.StatusCode, response);
+        
+        var tomSelectOptions = response.Data.Select(w => new TomSelectOption
+        {
+            Value = w.WhId.ToString(),
+            Text = w.WhName
+        });
+        return Ok(tomSelectOptions);
     }
 }
 
