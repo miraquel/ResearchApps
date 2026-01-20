@@ -41,8 +41,8 @@ public class PoServiceTests
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
         var poList = new List<Po>
         {
-            new() { RecId = 1, PoId = "PO001", PoName = "Test PO 1" },
-            new() { RecId = 2, PoId = "PO002", PoName = "Test PO 2" }
+            new() { RecId = 1, PoId = "PO001", SupplierName = "Test Supplier 1" },
+            new() { RecId = 2, PoId = "PO002", SupplierName = "Test Supplier 2" }
         };
 
         _poRepoMock
@@ -63,7 +63,7 @@ public class PoServiceTests
     {
         // Arrange
         var recId = 1;
-        var po = new Po { RecId = recId, PoId = "PO001", PoName = "Test PO" };
+        var po = new Po { RecId = recId, PoId = "PO001", SupplierName = "Test Supplier" };
 
         _poRepoMock
             .Setup(x => x.PoSelectById(recId, It.IsAny<CancellationToken>()))
@@ -75,7 +75,7 @@ public class PoServiceTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.Equal("PO001", result.Data.PoId);
+        Assert.Equal("PO001", result.Data.Header.PoId);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class PoServiceTests
     public async Task PoInsert_WithValidData_ReturnsCreatedAndCommits()
     {
         // Arrange
-        var poVm = new PoVm
+        var poVm = new PoHeaderVm
         {
             PoDate = DateTime.Now,
             SupplierId = 1
@@ -125,7 +125,7 @@ public class PoServiceTests
         Assert.True(result.IsSuccess);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         Assert.NotNull(result.Data);
-        Assert.Equal("PO001", result.Data.PoId);
+        Assert.Equal("PO001", result.Data.Header.PoId);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
@@ -133,7 +133,7 @@ public class PoServiceTests
     public async Task PoUpdate_WithValidData_ReturnsUpdatedAndCommits()
     {
         // Arrange
-        var poVm = new PoVm
+        var poVm = new PoHeaderVm
         {
             RecId = 1,
             PoId = "PO001",
@@ -145,7 +145,7 @@ public class PoServiceTests
         {
             RecId = 1,
             PoId = "PO001",
-            PoName = "Updated PO",
+            SupplierName = "Updated Supplier",
             ModifiedBy = "testuser"
         };
 
@@ -159,7 +159,7 @@ public class PoServiceTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.Equal("Updated PO", result.Data.PoName);
+        Assert.Equal("Updated Supplier", result.Data.Header.SupplierName);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
@@ -208,8 +208,8 @@ public class PoServiceTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.Equal("approver1", result.Data.CurrentApprover);
-        Assert.Equal(4, result.Data.PoStatusId);
+        Assert.Equal("approver1", result.Data.Header.CurrentApprover);
+        Assert.Equal(4, result.Data.Header.PoStatusId);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 

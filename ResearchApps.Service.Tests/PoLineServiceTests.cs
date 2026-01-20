@@ -80,19 +80,19 @@ public class PoLineServiceTests
     public async Task PoLineSelectByPo_WithValidPoId_ReturnsLines()
     {
         // Arrange
-        var poId = "PO001";
+        const int poRecId = 1;
         var poLines = new List<PoLine>
         {
-            new() { PoLineId = 1, PoId = poId, ItemId = 1 },
-            new() { PoLineId = 2, PoId = poId, ItemId = 2 }
+            new() { PoLineId = 1, RecId = poRecId, ItemId = 1 },
+            new() { PoLineId = 2, RecId = poRecId, ItemId = 2 }
         };
 
         _poLineRepoMock
-            .Setup(x => x.PoLineSelectByPo(poId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoLineSelectByPo(poRecId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(poLines);
 
         // Act
-        var result = await _sut.PoLineSelectByPo(poId, CancellationToken.None);
+        var result = await _sut.PoLineSelectByPo(poRecId, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
