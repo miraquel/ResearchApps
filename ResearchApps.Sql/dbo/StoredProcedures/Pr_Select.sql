@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[Pr_Select]
+CREATE PROCEDURE [dbo].[Pr_Select]
     @PageNumber int = 1,
     @PageSize int = 10,
     @SortOrder nvarchar(max) = 'DESC',
