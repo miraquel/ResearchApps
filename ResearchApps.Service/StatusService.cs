@@ -22,8 +22,9 @@ namespace ResearchApps.Service
             LogRetrievingStatuses();
             var statuses = await _statusRepo.StatusCboAsync(_mapper.MapToEntity(cboRequestVm), cancellationToken);
             var statusVms = _mapper.MapToVm(statuses);
-            LogStatusesRetrieved(statusVms.Count());
-            return ServiceResponse<IEnumerable<StatusVm>>.Success(statusVms,"Statuses retrieved successfully.");
+            var statusVmsArray = statusVms as StatusVm[] ?? statusVms.ToArray();
+            LogStatusesRetrieved(statusVmsArray.Count());
+            return ServiceResponse<IEnumerable<StatusVm>>.Success(statusVmsArray,"Statuses retrieved successfully.");
         }
 
         [LoggerMessage(LogLevel.Debug, "Retrieving statuses for combo box")]
