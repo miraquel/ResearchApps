@@ -1,0 +1,57 @@
+﻿@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.PoHeaderVm>
+
+@if (Model.Items.Any())
+{
+    @foreach (var item in Model.Items)
+    {
+        <tr>
+            <td class="text-center fw-semibold">@item.PoId</td>
+            <td class="text-center">@item.PoDate.ToString("dd MMM yyyy")</td>
+            <td>@item.SupplierName</td>
+            <td>@item.Pic</td>
+            <td>@item.RefNo</td>
+            <td class="text-end">@((item.SubTotal).ToString("N0"))</td>
+            <td class="text-end">@((item.Ppn).ToString("N0"))</td>
+            <td class="text-end">@((item.Total).ToString("N0"))</td>
+            <td class="text-center">@Html.Raw(item.PoStatusName)
+            </td>
+            <td class="text-center">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-more-fill align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a href="/Pos/Details/@item.RecId" class="dropdown-item">
+                                <i class="ri-eye-fill align-bottom me-2 text-muted"></i> View
+                            </a>
+                        </li>
+                        @if (item.PoStatusId == 0 && item.CreatedBy == User.Identity?.Name)
+                        {
+                            <li>
+                                <a class="dropdown-item" href="/Pos/Edit/@item.RecId">
+                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="/Pos/Delete/@item.RecId">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="9" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-2"></i>
+            <p class="mb-0 mt-2">No purchase orders found.</p>
+        </td>
+    </tr>
+}

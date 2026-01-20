@@ -108,6 +108,79 @@ public static class PermissionConstants
         public const string Generate = "Reports.Generate";
     }
     
+    public class Customers
+    {
+        public const string Index = "Customers.Index";
+        public const string Create = "Customers.Create";
+        public const string Edit = "Customers.Edit";
+        public const string Delete = "Customers.Delete";
+        public const string Details = "Customers.Details";
+    }
+    
+    public class CustomerOrders
+    {
+        public const string Index = "CustomerOrders.Index";
+        public const string Create = "CustomerOrders.Create";
+        public const string Edit = "CustomerOrders.Edit";
+        public const string Delete = "CustomerOrders.Delete";
+        public const string Details = "CustomerOrders.Details";
+        public const string Submit = "CustomerOrders.Submit";
+        public const string Recall = "CustomerOrders.Recall";
+        public const string Reject = "CustomerOrders.Reject";
+        public const string Close = "CustomerOrders.Close";
+        public const string Approve = "CustomerOrders.Approve";
+    }
+    
+    public class DeliveryOrders
+    {
+        public const string Index = "DeliveryOrders.Index";
+        public const string Create = "DeliveryOrders.Create";
+        public const string Edit = "DeliveryOrders.Edit";
+        public const string Delete = "DeliveryOrders.Delete";
+        public const string Details = "DeliveryOrders.Details";
+    }
+    
+    public class SalesInvoices
+    {
+        public const string Index = "SalesInvoices.Index";
+        public const string Create = "SalesInvoices.Create";
+        public const string Edit = "SalesInvoices.Edit";
+        public const string Delete = "SalesInvoices.Delete";
+        public const string Details = "SalesInvoices.Details";
+    }
+    
+    public class Pos
+    {
+        public const string Index = "Pos.Index";
+        public const string Create = "Pos.Create";
+        public const string Edit = "Pos.Edit";
+        public const string Delete = "Pos.Delete";
+        public const string Details = "Pos.Details";
+        public const string Submit = "Pos.Submit";
+        public const string Approve = "Pos.Approve";
+        public const string Reject = "Pos.Reject";
+        public const string Recall = "Pos.Recall";
+        public const string Close = "Pos.Close";
+    }
+    
+    public class PoLines
+    {
+        public const string Index = "PoLines.Index";
+        public const string Create = "PoLines.Create";
+        public const string Edit = "PoLines.Edit";
+        public const string Delete = "PoLines.Delete";
+        public const string Details = "PoLines.Details";
+    }
+    
+    public class Suppliers
+    {
+        public const string Index = "Suppliers.Index";
+        public const string Create = "Suppliers.Create";
+        public const string Edit = "Suppliers.Edit";
+        public const string Delete = "Suppliers.Delete";
+        public const string Details = "Suppliers.Details";
+    }
+    
     // Get all permissions from PermissionConstants
     public static List<string> GetAllPermissions()
     {

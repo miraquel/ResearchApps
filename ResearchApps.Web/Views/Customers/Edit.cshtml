@@ -1,0 +1,118 @@
+@model ResearchApps.Service.Vm.CustomerVm
+
+@{
+    ViewBag.Title = "Edit Customer";
+    ViewBag.pTitle = $"Edit Customer: {Model.CustomerName}";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form id="customer-form" asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <input type="hidden" asp-for="RecId" />
+                    <input type="hidden" asp-for="CustomerId" />
+                    <input type="hidden" asp-for="CreatedDate" />
+                    <input type="hidden" asp-for="CreatedBy" />
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CustomerName" class="form-label"></label>
+                                <input asp-for="CustomerName" type="text" class="form-control" />
+                                <span asp-validation-for="CustomerName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ContactPerson" class="form-label"></label>
+                                <input asp-for="ContactPerson" type="text" class="form-control" />
+                                <span asp-validation-for="ContactPerson" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Telp" class="form-label"></label>
+                                <input asp-for="Telp" type="text" class="form-control" />
+                                <span asp-validation-for="Telp" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" type="email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label asp-for="Address" class="form-label"></label>
+                                <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="City" class="form-label"></label>
+                                <input asp-for="City" type="text" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="PostalCode" class="form-label"></label>
+                                <input asp-for="PostalCode" type="text" class="form-control" />
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary"
+                                data-confirm
+                                data-confirm-modal="saveModal"
+                                data-confirm-form="#customer-form"
+                                data-confirm-validate="true"
+                                data-confirm-title="Are you sure?"
+                                data-confirm-message="Are you sure you want to update this customer?">
+                            Save Changes
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.RecId" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script type="module">
+        import { AppInit } from '/assets/js/app-init.js';
+        AppInit.refresh();
+    </script>
+}

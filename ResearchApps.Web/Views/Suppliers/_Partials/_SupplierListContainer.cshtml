@@ -1,0 +1,127 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.SupplierVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        @* Sortable header columns with Alpine.js click handlers *@
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;" 
+            @@click="sort('SupplierName')" data-column="SupplierName">
+            <div class="d-flex align-items-center">
+                <span>Supplier Name</span>
+                <template x-if="sortBy === 'SupplierName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('Address')" data-column="Address">
+            <div class="d-flex align-items-center">
+                <span>Address</span>
+                <template x-if="sortBy === 'Address'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('City')" data-column="City">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>City</span>
+                <template x-if="sortBy === 'City'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('Telp')" data-column="Telp">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Phone</span>
+                <template x-if="sortBy === 'Telp'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 180px; cursor: pointer;"
+            @@click="sort('Email')" data-column="Email">
+            <div class="d-flex align-items-center">
+                <span>Email</span>
+                <template x-if="sortBy === 'Email'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 100px; cursor: pointer;"
+            @@click="sort('IsPpn')" data-column="IsPpn">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>PPN</span>
+                <template x-if="sortBy === 'IsPpn'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 100px; cursor: pointer;"
+            @@click="sort('StatusId')" data-column="StatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'StatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="supplier-table-body">
+        @* Embed list partial for table rows *@
+        @await Html.PartialAsync("_Partials/_SupplierListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        @* Filter inputs for each column *@
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search name..."
+                   x-model="filters.SupplierName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search address..."
+                   x-model="filters.Address" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search city..."
+                   x-model="filters.City" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search phone..."
+                   x-model="filters.Telp" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search email..."
+                   x-model="filters.Email" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.IsPpn" @@change="fetchList()">
+                <option value="">All</option>
+                <option value="true">PPN</option>
+                <option value="false">Non-PPN</option>
+            </select>
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.StatusId" @@change="fetchList()">
+                <option value="">All Status</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" 
+                    @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    @* Embed pagination partial *@
+    @await Html.PartialAsync("_Partials/_SupplierPaginationPartial", Model)
+</div>

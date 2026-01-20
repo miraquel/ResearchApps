@@ -1,0 +1,232 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.CustomerOrderVm
+
+@{
+    ViewBag.Title = "Customer Order Details";
+    ViewBag.pTitle = $"Customer Order {Model.Header.CoId}";
+    Layout = "_Layout";
+    ViewBag.CurrentApprover = Model.Header.CurrentApprover;
+}
+
+<div x-data="{ ...coDetails('@Model.Header.CoId', @Model.Header.RecId), showWorkflow: true }" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <div id="coDetails" class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col d-flex justify-content-between align-items-center">
+                    <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#lines">Lines</a>
+                        </li>
+                        <li class="nav-item" role="presentation" x-show="showWorkflow">
+                            <a class="nav-link" data-bs-toggle="tab" href="#workflow">Workflow</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                        </li>
+                    </ul>
+                    <div class="position-absolute top-0 end-0">
+                        <!-- Loading Indicator -->
+                        <span x-show="isLoading" x-cloak class="spinner-border spinner-border-sm text-primary"></span>
+                        
+                        @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                        
+                        @if (Model.Header.CoStatusId == CoStatusConstants.Cancel && Model.Lines.Any(l => l.QtyOs > 0) && User.HasClaim("permission", PermissionConstants.DeliveryOrders.Create))
+                        {
+                            <a href="/DeliveryOrders/Create?customerId=@Model.Header.CustomerId&coId=@Model.Header.CoId" class="btn btn-sm btn-primary">
+                                <i class="ri-truck-line"></i> Create DO
+                            </a>
+                        }
+                        
+                        @if (Model.Header.CoStatusId == CoStatusConstants.Draft && User.Identity?.Name == Model.Header.CreatedBy)
+                        {
+                            <a href="/CustomerOrders/Edit/@Model.Header.RecId" class="btn btn-sm btn-success">
+                                <i class="ri-edit-line"></i> Edit
+                            </a>
+                        }
+                        
+                        @if (Model.Header.CoStatusId == CoStatusConstants.Draft && User.Identity?.Name == Model.Header.CreatedBy)
+                        {
+                            <a href="/CustomerOrders/Delete/@Model.Header.RecId" class="btn btn-sm btn-danger">
+                                <i class="ri-delete-bin-line"></i> Delete
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <!-- Overview Tab -->
+                <div class="tab-pane active" id="overview" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Order No</td>
+                                    <td>@Model.Header.CoId</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Order Date</td>
+                                    <td>@Model.Header.CoDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Customer</td>
+                                    <td><a href="/Customers/Details/@Model.Header.CustomerId">@Model.Header.CustomerName</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Order Type</td>
+                                    <td>@Model.Header.CoTypeName</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Customer PO</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.PoCustomer) ? "-" : Model.Header.PoCustomer)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Reference No</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.RefNo) ? "-" : Model.Header.RefNo)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Status</td>
+                                    <td>@Html.Raw(Model.Header.CoStatusName)</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Subtotal</td>
+                                    <td>@Model.Header.SubTotal.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">PPN (11%)</td>
+                                    <td>@Model.Header.Ppn.ToString("N0")</td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td class="fw-bold fs-5">Total</td>
+                                    <td class="fw-bold text-primary fs-5">@Model.Header.Total.ToString("N0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Notes</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lines Tab -->
+                <div class="tab-pane" id="lines" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Item</th>
+                                    <th class="text-center" style="width: 120px;">Wanted Date</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th class="text-end" style="width: 120px;">Amount</th>
+                                    <th class="text-end" style="width: 100px;">Delivered</th>
+                                    <th class="text-end" style="width: 100px;">Outstanding</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int lineNumber = 0; }
+                                @foreach (var line in Model.Lines)
+                                {
+                                    lineNumber++;
+                                    <tr>
+                                        <td class="text-center">@lineNumber</td>
+                                        <td>
+                                            <a href="#" 
+                                               @@click.prevent="showLineDetailModal(@System.Text.Json.JsonSerializer.Serialize(line, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))"
+                                               class="text-primary text-decoration-none">
+                                                @line.ItemName
+                                            </a>
+                                        </td>
+                                        <td class="text-center">@line.WantedDeliveryDate?.ToString("dd MMM yyyy")</td>
+                                        <td class="text-end">@line.Qty.ToString("N0")</td>
+                                        <td class="text-center">@line.UnitName</td>
+                                        <td class="text-end">@line.Price.ToString("N0")</td>
+                                        <td class="text-end">@line.Amount.ToString("N0")</td>
+                                        <td class="text-end">@line.QtyDelivered.ToString("N0")</td>
+                                        <td class="text-end @(line.QtyOs > 0 ? "text-danger fw-bold" : "")">@line.QtyOs.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="6" class="text-end">Subtotal:</th>
+                                    <th class="text-end">@Model.Header.SubTotal.ToString("N0")</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Workflow Tab -->
+                <div class="tab-pane" id="workflow" role="tabpanel" x-show="showWorkflow">
+                    <div id="workflowHistoryContainer" 
+                         hx-get="@Url.Action("WorkflowHistory", "CustomerOrders", new { refId = Model.Header.CoId, wfFormId = 2 })"
+                         hx-trigger="load"
+                         hx-swap="innerHTML">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Log Tab -->
+                <div class="tab-pane" id="log" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Created Date</td>
+                                    <td>@Model.Header.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Created By</td>
+                                    <td>@Model.Header.CreatedBy</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Modified Date</td>
+                                    <td>@Model.Header.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Modified By</td>
+                                    <td>@Model.Header.ModifiedBy</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Partials/_WorkflowModal", Model.Header.CoId)
+    @{
+        ViewData["ShowDeliveryInfo"] = true;
+    }
+    @await Html.PartialAsync("_Partials/_CoLineDetailModal")
+</div>
+
+@section scripts {
+    <script src="~/js/components/workflow-history.js"></script>
+    <script src="~/js/customer-orders/co-details.js"></script>
+}

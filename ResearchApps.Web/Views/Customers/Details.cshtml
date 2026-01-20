@@ -1,0 +1,207 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.CustomerVm
+
+@{
+    ViewBag.Title = "Customer Details";
+    ViewBag.pTitle = "Customer Details";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#orders">Orders</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if(User.HasClaim("permission", PermissionConstants.CustomerOrders.Create))
+                    {
+                        <a href="@Url.Action("Create", "CustomerOrders", new { customerId = Model.RecId })" class="btn btn-sm btn-info me-2">
+                            <i class="ri-file-add-line"></i> New CO
+                        </a>
+                    }
+                    @if(User.HasClaim("permission", PermissionConstants.Customers.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "Customers", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.Customers.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "Customers", new { id = Model.RecId })" class="btn btn-sm btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CustomerId)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.CustomerId)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CustomerName)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.CustomerName)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ContactPerson)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.ContactPerson)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Telp)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.Telp)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Email)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.Email)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Address)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.Address)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.City)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.City)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PostalCode)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.PostalCode)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.IsActive)</strong></div>
+                    <div class="col-9">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="orders" role="tabpanel">
+                <table id="co-table" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width: 100%;">
+                    <thead>
+                    <tr>
+                        <th>CO No</th>
+                        <th>CO Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>CO No</th>
+                        <th>CO Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                    <div class="col-9">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.CreatedBy)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                    <div class="col-9">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                    <div class="col-9">@Model.ModifiedBy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script type="module">
+        import { DataTableHelper } from '/assets/js/views/view-helpers-standalone.js';
+
+        const customerId = @Model.RecId;
+
+        DataTableHelper.initializeServerSideTable({
+            tableId: 'co-table',
+            apiUrl: '/api/CustomerOrders/',
+            addButtonText: '<i class="ri-add-line align-bottom me-1"></i> Create CO',
+            addButtonUrl: `/CustomerOrders/Create?customerId=${customerId}`,
+            order: [[0, 'desc']],
+            extraParams: { customerId: customerId },
+            columns: [
+                { data: 'coId', width: '100px' },
+                { 
+                    data: 'coDate',
+                    render: (data, type) => {
+                        if (type === 'display' && data) {
+                            const date = new Date(data);
+                            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                        }
+                        return data;
+                    }
+                },
+                { 
+                    data: 'total',
+                    render: (data, type) => {
+                        if (type === 'display' && data !== null) {
+                            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data);
+                        }
+                        return data;
+                    }
+                },
+                { data: 'coStatusName', width: '100px' },
+                {
+                    data: null,
+                    width: '50px',
+                    defaultContent: '',
+                    orderable: false,
+                    render: (data, type, row) => `
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ri-more-fill align-middle"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a href="/CustomerOrders/Details/${row.recId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
+                                <li><a href="/CustomerOrders/Edit/${row.recId}" class="dropdown-item edit-item-btn"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
+                            </ul>
+                        </div>`
+                }
+            ],
+            columnDefs: [
+                {
+                    targets: [0, 3, 4],
+                    className: 'text-center'
+                }
+            ]
+        });
+    </script>
+}

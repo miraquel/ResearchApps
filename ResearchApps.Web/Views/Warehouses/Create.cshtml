@@ -9,14 +9,13 @@
     <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 }
 
-@Html.AntiForgeryToken()
-
 <div class="card mt-3">
     <div class="card-header">
         <h4 class="card-title">Create Warehouse</h4>
     </div>
     <div class="card-body">
-        <form asp-action="Create" method="post">
+        <form id="warehouse-form" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
             <div class="row mb-3">
                 <div class="col-lg-3"><label asp-for="WhName"></label></div>
                 <div class="col-lg-9"><input asp-for="WhName" class="form-control" /></div>
@@ -26,90 +25,39 @@
                     <label><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></label>
                 </div>
                 <div class="col-lg-9">
-                    <select asp-for="StatusId" id="statusId" class="select2 select2-container select2-container--default select2-container--above"></select>
+                    <select asp-for="StatusId" class="form-control select2-ajax"
+                            data-ajax-url="/api/Status/"
+                            data-placeholder="Select Status"
+                            data-id-field="statusId"
+                            data-text-field="statusName">
+                        <option value="">Select Status</option>
+                    </select>
                 </div>
             </div>
             <div class="text-end">
-                <button type="button" class="btn btn-primary" id="create-warehouse-btn">Create</button>
+                <button type="button" class="btn btn-primary"
+                        data-confirm
+                        data-confirm-modal="createWarehouseModal"
+                        data-confirm-form="#warehouse-form"
+                        data-confirm-validate="true"
+                        data-confirm-title="Are you sure?"
+                        data-confirm-message="Are you sure you want to create this warehouse?">
+                    Create
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/js/jquery.min.js"></script>
     <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/js/helper.js"></script>
+    <script src="/assets/js/components/select2.js"></script>
+    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script>
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        $('#statusId').select2({
-            placeholder: "Select Status",
-            ajax: {
-                url: '/api/Status/',
-                type: 'GET',
-                dataType: 'json',
-                delay: 500,
-                headers: {
-                    'RequestVerificationToken': token
-                },
-                data: function (params) {
-                    return {
-                        filters: {
-                            term: params.term ? `%${params.term}%` : '',
-                        }
-                    };
-                },
-                processResults: function (data) {
-                    return {
-                        results: data.data.map(item => ({
-                            id: item.statusId,
-                            text: item.statusName
-                        }))
-                    };
-                },
-            }
-        });
-
-        // Confirmation modal handler
-        $('#create-warehouse-btn').on('click', function() {
-            var modal = new bootstrap.Modal(document.getElementById('createWarehouseModal'));
-            modal.show();
-        });
-
-        $('#confirm-create-warehouse').on('click', function() {
-            $('form').submit();
+        $(document).ready(function() {
+            Select2Helper.initAll();
         });
     </script>
 }
-
-<!-- Confirmation Modal -->
-<div id="createWarehouseModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mt-2 text-center">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/exymduqj.json"
-                        trigger="loop"
-                        delay="2000"
-                        stroke="light"
-                        state="hover-line"
-                        style="width:100px;height:100px">
-                    </lord-icon>
-                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                        <h4>Are you sure?</h4>
-                        <p class="text-muted mx-4 mb-0">Are you sure you want to create this warehouse?</p>
-                    </div>
-                </div>
-                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn w-sm btn-primary" id="confirm-create-warehouse">Yes, Create It!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 

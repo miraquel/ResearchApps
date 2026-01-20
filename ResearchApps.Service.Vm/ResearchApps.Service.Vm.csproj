@@ -25,4 +25,22 @@
       <ProjectReference Include="..\ResearchApps.Domain\ResearchApps.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="DeliveryOrder\DeliveryOrderHeaderOutstandingVm.cs" />
+      <Compile Remove="DeliveryOrder\DeliveryOrderOutstandingVm.cs" />
+      <Compile Remove="DeliveryOrder\DeliveryOrderStatusVm.cs" />
+      <Compile Remove="DeliveryOrder\DeliveryOrderHeaderVm.cs" />
+      <Compile Remove="DeliveryOrder\DeliveryOrderLineVm.cs" />
+      <Compile Remove="DeliveryOrder\DeliveryOrderVm.cs" />
+      <Compile Remove="DeliveryOrder\Request\DeliveryOrderRequestVm.cs" />
+      <Compile Remove="DeliveryOrder\Request\DoLineInsertRequestVm.cs" />
+      <Compile Remove="DeliveryOrder\Request\DoUpdateRequestVm.cs" />
+      <Compile Remove="CustomerOrder\CustomerOrderHeaderOutstandingVm.cs" />
+      <Compile Remove="CustomerOrder\CustomerOrderOutstandingVm.cs" />
+      <Compile Remove="CustomerOrder\CustomerOrderStatusVm.cs" />
+      <Compile Remove="CustomerOrder\CustomerOrderHeaderVm.cs" />
+      <Compile Remove="CustomerOrder\CustomerOrderTypeVm.cs" />
+      <Compile Remove="CustomerOrder\CustomerOrderLineVm.cs" />
+    </ItemGroup>
+
 </Project>

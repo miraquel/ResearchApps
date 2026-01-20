@@ -1,0 +1,308 @@
+@model ResearchApps.Service.Vm.DeliveryOrderVm
+
+@{
+    ViewBag.Title = "Create Delivery Order";
+    ViewBag.pTitle = "Create Delivery Order";
+    Layout = "_Layout";
+    var customerId = ViewBag.CustomerId as int?;
+    var coId = ViewBag.CoId as string;
+}
+
+<!-- Hidden fields for pre-selected values -->
+<input type="hidden" id="preSelectedCustomerId" value="@(customerId.HasValue ? customerId.Value.ToString() : "")" />
+<input type="hidden" id="preSelectedCoId" value="@(coId ?? "")" />
+
+<div x-data="doCreateForm()" x-init="init()">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Create New Delivery Order</h5>
+                </div>
+                <div class="card-body">
+                    <form id="do-form" method="post" action="/DeliveryOrders/Create">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Validation Summary -->
+                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_CustomerId" class="form-label">Customer <span class="text-danger">*</span></label>
+                                            <select class="form-control form-select"
+                                                    id="Header_CustomerId" 
+                                                    name="Header.CustomerId"
+                                                    x-ref="customerSelect"
+                                                    :class="{ 'is-invalid': errors.CustomerId }"
+                                                    required>
+                                                <option value="">Select Customer</option>
+                                            </select>
+                                            <div class="invalid-feedback" x-show="errors.CustomerId" x-text="errors.CustomerId"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_CoId" class="form-label">Customer Order (CO)</label>
+                                            <select class="form-control form-select"
+                                                    id="Header_CoId" 
+                                                    x-ref="coSelect"
+                                                    disabled>
+                                                <option value="">Select CO (optional)</option>
+                                            </select>
+                                            <!-- Hidden fields for CO binding -->
+                                            <input type="hidden" name="Header.CoRecId" :value="coRecId || 0" />
+                                            <input type="hidden" name="Header.CoId" :value="coId" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Middle Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_DoDate" class="form-label">Delivery Date <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       id="Header_DoDate" 
+                                                       name="Header.DoDate"
+                                                       class="form-control"
+                                                       x-ref="doDatePicker"
+                                                       :class="{ 'is-invalid': errors.DoDate }"
+                                                       required />
+                                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                            </div>
+                                            <div class="invalid-feedback" x-show="errors.DoDate" x-text="errors.DoDate"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_RefId" class="form-label">Reference ID</label>
+                                            <input type="text"
+                                                   id="Header_RefId" 
+                                                   name="Header.RefId"
+                                                   class="form-control" 
+                                                   placeholder="Enter reference ID" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_Descr" class="form-label">Description</label>
+                                            <textarea id="Header_Descr"
+                                                      name="Header.Descr"
+                                                      class="form-control" 
+                                                      rows="2" 
+                                                      placeholder="Enter description"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_Dn" class="form-label">Delivery Note</label>
+                                            <input type="text"
+                                                   id="Header_Dn" 
+                                                   name="Header.Dn"
+                                                   class="form-control" 
+                                                   placeholder="Enter delivery note" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="Header_Notes" class="form-label">Notes (Optional)</label>
+                                            <textarea id="Header_Notes"
+                                                      name="Header.Notes"
+                                                      class="form-control" 
+                                                      rows="4" 
+                                                      placeholder="Enter notes (optional)"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Outstanding CO Lines Section -->
+                        <div class="row mt-4" x-show="outstandingLines.length > 0" x-cloak>
+                            <div class="col-lg-12">
+                                <div class="card border">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">Outstanding Customer Order Lines</h5>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary" @@click="selectAllLines()">
+                                                <i class="ri-checkbox-multiple-line me-1"></i> Select All
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary" @@click="deselectAllLines()">
+                                                <i class="ri-checkbox-blank-line me-1"></i> Deselect All
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Loading indicator -->
+                                        <div x-show="isLoadingOutstanding" class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <div class="mt-2">Loading outstanding orders...</div>
+                                        </div>
+                                        
+                                        <!-- Outstanding lines table -->
+                                        <div x-show="!isLoadingOutstanding" class="table-responsive">
+                                            <table class="table table-bordered table-hover align-middle mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th class="text-center" style="width: 50px;">
+                                                            <i class="ri-checkbox-line"></i>
+                                                        </th>
+                                                        <th>CO No</th>
+                                                        <th>Line</th>
+                                                        <th>Item</th>
+                                                        <th class="text-end">Ordered</th>
+                                                        <th class="text-end">Delivered</th>
+                                                        <th class="text-end">Outstanding</th>
+                                                        <th class="text-end" style="width: 120px;">Qty to Deliver</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <template x-for="(line, index) in outstandingLines" :key="line.coLineId">
+                                                        <tr :class="{ 'table-primary': line.selected }">
+                                                            <td class="text-center">
+                                                                <input type="checkbox" 
+                                                                       class="form-check-input"
+                                                                       :checked="line.selected"
+                                                                       :disabled="line.qtyOs <= 0"
+                                                                       @@change="toggleLineSelection(index)" />
+                                                            </td>
+                                                            <td x-text="line.coId"></td>
+                                                            <td class="text-center" x-text="line.coLineId"></td>
+                                                            <td x-text="line.itemName"></td>
+                                                            <td class="text-end" x-text="formatNumber(line.qtyCo)"></td>
+                                                            <td class="text-end" x-text="formatNumber(line.qtyDo)"></td>
+                                                            <td class="text-end" x-text="formatNumber(line.qtyOs)"></td>
+                                                            <td class="text-end">
+                                                                <input type="number" 
+                                                                       class="form-control form-control-sm text-end"
+                                                                       x-model.number="line.qty"
+                                                                       :max="line.qtyOs"
+                                                                       :disabled="!line.selected"
+                                                                       min="0"
+                                                                       step="0.01" />
+                                                            </td>
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        <!-- Selected count -->
+                                        <div class="mt-3" x-show="selectedLines.length > 0">
+                                            <span class="badge bg-primary">
+                                                <span x-text="selectedLines.length"></span> line(s) selected
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lines validation error -->
+                        <div class="alert alert-danger mt-3" x-show="errors.Lines" x-cloak>
+                            <i class="ri-error-warning-line me-1"></i>
+                            <span x-text="errors.Lines"></span>
+                        </div>
+                        
+                        <!-- Hidden container for line items -->
+                        <div id="lines-container"></div>
+                        
+                        <div class="form-group d-flex gap-2 mt-4">
+                            <button type="submit" 
+                                    class="btn btn-primary"
+                                    :disabled="isSubmitting"
+                                    @@click.prevent="confirmCreate()">
+                                <span x-show="!isSubmitting">
+                                    <i class="ri-save-line me-1"></i> Create
+                                </span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    Creating...
+                                </span>
+                            </button>
+                            <a href="/DeliveryOrders" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showConfirmModal }"
+         x-show="showConfirmModal"
+         x-cloak
+         tabindex="-1"
+         @@click.self="showConfirmModal = false"
+         @@keydown.escape.window="showConfirmModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Create</h5>
+                    <button type="button" class="btn-close" @@click="showConfirmModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to create this delivery order?</p>
+                    <div x-show="selectedLines.length > 0">
+                        <strong>Selected Items:</strong>
+                        <ul class="mb-0 mt-2">
+                            <template x-for="line in selectedLines" :key="line.coLineId">
+                                <li>
+                                    <span x-text="line.itemName"></span>: 
+                                    <span x-text="formatNumber(line.qty)"></span> <span x-text="line.unitName"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showConfirmModal = false">Cancel</button>
+                    <button type="button" class="btn btn-primary" @@click="proceedSubmit()">
+                        <i class="ri-check-line me-1"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showConfirmModal" x-cloak></div>
+</div>
+
+@section scripts {
+    <script src="~/js/delivery-orders/do-create.js"></script>
+}

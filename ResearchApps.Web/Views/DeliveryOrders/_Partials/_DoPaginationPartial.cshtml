@@ -1,0 +1,43 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.DeliveryOrderHeaderVm>
+
+@{
+    var currentPage = Model.PageNumber;
+    var totalPages = Model.TotalPages;
+    var hasNextPage = Model.HasNextPage;
+    var hasPrevPage = Model.HasPreviousPage;
+    var startRecord = Model.TotalCount > 0 ? (Model.PageNumber - 1) * Model.PageSize + 1 : 0;
+    var endRecord = Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount);
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <div class="text-muted">
+        Showing @startRecord to @endRecord of @Model.TotalCount entries
+    </div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination pagination-sm mb-0">
+            <li class="page-item @(hasPrevPage ? "" : "disabled")">
+                <a class="page-link" href="javascript:void(0);"
+                   @@click="fetchList(@(currentPage - 1))"
+                   @(hasPrevPage ? "" : "aria-disabled=true")>
+                    <i class="ri-arrow-left-s-line"></i>
+                </a>
+            </li>
+            @for (var i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" href="javascript:void(0);"
+                       @@click="fetchList(@i)">
+                        @i
+                    </a>
+                </li>
+            }
+            <li class="page-item @(hasNextPage ? "" : "disabled")">
+                <a class="page-link" href="javascript:void(0);"
+                   @@click="fetchList(@(currentPage + 1))"
+                   @(hasNextPage ? "" : "aria-disabled=true")>
+                    <i class="ri-arrow-right-s-line"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

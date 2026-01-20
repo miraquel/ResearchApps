@@ -1,0 +1,107 @@
+@model ResearchApps.Service.Vm.PrVm
+
+@{
+    ViewBag.Title = "Purchase Requisitions";
+    ViewBag.pTitle = "Purchase Requisitions";
+    Layout = "_Layout";
+}
+
+@section styles {
+    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
+}
+
+@Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col-12">
+        <table id="pr-table" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width: 100%;">
+            <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.PrId)</th>
+                <th>@Html.DisplayNameFor(m => m.PrDate)</th>
+                <th>@Html.DisplayNameFor(m => m.PrName)</th>
+                <th>@Html.DisplayNameFor(m => m.Total)</th>
+                <th>@Html.DisplayNameFor(m => m.PrStatusName)</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.PrId)</th>
+                <th>@Html.DisplayNameFor(m => m.PrDate)</th>
+                <th>@Html.DisplayNameFor(m => m.PrName)</th>
+                <th>@Html.DisplayNameFor(m => m.Total)</th>
+                <th>@Html.DisplayNameFor(m => m.PrStatusName)</th>
+                <th>Actions</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <script src="/assets/libs/jquery/jquery.min.js"></script>
+    <script src="/assets/js/datatables.min.js"></script>
+    <script src="/assets/js/helper.js"></script>
+    <script src="/assets/js/views/view-helpers-standalone.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable with helper
+            DataTableHelper.init('#pr-table', {
+                url: '/api/Prs/',
+                order: [[0, 'desc']],
+                tableOptions: {
+                    layout: {
+                        topEnd: {
+                            buttons: [
+                                {
+                                    text: '<i class="ri-add-line align-bottom me-1"></i> Create',
+                                    className: 'btn btn-primary btn-sm',
+                                    action: function() {
+                                        window.location.href = '/Prs/Create';
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    columns: [
+                        { data: 'prId', width: '50px' },
+                        { 
+                            data: 'prDate',
+                            render: function(data, type) {
+                                return DataTableHelper.formatDate(data, type);
+                            }
+                        },
+                        { data: 'prName' },
+                        { 
+                            data: 'total',
+                            render: function(data, type) {
+                                return DataTableHelper.formatCurrency(data, type);
+                            }
+                        },
+                        { data: 'prStatusName', width: '100px' },
+                        {
+                            data: null,
+                            width: '50px',
+                            defaultContent: '',
+                            orderable: false,
+                            render: function(data, type, row) {
+                                return window.renderActionDropdown([
+                                    { href: `/Prs/Details/${row.recId}`, icon: 'ri-eye-fill', text: 'View' },
+                                    { href: `/Prs/Edit/${row.recId}`, icon: 'ri-pencil-fill', text: 'Edit', class: 'edit-item-btn' },
+                                    { href: `/Prs/Delete/${row.recId}`, icon: 'ri-delete-bin-fill', text: 'Delete', class: 'remove-item-btn' }
+                                ]);
+                            }
+                        }
+                    ],
+                    columnDefs: [
+                        {
+                            targets: [0, 1, 4, 5],
+                            className: 'text-center'
+                        }
+                    ]
+                }
+            });
+        });
+    </script>
+}

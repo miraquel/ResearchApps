@@ -76,6 +76,7 @@ public class ItemRepo : IItemRepo
         parameters.Add("@ItemDeptId", item.ItemDeptId);
         parameters.Add("@BufferStock", item.BufferStock);
         parameters.Add("@UnitId", item.UnitId);
+        parameters.Add("@WhId", item.WhId);
         parameters.Add("@PurchasePrice", item.PurchasePrice);
         parameters.Add("@SalesPrice", item.SalesPrice);
         parameters.Add("@CostPrice", item.CostPrice);
@@ -160,10 +161,9 @@ public class ItemRepo : IItemRepo
         parameters.Add("@ItemDeptId", item.ItemDeptId);
         parameters.Add("@BufferStock", item.BufferStock);
         parameters.Add("@UnitId", item.UnitId);
-        parameters.Add("@PurchasePrice", item.PurchasePrice);
-        parameters.Add("@SalesPrice", item.SalesPrice);
+        parameters.Add("@WhId", item.WhId);
         parameters.Add("@CostPrice", item.CostPrice);
-        parameters.Add("@Image", item.Image);
+        parameters.Add("@SalesPrice", item.SalesPrice);
         parameters.Add("@Notes", item.Notes);
         parameters.Add("@StatusId", item.StatusId);
         parameters.Add("@ModifiedBy", item.ModifiedBy);

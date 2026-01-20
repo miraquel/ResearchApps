@@ -1,0 +1,437 @@
+@model ResearchApps.Service.Vm.DashboardVm
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Page Title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Dashboard</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <!-- Total PRs -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Total PRs</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-success fs-14 mb-0">
+                            <i class="ri-file-list-3-line align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.TotalPrs.ToString("N0")</h4>
+                        <a href="@Url.Action("Index", "Prs")" class="text-decoration-underline">View all PRs</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                            <i class="bx bx-file text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending PRs -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Pending PRs</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-warning fs-14 mb-0">
+                            <i class="ri-time-line align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.PendingPrs.ToString("N0")</h4>
+                        <span class="badge bg-warning-subtle text-warning">Needs attention</span>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-warning-subtle rounded fs-3">
+                            <i class="bx bx-time text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Pending Approvals -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">My Approvals</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-info fs-14 mb-0">
+                            <i class="ri-checkbox-circle-line align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.MyPendingApprovals.ToString("N0")</h4>
+                        <a href="#pendingApprovals" class="text-decoration-underline">View pending</a>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle rounded fs-3">
+                            <i class="bx bx-check-circle text-info"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Utilization -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Budget Used</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-primary fs-14 mb-0">
+                            @Model.Statistics.BudgetUtilizationPercentage.ToString("F1")%
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.UsedBudget.ToString("C0")</h4>
+                        <span class="text-muted">of @Model.Statistics.TotalBudget.ToString("C0")</span>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-primary-subtle rounded fs-3">
+                            <i class="bx bx-wallet text-primary"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row">
+    <!-- PR Trend Chart -->
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">PR Trend (Last 6 Months)</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="prTrendChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget by Department Chart -->
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Budget by Department</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="budgetDeptChart" style="height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent PRs and Pending Approvals -->
+<div class="row">
+    <!-- Recent PRs -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Recent PRs</h4>
+                <div class="flex-shrink-0">
+                    <a href="@Url.Action("Index", "Prs")" class="btn btn-soft-info btn-sm">View All <i class="ri-arrow-right-line align-middle"></i></a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive table-card">
+                    <table class="table table-borderless table-hover table-nowrap align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">PR ID</th>
+                                <th scope="col">PR Name</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentPrs.Any())
+                            {
+                                foreach (var pr in Model.RecentPrs)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("Edit", "Prs", new { id = pr.PrId })" class="fw-medium link-primary">@pr.PrId</a>
+                                        </td>
+                                        <td>@pr.PrName</td>
+                                        <td>@pr.PrDate.ToString("dd MMM yyyy")</td>
+                                        <td>@pr.Total.ToString("C0")</td>
+                                        <td>
+                                            <span class="badge bg-@pr.StatusBadge">@pr.PrStatusName</span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center">No recent PRs</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Approvals -->
+    <div class="col-xl-6" id="pendingApprovals">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Pending Approvals</h4>
+                <div class="flex-shrink-0">
+                    <span class="badge bg-warning">@Model.Statistics.MyPendingApprovals items</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive table-card">
+                    <table class="table table-borderless table-hover table-nowrap align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">PR ID</th>
+                                <th scope="col">PR Name</th>
+                                <th scope="col">Requested By</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.PendingApprovals.Any())
+                            {
+                                foreach (var approval in Model.PendingApprovals)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("Edit", "Prs", new { id = approval.PrId })" class="fw-medium link-primary">@approval.PrId</a>
+                                        </td>
+                                        <td>@approval.PrName</td>
+                                        <td>@approval.CreatedBy</td>
+                                        <td>@approval.Total.ToString("C0")</td>
+                                        <td>
+                                            <a href="@Url.Action("Edit", "Prs", new { id = approval.PrId })" class="btn btn-sm btn-success">Review</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center">No pending approvals</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Requested Items -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Top Requested Items (Last 3 Months)</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-nowrap align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Item Name</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Request Count</th>
+                                <th scope="col">Total Quantity</th>
+                                <th scope="col">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TopItems.Any())
+                            {
+                                foreach (var item in Model.TopItems)
+                                {
+                                    <tr>
+                                        <td>@item.ItemName</td>
+                                        <td>@item.ItemTypeName</td>
+                                        <td>@item.ItemDeptName</td>
+                                        <td>
+                                            <span class="badge bg-primary">@item.RequestCount</span>
+                                        </td>
+                                        <td>@item.TotalQuantity.ToString("N0")</td>
+                                        <td>@item.TotalAmount.ToString("C0")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center">No data available</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // PR Trend Chart
+        const prTrendCtx = document.getElementById('prTrendChart').getContext('2d');
+        const prTrendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PrTrend));
+        
+        new Chart(prTrendCtx, {
+            type: 'line',
+            data: {
+                labels: prTrendData.map(d => d.monthYear),
+                datasets: [{
+                    label: 'PR Count',
+                    data: prTrendData.map(d => d.prCount),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Total Amount',
+                    data: prTrendData.map(d => d.totalAmount),
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'PR Count'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Total Amount'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                }
+            }
+        });
+
+        // Budget by Department Chart
+        const budgetDeptCtx = document.getElementById('budgetDeptChart').getContext('2d');
+        const budgetDeptData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BudgetByDepartment));
+        
+        new Chart(budgetDeptCtx, {
+            type: 'doughnut',
+            data: {
+                labels: budgetDeptData.map(d => d.department),
+                datasets: [{
+                    label: 'Total Spent',
+                    data: budgetDeptData.map(d => d.totalSpent),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(255, 159, 64, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+}

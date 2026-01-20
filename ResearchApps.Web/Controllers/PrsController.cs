@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
+using ResearchApps.Service.Vm.Common;
 using ResearchApps.Web.Services;
 
 namespace ResearchApps.Web.Controllers;
@@ -24,6 +25,46 @@ public class PrsController : Controller
     public ActionResult Index()
     {
         return View();
+    }
+
+    // GET: Prs/List (htmx partial)
+    [Authorize(PermissionConstants.Prs.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _prService.PrSelect(request, cancellationToken);
+        
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_PrListContainer", new PagedListVm<PrVm>());
+        }
+
+        var result = new PagedListVm<PrVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_PrListContainer", result);
     }
 
     // GET: PrsController/Details/5

@@ -124,4 +124,186 @@ public partial class MapperlyMapper
     public partial IEnumerable<ReportFieldCoordinate> MapToEntity(IEnumerable<ReportFieldCoordinateVm> reportFieldCoordinateDto);
     public partial ReportFieldCoordinateVm MapToVm(ReportFieldCoordinate reportFieldCoordinate);
     public partial IEnumerable<ReportFieldCoordinateVm> MapToVm(IEnumerable<ReportFieldCoordinate> reportFieldCoordinateDto);
+    
+    // Dashboard
+    public partial DashboardStatisticsVm Map(DashboardStatistics statistics);
+    public partial RecentPrVm Map(RecentPr recentPr);
+    public partial PendingApprovalVm Map(PendingApproval pendingApproval);
+    public partial TopItemVm Map(TopItem topItem);
+    public partial PrTrendVm Map(PrTrend prTrend);
+    public partial BudgetByDepartmentVm Map(BudgetByDepartment budgetByDepartment);
+    
+    // Customer
+    public partial Customer MapToEntity(CustomerVm customerDto);
+    public partial IEnumerable<Customer> MapToEntity(IEnumerable<CustomerVm> customerDto);
+    public partial PagedList<Customer> MapToEntity(PagedListVm<CustomerVm> pagedListDto);
+    public partial CustomerVm MapToVm(Customer customer);
+    public partial IEnumerable<CustomerVm> MapToVm(IEnumerable<Customer> customerDto);
+    public partial PagedListVm<CustomerVm> MapToVm(PagedList<Customer> pagedListDto);
+    
+    // Co (Customer Order)
+    public partial CustomerOrder MapToEntity(CustomerOrderVm customerOrderHeaderDto);
+    public partial IEnumerable<CustomerOrder> MapToEntity(IEnumerable<CustomerOrderVm> coDto);
+    public partial PagedList<CustomerOrder> MapToEntity(PagedListVm<CustomerOrderVm> pagedListDto);
+    public partial CustomerOrderVm MapToVm(CustomerOrder customerOrder);
+    public partial IEnumerable<CustomerOrderVm> MapToVm(IEnumerable<CustomerOrder> coDto);
+    public partial PagedListVm<CustomerOrderVm> MapToVm(PagedList<CustomerOrder> pagedListDto);
+    
+    // CoHeader
+    public partial CustomerOrderHeader MapToEntity(CustomerOrderHeaderVm customerOrderHeaderDto);
+    public partial IEnumerable<CustomerOrderHeader> MapToEntity(IEnumerable<CustomerOrderHeaderVm> coHeader);
+    public partial CustomerOrderHeaderVm MapToVm(CustomerOrderHeader customerOrderHeader);
+    public partial IEnumerable<CustomerOrderHeaderVm> MapToVm(IEnumerable<CustomerOrderHeader> coHeader);
+    public partial PagedListVm<CustomerOrderHeaderVm> MapToVm(PagedList<CustomerOrderHeader> pagedListDto);
+    public partial PagedList<CustomerOrderHeader> MapToEntity(PagedListVm<CustomerOrderHeaderVm> pagedListDto);
+    
+    // CoLine
+    public partial CustomerOrderLine MapToEntity(CustomerOrderLineVm customerOrderLineDto);
+    public partial IEnumerable<CustomerOrderLine> MapToEntity(IEnumerable<CustomerOrderLineVm> coLineDto);
+    public partial CustomerOrderLineVm MapToVm(CustomerOrderLine customerOrderLine);
+    public partial IEnumerable<CustomerOrderLineVm> MapToVm(IEnumerable<CustomerOrderLine> coLineDto);
+    
+    // CoHeaderOutstanding
+    public partial CustomerOrderHeaderOutstanding MapToEntity(CustomerOrderHeaderOutstandingVm customerOrderHeaderOutstandingDto);
+    public partial IEnumerable<CustomerOrderHeaderOutstanding> MapToEntity(IEnumerable<CustomerOrderHeaderOutstandingVm> coHeaderOutstandingDto);
+    public partial CustomerOrderHeaderOutstandingVm MapToVm(CustomerOrderHeaderOutstanding customerOrderHeaderOutstanding);
+    public partial IEnumerable<CustomerOrderHeaderOutstandingVm> MapToVm(IEnumerable<CustomerOrderHeaderOutstanding> coHeaderOutstandingDto);
+    public partial PagedListVm<CustomerOrderHeaderOutstandingVm> MapToVm(PagedList<CustomerOrderHeaderOutstanding> pagedListDto);
+    public partial PagedList<CustomerOrderHeaderOutstanding> MapToEntity(PagedListVm<CustomerOrderHeaderOutstandingVm> pagedListDto);
+    
+    // CoLineOutstanding
+    public partial CustomerOrderLineOutstanding MapToEntity(CustomerOrderOutstandingVm customerOrderOutstandingDto);
+    public partial IEnumerable<CustomerOrderLineOutstanding> MapToEntity(IEnumerable<CustomerOrderOutstandingVm> coOutstandingDto);
+    public partial CustomerOrderOutstandingVm MapToVm(CustomerOrderLineOutstanding customerOrderLineOutstanding);
+    public partial IEnumerable<CustomerOrderOutstandingVm> MapToVm(IEnumerable<CustomerOrderLineOutstanding> coOutstanding);
+    public partial PagedListVm<CustomerOrderOutstandingVm> MapToVm(PagedList<CustomerOrderLineOutstanding> pagedListDto);
+    public partial PagedList<CustomerOrderLineOutstanding> MapToEntity(PagedListVm<CustomerOrderOutstandingVm> pagedListDto);
+    
+    // CoType
+    public partial CustomerOrderType MapToEntity(CustomerOrderTypeVm customerOrderTypeDto);
+    public partial CustomerOrderTypeVm MapToVm(CustomerOrderType customerOrderType);
+    public partial IEnumerable<CustomerOrderTypeVm> MapToVm(IEnumerable<CustomerOrderType> coTypeDto);
+    
+    // CoStatus
+    public partial CustomerOrderStatus MapToEntity(CustomerOrderStatusVm customerOrderStatusDto);
+    public partial CustomerOrderStatusVm MapToVm(CustomerOrderStatus customerOrderStatus);
+    public partial IEnumerable<CustomerOrderStatusVm> MapToVm(IEnumerable<CustomerOrderStatus> coStatusDto);
+    
+    // Do (Delivery Order)
+    public partial DeliveryOrder MapToEntity(DeliveryOrderVm deliveryOrderHeaderDto);
+    public partial IEnumerable<DeliveryOrder> MapToEntity(IEnumerable<DeliveryOrderVm> doDto);
+    public partial PagedList<DeliveryOrder> MapToEntity(PagedListVm<DeliveryOrderVm> pagedListDto);
+    public partial DeliveryOrderVm MapToVm(DeliveryOrder deliveryOrder);
+    public partial IEnumerable<DeliveryOrderVm> MapToVm(IEnumerable<DeliveryOrder> doDto);
+    public partial PagedListVm<DeliveryOrderVm> MapToVm(PagedList<DeliveryOrder> pagedListDto);
+    
+    // DoHeader
+    public partial DeliveryOrderHeader MapToEntity(DeliveryOrderHeaderVm deliveryOrderHeaderDto);
+    public partial IEnumerable<DeliveryOrderHeader> MapToEntity(IEnumerable<DeliveryOrderHeaderVm> doHeader);
+    public partial DeliveryOrderHeaderVm MapToVm(DeliveryOrderHeader deliveryOrderHeader);
+    public partial IEnumerable<DeliveryOrderHeaderVm> MapToVm(IEnumerable<DeliveryOrderHeader> doHeader);
+    public partial PagedListVm<DeliveryOrderHeaderVm> MapToVm(PagedList<DeliveryOrderHeader> pagedListDto);
+    public partial PagedList<DeliveryOrderHeader> MapToEntity(PagedListVm<DeliveryOrderHeaderVm> pagedListDto);
+    
+    // DoLine
+    public partial DeliveryOrderLine MapToEntity(DeliveryOrderLineVm deliveryOrderLineDto);
+    public partial IEnumerable<DeliveryOrderLine> MapToEntity(IEnumerable<DeliveryOrderLineVm> doLineDto);
+    public partial DeliveryOrderLineVm MapToVm(DeliveryOrderLine deliveryOrderLine);
+    public partial IEnumerable<DeliveryOrderLineVm> MapToVm(IEnumerable<DeliveryOrderLine> doLineDto);
+    
+    // DoHeaderOutstanding
+    public partial DeliveryOrderHeaderOutstanding MapToEntity(DeliveryOrderHeaderOutstandingVm deliveryOrderHeaderOutstandingDto);
+    public partial IEnumerable<DeliveryOrderHeaderOutstanding> MapToEntity(IEnumerable<DeliveryOrderHeaderOutstandingVm> doHeaderOutstandingDto);
+    public partial DeliveryOrderHeaderOutstandingVm MapToVm(DeliveryOrderHeaderOutstanding deliveryOrderHeaderOutstanding);
+    public partial IEnumerable<DeliveryOrderHeaderOutstandingVm> MapToVm(IEnumerable<DeliveryOrderHeaderOutstanding> doHeaderOutstandingDto);
+    public partial PagedListVm<DeliveryOrderHeaderOutstandingVm> MapToVm(PagedList<DeliveryOrderHeaderOutstanding> pagedListDto);
+    public partial PagedList<DeliveryOrderHeaderOutstanding> MapToEntity(PagedListVm<DeliveryOrderHeaderOutstandingVm> pagedListDto);
+    
+    // DoLineOutstanding
+    public partial DeliveryOrderLineOutstanding MapToEntity(DeliveryOrderOutstandingVm deliveryOrderOutstandingDto);
+    public partial IEnumerable<DeliveryOrderLineOutstanding> MapToEntity(IEnumerable<DeliveryOrderOutstandingVm> doOutstandingDto);
+    public partial DeliveryOrderOutstandingVm MapToVm(DeliveryOrderLineOutstanding deliveryOrderLineOutstanding);
+    public partial IEnumerable<DeliveryOrderOutstandingVm> MapToVm(IEnumerable<DeliveryOrderLineOutstanding> doOutstanding);
+    public partial PagedListVm<DeliveryOrderOutstandingVm> MapToVm(PagedList<DeliveryOrderLineOutstanding> pagedListDto);
+    public partial PagedList<DeliveryOrderLineOutstanding> MapToEntity(PagedListVm<DeliveryOrderOutstandingVm> pagedListDto);
+    
+    // DoStatus
+    public partial DeliveryOrderStatus MapToEntity(DeliveryOrderStatusVm deliveryOrderStatusDto);
+    public partial DeliveryOrderStatusVm MapToVm(DeliveryOrderStatus deliveryOrderStatus);
+    public partial IEnumerable<DeliveryOrderStatusVm> MapToVm(IEnumerable<DeliveryOrderStatus> doStatusDto);
+    
+    // Si (Sales Invoice)
+    public partial SalesInvoice MapToEntity(SalesInvoiceVm salesInvoiceDto);
+    public partial IEnumerable<SalesInvoice> MapToEntity(IEnumerable<SalesInvoiceVm> siDto);
+    public partial PagedList<SalesInvoice> MapToEntity(PagedListVm<SalesInvoiceVm> pagedListDto);
+    public partial SalesInvoiceVm MapToVm(SalesInvoice salesInvoice);
+    public partial IEnumerable<SalesInvoiceVm> MapToVm(IEnumerable<SalesInvoice> siDto);
+    public partial PagedListVm<SalesInvoiceVm> MapToVm(PagedList<SalesInvoice> pagedListDto);
+    
+    // SiHeader
+    public partial SalesInvoiceHeader MapToEntity(SalesInvoiceHeaderVm salesInvoiceHeaderDto);
+    public partial IEnumerable<SalesInvoiceHeader> MapToEntity(IEnumerable<SalesInvoiceHeaderVm> siHeader);
+    public partial SalesInvoiceHeaderVm MapToVm(SalesInvoiceHeader salesInvoiceHeader);
+    public partial IEnumerable<SalesInvoiceHeaderVm> MapToVm(IEnumerable<SalesInvoiceHeader> siHeader);
+    public partial PagedListVm<SalesInvoiceHeaderVm> MapToVm(PagedList<SalesInvoiceHeader> pagedListDto);
+    public partial PagedList<SalesInvoiceHeader> MapToEntity(PagedListVm<SalesInvoiceHeaderVm> pagedListDto);
+    
+    // SiLine
+    public partial SalesInvoiceLine MapToEntity(SalesInvoiceLineVm salesInvoiceLineDto);
+    public partial IEnumerable<SalesInvoiceLine> MapToEntity(IEnumerable<SalesInvoiceLineVm> siLineDto);
+    public partial SalesInvoiceLineVm MapToVm(SalesInvoiceLine salesInvoiceLine);
+    public partial IEnumerable<SalesInvoiceLineVm> MapToVm(IEnumerable<SalesInvoiceLine> siLineDto);
+    
+    // SiStatus
+    public partial SalesInvoiceStatus MapToEntity(SalesInvoiceStatusVm salesInvoiceStatusDto);
+    public partial SalesInvoiceStatusVm MapToVm(SalesInvoiceStatus salesInvoiceStatus);
+    public partial IEnumerable<SalesInvoiceStatusVm> MapToVm(IEnumerable<SalesInvoiceStatus> siStatusDto);
+    
+    // Po (Purchase Order) - Header mappings
+    public partial Po MapToEntity(PoHeaderVm poHeaderDto);
+    public partial PoHeaderVm MapToVm(Po po);
+    
+    // Po - Composite ViewModel (Header + Lines)
+    public PoVm MapToCompositeVm(Po po, IEnumerable<PoLine> lines)
+    {
+        return new PoVm
+        {
+            Header = MapToVm(po),
+            Lines = MapToVm(lines).ToList()
+        };
+    }
+    
+    public Po MapFromCompositeVm(PoVm poVm)
+    {
+        return MapToEntity(poVm.Header);
+    }
+    
+    // Po - List mappings (for Index page - uses Header only)
+    public partial IEnumerable<PoHeaderVm> MapToVm(IEnumerable<Po> poDto);
+    public partial PagedListVm<PoHeaderVm> MapToVm(PagedList<Po> pagedListDto);
+    
+    // PoLine
+    public partial PoLine MapToEntity(PoLineVm poLineDto);
+    public partial IEnumerable<PoLine> MapToEntity(IEnumerable<PoLineVm> poLineDto);
+    public partial PoLineVm MapToVm(PoLine poLine);
+    public partial IEnumerable<PoLineVm> MapToVm(IEnumerable<PoLine> poLineDto);
+    
+    // PoHeaderOutstanding
+    public partial PoHeaderOutstanding MapToEntity(PoHeaderOutstandingVm poHeaderOutstandingDto);
+    public partial IEnumerable<PoHeaderOutstanding> MapToEntity(IEnumerable<PoHeaderOutstandingVm> poHeaderOutstandingDto);
+    public partial PoHeaderOutstandingVm MapToVm(PoHeaderOutstanding poHeaderOutstanding);
+    public partial IEnumerable<PoHeaderOutstandingVm> MapToVm(IEnumerable<PoHeaderOutstanding> poHeaderOutstandingDto);
+    
+    // PoLineOutstanding
+    public partial PoLineOutstanding MapToEntity(PoLineOutstandingVm poLineOutstandingDto);
+    public partial IEnumerable<PoLineOutstanding> MapToEntity(IEnumerable<PoLineOutstandingVm> poLineOutstandingDto);
+    public partial PoLineOutstandingVm MapToVm(PoLineOutstanding poLineOutstanding);
+    public partial IEnumerable<PoLineOutstandingVm> MapToVm(IEnumerable<PoLineOutstanding> poLineOutstandingDto);
+    
+    // Supplier
+    public partial Supplier MapToEntity(SupplierVm supplierVm);
+    public partial IEnumerable<Supplier> MapToEntity(IEnumerable<SupplierVm> supplierVms);
+    public partial SupplierVm MapToVm(Supplier supplier);
+    public partial IEnumerable<SupplierVm> MapToVm(IEnumerable<Supplier> suppliers);
+    public partial PagedListVm<SupplierVm> MapToVm(PagedList<Supplier> pagedListDto);
 }

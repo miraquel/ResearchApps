@@ -5,10 +5,10 @@ namespace ResearchApps.Service.Interface;
 
 public interface IItemTypeService
 {
-    public Task<ServiceResponse> ItemTypeSelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken);
-    public Task<ServiceResponse> ItemTypeSelectByIdAsync(int itemTypeId, CancellationToken cancellationToken);
-    public Task<ServiceResponse> ItemTypeInsertAsync(ItemTypeVm itemType, CancellationToken cancellationToken);
-    public Task<ServiceResponse> ItemTypeUpdateAsync(ItemTypeVm itemType, CancellationToken cancellationToken);
+    public Task<ServiceResponse<PagedListVm<ItemTypeVm>>> ItemTypeSelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken);
+    public Task<ServiceResponse<ItemTypeVm>> ItemTypeSelectByIdAsync(int itemTypeId, CancellationToken cancellationToken);
+    public Task<ServiceResponse<ItemTypeVm>> ItemTypeInsertAsync(ItemTypeVm itemType, CancellationToken cancellationToken);
+    public Task<ServiceResponse<ItemTypeVm>> ItemTypeUpdateAsync(ItemTypeVm itemType, CancellationToken cancellationToken);
     public Task<ServiceResponse> ItemTypeDeleteAsync(int itemTypeId, CancellationToken cancellationToken);
-    public Task<ServiceResponse> ItemTypeCbo(CboRequestVm pagedCboRequestVm, CancellationToken cancellationToken);
+    public Task<ServiceResponse<IEnumerable<ItemTypeVm>>> ItemTypeCbo(CboRequestVm pagedCboRequestVm, CancellationToken cancellationToken);
 }

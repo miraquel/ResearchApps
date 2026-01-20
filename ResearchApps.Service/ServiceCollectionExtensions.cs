@@ -20,5 +20,19 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPrStatusService, PrStatusService>();
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IDashboardService, DashboardService>();
+        
+        // Customer Order Management
+        services.AddScoped<ICustomerService, CustomerService>();
+        services.AddScoped<ICustomerOrderService, CustomerOrderService>();
+        services.AddScoped<IDeliveryOrderService, DeliveryOrderService>();
+        services.AddScoped<ISalesInvoiceService, SalesInvoiceService>();
+        
+        // Purchase Order Management
+        services.AddScoped<IPoService, PoService>();
+        services.AddScoped<IPoLineService, PoLineService>();
+        
+        // Supplier Management
+        services.AddScoped<ISupplierService, SupplierService>();
     }
 }

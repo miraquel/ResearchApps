@@ -9,33 +9,35 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+        <None Remove="Views\JAVASCRIPT_REFACTORING_PROGRESS.md" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="QuestPDF" Version="2025.12.0" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.10.3" />
+        <PackageReference Include="EPPlus" Version="8.4.1" />
+        <PackageReference Include="QuestPDF" Version="2025.12.2" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.12.5" />
         <PackageReference Include="Serilog" Version="4.3.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
         <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
         <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Context\" />
+      <Folder Include="Context\Data\StoredProcedures\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 
@@ -56,6 +58,8 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </Content>
+      <Content Remove="wwwroot\assets\js\README.md" />
+      <Content Remove="wwwroot\assets\sounds\README.md" />
     </ItemGroup>
 
     <ItemGroup>

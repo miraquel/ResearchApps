@@ -61,7 +61,7 @@ public class NotificationsController : ControllerBase
     /// <summary>
     /// Mark a notification as read
     /// </summary>
-    [HttpPost("{id}/read")]
+    [HttpPost("{id:int}/read")]
     public async Task<IActionResult> MarkAsRead(int id, CancellationToken cancellationToken = default)
     {
         var response = await _notificationService.MarkAsRead(id, cancellationToken);

@@ -206,12 +206,7 @@ public class ReportGeneratorService : IReportGeneratorService
         }
 
         // Then try to get from parameter values
-        if (reportData.ParameterValues.TryGetValue(field.FieldName, out var paramValue))
-        {
-            return paramValue ?? string.Empty;
-        }
-
-        return string.Empty;
+        return reportData.ParameterValues.TryGetValue(field.FieldName, out var paramValue) ? paramValue : string.Empty;
     }
 
     private static string FormatValue(object? value, string? formatString)
@@ -287,7 +282,7 @@ public class ReportGeneratorService : IReportGeneratorService
                                         .Text(text =>
                                         {
                                             text.Span($"{paramInfo.DisplayLabel}: ").SemiBold().FontSize(8);
-                                            text.Span(param.Value ?? "-").FontSize(8);
+                                            text.Span(param.Value).FontSize(8);
                                         });
                                 }
                             }
@@ -390,7 +385,7 @@ public class ReportGeneratorService : IReportGeneratorService
                         
                         // Value to be printed
                         row.RelativeItem()
-                            .Text(value ?? "")
+                            .Text(value)
                             .FontSize(10);
                     });
             }

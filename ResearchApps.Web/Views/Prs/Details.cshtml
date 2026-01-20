@@ -7,98 +7,95 @@
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
-}
-
 @Html.AntiForgeryToken()
 
-<div class="card">
-    <div class="card-header">
-        <div class="row">
-            <div class="col d-flex justify-content-between align-items-center">
-                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
-                    </li>
-                </ul>
-                <div class="position-absolute top-0 end-0">
-                    @{
-                        var currentUserName = User.Identity?.Name ?? "";
-                        var isCreator = Model.CreatedBy == currentUserName;
-                        var isCurrentApprover = !string.IsNullOrEmpty(Model.CurrentApprover) && Model.CurrentApprover == currentUserName;
-                    }
-                    
-                    @* Workflow Actions *@
-                    @* Submit button - only shown to creator when PR status is Draft (0) *@
-                    @if (Model.PrStatusId == 0 && isCreator)
-                    {
-                        <form asp-action="Submit" asp-route-id="@Model.RecId" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-sm btn-info me-2" onclick="return confirm('Are you sure you want to submit this PR for approval?');">
-                                <i class="ri-send-plane-line"></i> Submit
+<div x-data="prDetails('@Model.PrId', @Model.RecId)" x-init="init()">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col d-flex justify-content-between align-items-center">
+                    <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                        </li>
+                    </ul>
+                    <div class="position-absolute top-0 end-0">
+                        @{
+                            var currentUserName = User.Identity?.Name ?? "";
+                            var isCreator = Model.CreatedBy == currentUserName;
+                            var isCurrentApprover = !string.IsNullOrEmpty(Model.CurrentApprover) && Model.CurrentApprover == currentUserName;
+                        }
+                        
+                        @* Workflow Actions *@
+                        @* Submit button - only shown to creator when PR status is Draft (0) *@
+                        @if (Model.PrStatusId == 0 && isCreator)
+                        {
+                            <form asp-action="Submit" asp-route-id="@Model.RecId" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-info me-2" onclick="return confirm('Are you sure you want to submit this PR for approval?');">
+                                    <i class="ri-send-plane-line"></i> Submit
+                                </button>
+                            </form>
+                        }
+                        
+                        @* Approve button - only shown to current approver when PR status is Pending Approval (4) *@
+                        @if (Model.PrStatusId == 4 && isCurrentApprover)
+                        {
+                            <button type="button" class="btn btn-sm btn-success me-2" data-bs-toggle="modal" data-bs-target="#approveModal">
+                                <i class="ri-checkbox-circle-line"></i> Approve
                             </button>
-                        </form>
-                    }
-                    
-                    @* Approve button - only shown to current approver when PR status is Pending Approval (4) *@
-                    @if (Model.PrStatusId == 4 && isCurrentApprover)
-                    {
-                        <button type="button" class="btn btn-sm btn-success me-2" data-bs-toggle="modal" data-bs-target="#approveModal">
-                            <i class="ri-checkbox-circle-line"></i> Approve
-                        </button>
-                    }
-                    
-                    @* Reject button - only shown to current approver when PR status is Pending Approval (4) *@
-                    @if (Model.PrStatusId == 4 && isCurrentApprover)
-                    {
-                        <button type="button" class="btn btn-sm btn-danger me-2" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                            <i class="ri-close-circle-line"></i> Reject
-                        </button>
-                    }
-                    
-                    @* Recall button - only shown to creator when PR status is Pending Approval (4) *@
-                    @if (Model.PrStatusId == 4 && isCreator)
-                    {
-                        <form asp-action="Recall" asp-route-id="@Model.RecId" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-sm btn-warning me-2" onclick="return confirm('Are you sure you want to recall this PR?');">
-                                <i class="ri-arrow-go-back-line"></i> Recall
+                        }
+                        
+                        @* Reject button - only shown to current approver when PR status is Pending Approval (4) *@
+                        @if (Model.PrStatusId == 4 && isCurrentApprover)
+                        {
+                            <button type="button" class="btn btn-sm btn-danger me-2" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                <i class="ri-close-circle-line"></i> Reject
                             </button>
-                        </form>
-                    }
-                    
-                    @* Edit/Delete buttons keep permission checks *@
-                    @if(User.HasClaim("permission", PermissionConstants.Prs.Edit))
-                    {
-                        <a href="@Url.Action("Edit", "Prs", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
-                            <i class="ri-edit-line"></i> Edit
-                        </a>
-                    }
-                    @if (User.HasClaim("permission", PermissionConstants.Prs.Delete))
-                    {
-                        <a href="@Url.Action("Delete", "Prs", new { id = Model.RecId })" class="btn btn-sm btn-danger">
-                            <i class="ri-delete-bin-line"></i> Delete
-                        </a>
-                    }
+                        }
+                        
+                        @* Recall button - only shown to creator when PR status is Pending Approval (4) *@
+                        @if (Model.PrStatusId == 4 && isCreator)
+                        {
+                            <form asp-action="Recall" asp-route-id="@Model.RecId" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-warning me-2" onclick="return confirm('Are you sure you want to recall this PR?');">
+                                    <i class="ri-arrow-go-back-line"></i> Recall
+                                </button>
+                            </form>
+                        }
+                        
+                        @* Edit/Delete buttons keep permission checks *@
+                        @if(User.HasClaim("permission", PermissionConstants.Prs.Edit))
+                        {
+                            <a href="@Url.Action("Edit", "Prs", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
+                                <i class="ri-edit-line"></i> Edit
+                            </a>
+                        }
+                        @if (User.HasClaim("permission", PermissionConstants.Prs.Delete))
+                        {
+                            <a href="@Url.Action("Delete", "Prs", new { id = Model.RecId })" class="btn btn-sm btn-danger">
+                                <i class="ri-delete-bin-line"></i> Delete
+                            </a>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        <div class="tab-content">
-            <div class="tab-pane active" id="overview" role="tabpanel">
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrId)</strong></div>
-                    <div class="col-9">@Html.DisplayFor(m => m.PrId)</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrDate)</strong></div>
-                    <div class="col-9">@Html.DisplayFor(m => m.PrDateStr)</div>
-                </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="tab-pane active" id="overview" role="tabpanel">
+                    <div class="row mb-4">
+                        <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrId)</strong></div>
+                        <div class="col-9">@Html.DisplayFor(m => m.PrId)</div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrDate)</strong></div>
+                        <div class="col-9">@Html.DisplayFor(m => m.PrDateStr)</div>
+                    </div>
                 <div class="row mb-4">
                     <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrName)</strong></div>
                     <div class="col-9">@Html.DisplayFor(m => m.PrName)</div>
@@ -245,6 +242,7 @@
 </div>
 
 @section scripts {
+    <script src="~/js/purchase-requisitions/pr-details.js"></script>
     <script src="/assets/libs/jquery/jquery.min.js"></script>
     <script src="/assets/js/datatables.min.js"></script>
     <script src="/assets/js/helper.js"></script>

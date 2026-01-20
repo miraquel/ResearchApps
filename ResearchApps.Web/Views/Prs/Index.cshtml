@@ -1,198 +1,70 @@
-﻿@model ResearchApps.Service.Vm.PrVm
-
 @{
     ViewBag.Title = "Purchase Requisitions";
     ViewBag.pTitle = "Purchase Requisitions";
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-}
-
 @Html.AntiForgeryToken()
 
-<div class="row">
-    <div class="col-12">
-        <table id="pr-table" class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" style="width: 100%;">
-            <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(m => m.PrId)</th>
-                <th>@Html.DisplayNameFor(m => m.PrDate)</th>
-                <th>@Html.DisplayNameFor(m => m.PrName)</th>
-                <th>@Html.DisplayNameFor(m => m.Total)</th>
-                <th>@Html.DisplayNameFor(m => m.PrStatusName)</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>@Html.DisplayNameFor(m => m.PrId)</th>
-                <th>@Html.DisplayNameFor(m => m.PrDate)</th>
-                <th>@Html.DisplayNameFor(m => m.PrName)</th>
-                <th>@Html.DisplayNameFor(m => m.Total)</th>
-                <th>@Html.DisplayNameFor(m => m.PrStatusName)</th>
-                <th>Actions</th>
-            </tr>
-            </tfoot>
-        </table>
+<div x-data="prIndex()" x-init="init()">
+    <!-- Purchase Requisitions List Container -->
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <!-- Refresh Button -->
+                        <button type="button" class="btn btn-soft-secondary" @@click="fetchList()" title="Refresh">
+                            <i class="ri-refresh-line" :class="{ 'spin': isLoading }"></i>
+                        </button>
+                        
+                        <!-- Clear All Filters -->
+                        <button type="button" class="btn btn-soft-warning" @@click="clearFilters()" title="Clear All Filters">
+                            <i class="ri-filter-off-line me-1"></i> Clear Filters
+                        </button>
+
+                        <!-- Loading Indicator -->
+                        <div x-show.important="isLoading" class="d-flex align-items-center text-muted" x-cloak>
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-success me-2" @@click="exportToExcel()" :disabled="isExporting">
+                        <span x-show="!isExporting">
+                            <i class="ri-file-excel-2-line align-bottom me-1"></i> Export to Excel
+                        </span>
+                        <span x-show="isExporting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Exporting...
+                        </span>
+                    </button>
+                    <a href="/Prs/Create" class="btn btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Create
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="pr-list-container"
+                 hx-get="/Prs/List"
+                 hx-trigger="load"
+                 :hx-vals="JSON.stringify({sortBy: sortBy, sortAsc: sortAsc})">
+                <!-- Initial loading placeholder -->
+                <div class="text-center py-5 row justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="mt-3 text-muted">Loading...</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
-    <script src="/assets/js/datatables.min.js"></script>
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/js/helper.js"></script>
-    <script>
-        // get AntiForgeryToken using jquery
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        
-        $(document).ready(function() {
-            // Initialize datatables
-            $('#pr-table').DataTable({
-                searchDelay: 1000,
-                order: [[0, 'desc']], // Default order: descending by PR ID
-                layout: {
-                    topEnd: {
-                        buttons: [
-                            {
-                                // Create PR button
-                                text: '<i class="ri-add-line align-bottom me-1"></i> Create',
-                                className: 'btn btn-primary btn-sm',
-                                action: function () {
-                                    window.location.href = '/Prs/Create';
-                                }
-                            },
-                        ]
-                    }
-                },
-                ajax: {
-                    url: `/api/Prs/`,
-                    data: function(d) {
-                        const query = {
-                            pageNumber: (d.start / d.length) + 1,
-                            pageSize: d.length,
-                        };
-                        if (d.search && d.search.value) {
-                            query.Search = d.search.value;
-                        }
-                        if (d.order && d.order.length) {
-                            query.SortBy = d.columns[d.order[0].column].data;
-                            query.IsSortAscending = d.order[0].dir === 'asc';
-                        }
-
-                        d.columns.forEach((column, _) => {
-                            if (column.search && column.search.value) {
-                                query[`Filters.${column.data.charAt(0).toUpperCase() + column.data.slice(1)}`] = column.search.value;
-                            }
-                        });
-
-                        return query;
-                    },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("RequestVerificationToken", token);
-                    },
-                    dataSrc: function(json) {
-                        if (json.data && Array.isArray(json.data.items)) {
-                            json.recordsTotal = json.data.totalCount;
-                            json.recordsFiltered = json.data.totalCount;
-                            return json.data.items;
-                        }
-                        return json;
-                    },
-                    error: function(err){
-                        alert(err.responseJSON?.errorMessage || "An error occurred while fetching data");
-                    }
-                },
-                columns: [
-                    { data: 'prId', width: '50px' },
-                    { 
-                        data: 'prDate',
-                        render: function(data, type) {
-                            // For sorting/filtering use the raw date
-                            if (type === 'sort' || type === 'filter') {
-                                return data ? data : '';
-                            }
-                            // For display, round and format with thousands separator
-                            return data ? moment(data).format("DD MMM YYYY") : ''
-                        }
-                    },
-                    { data: 'prName' },
-                    { 
-                        data: 'total',
-                        render: function(data, type) {
-                            // For sorting/filtering use the raw number
-                            if (type === 'sort' || type === 'filter') {
-                                return data ? parseFloat(data) : 0;
-                            }
-                            // For display, round and format with thousands separator
-                            return data ? numberFormat.format(data) : '';
-                        }
-                    },
-                    { data: 'prStatusName', width: '100px' },
-                    {
-                        data: null,
-                        width: '50px',
-                        defaultContent: '',
-                        orderable: false,
-                        render: function(data, type, row) {
-                            // use the shared helper to render the action dropdown; spread attrs if needed
-                            return window.renderActionDropdown([
-                                { href: `/Prs/Details/${row.recId}`, icon: 'ri-eye-fill', text: 'View' },
-                                { href: `/Prs/Edit/${row.recId}`, icon: 'ri-pencil-fill', text: 'Edit', class: 'edit-item-btn' },
-                                { href: `/Prs/Delete/${row.recId}`, icon: 'ri-delete-bin-fill', text: 'Delete', class: 'remove-item-btn' }
-                            ]);
-                         }
-                     },
-                ],
-                columnDefs: [
-                    {
-                        targets: [0, 1, 4, 5],
-                        className: 'text-center'
-                    }
-                ],
-                processing: true,
-                paging: true,
-                serverSide: true,
-                searching: true,
-                ordering: true,
-                autoWidth: false,
-                responsive: true,
-                scrollX: true,
-                initComplete: function () {
-                    $('.dt-button').removeClass('dt-button');
-                    this.api()
-                        .columns()
-                        .every(function () {
-                            let column = this;
-                            let title = column.footer().textContent;
-
-                            let header = column.header();
-                            header.style.backgroundColor = '#4F81BD';
-                            header.style.color = 'white';
-
-                            // Skip rendering input for the Actions column (last column)
-                            if (column.index() === (this.columns().count() - 1)) {
-                                column.footer().replaceChildren(); // Clear footer cell
-                                return;
-                            }
-
-                            let input = document.createElement('input');
-                            input.placeholder = title;
-                            input.className = "form-control";
-                            input.style.width = '100%';
-                            column.footer().replaceChildren(input);
-
-                            input.addEventListener('keyup', debounce(() => {
-                                if (column.search() !== input.value) {
-                                    column.search(input.value).draw();
-                                }
-                            }, 1000));
-                        });
-                }
-            });
-        });
-    </script>
+    <script src="~/js/purchase-requisitions/pr-index.js"></script>
 }

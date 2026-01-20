@@ -1,0 +1,136 @@
+@model ResearchApps.Service.Vm.SupplierVm
+
+@{
+    ViewBag.Title = "Supplier Details";
+    ViewBag.pTitle = $"Supplier {Model.SupplierName}";
+    Layout = "_Layout";
+}
+
+<div id="supplierDetails" class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+                <div class="position-absolute top-0 end-0">
+                    <a href="/Suppliers/Edit/@Model.SupplierId" class="btn btn-sm btn-soft-warning">
+                        <i class="ri-edit-line"></i> Edit
+                    </a>
+                    <a href="/Suppliers/Index" class="btn btn-sm btn-soft-secondary">
+                        <i class="ri-arrow-left-line"></i> Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <!-- Overview Tab -->
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">Supplier Name</td>
+                                <td>@Model.SupplierName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Address</td>
+                                <td>@(string.IsNullOrEmpty(Model.Address) ? "-" : Model.Address)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">City</td>
+                                <td>@(string.IsNullOrEmpty(Model.City) ? "-" : Model.City)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Telephone</td>
+                                <td>@(string.IsNullOrEmpty(Model.Telp) ? "-" : Model.Telp)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Fax</td>
+                                <td>@(string.IsNullOrEmpty(Model.Fax) ? "-" : Model.Fax)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Email</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.Email))
+                                    {
+                                        <a href="mailto:@Model.Email">@Model.Email</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">TOP</td>
+                                <td>@(string.IsNullOrEmpty(Model.TopName) ? "-" : Model.TopName)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">NPWP</td>
+                                <td>@(string.IsNullOrEmpty(Model.Npwp) ? "-" : Model.Npwp)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">PPN Status</td>
+                                <td>
+                                    <span class="badge @(Model.IsPpn ? "badge-soft-success" : "badge-soft-secondary")">
+                                        @(Model.IsPpn ? "Subject to PPN (11%)" : "Non-PPN")
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Status</td>
+                                <td>@Html.Raw(Model.StatusName)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Notes</td>
+                                <td>@(string.IsNullOrEmpty(Model.Notes) ? "-" : Model.Notes)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Log Tab -->
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">Created Date</td>
+                                <td>@(Model.CreatedDate?.ToString("dd MMM yyyy HH:mm:ss") ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Created By</td>
+                                <td>@(string.IsNullOrEmpty(Model.CreatedBy) ? "-" : Model.CreatedBy)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">Modified Date</td>
+                                <td>@(Model.ModifiedDate?.ToString("dd MMM yyyy HH:mm:ss") ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Modified By</td>
+                                <td>@(string.IsNullOrEmpty(Model.ModifiedBy) ? "-" : Model.ModifiedBy)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

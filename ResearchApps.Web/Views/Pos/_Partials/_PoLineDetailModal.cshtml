@@ -1,0 +1,73 @@
+<div class="modal fade" 
+     :class="{ 'show d-block': lineDetailModal.show }" 
+     :style="lineDetailModal.show ? 'background: rgba(0,0,0,0.5);' : ''"
+     x-show="lineDetailModal.show" 
+     x-cloak
+     tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ri-file-list-3-line text-primary me-2"></i>Line Item Details
+                </h5>
+                <button type="button" class="btn-close" @@click="closeLineDetail()"></button>
+            </div>
+            <div class="modal-body" x-show="lineDetailModal.line">
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <th width="30%">Item:</th>
+                            <td><strong x-text="lineDetailModal.line?.itemName"></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Quantity:</th>
+                            <td x-text="lineDetailModal.line ? formatNumber(lineDetailModal.line.qty) : ''"></td>
+                        </tr>
+                        <tr>
+                            <th>Unit:</th>
+                            <td x-text="lineDetailModal.line?.unitName"></td>
+                        </tr>
+                        <tr>
+                            <th>Price:</th>
+                            <td x-text="lineDetailModal.line ? formatNumber(lineDetailModal.line.price) : ''"></td>
+                        </tr>
+                        <tr>
+                            <th>Amount:</th>
+                            <td><strong x-text="lineDetailModal.line ? formatNumber(lineDetailModal.line.amount) : ''"></strong></td>
+                        </tr>
+                        <tr>
+                            <th>Status:</th>
+                            <td>
+                                <span class="badge"
+                                      :class="{
+                                          'bg-secondary': lineDetailModal.line?.poStatusId === 0,
+                                          'bg-success': lineDetailModal.line?.poStatusId === 1,
+                                          'bg-info': lineDetailModal.line?.poStatusId === 4,
+                                          'bg-danger': lineDetailModal.line?.poStatusId === 6
+                                      }"
+                                      x-text="lineDetailModal.line?.poStatusName"></span>
+                            </td>
+                        </tr>
+                        <tr x-show="lineDetailModal.line?.notes">
+                            <th>Notes:</th>
+                            <td x-text="lineDetailModal.line?.notes"></td>
+                        </tr>
+                        <tr>
+                            <th>Created By:</th>
+                            <td x-text="lineDetailModal.line?.createdBy"></td>
+                        </tr>
+                        <tr>
+                            <th>Created Date:</th>
+                            <td x-text="lineDetailModal.line ? new Date(lineDetailModal.line.createdDate).toLocaleString() : ''"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @@click="closeLineDetail()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

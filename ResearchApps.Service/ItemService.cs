@@ -26,7 +26,7 @@ public partial class ItemService : IItemService
         _logger = logger;
     }
 
-    public async Task<ServiceResponse> CboAsync(CboRequestVm cboRequestVm, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<IEnumerable<ItemVm>>> CboAsync(CboRequestVm cboRequestVm, CancellationToken cancellationToken)
     {
         if (cboRequestVm.Term != null) LogRetrievingItemsForComboBoxWithTermTerm(cboRequestVm.Term);
         var items = await _itemRepo.CboAsync(_mapper.MapToEntity(cboRequestVm), cancellationToken);
@@ -44,7 +44,7 @@ public partial class ItemService : IItemService
         return ServiceResponse.Success("Item deleted successfully.");
     }
 
-    public async Task<ServiceResponse> InsertAsync(ItemVm itemVm, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ItemVm>> InsertAsync(ItemVm itemVm, CancellationToken cancellationToken)
     {
         LogCreatingNewItemItemNameByUserUsername(itemVm.ItemName, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(itemVm);
@@ -55,7 +55,7 @@ public partial class ItemService : IItemService
         return ServiceResponse<ItemVm>.Success(_mapper.MapToVm(insertedItem), "Item inserted successfully.", StatusCodes.Status201Created);
     }
 
-    public async Task<ServiceResponse> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<PagedListVm<ItemVm>>> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken)
     {
         LogRetrievingItemsListPagePagePageSizePageSize(listRequest.PageNumber, listRequest.PageSize);
         var itemTypes = await _itemRepo.SelectAsync(_mapper.MapToEntity(listRequest), cancellationToken);
@@ -63,14 +63,14 @@ public partial class ItemService : IItemService
         return ServiceResponse<PagedListVm<ItemVm>>.Success(_mapper.MapToVm(itemTypes), "Items retrieved successfully.");
     }
 
-    public async Task<ServiceResponse> SelectByIdAsync(int itemId, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ItemVm>> SelectByIdAsync(int itemId, CancellationToken cancellationToken)
     {
         LogRetrievingItemByIDItemid(itemId);
         var item = await _itemRepo.SelectByIdAsync(itemId, cancellationToken);
         return ServiceResponse<ItemVm>.Success(_mapper.MapToVm(item), "Item retrieved successfully.");
     }
 
-    public async Task<ServiceResponse> UpdateAsync(ItemVm itemVm, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ItemVm>> UpdateAsync(ItemVm itemVm, CancellationToken cancellationToken)
     {
         LogUpdatingItemItemidItemNameByUserUsername(itemVm.ItemId, itemVm.ItemName, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(itemVm);
