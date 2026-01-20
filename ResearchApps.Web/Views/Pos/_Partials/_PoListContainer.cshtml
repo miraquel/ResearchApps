@@ -1,0 +1,252 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.PoHeaderVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;" 
+            @@click="sort('PoId')" data-column="PoId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>PO ID</span>
+                <template x-if="sortBy === 'PoId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('PoDate')" data-column="PoDate">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Date</span>
+                <template x-if="sortBy === 'PoDate'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('SupplierName')" data-column="SupplierName">
+            <div class="d-flex align-items-center">
+                <span>Supplier</span>
+                <template x-if="sortBy === 'SupplierName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('Pic')" data-column="Pic">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>PIC</span>
+                <template x-if="sortBy === 'Pic'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('RefNo')" data-column="RefNo">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Ref No</span>
+                <template x-if="sortBy === 'RefNo'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;"
+            @@click="sort('SubTotal')" data-column="SubTotal">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Sub Total</span>
+                <template x-if="sortBy === 'SubTotal'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('Ppn')" data-column="Ppn">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>PPN</span>
+                <template x-if="sortBy === 'Ppn'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;"
+            @@click="sort('Total')" data-column="Total">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Total</span>
+                <template x-if="sortBy === 'Total'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('PoStatusId')" data-column="PoStatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'PoStatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="po-table-body">
+    @await Html.PartialAsync("_Partials/_PoListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search ID..."
+                   x-model="filters.PoId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div id="po-date-range" class="flatpickr input-group">
+                <input type="text" class="form-control form-control-sm" placeholder="Select date range..." data-input>
+                <!-- <button class="btn btn-sm btn-outline-secondary" type="button" title="Toggle" data-toggle>
+                    <i class="ri-calendar-line"></i>
+                </button> -->
+                <button class="btn btn-sm btn-outline-secondary" type="button" title="Clear" data-clear>
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search supplier..."
+                   x-model="filters.SupplierName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search PIC..."
+                   x-model="filters.Pic" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search ref no..."
+                   x-model="filters.RefNo" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div class="input-group input-group-sm">
+                <select class="form-control form-control-sm" style="flex: 0 0 30px;" x-model="filters.SubTotalOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" class="form-control text-end" placeholder="Amount..." inputmode="numeric"
+                       :value="formatNumber(filters.SubTotal)"
+                       @@input="filters.SubTotal = parseNumber($event.target.value)"
+                       @@blur="$event.target.value = formatNumber(filters.SubTotal)"
+                       @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                       @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <div class="input-group input-group-sm">
+                <select class="form-control form-control-sm" style="flex: 0 0 30px;" x-model="filters.PpnOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" class="form-control text-end" placeholder="PPN..." inputmode="numeric"
+                       :value="formatNumber(filters.Ppn)"
+                       @@input="filters.Ppn = parseNumber($event.target.value)"
+                       @@blur="$event.target.value = formatNumber(filters.Ppn)"
+                       @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                       @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <div class="input-group input-group-sm">
+                <select class="form-control form-control-sm" style="flex: 0 0 30px;" x-model="filters.TotalOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" class="form-control text-end" placeholder="Total..." inputmode="numeric"
+                       :value="formatNumber(filters.Total)"
+                       @@input="filters.Total = parseNumber($event.target.value)"
+                       @@blur="$event.target.value = formatNumber(filters.Total)"
+                       @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                       @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.PoStatusId" @@change="fetchList()">
+                <option value="">All Statuses</option>
+                <option value="0">Draft</option>
+                <option value="1">Active</option>
+                <option value="2">Cancelled</option>
+                <option value="3">Closed</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <p class="mb-0 text-muted">
+                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount)) of @Model.TotalCount entries
+            </p>
+        </div>
+        <div class="col-md-6">
+            @if (Model.TotalPages > 1)
+            {
+                <nav>
+                    <ul class="pagination pagination-sm justify-content-end mb-0">
+                        <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="#" @@click.prevent="goToPage(@(Model.PageNumber - 1))">
+                                <i class="ri-arrow-left-s-line"></i>
+                            </a>
+                        </li>
+                        
+                        @if (Model.PageNumber > 3)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="#" @@click.prevent="goToPage(1)">1</a>
+                            </li>
+                            @if (Model.PageNumber > 4)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                        }
+                        
+                        @for (int i = Math.Max(1, Model.PageNumber - 2); i <= Math.Min(Model.TotalPages, Model.PageNumber + 2); i++)
+                        {
+                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                <a class="page-link" href="#" @@click.prevent="goToPage(@i)">@i</a>
+                            </li>
+                        }
+                        
+                        @if (Model.PageNumber < Model.TotalPages - 2)
+                        {
+                            @if (Model.PageNumber < Model.TotalPages - 3)
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" href="#" @@click.prevent="goToPage(@Model.TotalPages)">@Model.TotalPages</a>
+                            </li>
+                        }
+                        
+                        <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="#" @@click.prevent="goToPage(@(Model.PageNumber + 1))">
+                                <i class="ri-arrow-right-s-line"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-﻿@model ResearchApps.Service.Vm.PrLineVm
+@model ResearchApps.Service.Vm.PrLineVm
 
 @{
     ViewBag.Title = "Create PR Line";
@@ -8,7 +8,6 @@
 
 @section styles {
     <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/libs/select2-bootstrap-5-theme/select2-bootstrap-5-theme.min.css" rel="stylesheet" type="text/css" />
     <link href="/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
 }
 
@@ -16,7 +15,7 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-                <form asp-action="Create" method="post">
+                <form id="prline-form" asp-action="Create" method="post">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     
@@ -26,7 +25,11 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label asp-for="ItemId" class="form-label"></label>
-                                <select asp-for="ItemId" class="form-select select2" id="itemId">
+                                <select asp-for="ItemId" class="form-select select2-ajax"
+                                        data-ajax-url="/api/Items/cbo"
+                                        data-placeholder="Select Item"
+                                        data-id-field="itemId"
+                                        data-text-field="itemName">
                                     <option value="">Select Item</option>
                                 </select>
                                 <span asp-validation-for="ItemId" class="text-danger"></span>
@@ -36,7 +39,10 @@
                             <div class="form-group">
                                 <label asp-for="RequestDate" class="form-label"></label>
                                 <div class="input-group">
-                                    <input asp-for="RequestDate" type="text" class="form-control flatpickr-input" id="requestDate" />
+                                    <input asp-for="RequestDate" type="text" class="form-control"
+                                           data-datepicker
+                                           data-format="d M Y"
+                                           data-default-date="today" />
                                     <span class="input-group-text"><i class="ri-calendar-line"></i></span>
                                 </div>
                                 <span asp-validation-for="RequestDate" class="text-danger"></span>
@@ -48,14 +54,21 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label asp-for="Qty" class="form-label"></label>
-                                <input asp-for="Qty" type="number" step="0.01" class="form-control" id="qty" />
+                                <input asp-for="Qty" type="number" step="0.01" class="form-control"
+                                       data-calculate="multiply"
+                                       data-calc-target="#Amount"
+                                       data-calc-with="#Price" />
                                 <span asp-validation-for="Qty" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label asp-for="UnitId" class="form-label"></label>
-                                <select asp-for="UnitId" class="form-select select2" id="unitId">
+                                <select asp-for="UnitId" class="form-select select2-ajax"
+                                        data-ajax-url="/api/Units/cbo"
+                                        data-placeholder="Select Unit"
+                                        data-id-field="unitId"
+                                        data-text-field="unitName">
                                     <option value="">Select Unit</option>
                                 </select>
                                 <span asp-validation-for="UnitId" class="text-danger"></span>
@@ -64,7 +77,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label asp-for="Price" class="form-label"></label>
-                                <input asp-for="Price" type="number" step="1" class="form-control" id="price" />
+                                <input asp-for="Price" type="number" step="1" class="form-control"
+                                       data-calculate="multiply"
+                                       data-calc-target="#Amount"
+                                       data-calc-with="#Qty" />
                                 <span asp-validation-for="Price" class="text-danger"></span>
                             </div>
                         </div>
@@ -74,7 +90,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label asp-for="Amount" class="form-label"></label>
-                                <input asp-for="Amount" type="number" step="1" class="form-control" id="amount" readonly />
+                                <input asp-for="Amount" type="number" step="1" class="form-control" readonly />
                                 <small class="text-muted">Amount is calculated automatically (Qty × Price)</small>
                             </div>
                         </div>
@@ -90,7 +106,15 @@
                     </div>
                     
                     <div class="form-group">
-                        <button type="button" class="btn btn-primary" id="create-prline-btn">Create</button>
+                        <button type="button" class="btn btn-primary"
+                                data-confirm
+                                data-confirm-modal="createPrLineModal"
+                                data-confirm-form="#prline-form"
+                                data-confirm-validate="true"
+                                data-confirm-title="Are you sure?"
+                                data-confirm-message="Are you sure you want to create this PR line?">
+                            Create
+                        </button>
                         <a asp-controller="Prs" asp-action="Details" asp-route-id="@Model.PrRecId" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>
@@ -102,131 +126,35 @@
 @section scripts {
     <script src="/assets/libs/jquery/jquery.min.js"></script>
     <script src="/assets/libs/select2/js/select2.min.js"></script>
+    <script src="/assets/js/components/select2.js"></script>
     <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
     <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
     <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script>
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        
         $(document).ready(function() {
-            var form = $('form');
+            Select2Helper.initAll();
             
-            // Initialize Select2 for Item
-            $('#itemId').select2({
-                theme: 'bootstrap5',
-                placeholder: "Select Item",
-                ajax: {
-                    url: '/api/Items/cbo',
-                    type: 'GET',
-                    dataType: 'json',
-                    delay: 500,
-                    headers: {
-                        'RequestVerificationToken': token
-                    },
-                    data: function (params) {
-                        return {
-                            term: params.term ? `%${params.term}%` : '',
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.data.map(item => ({
-                                id: item.itemId,
-                                text: item.itemName
-                            }))
-                        };
-                    },
-                }
+            // Initialize flatpickr for date picker
+            flatpickr('[data-datepicker]', {
+                dateFormat: 'd M Y',
+                defaultDate: 'today'
             });
             
-            // Initialize Select2 for Unit
-            $('#unitId').select2({
-                theme: 'bootstrap5',
-                placeholder: "Select Unit",
-                ajax: {
-                    url: '/api/Units/cbo',
-                    type: 'GET',
-                    dataType: 'json',
-                    delay: 500,
-                    headers: {
-                        'RequestVerificationToken': token
-                    },
-                    data: function (params) {
-                        return {
-                            term: params.term ? `%${params.term}%` : '',
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.data.map(item => ({
-                                id: item.unitId,
-                                text: item.unitName
-                            }))
-                        };
-                    },
-                }
-            });
+            // Setup auto-calculation for Qty × Price = Amount
+            const qtyField = document.getElementById('Qty');
+            const priceField = document.getElementById('Price');
+            const amountField = document.getElementById('Amount');
             
-            // Initialize flatpickr for date
-            flatpickr("#requestDate", {
-                dateFormat: "d M Y",
-                defaultDate: new Date()
-            });
-            
-            // Calculate amount when qty or price changes
             function calculateAmount() {
-                const qty = parseFloat($('#qty').val()) || 0;
-                const price = parseFloat($('#price').val()) || 0;
-                const amount = Math.round(qty * price);
-                $('#amount').val(amount);
+                const qty = parseFloat(qtyField?.value) || 0;
+                const price = parseFloat(priceField?.value) || 0;
+                if (amountField) {
+                    amountField.value = Math.round(qty * price);
+                }
             }
             
-            $('#qty, #price').on('input change', calculateAmount);
-
-            // Confirmation modal handler with validation
-            $('#create-prline-btn').on('click', function() {
-                form.validate();
-                if (form.valid()) {
-                    var modal = new bootstrap.Modal(document.getElementById('createPrLineModal'));
-                    modal.show();
-                }
-            });
-
-            $('#confirm-create-prline').on('click', function() {
-                form.submit();
-            });
+            qtyField?.addEventListener('input', calculateAmount);
+            priceField?.addEventListener('input', calculateAmount);
         });
     </script>
 }
-
-<!-- Confirmation Modal -->
-<div id="createPrLineModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mt-2 text-center">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/exymduqj.json"
-                        trigger="loop"
-                        delay="2000"
-                        stroke="light"
-                        state="hover-line"
-                        style="width:100px;height:100px">
-                    </lord-icon>
-                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                        <h4>Are you sure?</h4>
-                        <p class="text-muted mx-4 mb-0">Are you sure you want to create this PR line?</p>
-                    </div>
-                </div>
-                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn w-sm btn-primary" id="confirm-create-prline">Yes, Create It!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-

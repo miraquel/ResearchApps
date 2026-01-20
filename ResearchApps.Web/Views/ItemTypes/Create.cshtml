@@ -1,4 +1,4 @@
-﻿@model ResearchApps.Service.Vm.ItemTypeVm
+@model ResearchApps.Service.Vm.ItemTypeVm
 
 @{
     ViewBag.Title = "Create Item Type";
@@ -6,14 +6,10 @@
     Layout = "_Layout";
 }
 
-@section styles
-{
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-}
-
 <div class="card">
     <div class="card-body">
-        <form asp-action="Create" method="post">
+        <form id="itemtype-form" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
             <div class="row mb-3">
                 <div class="col-lg-3">
                     <label asp-for="ItemTypeName"></label>
@@ -23,118 +19,25 @@
                 </div>
             </div>
             <div class="text-end">
-                <button type="button" class="btn btn-primary" id="create-itemtype-btn">Create</button>
+                <button type="button" class="btn btn-primary"
+                        data-confirm
+                        data-confirm-modal="createItemTypeModal"
+                        data-confirm-form="#itemtype-form"
+                        data-confirm-validate="true"
+                        data-confirm-title="Are you sure?"
+                        data-confirm-message="Are you sure you want to create this item type?">
+                    Create
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/js/jquery.min.js"></script>
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/js/helper.js"></script>
-    <script>
-        // get AntiForgeryToken using jquery
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        
-        $('#statusId').select2();
-        
-        const ajaxData = '@Html.Raw("[{\"id\":1,\"name\":\"Leanne Graham\",\"username\":\"Bret\",\"email\":\"Sincere@april.biz\",\"address\":{\"street\":\"Kulas Light\",\"suite\":\"Apt. 556\",\"city\":\"Gwenborough\",\"zipcode\":\"92998-3874\",\"geo\":{\"lat\":\"-37.3159\",\"lng\":\"81.1496\"}},\"phone\":\"1-770-736-8031 x56442\",\"website\":\"hildegard.org\",\"company\":{\"name\":\"Romaguera-Crona\",\"catchPhrase\":\"Multi-layered client-server neural-net\",\"bs\":\"harness real-time e-markets\"}},{\"id\":2,\"name\":\"Ervin Howell\",\"username\":\"Antonette\",\"email\":\"Shanna@melissa.tv\",\"address\":{\"street\":\"Victor Plains\",\"suite\":\"Suite 879\",\"city\":\"Wisokyburgh\",\"zipcode\":\"90566-7771\",\"geo\":{\"lat\":\"-43.9509\",\"lng\":\"-34.4618\"}},\"phone\":\"010-692-6593 x09125\",\"website\":\"anastasia.net\",\"company\":{\"name\":\"Deckow-Crist\",\"catchPhrase\":\"Proactive didactic contingency\",\"bs\":\"synergize scalable supply-chains\"}},{\"id\":3,\"name\":\"Clementine Bauch\",\"username\":\"Samantha\",\"email\":\"Nathan@yesenia.net\",\"address\":{\"street\":\"Douglas Extension\",\"suite\":\"Suite 847\",\"city\":\"McKenziehaven\",\"zipcode\":\"59590-4157\",\"geo\":{\"lat\":\"-68.6102\",\"lng\":\"-47.0653\"}},\"phone\":\"1-463-123-4447\",\"website\":\"ramiro.info\",\"company\":{\"name\":\"Romaguera-Jacobson\",\"catchPhrase\":\"Face to face bifurcated interface\",\"bs\":\"e-enable strategic applications\"}},{\"id\":4,\"name\":\"Patricia Lebsack\",\"username\":\"Karianne\",\"email\":\"Julianne.OConner@kory.org\",\"address\":{\"street\":\"Hoeger Mall\",\"suite\":\"Apt. 692\",\"city\":\"South Elvis\",\"zipcode\":\"53919-4257\",\"geo\":{\"lat\":\"29.4572\",\"lng\":\"-164.2990\"}},\"phone\":\"493-170-9623 x156\",\"website\":\"kale.biz\",\"company\":{\"name\":\"Robel-Corkery\",\"catchPhrase\":\"Multi-tiered zero tolerance productivity\",\"bs\":\"transition cutting-edge web services\"}},{\"id\":5,\"name\":\"Chelsey Dietrich\",\"username\":\"Kamren\",\"email\":\"Lucio_Hettinger@annie.ca\",\"address\":{\"street\":\"Skiles Walks\",\"suite\":\"Suite 351\",\"city\":\"Roscoeview\",\"zipcode\":\"33263\",\"geo\":{\"lat\":\"-31.8129\",\"lng\":\"62.5342\"}},\"phone\":\"(254)954-1289\",\"website\":\"demarco.info\",\"company\":{\"name\":\"Keebler LLC\",\"catchPhrase\":\"User-centric fault-tolerant solution\",\"bs\":\"revolutionize end-to-end systems\"}},{\"id\":6,\"name\":\"Mrs. Dennis Schulist\",\"username\":\"Leopoldo_Corkery\",\"email\":\"Karley_Dach@jasper.info\",\"address\":{\"street\":\"Norberto Crossing\",\"suite\":\"Apt. 950\",\"city\":\"South Christy\",\"zipcode\":\"23505-1337\",\"geo\":{\"lat\":\"-71.4197\",\"lng\":\"71.7478\"}},\"phone\":\"1-477-935-8478 x6430\",\"website\":\"ola.org\",\"company\":{\"name\":\"Considine-Lockman\",\"catchPhrase\":\"Synchronised bottom-line interface\",\"bs\":\"e-enable innovative applications\"}},{\"id\":7,\"name\":\"Kurtis Weissnat\",\"username\":\"Elwyn.Skiles\",\"email\":\"Telly.Hoeger@billy.biz\",\"address\":{\"street\":\"Rex Trail\",\"suite\":\"Suite 280\",\"city\":\"Howemouth\",\"zipcode\":\"58804-1099\",\"geo\":{\"lat\":\"24.8918\",\"lng\":\"21.8984\"}},\"phone\":\"210.067.6132\",\"website\":\"elvis.io\",\"company\":{\"name\":\"Johns Group\",\"catchPhrase\":\"Configurable multimedia task-force\",\"bs\":\"generate enterprise e-tailers\"}},{\"id\":8,\"name\":\"Nicholas Runolfsdottir V\",\"username\":\"Maxime_Nienow\",\"email\":\"Sherwood@rosamond.me\",\"address\":{\"street\":\"Ellsworth Summit\",\"suite\":\"Suite 729\",\"city\":\"Aliyaview\",\"zipcode\":\"45169\",\"geo\":{\"lat\":\"-14.3990\",\"lng\":\"-120.7677\"}},\"phone\":\"586.493.6943 x140\",\"website\":\"jacynthe.com\",\"company\":{\"name\":\"Abernathy Group\",\"catchPhrase\":\"Implemented secondary concept\",\"bs\":\"e-enable extensible e-tailers\"}},{\"id\":9,\"name\":\"Glenna Reichert\",\"username\":\"Delphine\",\"email\":\"Chaim_McDermott@dana.io\",\"address\":{\"street\":\"Dayna Park\",\"suite\":\"Suite 449\",\"city\":\"Bartholomebury\",\"zipcode\":\"76495-3109\",\"geo\":{\"lat\":\"24.6463\",\"lng\":\"-168.8889\"}},\"phone\":\"(775)976-6794 x41206\",\"website\":\"conrad.com\",\"company\":{\"name\":\"Yost and Sons\",\"catchPhrase\":\"Switchable contextually-based project\",\"bs\":\"aggregate real-time technologies\"}},{\"id\":10,\"name\":\"Clementina DuBuque\",\"username\":\"Moriah.Stanton\",\"email\":\"Rey.Padberg@karina.biz\",\"address\":{\"street\":\"Kattie Turnpike\",\"suite\":\"Suite 198\",\"city\":\"Lebsackbury\",\"zipcode\":\"31428-2261\",\"geo\":{\"lat\":\"-38.2386\",\"lng\":\"57.2232\"}},\"phone\":\"024-648-3804\",\"website\":\"ambrose.net\",\"company\":{\"name\":\"Hoeger LLC\",\"catchPhrase\":\"Centralized empowering task-force\",\"bs\":\"target end-to-end models\"}}]")'
-        // $.ajax({
-        //     url: "https://jsonplaceholder.typicode.com/users",
-        //     type: "GET",
-        //     dataType: "json",
-        //     success: function (data) {
-        //         // Append users to the list
-        //         ajaxData = JSON.stringify(data);
-        //         const jsonData = JSON.parse(ajaxData);
-        //         console.log(jsonData);
-        //     },
-        //     error: function (xhr, status, error) {
-        //         console.error("Error: " + error);
-        //     }
-        // });
-        
-        const jsonData = JSON.parse(ajaxData);
-        console.log(jsonData);
-        // $('#statusId').select2({
-        //     placeholder: "Select Status",
-        //     ajax: {
-        //         url: '/api/ItemTypes/Cbo/',
-        //         type: 'GET',
-        //         dataType: 'json',
-        //         delay: 500, // Delay in milliseconds before the request is sent
-        //         headers: {
-        //             'RequestVerificationToken': token
-        //         },
-        //         data: function (params) {
-        //             // Query parameters will be ?term=searchTerm&page=pageNumber
-        //             return {
-        //                 filters: {
-        //                     // add % to the search term for SQL LIKE query
-        //                     term: params.term ? `%${params.term}%` : '', // search term
-        //                 },
-        //                 pageNumber: params.page || 1, // page number
-        //                 pageSize: 10 // number of items per page
-        //             };
-        //         },
-        //         processResults: function (data) {
-        //             // Parse the results into the format expected by Select2
-        //             // data.data.items should be an array of objects with id and text properties
-        //            
-        //             return {
-        //                 results: data.data.items.map(item => ({
-        //                     id: item.itemTypeId, // Assuming 'id' is the unique identifier
-        //                     text: item.itemTypeName // Assuming 'text' is the display text
-        //                 })),
-        //                 pagination: {
-        //                     more: data.data.hasNextPage // Check if there are more pages
-        //                 }
-        //             };
-        //         }
-        //     }
-        // });
-
-        $(document).ready(function() {
-            $('#create-itemtype-btn').on('click', function() {
-                var modal = new bootstrap.Modal(document.getElementById('createItemTypeModal'));
-                modal.show();
-            });
-
-            $('#confirm-create-itemtype').on('click', function() {
-                $('form').submit();
-            });
-        });
+    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script type="module">
+        import { AppInit } from '/assets/js/app-init.js';
+        AppInit.refresh();
     </script>
-
-<!-- Confirmation Modal -->
-<div id="createItemTypeModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mt-2 text-center">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/exymduqj.json"
-                        trigger="loop"
-                        delay="2000"
-                        stroke="light"
-                        state="hover-line"
-                        style="width:100px;height:100px">
-                    </lord-icon>
-                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                        <h4>Are you sure?</h4>
-                        <p class="text-muted mx-4 mb-0">Are you sure you want to create this item type?</p>
-                    </div>
-                </div>
-                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn w-sm btn-primary" id="confirm-create-itemtype">Yes, Create It!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 }

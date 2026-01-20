@@ -1,0 +1,499 @@
+@model ResearchApps.Service.Vm.CustomerOrderVm
+
+@{
+    ViewBag.Title = "Edit Customer Order";
+    ViewBag.pTitle = $"Edit Customer Order No. {Model.Header.CoId}";
+    Layout = "_Layout";
+    ViewBag.CurrentApprover = Model.Header.CurrentApprover; // For workflow partial
+    
+    // Serialize lines for Alpine.js with camelCase
+    var linesJson = System.Text.Json.JsonSerializer.Serialize(Model.Lines.Select(l => new {
+        recId = l.RecId,
+        coLineId = l.CoLineId,
+        itemId = l.ItemId,
+        itemName = l.ItemName,
+        wantedDeliveryDate = l.WantedDeliveryDate?.ToString("yyyy-MM-dd"),
+        wantedDeliveryDateDisplay = l.WantedDeliveryDate?.ToString("dd MMM yyyy"),
+        qty = l.Qty,
+        unitId = l.UnitId,
+        unitName = l.UnitName,
+        price = l.Price,
+        amount = l.Amount,
+        notes = l.Notes ?? "",
+        createdDate = l.CreatedDate,
+        createdBy = l.CreatedBy,
+        modifiedDate = l.ModifiedDate,
+        modifiedBy = l.ModifiedBy
+    }));
+    
+    // Config object for coEdit component
+    var configJson = System.Text.Json.JsonSerializer.Serialize(new {
+        recId = Model.Header.RecId,
+        coId = Model.Header.CoId,
+        coDate = Model.Header.CoDate.ToString("yyyy-MM-dd"),
+        customerId = Model.Header.CustomerId,
+        customerName = Model.Header.CustomerName,
+        coTypeId = Model.Header.CoTypeId,
+        coTypeName = Model.Header.CoTypeName,
+        notes = Model.Header.Notes ?? ""
+    });
+}
+
+<div x-data="{ ...coEdit(@linesJson, @configJson), workflow: createWorkflowComponent({ recId: @Model.Header.RecId, refId: '@Model.Header.CoId', baseUrl: '/CustomerOrders' }) }" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <!-- Header Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                Order Header @Html.Raw(Model.Header.CoStatusName)
+                                <span x-show="isHeaderSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="coForm" method="post">
+                        <input type="hidden" name="RecId" value="@Model.Header.RecId" />
+                        <input type="hidden" name="CoId" value="@Model.Header.CoId" />
+                        <input type="hidden" name="CoStatusId" value="@Model.Header.CoStatusId" />
+                        <input type="hidden" name="CreatedDate" value="@Model.Header.CreatedDate.ToString("o")" />
+                        <input type="hidden" name="CreatedBy" value="@Model.Header.CreatedBy" />
+                        
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Order No</label>
+                                            <input type="text" class="form-control bg-light" value="@Model.Header.CoId" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Customer <span class="text-danger">*</span></label>
+                                            <select id="Header_CustomerId" 
+                                                    name="CustomerId"
+                                                    x-ref="customerSelect"
+                                                    data-tomselect
+                                                    data-url="/api/Customers/cbo"
+                                                    required>
+                                                <option value="">Select Customer</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Customer PO (Optional)</label>
+                                            <input type="text" 
+                                                   name="PoCustomer"
+                                                   class="form-control"
+                                                   value="@Model.Header.PoCustomer"
+                                                   placeholder="Enter customer PO number"
+                                                   maxlength="50" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Middle Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Order Date <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       class="form-control" 
+                                                       id="Header_CoDate"
+                                                       name="CoDate"
+                                                       x-ref="coDatePicker"
+                                                       data-flatpickr
+                                                       required />
+                                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Order Type <span class="text-danger">*</span></label>
+                                            <select id="Header_CoTypeId" 
+                                                    name="CoTypeId"
+                                                    x-ref="coTypeSelect"
+                                                    data-tomselect
+                                                    data-url="/api/CustomerOrders/types/cbo"
+                                                    required>
+                                                <option value="">Select Type</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Reference No (Optional)</label>
+                                            <input type="text" 
+                                                   name="RefNo"
+                                                   class="form-control"
+                                                   value="@Model.Header.RefNo"
+                                                   placeholder="Enter reference number"
+                                                   maxlength="50" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Revision</label>
+                                            <input type="text" class="form-control bg-light" value="@Model.Header.Revision" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Notes (Optional)</label>
+                                            <textarea name="Notes" 
+                                                      class="form-control" 
+                                                      rows="2"
+                                                      x-model="header.notes">@Model.Header.Notes</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="card bg-light mb-0">
+                                            <div class="card-body py-2 px-3">
+                                                <table class="table table-borderless table-sm mb-0">
+                                                    <tr>
+                                                        <td class="fw-semibold">Subtotal:</td>
+                                                        <td class="text-end">@Model.Header.SubTotal.ToString("N0")</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold">PPN (11%):</td>
+                                                        <td class="text-end">@Model.Header.Ppn.ToString("N0")</td>
+                                                    </tr>
+                                                    <tr class="border-top">
+                                                        <td class="fw-bold">Total:</td>
+                                                        <td class="text-end fw-bold text-primary">@Model.Header.Total.ToString("N0")</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group d-flex gap-2">
+                            <button type="button" 
+                                    class="btn btn-primary"
+                                    @@click="saveHeader()"
+                                    :disabled="isHeaderSaving">
+                                <span x-show="!isHeaderSaving"><i class="ri-save-line me-1"></i> Save Changes</span>
+                                <span x-show="isHeaderSaving" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                                </span>
+                            </button>
+                            
+                            <a href="/CustomerOrders/Details/@Model.Header.RecId" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Lines Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        Order Lines 
+                        <span class="badge bg-primary-subtle text-primary" x-text="lines.length"></span>
+                    </h5>
+                    <button type="button" class="btn btn-primary btn-sm" @@click="showLineModal('add')">
+                        <i class="ri-add-line"></i> Add Line
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Item</th>
+                                    <th class="text-center" style="width: 130px;">Wanted Date</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th class="text-end" style="width: 130px;">Amount</th>
+                                    <th class="text-center" style="width: 80px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="lines.length === 0">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            <i class="ri-file-list-line fs-2"></i>
+                                            <p class="mb-0 mt-2">No order lines. Click "Add Line" to add items.</p>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="(line, index) in lines" :key="line.recId || index">
+                                    <tr>
+                                        <td class="text-center" x-text="index + 1"></td>
+                                        <td>
+                                            <a href="#" 
+                                               @@click.prevent="showLineDetailModal(line)"
+                                               class="text-primary text-decoration-none"
+                                               x-text="line.itemName">
+                                            </a>
+                                        </td>
+                                        <td class="text-center" x-text="line.wantedDeliveryDateDisplay || '-'"></td>
+                                        <td class="text-end" x-text="formatNumber(line.qty)"></td>
+                                        <td class="text-center" x-text="line.unitName || '-'"></td>
+                                        <td class="text-end" x-text="formatNumber(line.price)"></td>
+                                        <td class="text-end fw-bold" x-text="formatNumber(line.amount)"></td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" 
+                                                        class="btn btn-soft-primary"
+                                                        @@click="showLineModal('edit', line)"
+                                                        title="Edit">
+                                                    <i class="ri-pencil-line"></i>
+                                                </button>
+                                                <button type="button" 
+                                                        class="btn btn-soft-danger"
+                                                        @@click="confirmDeleteLine(line)"
+                                                        title="Delete">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="6" class="text-end">Subtotal:</th>
+                                    <th class="text-end fs-5 text-primary" x-text="formatNumber(calculateTotal())"></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Modal (Add/Edit) -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': lineModal.show }"
+         x-show="lineModal.show"
+         x-cloak
+         tabindex="-1"
+         @@click.self="closeLineModal()"
+         @@keydown.escape.window="closeLineModal()">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-file-list-3-line me-2"></i>
+                        <span x-text="lineModal.mode === 'add' ? 'Add Order Line' : 'Edit Order Line'"></span>
+                    </h5>
+                    <button type="button" class="btn-close" @@click="closeLineModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Item <span class="text-danger">*</span></label>
+                            <select id="lineItemId" 
+                                    x-ref="lineItemSelect"
+                                    required>
+                                <option value="">Select Item</option>
+                            </select>
+                            <div class="invalid-feedback" x-show="lineModal.errors.itemId" x-text="lineModal.errors.itemId"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Wanted Delivery Date</label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="lineWantedDate"
+                                       x-ref="lineWantedDatePicker"
+                                       x-model="lineModal.data.wantedDeliveryDate" />
+                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control text-end" 
+                                   inputmode="numeric"
+                                   :value="formatNumber(lineModal.data.qty)"
+                                   @@input="lineModal.data.qty = parseNumber($event.target.value); calculateLineAmount();"
+                                   @@blur="$event.target.value = formatNumber(lineModal.data.qty)"
+                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   :class="{ 'is-invalid': lineModal.errors.qty }" />
+                            <div class="invalid-feedback" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Price <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control text-end" 
+                                   inputmode="numeric"
+                                   :value="formatNumber(lineModal.data.price)"
+                                   @@input="lineModal.data.price = parseNumber($event.target.value); calculateLineAmount();"
+                                   @@blur="$event.target.value = formatNumber(lineModal.data.price)"
+                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   :class="{ 'is-invalid': lineModal.errors.price }" />
+                            <div class="invalid-feedback" x-show="lineModal.errors.price" x-text="lineModal.errors.price"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Amount</label>
+                            <input type="text" 
+                                   class="form-control bg-light fw-bold" 
+                                   :value="formatNumber(lineModal.data.amount)"
+                                   readonly />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Notes (Optional)</label>
+                            <textarea class="form-control" 
+                                      x-model="lineModal.data.notes"
+                                      rows="2"
+                                      maxlength="200"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="closeLineModal()" :disabled="lineModal.isSaving">
+                        Cancel
+                    </button>
+                    <button type="button" 
+                            class="btn btn-primary"
+                            @@click="saveLine()"
+                            :disabled="lineModal.isSaving">
+                        <span x-show="!lineModal.isSaving">
+                            <i class="ri-save-line me-1"></i>
+                            <span x-text="lineModal.mode === 'add' ? 'Add Line' : 'Update Line'"></span>
+                        </span>
+                        <span x-show="lineModal.isSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="lineModal.show" x-cloak></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': deleteModal.show }"
+         x-show="deleteModal.show"
+         x-cloak
+         tabindex="-1"
+         @@click.self="deleteModal.show = false"
+         @@keydown.escape.window="deleteModal.show = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="ri-delete-bin-line me-2"></i> Delete Line
+                    </h5>
+                    <button type="button" class="btn-close" @@click="deleteModal.show = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this line?</p>
+                    <p class="fw-bold" x-text="deleteModal.line?.itemName"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="deleteModal.show = false" :disabled="deleteModal.isDeleting">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" @@click="deleteLine()" :disabled="deleteModal.isDeleting">
+                        <span x-show="!deleteModal.isDeleting"><i class="ri-delete-bin-line me-1"></i> Delete</span>
+                        <span x-show="deleteModal.isDeleting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1"></span> Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="deleteModal.show" x-cloak></div>
+
+    <!-- Save Header Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showSaveModal }"
+         x-show="showSaveModal"
+         x-cloak
+         tabindex="-1"
+         @@click.self="showSaveModal = false"
+         @@keydown.escape.window="showSaveModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ri-save-line me-2 text-primary"></i> Save Changes</h5>
+                    <button type="button" class="btn-close" @@click="showSaveModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to save changes to this customer order?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showSaveModal = false">Cancel</button>
+                    <button type="button" class="btn btn-primary" @@click="confirmSaveHeader()">
+                        <i class="ri-check-line me-1"></i> Yes, Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showSaveModal" x-cloak></div>
+    
+    @{
+        ViewData["ShowDeliveryInfo"] = false;
+    }
+    @await Html.PartialAsync("_Partials/_CoLineDetailModal")
+
+    @await Html.PartialAsync("_Partials/_WorkflowModal", Model.Header.CoId)
+</div>
+
+@section scripts {
+    <script src="~/js/customer-orders/co-edit.js"></script>
+}

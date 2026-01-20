@@ -1,0 +1,134 @@
+@model ResearchApps.Service.Vm.SupplierVm
+
+@{
+    ViewBag.Title = "Edit Supplier";
+    ViewBag.pTitle = $"Edit Supplier - {Model.SupplierName}";
+    Layout = "_Layout";
+}
+
+<div x-data="supplierEdit(@Model.TopId)">
+    @Html.AntiForgeryToken()
+    
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Supplier Information</h5>
+                            <a href="/Suppliers/Index" class="btn btn-sm btn-soft-secondary">
+                                <i class="ri-arrow-left-line"></i> Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="SupplierId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row">
+                    @* Basic information section *@
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Basic Information</h5>
+                        
+                        <div class="mb-3">
+                            <label asp-for="SupplierName" class="form-label"></label>
+                            <input asp-for="SupplierName" class="form-control" required />
+                            <span asp-validation-for="SupplierName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label"></label>
+                            <textarea asp-for="Address" class="form-control" rows="3" required></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="City" class="form-label"></label>
+                            <input asp-for="City" class="form-control" required />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    @* Contact and tax information section *@
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Contact & Tax Information</h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Telp" class="form-label"></label>
+                            <input asp-for="Telp" class="form-control" required />
+                            <span asp-validation-for="Telp" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Fax" class="form-label"></label>
+                            <input asp-for="Fax" class="form-control" />
+                            <span asp-validation-for="Fax" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TopId" class="form-label"></label>
+                            <select asp-for="TopId" id="topSelect" class="form-control" required>
+                                <option value="">-- Select TOP --</option>
+                            </select>
+                            <span asp-validation-for="TopId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Npwp" class="form-label"></label>
+                            <input asp-for="Npwp" class="form-control" placeholder="XX.XXX.XXX.X-XXX.XXX" />
+                            <span asp-validation-for="Npwp" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsPpn" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsPpn" class="form-check-label"></label>
+                            <div class="form-text">Check if supplier subject to 11% PPN/VAT</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StatusId" class="form-label"></label>
+                            <select asp-for="StatusId" class="form-select" required>
+                                <option value="">-- Select Status --</option>
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/Suppliers/Index" class="btn btn-soft-secondary">
+                                <i class="ri-close-line"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/suppliers/supplier-edit.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

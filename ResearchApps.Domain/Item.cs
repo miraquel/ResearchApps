@@ -11,6 +11,7 @@ public class Item
     public decimal BufferStock { get; set; }
     public int UnitId { get; set; }
     public string UnitName { get; set; } = string.Empty;
+    public int WhId { get; set; }
     public decimal PurchasePrice { get; set; }
     public decimal SalesPrice { get; set; }
     public decimal CostPrice { get; set; }

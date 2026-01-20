@@ -1,0 +1,99 @@
+@* PoId passed via Alpine component *@
+
+<div class="modal fade" 
+     :class="{ 'show d-block': workflow.modal.show }" 
+     :style="workflow.modal.show ? 'background: rgba(0,0,0,0.5);' : ''"
+     x-show="workflow.modal.show" 
+     x-cloak
+     tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <template x-if="workflow.modal.action === 'submit'">
+                        <span><i class="ri-send-plane-line text-info me-2"></i>Submit Order</span>
+                    </template>
+                    <template x-if="workflow.modal.action === 'approve'">
+                        <span><i class="ri-checkbox-circle-line text-success me-2"></i>Approve Order</span>
+                    </template>
+                    <template x-if="workflow.modal.action === 'reject'">
+                        <span><i class="ri-close-circle-line text-danger me-2"></i>Reject Order</span>
+                    </template>
+                    <template x-if="workflow.modal.action === 'recall'">
+                        <span><i class="ri-arrow-go-back-line text-warning me-2"></i>Recall Order</span>
+                    </template>
+                    <template x-if="workflow.modal.action === 'close'">
+                        <span><i class="ri-checkbox-circle-line text-dark me-2"></i>Close Order</span>
+                    </template>
+                </h5>
+                <button type="button" class="btn-close" @@click="workflow.closeModal()"></button>
+            </div>
+            <div class="modal-body">
+                <template x-if="workflow.modal.action === 'submit'">
+                    <p>Are you sure you want to submit order <strong>@Model</strong> for approval?</p>
+                </template>
+                <template x-if="workflow.modal.action === 'approve'">
+                    <p>Are you sure you want to approve order <strong>@Model</strong>?</p>
+                </template>
+                <template x-if="workflow.modal.action === 'reject'">
+                    <p>Are you sure you want to reject order <strong>@Model</strong>?</p>
+                </template>
+                <template x-if="workflow.modal.action === 'recall'">
+                    <p>Are you sure you want to recall order <strong>@Model</strong>?</p>
+                </template>
+                <template x-if="workflow.modal.action === 'close'">
+                    <p>Are you sure you want to close order <strong>@Model</strong>?</p>
+                </template>
+
+                <div class="mb-3" x-show="workflow.modal.action === 'approve' || workflow.modal.action === 'reject' || workflow.modal.action === 'recall'">
+                    <label class="form-label">
+                        Notes <span x-show="workflow.modal.action === 'reject'" class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" 
+                              x-model="workflow.modal.notes" 
+                              rows="3" 
+                              maxlength="200"
+                              :placeholder="workflow.modal.action === 'reject' ? 'Enter reason for rejection...' : 'Enter notes (optional)...'"></textarea>
+                    <small class="text-muted">Maximum 200 characters</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @@click="workflow.closeModal()">
+                    Cancel
+                </button>
+                <button type="button" 
+                        @@click="workflow.execute()" 
+                        :disabled="workflow.modal.isProcessing"
+                        class="btn"
+                        :class="{
+                            'btn-info': workflow.modal.action === 'submit',
+                            'btn-success': workflow.modal.action === 'approve',
+                            'btn-danger': workflow.modal.action === 'reject',
+                            'btn-warning': workflow.modal.action === 'recall',
+                            'btn-dark': workflow.modal.action === 'close'
+                        }">
+                    <span x-show="!workflow.modal.isProcessing">
+                        <template x-if="workflow.modal.action === 'submit'">
+                            <span><i class="ri-send-plane-line me-1"></i>Submit</span>
+                        </template>
+                        <template x-if="workflow.modal.action === 'approve'">
+                            <span><i class="ri-checkbox-circle-line me-1"></i>Approve</span>
+                        </template>
+                        <template x-if="workflow.modal.action === 'reject'">
+                            <span><i class="ri-close-circle-line me-1"></i>Reject</span>
+                        </template>
+                        <template x-if="workflow.modal.action === 'recall'">
+                            <span><i class="ri-arrow-go-back-line me-1"></i>Recall</span>
+                        </template>
+                        <template x-if="workflow.modal.action === 'close'">
+                            <span><i class="ri-checkbox-circle-line me-1"></i>Close</span>
+                        </template>
+                    </span>
+                    <span x-show="workflow.modal.isProcessing" x-cloak>
+                        <span class="spinner-border spinner-border-sm me-1"></span>Processing...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

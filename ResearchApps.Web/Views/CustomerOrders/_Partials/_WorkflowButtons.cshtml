@@ -1,0 +1,40 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.CustomerOrderHeaderVm
+
+@{
+    var isCreator = Model.CreatedBy == User.Identity?.Name;
+    var isCurrentApprover = ViewBag.CurrentApprover?.ToString() == User.Identity?.Name;
+}
+
+<!-- Workflow Actions -->
+@if (Model.CoStatusId == CoStatusConstants.Draft && isCreator)
+{
+    <button type="button" class="btn btn-sm btn-info" @@click="workflow.showModal('submit')">
+        <i class="ri-send-plane-line"></i> Submit
+    </button>
+}
+
+@if (Model.CoStatusId == CoStatusConstants.InReview && isCurrentApprover)
+{
+    <button type="button" class="btn btn-sm btn-success" @@click="workflow.showModal('approve')">
+        <i class="ri-checkbox-circle-line"></i> Approve
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" @@click="workflow.showModal('reject')">
+        <i class="ri-close-circle-line"></i> Reject
+    </button>
+}
+
+@if (Model.CoStatusId is CoStatusConstants.Active or CoStatusConstants.InReview or CoStatusConstants.Reject && isCreator)
+{
+    <button type="button" class="btn btn-sm btn-warning" @@click="workflow.showModal('recall')">
+        <i class="ri-arrow-go-back-line"></i> Recall
+    </button>
+}
+
+@if (Model.CoStatusId == CoStatusConstants.Active && isCreator)
+{
+    <button type="button" class="btn btn-sm btn-dark" @@click="workflow.showModal('close')">
+        <i class="ri-checkbox-circle-line"></i> Close
+    </button>
+}
+

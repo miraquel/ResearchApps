@@ -26,6 +26,46 @@ namespace ResearchApps.Web.Controllers.Api
             return StatusCode(response.StatusCode, response);
         }
 
+        // GET: api/PrLines/ForPo
+        [HttpGet("ForPo")]
+        public async Task<IActionResult> GetForPo(
+            [FromQuery] int poRecId, 
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? prId = null,
+            [FromQuery] string? itemName = null,
+            [FromQuery] DateTime? dateFrom = null,
+            CancellationToken cancellationToken = default)
+        {
+            var response = await _prLineService.PrLineSelectForPo(
+                poRecId, 
+                pageNumber, 
+                pageSize, 
+                prId, 
+                itemName, 
+                dateFrom, 
+                cancellationToken);
+            
+            if (!response.IsSuccess)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+
+            var items = response.Data?.ToList() ?? [];
+            var totalCount = items.FirstOrDefault()?.TotalCount ?? 0;
+
+            var result = new
+            {
+                data = items,
+                totalCount,
+                pageNumber,
+                pageSize,
+                totalPages = totalCount > 0 ? (int)Math.Ceiling(totalCount / (double)pageSize) : 0
+            };
+
+            return Ok(result);
+        }
+
         // GET api/<PrLinesController>/5
         [HttpGet("{id:int}")]
         [Authorize(PermissionConstants.PrLines.Details)]

@@ -40,4 +40,15 @@ public class PrLineVm
     public DateTime ModifiedDate { get; set; }
     [Display(Name = "Modified By")]
     public string ModifiedBy { get; set; } = string.Empty;
+
+    // Partial fulfillment properties
+    [Display(Name = "Requested Quantity")]
+    public decimal? RequestedQty { get; set; }
+    [Display(Name = "Ordered Quantity")]
+    public decimal? OrderedQty { get; set; }
+    [Display(Name = "Outstanding Quantity")]
+    public decimal? OutstandingQty { get; set; }
+
+    // Pagination
+    public int? TotalCount { get; set; }
 }

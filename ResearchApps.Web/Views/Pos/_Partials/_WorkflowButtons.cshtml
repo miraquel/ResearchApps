@@ -1,0 +1,38 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.PoHeaderVm
+
+@{
+    var isCreator = Model.CreatedBy == User.Identity?.Name;
+    var isCurrentApprover = Model.CurrentApprover == User.Identity?.Name;
+}
+
+@if (Model.PoStatusId == PoStatusConstants.Draft && isCreator)
+{
+    <button type="button" class="btn btn-sm btn-info" @@click="workflow.showModal('submit')">
+        <i class="ri-send-plane-line me-1"></i>Submit
+    </button>
+}
+
+@if (Model.PoStatusId == PoStatusConstants.Pending && isCurrentApprover)
+{
+    <button type="button" class="btn btn-sm btn-success" @@click="workflow.showModal('approve')">
+        <i class="ri-checkbox-circle-line me-1"></i>Approve
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" @@click="workflow.showModal('reject')">
+        <i class="ri-close-circle-line me-1"></i>Reject
+    </button>
+}
+
+@if ((Model.PoStatusId == PoStatusConstants.Pending || Model.PoStatusId == PoStatusConstants.Approved) && isCreator)
+{
+    <button type="button" class="btn btn-sm btn-warning" @@click="workflow.showModal('recall')">
+        <i class="ri-arrow-go-back-line me-1"></i>Recall
+    </button>
+}
+
+@if (Model.PoStatusId == PoStatusConstants.Approved && isCreator)
+{
+    <button type="button" class="btn btn-sm btn-dark" @@click="workflow.showModal('close')">
+        <i class="ri-checkbox-circle-line me-1"></i>Close
+    </button>
+}

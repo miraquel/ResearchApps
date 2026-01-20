@@ -4,6 +4,7 @@ using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
+using ResearchApps.Web.Extensions;
 
 namespace ResearchApps.Web.Controllers.Api;
 
@@ -63,6 +64,18 @@ public class UnitsController : ControllerBase
     public async Task<IActionResult> UnitCboAsync([FromQuery] CboRequestVm cboRequestVm, CancellationToken cancellationToken)
     {
         var response = await _unitService.CboAsync(cboRequestVm, cancellationToken);
+        
+        // Return TomSelect format if X-TomSelect header is present
+        if (Request.IsTomSelectRequest() && response.IsSuccess && response.Data != null)
+        {
+            var tomSelectOptions = response.Data.Select(u => new TomSelectOption
+            {
+                Value = u.UnitId.ToString(),
+                Text = u.UnitName
+            });
+            return Ok(tomSelectOptions);
+        }
+        
         return StatusCode(response.StatusCode, response);
     }
 }

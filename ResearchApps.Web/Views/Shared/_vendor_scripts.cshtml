@@ -1,4 +1,6 @@
 <!-- JAVASCRIPT -->
+<script src="~/assets/libs/jquery/jquery.min.js"></script>
+<script src="~/assets/libs/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="~/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="~/assets/libs/simplebar/simplebar.min.js"></script>
 <script src="~/assets/libs/node-waves/waves.min.js"></script>
@@ -7,7 +9,15 @@
 @* <script src="https://cdn.lordicon.com/lordicon.js"></script> *@
 <script src="~/assets/libs/@("@lordicon")/element/index.js"></script>
 <script src="~/assets/js/plugins.js"></script>
-<script src="~/assets/js/app.js"></script>
+<script src="~/assets/js/components/loader.js"></script>
+<script type="module" src="~/assets/js/app-modular.js"></script>
+
+<!-- Alpine.js + htmx + TomSelect + Flatpickr -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@1.9.10/dist/htmx.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+<script src="~/assets/libs/flatpickr/flatpickr.min.js"></script>
+<script src="~/assets/js/alpine-components.js"></script>
 
 <!-- SignalR and PR Notifications -->
 <script src="~/assets/libs/@("@microsoft")/signalr/dist/browser/signalr.min.js"></script>

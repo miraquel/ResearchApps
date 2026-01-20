@@ -1,0 +1,65 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.CustomerOrderHeaderVm>
+
+@if (Model.Items.Any())
+{
+    foreach (var item in Model.Items)
+    {
+        <tr>
+            <td class="text-center fw-semibold">@item.CoId</td>
+            <td class="text-center">@item.CoDate.ToString("dd MMM yyyy")</td>
+            <td>@item.CustomerName</td>
+            <td class="text-center">@(item.PoCustomer ?? "-")</td>
+            <td class="text-center">@(item.RefNo ?? "-")</td>
+            <td class="text-center">@item.CoTypeName</td>
+            <td class="text-end fw-semibold">@item.Total.ToString("N0")</td>
+            <td class="text-center">
+                @Html.Raw(item.CoStatusName)
+            </td>
+            <td class="text-center">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-more-fill align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a href="/CustomerOrders/Details/@item.RecId" class="dropdown-item">
+                                <i class="ri-eye-fill align-bottom me-2 text-muted"></i> View
+                            </a>
+                        </li>
+                        @if (item.CoStatusId == 0 && item.CreatedBy == User.Identity?.Name)
+                        {
+                            <li>
+                                <a href="/CustomerOrders/Edit/@item.RecId" class="dropdown-item">
+                                    <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/CustomerOrders/Delete/@item.RecId" class="dropdown-item">
+                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete
+                                </a>
+                            </li>
+                        }
+                        @if (item.CoStatusId == 2)
+                        {
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a href="/DeliveryOrders/Create?customerId=@item.CustomerId&coId=@item.CoId" class="dropdown-item">
+                                    <i class="ri-truck-line align-bottom me-2 text-muted"></i> Create DO
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="9" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-2"></i>
+            <p class="mb-0 mt-2">No customer orders found</p>
+        </td>
+    </tr>
+}

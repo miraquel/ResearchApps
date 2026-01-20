@@ -41,5 +41,19 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IReportRepo, ReportRepo>();
         services.AddScoped<IReportParameterRepo, ReportParameterRepo>();
         services.AddScoped<INotificationRepo, NotificationRepo>();
+        services.AddScoped<IDashboardRepo, DashboardRepo>();
+        
+        // Customer Order Management
+        services.AddScoped<ICustomerRepo, CustomerRepo>();
+        services.AddScoped<ICustomerOrderRepo, CustomerOrderRepo>();
+        services.AddScoped<IDeliveryOrderRepo, DeliveryOrderRepo>();
+        services.AddScoped<ISalesInvoiceRepo, SalesInvoiceRepo>();
+        
+        // Purchase Order Management
+        services.AddScoped<IPoRepo, PoRepo>();
+        services.AddScoped<IPoLineRepo, PoLineRepo>();
+        
+        // Supplier Management
+        services.AddScoped<ISupplierRepo, SupplierRepo>();
     }
 }

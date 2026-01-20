@@ -1,4 +1,4 @@
-﻿@model ResearchApps.Service.Vm.PrVm
+@model ResearchApps.Service.Vm.PrVm
 
 @{
     ViewBag.Title = "Edit Purchase Requisition";
@@ -6,168 +6,118 @@
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
-}
-
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <form asp-action="Edit" method="post">
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    
-                    <input type="hidden" asp-for="PrId" />
-                    <input type="hidden" asp-for="RecId" />
-                    <input type="hidden" asp-for="CreatedDate" />
-                    <input type="hidden" asp-for="CreatedBy" />
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="PrDate" class="form-label"></label>
-                                <div class="input-group">
-                                    <input asp-for="PrDate" type="text" class="form-control flatpickr-input" id="prDate" />
-                                    <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+<div x-data="prEditForm()" x-init="init()">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Edit Purchase Requisition - @Model.PrId</h5>
+                </div>
+                <div class="card-body">
+                    <form id="pr-form" asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Validation Summary -->
+                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" asp-for="PrId" />
+                        <input type="hidden" asp-for="RecId" />
+                        <input type="hidden" asp-for="CreatedDate" />
+                        <input type="hidden" asp-for="CreatedBy" />
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="PrDate" class="form-label">PR Date <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               id="PrDate" 
+                                               name="PrDate"
+                                               class="form-control" 
+                                               value="@Model.PrDate.ToString("yyyy-MM-dd")"
+                                               x-ref="prDatePicker"
+                                               data-flatpickr
+                                               :class="{ 'is-invalid': errors.PrDate }"
+                                               required />
+                                        <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                    </div>
+                                    <div class="invalid-feedback" x-show="errors.PrDate" x-text="errors.PrDate"></div>
                                 </div>
-                                <span asp-validation-for="PrDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="PrName" class="form-label">PR Name <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           id="PrName" 
+                                           name="PrName"
+                                           class="form-control"
+                                           value="@Model.PrName"
+                                           :class="{ 'is-invalid': errors.PrName }"
+                                           maxlength="200"
+                                           required />
+                                    <div class="invalid-feedback" x-show="errors.PrName" x-text="errors.PrName"></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="PrName" class="form-label"></label>
-                                <input asp-for="PrName" type="text" class="form-control" />
-                                <span asp-validation-for="PrName" class="text-danger"></span>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="BudgetId" class="form-label">Budget <span class="text-danger">*</span></label>
+                                    <select id="BudgetId" 
+                                            name="BudgetId" 
+                                            class="form-control"
+                                            x-ref="budgetSelect"
+                                            data-tomselect
+                                            data-url="/api/Budgets/cbo"
+                                            :class="{ 'is-invalid': errors.BudgetId }"
+                                            required>
+                                        <option value="">Select Budget</option>
+                                        <option value="@Model.BudgetId" selected>@Model.BudgetName</option>
+                                    </select>
+                                    <div class="invalid-feedback" x-show="errors.BudgetId" x-text="errors.BudgetId"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label asp-for="BudgetId" class="form-label"></label>
-                                <select asp-for="BudgetId" class="form-select select2" id="budgetId">
-                                    <option value="">Select Budget</option>
-                                </select>
-                                <span asp-validation-for="BudgetId" class="text-danger"></span>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="Notes" class="form-label">Notes (Optional)</label>
+                                    <textarea id="Notes" 
+                                              name="Notes" 
+                                              class="form-control" 
+                                              rows="3"
+                                              maxlength="500">@Model.Notes</textarea>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label asp-for="Notes" class="form-label"></label>
-                                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
-                                <span asp-validation-for="Notes" class="text-danger"></span>
-                            </div>
+                        
+                        <div class="form-group">
+                            <button type="button" 
+                                    class="btn btn-primary" 
+                                    @@click="confirmUpdate()"
+                                    :disabled="isSubmitting">
+                                <span x-show="!isSubmitting">Save Changes</span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                                </span>
+                            </button>
+                            <a href="/Prs/Details/@Model.RecId" class="btn btn-secondary">Cancel</a>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="button" class="btn btn-primary" id="save-pr-btn">Save Changes</button>
-                        <a asp-action="Details" asp-route-id="@Model.RecId" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
-    <script src="/assets/js/pages/form-pickers.init.js"></script>
-    <script>
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        
-        $(document).ready(function() {
-            // Initialize Select2 for Budget
-            $('#budgetId').select2({
-                theme: 'bootstrap5',
-                placeholder: "Select Budget",
-                ajax: {
-                    url: '/api/Budgets/cbo',
-                    type: 'GET',
-                    dataType: 'json',
-                    delay: 500,
-                    headers: {
-                        'RequestVerificationToken': token
-                    },
-                    data: function (params) {
-                        return {
-                            term: params.term ? `%${params.term}%` : '',
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.data.map(item => ({
-                                id: item.budgetId,
-                                text: item.budgetName
-                            }))
-                        };
-                    },
-                }
-            });
-            
-            // Initialize flatpickr for date
-            flatpickr("#prDate", {
-                dateFormat: "d M Y",
-                defaultDate: "@Model.PrDate.ToString("yyyy-MM-dd")"
-            });
-            
-            // Load Budget dropdown with current value
-            const currentBudgetId = @Model.BudgetId;
-            const currentBudgetName = "@Model.BudgetName";
-            if (currentBudgetId > 0) {
-                const option = new Option(currentBudgetName, currentBudgetId, true, true);
-                $('#budgetId').append(option).trigger('change');
-            }
-        });
-
-        // Confirmation modal handler
-        $('#save-pr-btn').on('click', function() {
-            var modal = new bootstrap.Modal(document.getElementById('savePrModal'));
-            modal.show();
-        });
-
-        $('#confirm-save-pr').on('click', function() {
-            $('form').submit();
-        });
-    </script>
+    <script src="~/js/purchase-requisitions/pr-edit.js"></script>
 }
-
-<!-- Confirmation Modal -->
-<div id="savePrModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mt-2 text-center">
-                    <lord-icon
-                        src="https://cdn.lordicon.com/exymduqj.json"
-                        trigger="loop"
-                        delay="2000"
-                        stroke="light"
-                        state="hover-line"
-                        style="width:100px;height:100px">
-                    </lord-icon>
-                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                        <h4>Are you sure?</h4>
-                        <p class="text-muted mx-4 mb-0">Are you sure you want to update this purchase requisition?</p>
-                    </div>
-                </div>
-                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn w-sm btn-primary" id="confirm-save-pr">Yes, Update It!</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-

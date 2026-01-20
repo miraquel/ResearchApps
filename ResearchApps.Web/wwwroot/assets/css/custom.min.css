@@ -1,0 +1,4 @@
+/* DataTables Dropdown Overflow Fix - Prevents Bootstrap dropdowns in DataTables from being clipped by scroll containers */
+.dataTables_wrapper .dropdown-menu{z-index:9999}.dataTables_wrapper tbody{overflow:visible!important}
+
+/*# sourceMappingURL=custom.min.css.map */

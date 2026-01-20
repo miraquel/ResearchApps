@@ -15,6 +15,15 @@ public class PrLine
     public decimal Price { get; set; }
     public string? Notes { get; set; }
     public decimal? Amount { get; set; }
+    
+    // Outstanding quantities for partial fulfillment
+    public decimal? RequestedQty { get; set; }
+    public decimal? OrderedQty { get; set; }
+    public decimal? OutstandingQty { get; set; }
+    
+    // Pagination
+    public int? TotalCount { get; set; }
+    
     public int PrStatusId { get; set; }
     public int RecId { get; set; }
     public DateTime CreatedDate { get; set; }

@@ -23,7 +23,7 @@ public class ReportGenerateVm
     /// <summary>
     /// Dictionary of parameter values keyed by parameter name.
     /// </summary>
-    public Dictionary<string, string?> ParameterValues { get; set; } = new();
+    public Dictionary<string, string> ParameterValues { get; set; } = new();
     
     [Display(Name = "Output Format")]
     public ReportOutputFormat OutputFormat { get; set; } = ReportOutputFormat.Pdf;

@@ -1,0 +1,160 @@
+@model ResearchApps.Service.Vm.PoVm
+
+@{
+    ViewBag.Title = "Create Purchase Order";
+    ViewBag.pTitle = "Create Purchase Order";
+    Layout = "_Layout";
+}
+
+<div x-data="poCreateForm()" x-init="init()">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-add-circle-line me-2"></i>Create New Purchase Order
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="po-create-form" method="post" action="/Pos/Create">
+                        @Html.AntiForgeryToken()
+                        
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="ri-error-warning-line me-2"></i>
+                                <strong>Validation Error!</strong> Please correct the errors below.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="Header_PoDate" class="form-label">
+                                    PO Date <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           id="Header_PoDate" 
+                                           name="Header.PoDate" 
+                                           class="form-control"
+                                           x-ref="poDatePicker"
+                                           required />
+                                    <span class="input-group-text">
+                                        <i class="ri-calendar-line"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Header.PoDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_SupplierId" class="form-label">
+                                    Supplier <span class="text-danger">*</span>
+                                </label>
+                                <select id="Header_SupplierId" 
+                                        name="Header.SupplierId" 
+                                        class="form-control"
+                                        x-ref="supplierSelect"
+                                        data-tomselect
+                                        data-url="/api/Suppliers/cbo"
+                                        required>
+                                    <option value="">Select Supplier</option>
+                                </select>
+                                <span asp-validation-for="Header.SupplierId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_Pic" class="form-label">PIC</label>
+                                <input type="text" 
+                                       id="Header_Pic" 
+                                       name="Header.Pic" 
+                                       class="form-control"
+                                       placeholder="Person in Charge"
+                                       maxlength="20"
+                                       value="@Model.Header.Pic" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="Header_RefNo" class="form-label">Reference No.</label>
+                                <input type="text" 
+                                       id="Header_RefNo" 
+                                       name="Header.RefNo" 
+                                       class="form-control"
+                                       placeholder="External reference number"
+                                       maxlength="100"
+                                       value="@Model.Header.RefNo" />
+                            </div>
+
+                            <div class="col-12">
+                                <label for="Header_Notes" class="form-label">Notes</label>
+                                <textarea id="Header_Notes" 
+                                          name="Header.Notes" 
+                                          class="form-control"
+                                          rows="3"
+                                          maxlength="500"
+                                          placeholder="Enter any additional notes...">@Model.Header.Notes</textarea>
+                                <small class="text-muted">Maximum 500 characters</small>
+                                <span asp-validation-for="Header.Notes" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex gap-2">
+                            <button type="button" 
+                                    class="btn btn-primary" 
+                                    :disabled="isSubmitting" 
+                                    @@click="confirmCreate()">
+                                <span x-show="!isSubmitting">
+                                    <i class="ri-save-line me-1"></i> Create Purchase Order
+                                </span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1"></span> Creating...
+                                </span>
+                            </button>
+                            <a href="/Pos" class="btn btn-secondary">
+                                <i class="ri-close-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showConfirmModal }" 
+         :style="showConfirmModal ? 'background: rgba(0,0,0,0.5);' : ''"
+         x-show="showConfirmModal" 
+         x-cloak
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-question-line text-primary me-2"></i>Confirm Create
+                    </h5>
+                    <button type="button" class="btn-close" @@click="showConfirmModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Are you sure you want to create this purchase order?</p>
+                    <p class="text-muted small mb-0 mt-2">
+                        <i class="ri-information-line me-1"></i>
+                        You can add line items after creating the PO.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showConfirmModal = false">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" @@click="proceedSubmit()">
+                        <i class="ri-check-line me-1"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/pos/po-create.js"></script>
+}

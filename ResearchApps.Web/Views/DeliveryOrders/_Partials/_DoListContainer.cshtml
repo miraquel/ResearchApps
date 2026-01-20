@@ -1,0 +1,127 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.DeliveryOrderHeaderVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;" 
+            @@click="sort('DoId')" data-column="DoId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>DO ID</span>
+                <template x-if="sortBy === 'DoId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('DoDate')" data-column="DoDate">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Date</span>
+                <template x-if="sortBy === 'DoDate'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 250px; cursor: pointer;"
+            @@click="sort('CustomerName')" data-column="CustomerName">
+            <div class="d-flex align-items-center">
+                <span>Customer</span>
+                <template x-if="sortBy === 'CustomerName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;"
+            @@click="sort('CoId')" data-column="CoId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Ref CO</span>
+                <template x-if="sortBy === 'CoId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;"
+            @@click="sort('RefId')" data-column="RefId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Ref ID</span>
+                <template x-if="sortBy === 'RefId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('Descr')" data-column="Descr">
+            <div class="d-flex align-items-center">
+                <span>Description</span>
+                <template x-if="sortBy === 'Descr'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('DoStatusId')" data-column="DoStatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'DoStatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="do-table-body">
+    @await Html.PartialAsync("_Partials/_DoListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search ID..."
+                   x-model="filters.DoId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div id="do-date-range" class="flatpickr input-group">
+                <input type="text" class="form-control form-control-sm" placeholder="Select date range..." data-input>
+                <button class="btn btn-sm btn-outline-secondary" type="button" title="Clear" data-clear>
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search customer name..."
+                   x-model="filters.CustomerName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search CO..."
+                   x-model="filters.CoId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search Ref ID..."
+                   x-model="filters.RefId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search description..."
+                   x-model="filters.Descr" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.DoStatusId" @@change="fetchList()">
+                <option value="">All Statuses</option>
+                <option value="0">Draft</option>
+                <option value="1">Active</option>
+                <option value="2">Cancel</option>
+                <option value="3">Closed</option>
+                <option value="4">In Review</option>
+                <option value="5">Reject</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    @await Html.PartialAsync("_Partials/_DoPaginationPartial", Model)
+</div>

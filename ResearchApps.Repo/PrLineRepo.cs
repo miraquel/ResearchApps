@@ -132,4 +132,34 @@ public class PrLineRepo : IPrLineRepo
         
         return string.IsNullOrEmpty(result) ? throw new RepoException($"Failed to update PrLine with ID {prLine.PrId}") : result;
     }
+
+    public async Task<IEnumerable<PrLine>> PrLineSelectForPo(
+        int poRecId, 
+        int pageNumber, 
+        int pageSize, 
+        string? prId, 
+        string? itemName, 
+        DateTime? dateFrom, 
+        CancellationToken cancellationToken)
+    {
+        const string query = "PrLine_SelectForPo";
+        var parameters = new DynamicParameters();
+        parameters.Add("@PoRecId", poRecId);
+        parameters.Add("@PageNumber", pageNumber);
+        parameters.Add("@PageSize", pageSize);
+        parameters.Add("@PrId", prId);
+        parameters.Add("@ItemName", itemName);
+        parameters.Add("@DateFrom", dateFrom, DbType.Date);
+
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        
+        var prLines = await _dbConnection.QueryAsync<PrLine>(command);
+        
+        return prLines;
+    }
 }

@@ -1,0 +1,257 @@
+@model ResearchApps.Service.Vm.SalesInvoiceVm
+
+@{
+    ViewBag.Title = "Create Sales Invoice";
+    ViewBag.pTitle = "Create Sales Invoice";
+    Layout = "_Layout";
+    var customerId = ViewBag.CustomerId as int?;
+}
+
+<!-- Hidden fields for pre-selected values -->
+<input type="hidden" id="preSelectedCustomerId" value="@(customerId.HasValue ? customerId.Value.ToString() : "")" />
+
+<div x-data="siCreateForm()" x-init="init()">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Create New Sales Invoice</h5>
+                </div>
+                <div class="card-body">
+                    <form id="si-form" 
+                          method="post"
+                          action="/SalesInvoices/Create">
+                        @Html.AntiForgeryToken()
+                        
+                        <!-- Validation Summary -->
+                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_SiDate" class="form-label">Invoice Date <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="text" 
+                                               id="Header_SiDate" 
+                                               name="Header.SiDate"
+                                               class="form-control"
+                                               x-ref="siDatePicker"
+                                               data-flatpickr
+                                               :class="{ 'is-invalid': errors.SiDate }"
+                                               required />
+                                        <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                    </div>
+                                    <div class="invalid-feedback" x-show="errors.SiDate" x-text="errors.SiDate"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_CustomerId" class="form-label">Customer <span class="text-danger">*</span></label>
+                                    <select class="form-control form-select"
+                                            id="Header_CustomerId" 
+                                            name="Header.CustomerId"
+                                            x-ref="customerSelect"
+                                            :class="{ 'is-invalid': errors.CustomerId }"
+                                            required>
+                                        <option value="">Select Customer</option>
+                                    </select>
+                                    <div class="invalid-feedback" x-show="errors.CustomerId" x-text="errors.CustomerId"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_PoNo" class="form-label">PO Number</label>
+                                    <input type="text" 
+                                           id="Header_PoNo" 
+                                           name="Header.PoNo"
+                                           class="form-control"
+                                           placeholder="Enter PO Number" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Header_TaxNo" class="form-label">Tax Number</label>
+                                    <input type="text" 
+                                           id="Header_TaxNo" 
+                                           name="Header.TaxNo"
+                                           class="form-control"
+                                           placeholder="Enter Tax Number" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="Header_Notes" class="form-label">Notes (Optional)</label>
+                                    <textarea id="Header_Notes" 
+                                              name="Header.Notes"
+                                              class="form-control"
+                                              rows="2"
+                                              placeholder="Enter notes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- DO Selection Section with Grouped Lines -->
+                        <div class="card border mt-4" x-show="selectedCustomerId > 0" x-cloak>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0">Select Delivery Orders</h6>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-primary" @@click="selectAllLines()">
+                                            <i class="ri-checkbox-multiple-line me-1"></i> Select All
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" @@click="deselectAllLines()">
+                                            <i class="ri-checkbox-blank-line me-1"></i> Deselect All
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div x-show="isLoadingDos" class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2 text-muted">Loading Delivery Orders...</span>
+                                </div>
+                                
+                                <div x-show="!isLoadingDos && deliveryOrders.length === 0" class="text-center py-3 text-muted">
+                                    <i class="ri-inbox-line fs-2"></i>
+                                    <p class="mb-0 mt-2">No outstanding Delivery Orders for this customer</p>
+                                </div>
+                                
+                                <div x-show="!isLoadingDos && deliveryOrders.length > 0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr>
+                                                <th class="text-center" style="width: 50px;">
+                                                    <i class="ri-checkbox-line"></i>
+                                                </th>
+                                                <th>DO No</th>
+                                                <th>DO Date</th>
+                                                <th>Item</th>
+                                                <th class="text-end">Qty</th>
+                                                <th>Unit</th>
+                                                <th class="text-end">Price</th>
+                                                <th class="text-end">Amount</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <template x-for="line in deliveryOrders" :key="line.doLineId">
+                                                <tr :class="{ 'table-primary': selectedDoLines.includes(line.doLineId) }">
+                                                    <td class="text-center">
+                                                        <input type="checkbox" 
+                                                               class="form-check-input" 
+                                                               :value="line.doLineId"
+                                                               x-model="selectedDoLines">
+                                                    </td>
+                                                    <td x-text="line.doId"></td>
+                                                    <td x-text="line.doDateStr || '-'"></td>
+                                                    <td x-text="line.itemName"></td>
+                                                    <td class="text-end" x-text="formatDecimal(line.qty)"></td>
+                                                    <td x-text="line.unitName"></td>
+                                                    <td class="text-end" x-text="formatNumber(line.price)"></td>
+                                                    <td class="text-end" x-text="formatNumber(line.qty * line.price)"></td>
+                                                </tr>
+                                            </template>
+                                            </tbody>
+                                            <tfoot class="table-light" x-show="lines.length > 0">
+                                            <tr>
+                                                <td colspan="7" class="text-end fw-bold">Total Amount:</td>
+                                                <td class="text-end fw-bold text-primary" x-text="formatNumber(totalAmount)"></td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="mt-3" x-show="lines.length > 0">
+                                    <span class="badge bg-info" x-text="lines.length + ' line(s) selected'"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden inputs container for selected lines -->
+                        <div id="lines-container"></div>
+                        
+                        <div class="mt-4 d-flex gap-2">
+                            <button type="submit" 
+                                    class="btn btn-primary" 
+                                    :disabled="lines.length === 0 || isSubmitting"
+                                    @@click.prevent="confirmCreate()">
+                                <span x-show="!isSubmitting">
+                                    <i class="ri-save-line me-1"></i> Save
+                                </span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    Creating...
+                                </span>
+                            </button>
+                            <a href="/SalesInvoices" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showConfirmModal }"
+         x-show="showConfirmModal"
+         x-cloak
+         tabindex="-1"
+         @@click.self="showConfirmModal = false"
+         @@keydown.escape.window="showConfirmModal = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Create</h5>
+                    <button type="button" class="btn-close" @@click="showConfirmModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to create this sales invoice?</p>
+                    <div x-show="lines.length > 0">
+                        <strong>Selected Items:</strong>
+                        <ul class="mb-0 mt-2">
+                            <template x-for="line in lines" :key="line.doLineId">
+                                <li>
+                                    <span x-text="line.itemName"></span>: 
+                                    <span x-text="formatDecimal(line.qty)"></span> <span x-text="line.unitName"></span>
+                                </li>
+                            </template>
+                        </ul>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total Amount:</strong>
+                            <strong class="text-primary" x-text="formatNumber(totalAmount)"></strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showConfirmModal = false">Cancel</button>
+                    <button type="button" class="btn btn-primary" @@click="proceedSubmit()">
+                        <i class="ri-check-line me-1"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showConfirmModal" x-cloak></div>
+</div>
+
+@section scripts {
+    <script src="~/js/sales-invoices/si-create.js"></script>
+}

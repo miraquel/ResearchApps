@@ -13,6 +13,15 @@ public class PagedListVm<T>
         TotalFilteredCount = totalFilteredCount == 0 ? totalCount : totalFilteredCount;
     }
 
+    public PagedListVm()
+    {
+        Items = new List<T>();
+        PageNumber = 1;
+        PageSize = 10;
+        TotalCount = 0;
+        TotalFilteredCount = 0;
+    }
+
     public IEnumerable<T> Items { get; init; }
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
     public int PageNumber { get; init; }

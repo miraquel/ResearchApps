@@ -1,8 +1,9 @@
-﻿using ResearchApps.Service.Vm.Common;
+﻿using ResearchApps.Service.Vm;
+using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Service.Interface;
 
 public interface IPrStatusService
 {
-    Task<ServiceResponse> PrStatusCboAsync(CboRequestVm request, CancellationToken cancellationToken);
+    Task<ServiceResponse<IEnumerable<PrStatusVm>>> PrStatusCboAsync(CboRequestVm request, CancellationToken cancellationToken);
 }

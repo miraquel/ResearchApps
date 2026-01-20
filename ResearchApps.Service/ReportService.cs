@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using ResearchApps.Domain;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
@@ -9,27 +10,30 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Service;
 
-public class ReportService : IReportService
+public partial class ReportService : IReportService
 {
     private readonly IReportRepo _reportRepo;
     private readonly IReportParameterRepo _reportParameterRepo;
     private readonly IDbTransaction _dbTransaction;
     private readonly UserClaimDto _userClaimDto;
+    private readonly ILogger<ReportService> _logger;
     private readonly MapperlyMapper _mapper = new();
 
     public ReportService(
         IReportRepo reportRepo, 
         IReportParameterRepo reportParameterRepo,
         IDbTransaction dbTransaction, 
-        UserClaimDto userClaimDto)
+        UserClaimDto userClaimDto,
+        ILogger<ReportService> logger)
     {
         _reportRepo = reportRepo;
         _reportParameterRepo = reportParameterRepo;
         _dbTransaction = dbTransaction;
         _userClaimDto = userClaimDto;
+        _logger = logger;
     }
 
-    public async Task<ServiceResponse> CboAsync()
+    public async Task<ServiceResponse<IEnumerable<ReportVm>>> CboAsync()
     {
         var reports = await _reportRepo.CboAsync();
         return ServiceResponse<IEnumerable<ReportVm>>.Success(
@@ -39,16 +43,18 @@ public class ReportService : IReportService
 
     public async Task<ServiceResponse> DeleteAsync(int reportId, string modifiedBy, CancellationToken cancellationToken)
     {
+        LogDeletingReport(reportId, modifiedBy);
         // First delete all parameters associated with this report
         await _reportParameterRepo.DeleteByReportIdAsync(reportId, cancellationToken);
         
         // Then delete the report
         await _reportRepo.DeleteAsync(reportId, modifiedBy, cancellationToken);
         _dbTransaction.Commit();
+        LogReportDeleted(reportId);
         return ServiceResponse.Success("Report deleted successfully.");
     }
 
-    public async Task<ServiceResponse> GetParametersAsync(int reportId, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<IEnumerable<ReportParameterVm>>> GetParametersAsync(int reportId, CancellationToken cancellationToken)
     {
         var parameters = await _reportParameterRepo.SelectByReportIdAsync(reportId, cancellationToken);
         return ServiceResponse<IEnumerable<ReportParameterVm>>.Success(
@@ -56,8 +62,9 @@ public class ReportService : IReportService
             "Report parameters retrieved successfully.");
     }
 
-    public async Task<ServiceResponse> InsertAsync(ReportVm reportVm, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ReportVm>> InsertAsync(ReportVm reportVm, CancellationToken cancellationToken)
     {
+        LogCreatingReport(reportVm.ReportName, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(reportVm);
         entity.CreatedBy = _userClaimDto.Username;
         var insertedReport = await _reportRepo.InsertAsync(entity, cancellationToken);
@@ -74,24 +81,25 @@ public class ReportService : IReportService
         }
         
         _dbTransaction.Commit();
+        LogReportCreated(insertedReport.ReportId);
         return ServiceResponse<ReportVm>.Success(
             _mapper.MapToVm(insertedReport), 
             "Report inserted successfully.", 
             StatusCodes.Status201Created);
     }
 
-    public async Task<ServiceResponse> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<PagedListVm<ReportVm>>> SelectAsync(PagedListRequestVm listRequest, CancellationToken cancellationToken)
     {
         var reports = await _reportRepo.SelectAsync(_mapper.MapToEntity(listRequest), cancellationToken);
         return ServiceResponse<PagedListVm<ReportVm>>.Success( _mapper.MapToVm(reports), "Reports retrieved successfully.");
     }
 
-    public async Task<ServiceResponse> SelectByIdAsync(int reportId, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ReportVm>> SelectByIdAsync(int reportId, CancellationToken cancellationToken)
     {
         var report = await _reportRepo.SelectByIdAsync(reportId, cancellationToken);
         if (report == null)
         {
-            return ServiceResponse.Failure("Report not found.", StatusCodes.Status404NotFound);
+            return ServiceResponse<ReportVm>.Failure("Report not found.", StatusCodes.Status404NotFound);
         }
         
         var reportVm = _mapper.MapToVm(report);
@@ -103,8 +111,9 @@ public class ReportService : IReportService
         return ServiceResponse<ReportVm>.Success(reportVm, "Report retrieved successfully.");
     }
 
-    public async Task<ServiceResponse> UpdateAsync(ReportVm reportVm, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ReportVm>> UpdateAsync(ReportVm reportVm, CancellationToken cancellationToken)
     {
+        LogUpdatingReport(reportVm.ReportId, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(reportVm);
         entity.ModifiedBy = _userClaimDto.Username;
         var updatedReport = await _reportRepo.UpdateAsync(entity, cancellationToken);
@@ -122,17 +131,19 @@ public class ReportService : IReportService
         }
         
         _dbTransaction.Commit();
+        LogReportUpdated(reportVm.ReportId);
         return ServiceResponse<ReportVm>.Success(
             _mapper.MapToVm(updatedReport), 
             "Report updated successfully.");
     }
 
-    public async Task<ServiceResponse> GenerateReportAsync(ReportGenerateVm generateVm, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<ReportGenerateVm>> GenerateReportAsync(ReportGenerateVm generateVm, CancellationToken cancellationToken)
     {
+        LogGeneratingReport(generateVm.ReportId, _userClaimDto.Username);
         var report = await _reportRepo.SelectByIdAsync(generateVm.ReportId, cancellationToken);
         if (report == null)
         {
-            return ServiceResponse.Failure("Report not found.", StatusCodes.Status404NotFound);
+            return ServiceResponse<ReportGenerateVm>.Failure("Report not found.", StatusCodes.Status404NotFound);
         }
 
         // Get parameters for validation
@@ -144,7 +155,7 @@ public class ReportService : IReportService
         {
             if (!generateVm.ParameterValues.TryGetValue(param.ParameterName, out var value) || string.IsNullOrWhiteSpace(value))
             {
-                return ServiceResponse.Failure($"Parameter '{param.DisplayLabel}' is required.");
+                return ServiceResponse<ReportGenerateVm>.Failure($"Parameter '{param.DisplayLabel}' is required.");
             }
         }
 
@@ -160,7 +171,31 @@ public class ReportService : IReportService
             OutputFormat = generateVm.OutputFormat
         };
 
+        LogReportGenerated(generateVm.ReportId);
         return ServiceResponse<ReportGenerateVm>.Success(result, "Report generation prepared successfully.");
     }
-}
 
+    [LoggerMessage(LogLevel.Information, "Creating new Report: {reportName} by user: {username}")]
+    partial void LogCreatingReport(string reportName, string username);
+
+    [LoggerMessage(LogLevel.Information, "Report created successfully with Id: {reportId}")]
+    partial void LogReportCreated(int reportId);
+
+    [LoggerMessage(LogLevel.Information, "Updating Report {reportId} by user: {username}")]
+    partial void LogUpdatingReport(int reportId, string username);
+
+    [LoggerMessage(LogLevel.Information, "Report {reportId} updated successfully")]
+    partial void LogReportUpdated(int reportId);
+
+    [LoggerMessage(LogLevel.Information, "Deleting Report {reportId} by user: {username}")]
+    partial void LogDeletingReport(int reportId, string username);
+
+    [LoggerMessage(LogLevel.Information, "Report {reportId} deleted successfully")]
+    partial void LogReportDeleted(int reportId);
+
+    [LoggerMessage(LogLevel.Information, "Generating Report {reportId} by user: {username}")]
+    partial void LogGeneratingReport(int reportId, string username);
+
+    [LoggerMessage(LogLevel.Information, "Report {reportId} generation prepared successfully")]
+    partial void LogReportGenerated(int reportId);
+}
