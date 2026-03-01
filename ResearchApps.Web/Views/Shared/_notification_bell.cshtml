@@ -9,7 +9,8 @@
         </span>
     </button>
     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-         aria-labelledby="page-header-notifications-dropdown">
+         aria-labelledby="page-header-notifications-dropdown"
+         style="width: 360px; max-width: 90vw;">
 
         <div class="dropdown-head bg-primary bg-pattern rounded-top">
             <div class="p-3">
@@ -27,8 +28,14 @@
                 <ul class="nav nav-tabs dropdown-tabs nav-tabs-custom" data-dropdown-tabs="true"
                     id="notificationItemsTab" role="tablist">
                     <li class="nav-item waves-effect waves-light">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#all-noti-tab" role="tab"
+                        <a class="nav-link active" data-bs-toggle="tab" href="#unread-noti-tab" role="tab"
                            aria-selected="true">
+                            Unread (<span id="unread-notification-count">0</span>)
+                        </a>
+                    </li>
+                    <li class="nav-item waves-effect waves-light">
+                        <a class="nav-link" data-bs-toggle="tab" href="#all-noti-tab" role="tab"
+                           aria-selected="false">
                             All (<span id="all-notification-count">0</span>)
                         </a>
                     </li>
@@ -43,8 +50,23 @@
         </div>
 
         <div class="tab-content position-relative" id="notificationItemsTabContent">
-            <div class="tab-pane fade show active py-2 ps-2" id="all-noti-tab" role="tabpanel">
-                <div id="notification-list" data-simplebar style="max-height: 300px;" class="pe-2">
+            <div class="tab-pane fade show active py-2 ps-2" id="unread-noti-tab" role="tabpanel">
+                <div id="unread-notification-list" data-simplebar class="pe-2" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Unread notifications will be loaded here dynamically -->
+                    <div id="no-unread-notifications" class="text-center py-4">
+                        <lord-icon
+                            src="https://cdn.lordicon.com/gsqxdxog.json"
+                            trigger="loop"
+                            colors="primary:#405189,secondary:#0ab39c"
+                            style="width:80px;height:80px">
+                        </lord-icon>
+                        <h5 class="mt-2 mb-0">No Unread Notifications</h5>
+                        <p class="text-muted mb-0 fs-12">You're all caught up!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade py-2 ps-2" id="all-noti-tab" role="tabpanel">
+                <div id="notification-list" data-simplebar class="pe-2" style="max-height: 300px; overflow-y: auto;">
                     <!-- Notifications will be loaded here dynamically -->
                     <div id="no-notifications" class="text-center py-4">
                         <lord-icon
@@ -59,7 +81,7 @@
                 </div>
             </div>
             <div class="tab-pane fade py-2 ps-2" id="approval-tab" role="tabpanel">
-                <div id="approval-notification-list" data-simplebar style="max-height: 300px;" class="pe-2">
+                <div id="approval-notification-list" data-simplebar class="pe-2" style="max-height: 300px; overflow-y: auto;">
                     <!-- Approval notifications will be loaded here dynamically -->
                     <div id="no-approval-notifications" class="text-center py-4">
                         <lord-icon
@@ -75,13 +97,83 @@
             </div>
         </div>
 
-        <div class="my-3 text-center view-all">
-            <button type="button" class="btn btn-soft-success waves-effect waves-light" onclick="NotificationManager.markAllAsRead()">
-                Mark All as Read <i class="ri-check-double-line align-middle"></i>
+        <div class="p-2 border-top text-center">
+            <button type="button" class="btn btn-sm btn-soft-success w-100 waves-effect waves-light" onclick="NotificationManager.markAllAsRead()">
+                <i class="ri-check-double-line align-middle me-1"></i> Mark All as Read
             </button>
         </div>
     </div>
 </div>
+
+<style>
+    #notificationDropdown .dropdown-menu {
+        position: absolute !important;
+        right: 0;
+        left: auto;
+        transform: none !important;
+        margin-top: 0.5rem;
+    }
+    
+    #notification-list,
+    #approval-notification-list {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+    
+    #notification-list::-webkit-scrollbar,
+    #approval-notification-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    #notification-list::-webkit-scrollbar-track,
+    #approval-notification-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    #notification-list::-webkit-scrollbar-thumb,
+    #approval-notification-list::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+    
+    #notification-list::-webkit-scrollbar-thumb:hover,
+    #approval-notification-list::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+    
+    .unread-notification {
+        background-color: rgba(75, 192, 192, 0.05);
+        border-left: 3px solid #0ab39c;
+    }
+    
+    .notification-item {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .notification-item:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .notification-item .stretched-link::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        content: "";
+    }
+    
+    .notification-item h6,
+    .notification-item p {
+        word-break: break-word;
+        overflow: hidden;
+    }
+</style>
 
 <script>
     // Notification Manager - handles UI updates for notifications
@@ -91,6 +183,7 @@
         
         // Initialize - load notifications when page loads
         async function init() {
+            await loadUnreadNotifications();
             await loadNotifications();
             await loadNotificationCount();
             
@@ -98,6 +191,7 @@
             document.addEventListener('prPendingApproval', function(e) {
                 playNotificationSound();
                 showToast(e.detail.Message, 'Pending Approval', 'warning');
+                loadUnreadNotifications();
                 loadNotifications();
                 loadNotificationCount();
             });
@@ -105,14 +199,31 @@
             document.addEventListener('prRejected', function(e) {
                 playNotificationSound();
                 showToast(e.detail.Message, 'PR Rejected', 'danger');
+                loadUnreadNotifications();
                 loadNotifications();
                 loadNotificationCount();
             });
             
             document.addEventListener('prNotification', function(e) {
+                loadUnreadNotifications();
                 loadNotifications();
                 loadNotificationCount();
             });
+        }
+        
+        // Load unread notifications from API
+        async function loadUnreadNotifications() {
+            try {
+                const response = await fetch('/api/Notifications/unread?take=20', {
+                    headers: { 'RequestVerificationToken': getAntiForgeryToken() }
+                });
+                if (response.ok) {
+                    const unreadNotifications = await response.json();
+                    renderUnreadNotifications(unreadNotifications);
+                }
+            } catch (error) {
+                console.error('Failed to load unread notifications:', error);
+            }
         }
         
         // Load notifications from API
@@ -146,6 +257,31 @@
             }
         }
         
+        // Render unread notifications in the dropdown
+        function renderUnreadNotifications(unreadNotifications) {
+            const container = document.getElementById('unread-notification-list');
+            const noUnreadNotifications = document.getElementById('no-unread-notifications');
+            
+            // Clear existing notifications except the "no notifications" message
+            container.querySelectorAll('.notification-item').forEach(el => el.remove());
+            
+            if (unreadNotifications.length === 0) {
+                noUnreadNotifications.style.display = 'block';
+                document.getElementById('unread-notification-count').textContent = '0';
+                return;
+            }
+            
+            noUnreadNotifications.style.display = 'none';
+            
+            unreadNotifications.forEach(notification => {
+                const html = createNotificationHtml(notification);
+                container.insertAdjacentHTML('beforeend', html);
+            });
+            
+            // Update tab count
+            document.getElementById('unread-notification-count').textContent = unreadNotifications.length;
+        }
+        
         // Render notifications in the dropdown
         function renderNotifications() {
             const container = document.getElementById('notification-list');
@@ -168,10 +304,10 @@
             
             notifications.forEach(notification => {
                 const html = createNotificationHtml(notification);
-                container.insertAdjacentHTML('afterbegin', html);
+                container.insertAdjacentHTML('beforeend', html);
                 
                 if (notification.notificationType === 'PendingApproval') {
-                    approvalContainer.insertAdjacentHTML('afterbegin', html);
+                    approvalContainer.insertAdjacentHTML('beforeend', html);
                     hasApprovalNotifications = true;
                 }
             });
@@ -193,32 +329,26 @@
             const isUnread = !notification.isRead;
             
             return `
-                <div class="text-reset notification-item d-block dropdown-item position-relative ${isUnread ? 'active' : ''}" 
-                     data-notification-id="${notification.notificationId}">
-                    <div class="d-flex">
-                        <div class="avatar-xs me-3 flex-shrink-0">
+                <div class="text-reset notification-item d-block dropdown-item position-relative ${isUnread ? 'unread-notification' : ''}" 
+                     data-notification-id="${notification.notificationId}"
+                     onclick="NotificationManager.markAsRead(${notification.notificationId})">
+                    <div class="d-flex align-items-start">
+                        ${isUnread ? '<div class="flex-shrink-0"><span class="badge badge-soft-danger rounded-pill">New</span></div>' : ''}
+                        <div class="avatar-xs ${isUnread ? 'ms-2' : ''} me-3 flex-shrink-0">
                             <span class="avatar-title ${bgClass} rounded-circle fs-16">
                                 <i class="${iconClass}"></i>
                             </span>
                         </div>
                         <div class="flex-grow-1">
-                            <a href="${notification.url || '#'}" class="stretched-link" 
-                               onclick="NotificationManager.markAsRead(${notification.notificationId})">
-                                <h6 class="mt-0 mb-1 fs-13 fw-semibold">${notification.title}</h6>
+                            <a href="${notification.url || '#'}" class="stretched-link">
+                                <h6 class="mt-0 mb-1 fs-13 fw-semibold ${isUnread ? 'text-dark' : 'text-muted'}">${notification.title}</h6>
                             </a>
-                            <div class="fs-13 text-muted">
+                            <div class="fs-12 text-muted">
                                 <p class="mb-1">${notification.message}</p>
                             </div>
-                            <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
-                                <span><i class="mdi mdi-clock-outline"></i> ${notification.timeAgo}</span>
+                            <p class="mb-0 fs-11 fw-medium text-muted">
+                                <i class="mdi mdi-clock-outline"></i> ${notification.timeAgo}
                             </p>
-                        </div>
-                        <div class="px-2 fs-15">
-                            <div class="form-check notification-check">
-                                <input class="form-check-input" type="checkbox" 
-                                       ${isUnread ? '' : 'checked'} 
-                                       onchange="NotificationManager.markAsRead(${notification.notificationId})">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -273,6 +403,7 @@
                     method: 'POST',
                     headers: { 'RequestVerificationToken': getAntiForgeryToken() }
                 });
+                await loadUnreadNotifications();
                 await loadNotifications();
                 await loadNotificationCount();
             } catch (error) {
@@ -287,6 +418,7 @@
                     method: 'POST',
                     headers: { 'RequestVerificationToken': getAntiForgeryToken() }
                 });
+                await loadUnreadNotifications();
                 await loadNotifications();
                 await loadNotificationCount();
             } catch (error) {
@@ -354,6 +486,7 @@
         // Public API
         return {
             init: init,
+            loadUnreadNotifications: loadUnreadNotifications,
             loadNotifications: loadNotifications,
             loadNotificationCount: loadNotificationCount,
             markAsRead: markAsRead,

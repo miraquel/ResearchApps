@@ -19,6 +19,7 @@ import LayoutManager from './layout/layout-manager.js';
 // Component modules
 import SearchComponent from './components/search.js';
 import ComponentsManager from './components/ui-components.js';
+import { ConfirmModalComponent } from './components/confirm-modal.js';
 
 // Plugin manager
 import PluginManager from './plugins/plugin-manager.js';
@@ -101,6 +102,9 @@ class App {
         this.modules.layout.init();
         this.modules.search.init();
         this.modules.components.init();
+        
+        // Initialize confirm modal buttons
+        ConfirmModalComponent.autoInit();
         
         // Scroll to active menu item
         this.modules.menu.scrollToActiveItem(APP_CONFIG.scrollOffset);

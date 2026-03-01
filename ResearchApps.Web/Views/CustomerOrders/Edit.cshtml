@@ -1,4 +1,4 @@
-@model ResearchApps.Service.Vm.CustomerOrderVm
+﻿@model ResearchApps.Service.Vm.CustomerOrderVm
 
 @{
     ViewBag.Title = "Edit Customer Order";
@@ -336,12 +336,31 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <label class="form-label">Item <span class="text-danger">*</span></label>
-                            <select id="lineItemId" 
-                                    x-ref="lineItemSelect"
-                                    required>
-                                <option value="">Select Item</option>
-                            </select>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control bg-light" 
+                                       x-model="lineModal.data.itemName" 
+                                       readonly 
+                                       placeholder="Click Browse to select an item" />
+                                <button type="button" 
+                                        class="btn btn-outline-primary" 
+                                        @@click="openItemSelector()">
+                                    <i class="ri-search-line me-1"></i> Browse
+                                </button>
+                            </div>
+                            <input type="hidden" x-model="lineModal.data.itemId" />
                             <div class="invalid-feedback" x-show="lineModal.errors.itemId" x-text="lineModal.errors.itemId"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Unit</label>
+                            <input type="text" 
+                                   class="form-control bg-light" 
+                                   x-model="lineModal.data.unitName" 
+                                   readonly 
+                                   placeholder="Will be auto-filled from selected item" />
+                            <input type="hidden" x-model="lineModal.data.unitId" />
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -362,23 +381,18 @@
                             <label class="form-label">Quantity <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control text-end" 
-                                   inputmode="numeric"
                                    :value="formatNumber(lineModal.data.qty)"
-                                   @@input="lineModal.data.qty = parseNumber($event.target.value); calculateLineAmount();"
-                                   @@blur="$event.target.value = formatNumber(lineModal.data.qty)"
-                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   @@input="lineModal.data.qty = parseNumber($event.target.value); calculateLineAmount()"
                                    :class="{ 'is-invalid': lineModal.errors.qty }" />
                             <div class="invalid-feedback" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Price <span class="text-danger">*</span></label>
                             <input type="text" 
-                                   class="form-control text-end" 
+                                   class="form-control" 
                                    inputmode="numeric"
                                    :value="formatNumber(lineModal.data.price)"
-                                   @@input="lineModal.data.price = parseNumber($event.target.value); calculateLineAmount();"
-                                   @@blur="$event.target.value = formatNumber(lineModal.data.price)"
-                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   @@input="lineModal.data.price = parseNumber($event.target.value); calculateLineAmount()"
                                    :class="{ 'is-invalid': lineModal.errors.price }" />
                             <div class="invalid-feedback" x-show="lineModal.errors.price" x-text="lineModal.errors.price"></div>
                         </div>
@@ -492,8 +506,12 @@
     @await Html.PartialAsync("_Partials/_CoLineDetailModal")
 
     @await Html.PartialAsync("_Partials/_WorkflowModal", Model.Header.CoId)
+    
+    <!-- Item Selector Modal -->
+    @await Html.PartialAsync("_ItemSelectorModal")
 </div>
 
 @section scripts {
+    <script src="~/js/shared/item-selector.js"></script>
     <script src="~/js/customer-orders/co-edit.js"></script>
 }

@@ -1,4 +1,4 @@
-@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.CustomerOrderHeaderVm>
+﻿@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.CustomerOrderHeaderVm>
 
 <table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
     <thead class="table-light">
@@ -90,9 +90,6 @@
         <td>
             <div id="co-date-range" class="flatpickr input-group">
                 <input type="text" class="form-control form-control-sm" placeholder="Select date range..." data-input>
-                <!-- <button class="btn btn-sm btn-outline-secondary" type="button" title="Toggle" data-toggle>
-                    <i class="ri-calendar-line"></i>
-                </button> -->
                 <button class="btn btn-sm btn-outline-secondary" type="button" title="Clear" data-clear>
                     <i class="ri-close-line"></i>
                 </button>
@@ -123,11 +120,9 @@
                     <option value="<"><</option>
                     <option value="<="><=</option>
                 </select>
-                <input type="text" class="form-control text-end" placeholder="Amount..." inputmode="numeric"
-                       :value="formatNumber(filters.Total)"
-                       @@input="filters.Total = parseNumber($event.target.value)"
-                       @@blur="$event.target.value = formatNumber(filters.Total)"
-                       @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                <input type="text" class="form-control text-end" placeholder="Amount..."
+                       x-mask:dynamic="$money($input, '.', ',')"
+                       x-model="filters.Total"
                        @@input.debounce.500ms="fetchList()">
             </div>
         </td>

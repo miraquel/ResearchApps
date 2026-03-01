@@ -40,16 +40,21 @@
                     <dd class="col-sm-9">@Html.Raw(Model.StatusName)</dd>
                 </dl>
                 
-                <form asp-action="DeleteConfirmed" method="post">
+                <form asp-action="DeleteConfirmed" method="post" id="delete-supplier-form">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="SupplierId" />
-                    <div class="form-group mt-4">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="ri-delete-bin-line"></i> Delete
-                        </button>
-                        <a href="/Suppliers/Details/@Model.SupplierId" class="btn btn-secondary">Cancel</a>
-                    </div>
                 </form>
+                <div class="form-group mt-4">
+                    <button type="button" class="btn btn-danger"
+                            data-confirm
+                            data-confirm-modal="deleteModal"
+                            data-confirm-form="#delete-supplier-form"
+                            data-confirm-title="Confirm Delete"
+                            data-confirm-message="Are you sure you want to delete this supplier? This action cannot be undone.">
+                        <i class="ri-delete-bin-line"></i> Delete
+                    </button>
+                    <a href="/Suppliers/Details/@Model.SupplierId" class="btn btn-secondary">Cancel</a>
+                </div>
             </div>
         </div>
     </div>

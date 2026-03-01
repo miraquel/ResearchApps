@@ -590,7 +590,9 @@ function createWorkflowComponent(configOrRecId, coId = null, redirectUrl = null)
             const url = actionUrls[this.modal.action];
             if (!url) {
                 console.error('Unknown workflow action:', this.modal.action);
-                alert('Unknown action');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Unknown action', 'error');
+                }
                 this.modal.isProcessing = false;
                 return;
             }

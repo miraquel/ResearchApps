@@ -38,9 +38,9 @@ public class SalesInvoiceHeaderVm
     
     [Display(Name = "Notes")]
     public string? Notes { get; set; }
-    
+
     [Display(Name = "Status")]
-    public int SiStatusId { get; set; }
+    public int SiStatusId { get; set; } = 1;
     
     [Display(Name = "Status")]
     public string? SiStatusName { get; set; }

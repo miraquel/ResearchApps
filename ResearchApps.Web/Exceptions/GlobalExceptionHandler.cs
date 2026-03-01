@@ -27,12 +27,17 @@ public class GlobalExceptionHandler : IExceptionHandler
             _ => (StatusCodes.Status500InternalServerError, LogLevel.Error)
         };
         
+        // UseExceptionHandler rewrites Request.Path to "/Home/Error" before this handler is
+        // invoked, so obtain the original path from IExceptionHandlerPathFeature.
+        var pathFeature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
+        var originalPath = pathFeature?.Path ?? httpContext.Request.Path.ToString();
+
         _logger.Log(
             logLevel, 
             exception, 
-            "{ExceptionType} occurred. Path: {Path}, User: {User}, TraceId: {TraceId}",
+            "{ExceptionType} occurred. OriginalPath: {Path}, User: {User}, TraceId: {TraceId}",
             exception.GetType().Name,
-            httpContext.Request.Path,
+            originalPath,
             httpContext.User.Identity?.Name ?? "Anonymous",
             httpContext.TraceIdentifier);
 

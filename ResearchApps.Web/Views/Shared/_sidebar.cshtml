@@ -46,7 +46,8 @@
                     var hasSalesAccess = User.HasClaim("permission", PermissionConstants.Customers.Index) ||
                                          User.HasClaim("permission", PermissionConstants.CustomerOrders.Index) ||
                                          User.HasClaim("permission", PermissionConstants.DeliveryOrders.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.SalesInvoices.Index);
+                                         User.HasClaim("permission", PermissionConstants.SalesInvoices.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.SalesPrices.Index);
                 }
                 @if (hasSalesAccess)
                 {
@@ -91,6 +92,15 @@
                                         </a>
                                     </li>
                                 }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.SalesPrices.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "SalesPrices", new { Area = "" })" class="nav-link" data-key="t-sales-prices">
+                                            Sales Prices
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                     </li>
@@ -98,8 +108,10 @@
 
                 <!-- Procurement -->
                 @{
-                    var hasProcurementAccess = User.HasClaim("permission", PermissionConstants.Prs.Index) ||
+                    var hasProcurementAccess = User.HasClaim("permission", PermissionConstants.Budgets.Index) ||
+                                               User.HasClaim("permission", PermissionConstants.Prs.Index) ||
                                                User.HasClaim("permission", PermissionConstants.Pos.Index) ||
+                                               User.HasClaim("permission", PermissionConstants.GoodsReceipts.Index) ||
                                                User.HasClaim("permission", PermissionConstants.Suppliers.Index);
                 }
                 @if (hasProcurementAccess)
@@ -110,6 +122,15 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarProcurement">
                             <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Budgets.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Budgets", new { Area = "" })" class="nav-link" data-key="t-budgets">
+                                            Budgets
+                                        </a>
+                                    </li>
+                                }
+                                
                                 @if (User.HasClaim("permission", PermissionConstants.Suppliers.Index))
                                 {
                                     <li class="nav-item">
@@ -136,6 +157,15 @@
                                         </a>
                                     </li>
                                 }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.GoodsReceipts.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "GoodsReceipts", new { Area = "" })" class="nav-link" data-key="t-goods-receipts">
+                                            Goods Receipts
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                     </li>
@@ -146,8 +176,12 @@
                     var hasInventoryAccess = User.HasClaim("permission", PermissionConstants.Items.Index) ||
                                              User.HasClaim("permission", PermissionConstants.ItemTypes.Index) ||
                                              User.HasClaim("permission", PermissionConstants.ItemDepts.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.ItemGroup01s.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index) ||
                                              User.HasClaim("permission", PermissionConstants.Warehouses.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.Units.Index);
+                                             User.HasClaim("permission", PermissionConstants.Units.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.Pss.Index) ||
+                                             User.HasClaim("permission", PermissionConstants.RepStock.Index);
                 }
                 @if (hasInventoryAccess)
                 {
@@ -184,6 +218,24 @@
                                     </li>
                                 }
                                 
+                                @if (User.HasClaim("permission", PermissionConstants.ItemGroup01s.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "ItemGroup01s", new { Area = "" })" class="nav-link" data-key="t-item-group-01">
+                                            Item Group 01
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "ItemGroup02s", new { Area = "" })" class="nav-link" data-key="t-item-group-02">
+                                            Item Group 02
+                                        </a>
+                                    </li>
+                                }
+                                
                                 @if (User.HasClaim("permission", PermissionConstants.Warehouses.Index))
                                 {
                                     <li class="nav-item">
@@ -198,6 +250,134 @@
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Units", new { Area = "" })" class="nav-link" data-key="t-units">
                                             Units
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Pss.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Pss", new { Area = "" })" class="nav-link" data-key="t-penyesuaian-stock">
+                                            Penyesuaian Stock
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.RepStock.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "RepStock", new { Area = "" })" class="nav-link" data-key="t-rep-stock">
+                                            Stock Report
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                <!-- Production -->
+                @{
+                    var hasProductionAccess = User.HasClaim("permission", PermissionConstants.Prods.Index) ||
+                                              User.HasClaim("permission", PermissionConstants.Bpbs.Index) || 
+                                              User.HasClaim("permission", PermissionConstants.MaterialCustomers.Index) ||
+                                              User.HasClaim("permission", PermissionConstants.Phps.Index) ||
+                                              User.HasClaim("permission", PermissionConstants.RepCustom.Index);
+                }
+                @if (hasProductionAccess)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarProduction" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProduction">
+                            <i class="ri-tools-line"></i> <span data-key="t-production">Production</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarProduction">
+                            <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Prods.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Prods", new { Area = "" })" class="nav-link" data-key="t-prods">
+                                            Production Orders
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.MaterialCustomers.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "MaterialCustomers", new { Area = "" })" class="nav-link" data-key="t-material-customers">
+                                            Material Customers
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Bpbs.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Bpbs", new { Area = "" })" class="nav-link" data-key="t-bpbs">
+                                            Material Withdrawals (BPB)
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Phps.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Phps", new { Area = "" })" class="nav-link" data-key="t-phps">
+                                            Penerimaan Hasil Produksi (PHP)
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.RepCustom.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "RepCustom", new { Area = "" })" class="nav-link" data-key="t-rep-custom">
+                                            Tools Report
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                <!-- Finance -->
+                @{
+                    var hasFinanceAccess = User.HasClaim("permission", PermissionConstants.InventLocks.Index) ||
+                                          User.HasClaim("permission", PermissionConstants.Tops.Index) ||
+                                          User.HasClaim("permission", PermissionConstants.RepInventTrans.Index);
+                }
+                @if (hasFinanceAccess)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarFinance" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarFinance">
+                            <i class="ri-money-dollar-circle-line"></i> <span data-key="t-finance">Finance</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarFinance">
+                            <ul class="nav nav-sm flex-column">
+                                @if (User.HasClaim("permission", PermissionConstants.Tops.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Tops", new { Area = "" })" class="nav-link" data-key="t-tops">
+                                            Terms of Payment
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.InventLocks.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "InventLocks", new { Area = "" })" class="nav-link" data-key="t-inventory-closing">
+                                            Inventory Closing
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.RepInventTrans.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "RepInventTrans", new { Area = "" })" class="nav-link" data-key="t-rep-inventtrans">
+                                            Invent Trans Report
                                         </a>
                                     </li>
                                 }
@@ -219,7 +399,8 @@
                 <!-- Administration -->
                 @{
                     var hasAdminAccess = User.HasClaim("permission", PermissionConstants.Users.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.Roles.Index);
+                                         User.HasClaim("permission", PermissionConstants.Roles.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.Workflows.Index);
                 }
                 @if (hasAdminAccess)
                 {
@@ -243,6 +424,15 @@
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Roles", new { Area = "Admin" })" class="nav-link" data-key="t-roles">
                                             Roles
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Workflows.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Workflows", new { Area = "Admin" })" class="nav-link" data-key="t-workflows">
+                                            Workflows
                                         </a>
                                     </li>
                                 }

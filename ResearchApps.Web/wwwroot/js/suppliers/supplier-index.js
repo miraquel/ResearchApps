@@ -6,9 +6,10 @@ function supplierIndex() {
     return {
         isLoading: false,
         isExporting: false,
-        sortBy: 'SupplierName',
-        sortAsc: true,
+        sortBy: 'SupplierId',
+        sortAsc: false,
         filters: {
+            SupplierId: '',
             SupplierName: '',
             Address: '',
             City: '',
@@ -99,6 +100,7 @@ function supplierIndex() {
          */
         clearFilters() {
             this.filters = {
+                SupplierId: '',
                 SupplierName: '',
                 Address: '',
                 City: '',
@@ -107,8 +109,8 @@ function supplierIndex() {
                 StatusId: '',
                 IsPpn: ''
             };
-            this.sortBy = 'SupplierName';
-            this.sortAsc = true;
+            this.sortBy = 'SupplierId';
+            this.sortAsc = false;
             this.fetchList();
         },
         
@@ -205,10 +207,8 @@ function supplierIndex() {
                 // Show success message
                 if (window.showSuccess) {
                     window.showSuccess('Excel file exported successfully');
-                } else if (window.showAlertModal) {
-                    window.showAlertModal('Success', 'Excel file exported successfully', 'success');
                 } else {
-                    alert('Excel file exported successfully');
+                    showNotificationModal('Excel file exported successfully');
                 }
                 
             } catch (error) {
@@ -217,10 +217,8 @@ function supplierIndex() {
                 // Show error message
                 if (window.showError) {
                     window.showError(error.message || 'Failed to export to Excel');
-                } else if (window.showAlertModal) {
-                    window.showAlertModal('Error', error.message || 'Failed to export to Excel', 'error');
                 } else {
-                    alert(error.message || 'Failed to export to Excel');
+                    showNotificationModal(error.message || 'Failed to export to Excel', true);
                 }
             } finally {
                 this.isExporting = false;

@@ -18,7 +18,7 @@
             <div class="page-content">
                 <div class="container-fluid">
                     @await Html.PartialAsync("~/Views/Shared/_page_title.cshtml")
-
+                    @await Html.PartialAsync("~/Views/Shared/_AlertMessages.cshtml")
                     @RenderBody()
                 </div>
             </div>
@@ -28,8 +28,13 @@
     </div>
     <!-- END layout-wrapper -->
     @await Html.PartialAsync("~/Views/Shared/_customizer.cshtml")
+    
+    <!-- Notification Modal -->
+    @await Html.PartialAsync("~/Views/Shared/_NotificationModal.cshtml")
 
     @await Html.PartialAsync("~/Views/Shared/_vendor_scripts.cshtml")
+    
+    <script src="~/js/shared/notification-modal.js"></script>
 
     @await RenderSectionAsync("scripts", required: false)
     </body>

@@ -53,10 +53,9 @@ public class SupplierVm
     [StringLength(100)]
     [Display(Name = "Notes")]
     public string? Notes { get; set; }
-    
-    [Required]
-    [Display(Name = "Status")]
-    public int StatusId { get; set; }
+
+    [Required] [Display(Name = "Status")]
+    public int StatusId { get; set; } = 1;
     
     [Display(Name = "Status")]
     public string? StatusName { get; set; }

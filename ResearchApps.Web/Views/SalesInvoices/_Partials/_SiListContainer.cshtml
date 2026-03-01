@@ -1,4 +1,4 @@
-@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.SalesInvoiceHeaderVm>
+﻿@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.SalesInvoiceHeaderVm>
 
 <table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
     <thead class="table-light">
@@ -108,10 +108,8 @@
                     <option value="<="><=</option>
                 </select>
                 <input type="text" class="form-control text-end" placeholder="Amount..." inputmode="numeric"
-                       :value="formatNumber(filters.Amount)"
-                       @@input="filters.Amount = parseNumber($event.target.value)"
-                       @@blur="$event.target.value = formatNumber(filters.Amount)"
-                       @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                       x-mask:dynamic="$money($input, '.', ',')"
+                       x-model="filters.Amount"
                        @@input.debounce.500ms="fetchList()">
             </div>
         </td>

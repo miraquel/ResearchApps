@@ -49,7 +49,7 @@ public class ServiceResponse
 
 public class ServiceResponse<T> : ServiceResponse
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public T? Data { get; init; }
 
     // 2xx Success - Only successful responses return data

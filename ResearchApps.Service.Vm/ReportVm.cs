@@ -42,10 +42,10 @@ public class ReportVm
     
     [Display(Name = "Has Template")]
     public bool HasTemplateFile => !string.IsNullOrEmpty(TemplateFileName);
-    
+
     [Display(Name = "Status ID")]
     [Required(ErrorMessage = "Status is required.")]
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     
     [Display(Name = "Status")]
     public string? StatusName { get; set; }

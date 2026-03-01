@@ -5,6 +5,7 @@
     foreach (var item in Model.Items)
     {
         <tr>
+            <td class="text-center">@item.SupplierId</td>
             <td><strong>@item.SupplierName</strong></td>
             <td>@(item.Address ?? "-")</td>
             <td class="text-center">@(item.City ?? "-")</td>
@@ -44,7 +45,7 @@
 else
 {
     <tr>
-        <td colspan="8" class="text-center text-muted py-4">
+        <td colspan="9" class="text-center text-muted py-4">
             <i class="ri-inbox-line fs-2"></i>
             <p class="mb-0 mt-2">No suppliers found</p>
         </td>
