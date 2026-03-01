@@ -3,14 +3,18 @@ namespace ResearchApps.Service.Tests;
 public class BudgetServiceTests
 {
     private readonly Mock<IBudgetRepo> _budgetRepoMock;
+    private readonly Mock<IDbTransaction> _dbTransactionMock;
+    private readonly UserClaimDto _userClaimDto;
     private readonly Mock<ILogger<BudgetService>> _loggerMock;
     private readonly BudgetService _sut;
 
     public BudgetServiceTests()
     {
         _budgetRepoMock = new Mock<IBudgetRepo>();
+        _dbTransactionMock = new Mock<IDbTransaction>();
+        _userClaimDto = new UserClaimDto { Username = "testuser", UserId = Guid.NewGuid() };
         _loggerMock = new Mock<ILogger<BudgetService>>();
-        _sut = new BudgetService(_budgetRepoMock.Object, _loggerMock.Object);
+        _sut = new BudgetService(_budgetRepoMock.Object, _dbTransactionMock.Object, _userClaimDto, _loggerMock.Object);
     }
 
     [Fact]

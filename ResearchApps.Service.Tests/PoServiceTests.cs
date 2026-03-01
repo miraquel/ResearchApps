@@ -314,10 +314,10 @@ public class PoServiceTests
     }
 
     [Fact]
-    public async Task PoOsSelectById_WithValidRecId_ReturnsOutstandingLines()
+    public async Task PoOsSelectById_WithValidPoLineId_ReturnsOutstandingLines()
     {
         // Arrange
-        var recId = 1;
+        var poLineId = 1;
         var osLines = new List<PoLineOutstanding>
         {
             new() { PoLineId = 1, PoId = "PO001", ItemId = 1, OutstandingQty = 10 },
@@ -325,11 +325,11 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoOsSelectById(recId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoOsSelectById(poLineId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(osLines);
 
         // Act
-        var result = await _sut.PoOsSelectById(recId, CancellationToken.None);
+        var result = await _sut.PoOsSelectById(poLineId, CancellationToken.None);
 
         // Assert
         Assert.True(result.IsSuccess);
