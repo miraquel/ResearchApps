@@ -26,6 +26,10 @@ BEGIN
       ,pr.Qty as RequestedQty
       ,ISNULL((SELECT SUM(Qty) FROM PoLine WHERE PrLineId = a.PrLineId AND PoLineId != a.PoLineId), 0) as OrderedQty
       ,(pr.Qty - ISNULL((SELECT SUM(Qty) FROM PoLine WHERE PrLineId = a.PrLineId AND PoLineId != a.PoLineId), 0)) as OutstandingQty
+      ,a.CreatedBy
+      ,a.CreatedDate
+      ,a.ModifiedBy
+      ,a.ModifiedDate
   FROM [PoLine] a
   JOIN [Po] h on h.PoId = a.PoId
   JOIN [Unit] b ON b.UnitId = a.UnitId

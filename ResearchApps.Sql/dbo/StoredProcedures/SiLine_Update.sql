@@ -20,5 +20,6 @@ BEGIN
 		,[ModifiedBy] = @ModifiedBy
 	WHERE SiLineId = @SiLineId
 END
+
 GO
 

@@ -7,11 +7,11 @@ CREATE TABLE [identity].[AspNetRoles] (
 );
 GO
 
-CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex]
-    ON [identity].[AspNetRoles]([NormalizedName] ASC) WHERE ([NormalizedName] IS NOT NULL);
-GO
-
 ALTER TABLE [identity].[AspNetRoles]
     ADD CONSTRAINT [PK_AspNetRoles] PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex]
+    ON [identity].[AspNetRoles]([NormalizedName] ASC) WHERE ([NormalizedName] IS NOT NULL);
 GO
 

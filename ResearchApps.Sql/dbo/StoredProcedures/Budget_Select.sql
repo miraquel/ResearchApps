@@ -122,5 +122,6 @@ BEGIN
     SELECT COUNT(*) AS TotalRecords
     FROM #FilteredData;
 END
+
 GO
 

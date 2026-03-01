@@ -4,8 +4,8 @@ CREATE TABLE [identity].[AspNetUserRoles] (
 );
 GO
 
-CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId]
-    ON [identity].[AspNetUserRoles]([RoleId] ASC);
+ALTER TABLE [identity].[AspNetUserRoles]
+    ADD CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [identity].[AspNetRoles] ([Id]) ON DELETE CASCADE;
 GO
 
 ALTER TABLE [identity].[AspNetUserRoles]
@@ -13,10 +13,10 @@ ALTER TABLE [identity].[AspNetUserRoles]
 GO
 
 ALTER TABLE [identity].[AspNetUserRoles]
-    ADD CONSTRAINT [FK_AspNetUserRoles_AspNetRoles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [identity].[AspNetRoles] ([Id]) ON DELETE CASCADE;
+    ADD CONSTRAINT [PK_AspNetUserRoles] PRIMARY KEY CLUSTERED ([UserId] ASC, [RoleId] ASC);
 GO
 
-ALTER TABLE [identity].[AspNetUserRoles]
-    ADD CONSTRAINT [PK_AspNetUserRoles] PRIMARY KEY CLUSTERED ([UserId] ASC, [RoleId] ASC);
+CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId]
+    ON [identity].[AspNetUserRoles]([RoleId] ASC);
 GO
 

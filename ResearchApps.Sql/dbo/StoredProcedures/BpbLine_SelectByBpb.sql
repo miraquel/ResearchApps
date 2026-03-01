@@ -8,6 +8,7 @@ BEGIN
 
 	SELECT a.[BpbLineId]
       ,a.[BpbId]
+      ,h.[RecId] as BpbRecId
       ,a.[ItemId]
       ,i.[ItemName]
       ,a.[WhId]

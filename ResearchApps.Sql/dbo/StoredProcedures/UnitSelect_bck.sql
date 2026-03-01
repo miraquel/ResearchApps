@@ -54,5 +54,6 @@ BEGIN
       AND 1 = CASE WHEN @ModifiedDate IS NULL THEN 1 WHEN u.ModifiedDate = @ModifiedDate THEN 1 ELSE 0 END
       AND 1 = CASE WHEN @ModifiedBy IS NULL THEN 1 WHEN u.ModifiedBy = @ModifiedBy THEN 1 ELSE 0 END;
 END
+
 GO
 

@@ -19,15 +19,15 @@ CREATE TABLE [identity].[AspNetUsers] (
 );
 GO
 
-ALTER TABLE [identity].[AspNetUsers]
-    ADD CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED ([Id] ASC);
+CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex]
+    ON [identity].[AspNetUsers]([NormalizedUserName] ASC) WHERE ([NormalizedUserName] IS NOT NULL);
 GO
 
 CREATE NONCLUSTERED INDEX [EmailIndex]
     ON [identity].[AspNetUsers]([NormalizedEmail] ASC);
 GO
 
-CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex]
-    ON [identity].[AspNetUsers]([NormalizedUserName] ASC) WHERE ([NormalizedUserName] IS NOT NULL);
+ALTER TABLE [identity].[AspNetUsers]
+    ADD CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED ([Id] ASC);
 GO
 

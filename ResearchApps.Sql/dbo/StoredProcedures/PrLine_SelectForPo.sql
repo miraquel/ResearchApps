@@ -44,9 +44,10 @@ BEGIN
 		AND (@ItemName IS NULL OR pl.ItemName LIKE '%' + @ItemName + '%') -- Filter by Item Name
 		AND (@DateFrom IS NULL OR pl.RequestDate >= @DateFrom) -- Filter by Request Date
 		AND current_po.PrLineId IS NULL -- Exclude lines already in current PO
-	ORDER BY pl.PrId, pl.PrLineId
+    ORDER BY pl.PrId DESC, pl.PrLineId
 	OFFSET @Offset ROWS
 	FETCH NEXT @PageSize ROWS ONLY
 END
 
 GO
+

@@ -8,7 +8,12 @@ BEGIN
       ,a.[Amount]
       ,a.[Notes]
       ,a.[PsStatusId]
-      ,s.[PsStatusName]
+      ,[PsStatusName] = CASE   
+		  WHEN a.[PsStatusId] = 0 THEN CONCAT('<span class="badge bg-warning">',s.[PsStatusName],'</span>')  
+		  WHEN a.[PsStatusId] = 1 THEN CONCAT('<span class="badge bg-success">',s.[PsStatusName],'</span>')  
+		  WHEN a.[PsStatusId] = 2 THEN CONCAT('<span class="badge bg-primary">',s.[PsStatusName],'</span>')  
+		  WHEN a.[PsStatusId] = 3 THEN CONCAT('<span class="badge bg-danger">',s.[PsStatusName],'</span>')  
+		END
       ,a.[CreatedDate]
       ,a.[CreatedBy]
       ,a.[ModifiedDate]

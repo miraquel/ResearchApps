@@ -1,0 +1,10 @@
+CREATE PROCEDURE [dbo].[Wf_Delete]
+@WfId int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DELETE FROM [Wf]
+	WHERE WfId = @WfId
+END
+GO

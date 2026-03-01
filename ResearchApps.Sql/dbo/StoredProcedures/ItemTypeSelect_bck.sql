@@ -115,5 +115,6 @@ BEGIN
 				ELSE 0
 			END;
 END
+
 GO
 

@@ -7,5 +7,6 @@ BEGIN
 	FROM [Budget]
 	WHERE BudgetId = @BudgetId
 END
+
 GO
 

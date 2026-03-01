@@ -3,11 +3,15 @@ CREATE PROCEDURE [dbo].[ItemUpdate]
 @ItemName nvarchar(100),
 @ItemTypeId int, 
 @ItemDeptId int, 
+@ItemGroup01Id int = 0,
+@ItemGroup02Id int = 0,
 @BufferStock int, 
 @UnitId int,
 @WhId int,
-@CostPrice decimal(18,2) = 0, 
+@PurchasePrice decimal(18,2) = 0,
 @SalesPrice decimal(18,2) = 0, 
+@CostPrice decimal(18,2) = 0, 
+@Image nvarchar(200) = '',
 @Notes nvarchar(200)='',
 @StatusId int,
 @ModifiedBy  nvarchar(20)
@@ -28,11 +32,15 @@ BEGIN
 	SET ItemName = @ItemName
 		, ItemTypeId = @ItemTypeId
 		, ItemDeptId = @ItemDeptId
+		, ItemGroup01Id = @ItemGroup01Id
+		, ItemGroup02Id = @ItemGroup02Id
 		, BufferStock = @BufferStock
 		, UnitId = @UnitId
 		, WhId = @WhId
-		, CostPrice = @CostPrice	
-		, SalesPrice = @SalesPrice		
+		, PurchasePrice = @PurchasePrice
+		, SalesPrice = @SalesPrice
+		, CostPrice = @CostPrice
+		, Image = @Image
 		, Notes = @Notes
 		, StatusId = @StatusId
 		, ModifiedBy = @ModifiedBy

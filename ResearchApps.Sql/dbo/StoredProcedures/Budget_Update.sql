@@ -36,5 +36,6 @@ BEGIN
   JOIN [Status] s ON s.StatusId = a.StatusId
   WHERE a.BudgetId = @BudgetId
 END
+
 GO
 

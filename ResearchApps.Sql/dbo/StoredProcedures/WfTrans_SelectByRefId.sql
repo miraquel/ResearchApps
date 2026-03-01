@@ -24,7 +24,7 @@ BEGIN
     WHERE wt.RefId = @RefId 
         AND wt.WfFormId = @WfFormId
         --AND wt.ActionDate > '1900-01-01' -- Only show records that have been actioned
-    ORDER BY wt.[Index], wt.ActionDate DESC
+    ORDER BY wt.WfTransId DESC
 END
 
 GO

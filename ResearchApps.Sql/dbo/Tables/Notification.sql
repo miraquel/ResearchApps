@@ -16,12 +16,6 @@ CREATE TABLE [dbo].[Notification] (
 
 GO
 
-CREATE NONCLUSTERED INDEX [IX_Notification_CreatedDate]
-    ON [dbo].[Notification]([CreatedDate] DESC);
-
-
-GO
-
 CREATE NONCLUSTERED INDEX [IX_Notification_UserId_IsRead]
     ON [dbo].[Notification]([UserId] ASC, [IsRead] ASC);
 
@@ -30,6 +24,12 @@ GO
 
 CREATE NONCLUSTERED INDEX [IX_Notification_UserId]
     ON [dbo].[Notification]([UserId] ASC);
+
+
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Notification_CreatedDate]
+    ON [dbo].[Notification]([CreatedDate] DESC);
 
 
 GO

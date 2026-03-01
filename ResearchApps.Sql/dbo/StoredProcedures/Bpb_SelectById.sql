@@ -11,7 +11,12 @@ BEGIN
       ,a.[Amount]
       ,a.[Notes]
       ,a.[BpbStatusId]
-      ,s.[BpbStatusName]
+      ,[BpbStatusName] = CASE   
+		  WHEN a.[BpbStatusId] = 0 THEN CONCAT('<span class="badge bg-warning">',s.[BpbStatusName],'</span>')  
+		  WHEN a.[BpbStatusId] = 1 THEN CONCAT('<span class="badge bg-success">',s.[BpbStatusName],'</span>')  
+		  WHEN a.[BpbStatusId] = 2 THEN CONCAT('<span class="badge bg-primary">',s.[BpbStatusName],'</span>')  
+		  WHEN a.[BpbStatusId] = 3 THEN CONCAT('<span class="badge bg-danger">',s.[BpbStatusName],'</span>')  
+		END
       ,a.[CreatedDate]
       ,a.[CreatedBy]
       ,a.[ModifiedDate]

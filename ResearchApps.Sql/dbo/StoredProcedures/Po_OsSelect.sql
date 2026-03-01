@@ -16,6 +16,7 @@ IF @SupplierId = 0
 		, b.Qty as QtyPo
 		, ISNULL(c.QtyGr,0) as QtyGr
 		, b.Qty - ISNULL(c.QtyGr,0) as QtyOs
+		, b.Price
 	FROM Po a 
 	JOIN PoLine b ON b.PoId = a.PoId
 	JOIN Supplier s ON s.SupplierId = a.SupplierId
@@ -44,6 +45,7 @@ ELSE
 		, b.Qty as QtyPo
 		, ISNULL(c.QtyGr,0) as QtyGr
 		, b.Qty - ISNULL(c.QtyGr,0) as QtyOs
+		, b.Price
 	FROM Po a 
 	JOIN PoLine b ON b.PoId = a.PoId
 	JOIN Supplier s ON s.SupplierId = a.SupplierId

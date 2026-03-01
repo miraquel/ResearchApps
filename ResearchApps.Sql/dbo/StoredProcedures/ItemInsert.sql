@@ -2,6 +2,8 @@ CREATE PROCEDURE [dbo].[ItemInsert]
 @ItemName nvarchar(100),
 @ItemTypeId int, 
 @ItemDeptId int, 
+@ItemGroup01Id int = 0,
+@ItemGroup02Id int = 0,
 @BufferStock int, 
 @UnitId int,
 @WhId int,
@@ -28,10 +30,10 @@ BEGIN
 		
 	--* Proses Insert *--
 	INSERT INTO [Item]
-	([ItemName],[ItemTypeId],[ItemDeptId],[BufferStock],[UnitId],[WhId],[PurchasePrice],[SalesPrice],[CostPrice],[Image],[Notes]
+	([ItemName],[ItemTypeId],[ItemDeptId],[ItemGroup01Id],[ItemGroup02Id],[BufferStock],[UnitId],[WhId],[PurchasePrice],[SalesPrice],[CostPrice],[Image],[Notes]
 	  ,[StatusId], [CreatedDate], [CreatedBy], [ModifiedDate], [ModifiedBy])
 	VALUES
-	(@ItemName, @ItemTypeId, @ItemDeptId, @BufferStock, @UnitId, @WhId, @PurchasePrice, @SalesPrice, @CostPrice, @Image, @Notes
+	(@ItemName, @ItemTypeId, @ItemDeptId, @ItemGroup01Id, @ItemGroup02Id, @BufferStock, @UnitId, @WhId, @PurchasePrice, @SalesPrice, @CostPrice, @Image, @Notes
 	,@StatusId, GETDATE(), @CreatedBy, GETDATE(), @CreatedBy)
 
 	SET @ItemId = SCOPE_IDENTITY()

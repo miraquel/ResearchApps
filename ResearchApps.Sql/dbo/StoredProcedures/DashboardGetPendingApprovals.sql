@@ -7,6 +7,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT TOP (@Top)
+        p.[RecId],
         p.[PrId],
         p.[PrDate],
         p.[PrName],
@@ -20,8 +21,8 @@ BEGIN
     INNER JOIN [Wf] w ON w.[WfFormId] = 1 -- PR form
     INNER JOIN [WfTrans] wt ON wt.[WfId] = w.[WfId] 
     WHERE wt.[UserId] = @UserId
-    AND wt.[WfStatusActionId] = 1 -- Pending
-    AND p.[PrStatusId] = 1
+    AND wt.[WfStatusActionId] = 0 -- Pending
+    AND p.[PrStatusId] = 4
     ORDER BY p.[CreatedDate] DESC;
 END
 

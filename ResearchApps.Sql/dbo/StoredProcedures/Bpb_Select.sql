@@ -11,10 +11,10 @@ BEGIN
       ,a.[Notes]
       ,a.[BpbStatusId]
 	  ,[BpbStatusName] = CASE   
-		  WHEN a.[BpbStatusId] = 0 THEN CONCAT('<label class="label label-warning">',s.[BpbStatusName],'</label>')  
-		  WHEN a.[BpbStatusId] = 1 THEN CONCAT('<label class="label label-success">',s.[BpbStatusName],'</label>')  
-		  WHEN a.[BpbStatusId] = 2 THEN CONCAT('<label class="label label-primary">',s.[BpbStatusName],'</label>')  
-		  WHEN a.[BpbStatusId] = 3 THEN CONCAT('<label class="label label-danger">',s.[BpbStatusName],'</label>')  
+		  WHEN a.[BpbStatusId] = 0 THEN CONCAT('<span class="badge bg-warning">',s.[BpbStatusName],'</span>')  
+		  WHEN a.[BpbStatusId] = 1 THEN CONCAT('<span class="badge bg-success">',s.[BpbStatusName],'</span>')  
+		  WHEN a.[BpbStatusId] = 2 THEN CONCAT('<span class="badge bg-primary">',s.[BpbStatusName],'</span>')  
+		  WHEN a.[BpbStatusId] = 3 THEN CONCAT('<span class="badge bg-danger">',s.[BpbStatusName],'</span>')  
 		END   
       ,a.[CreatedDate]
       ,a.[CreatedBy]

@@ -7,6 +7,8 @@ CREATE PROCEDURE [dbo].[ItemSelect]
     @ItemName nvarchar(max) = NULL,
     @ItemTypeName nvarchar(max) = NULL,
     @ItemDeptName nvarchar(max) = NULL,
+    @ItemGroup01Name nvarchar(max) = NULL,
+    @ItemGroup02Name nvarchar(max) = NULL,
     @BufferStock INT = NULL,
     @UnitId INT = NULL,
     @UnitName NVARCHAR(200) = NULL,
@@ -31,6 +33,8 @@ BEGIN
         a.[ItemName],
         b.[ItemTypeName],
         c.[ItemDeptName],
+        g1.[ItemGroup01Name],
+        g2.[ItemGroup02Name],
         u.[UnitName],
 		a.[StatusId],
         s.[StatusName],
@@ -42,12 +46,16 @@ BEGIN
 	FROM [Item] a
     JOIN [ItemType] b ON b.ItemTypeId = a.ItemTypeId
     JOIN [ItemDept] c ON c.[ItemDeptId] = a.ItemDeptId
+    LEFT JOIN [ItemGroup01] g1 ON g1.[ItemGroup01Id] = a.[ItemGroup01Id]
+    LEFT JOIN [ItemGroup02] g2 ON g2.[ItemGroup02Id] = a.[ItemGroup02Id]
     JOIN [Unit] u ON u.UnitId = a.UnitId
 	JOIN [Status] s ON s.StatusId = a.StatusId
 	WHERE (@ItemId IS NULL OR a.ItemId LIKE '%' + @ItemId + '%')
       AND (@ItemName IS NULL OR a.ItemName LIKE '%' + @ItemName + '%')
       AND (@ItemTypeName IS NULL OR b.ItemTypeName LIKE '%' + @ItemTypeName + '%')
       AND (@ItemDeptName IS NULL OR c.ItemDeptName LIKE '%' + @ItemDeptName + '%')
+      AND (@ItemGroup01Name IS NULL OR g1.ItemGroup01Name LIKE '%' + @ItemGroup01Name + '%')
+      AND (@ItemGroup02Name IS NULL OR g2.ItemGroup02Name LIKE '%' + @ItemGroup02Name + '%')
       AND (@UnitName IS NULL OR u.UnitName LIKE '%' + @UnitName + '%')
       AND (@StatusId IS NULL OR a.StatusId = @StatusId)
       AND (@StatusName IS NULL OR s.StatusName LIKE '%' + @StatusName + '%')
@@ -62,6 +70,8 @@ BEGIN
         [ItemName],
         [ItemTypeName],
         [ItemDeptName],
+        [ItemGroup01Name],
+        [ItemGroup02Name],
         [UnitName],
         [StatusId],
         [StatusName] = CASE [StatusId]
@@ -85,6 +95,10 @@ BEGIN
         CASE WHEN @SortColumn = 'ItemTypeName' AND @SortOrder = 'DESC' THEN [ItemTypeName] END DESC,
         CASE WHEN @SortColumn = 'ItemDeptName' AND @SortOrder = 'ASC' THEN [ItemDeptName] END ASC,
         CASE WHEN @SortColumn = 'ItemDeptName' AND @SortOrder = 'DESC' THEN [ItemDeptName] END DESC,
+        CASE WHEN @SortColumn = 'ItemGroup01Name' AND @SortOrder = 'ASC' THEN [ItemGroup01Name] END ASC,
+        CASE WHEN @SortColumn = 'ItemGroup01Name' AND @SortOrder = 'DESC' THEN [ItemGroup01Name] END DESC,
+        CASE WHEN @SortColumn = 'ItemGroup02Name' AND @SortOrder = 'ASC' THEN [ItemGroup02Name] END ASC,
+        CASE WHEN @SortColumn = 'ItemGroup02Name' AND @SortOrder = 'DESC' THEN [ItemGroup02Name] END DESC,
         CASE WHEN @SortColumn = 'UnitName' AND @SortOrder = 'ASC' THEN [UnitName] END ASC,
         CASE WHEN @SortColumn = 'UnitName' AND @SortOrder = 'DESC' THEN [UnitName] END DESC,
         CASE WHEN @SortColumn = 'StatusId' AND @SortOrder = 'ASC' THEN [StatusId] END ASC,
