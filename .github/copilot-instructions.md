@@ -27,6 +27,12 @@ Web (MVC+API) → Service → Repo → SQL Server Stored Procedures
 
 ## Critical Patterns
 
+### **IMPORTANT: Stored Procedure Priority**
+When fixing discrepancies between stored procedures and application code:
+- **ALWAYS adjust the app to match the stored procedure** (unless explicitly asked otherwise)
+- Stored procedures are the source of truth for database operations
+- Never modify stored procedures without explicit user request
+
 ### ServiceResponse<T> (Always Generic for Data)
 ```csharp
 // ✅ Data operations - use generic
@@ -99,6 +105,38 @@ public partial class ItemService : IItemService
 ## SignalR Hubs
 - PR: `/hubs/pr-notifications` → `PrNotificationHub`
 - CO: `/hubs/co-notifications` → `CoNotificationHub`
+
+## Frontend Stack (Alpine.js + HTMX + TomSelect)
+
+- **Alpine.js** - Reactive state management for UI components
+- **HTMX** - Server-side partial rendering for dynamic content
+- **TomSelect** - Dropdown/select with AJAX search (NOT Select2)
+- **Flatpickr** - Date picker library
+- **Bootstrap 5** - UI framework with custom theme
+
+**Dropdown Pattern:**
+```cshtml
+<select id="CustomerId" 
+        name="CustomerId"
+        x-ref="customerSelect"
+        data-tomselect
+        data-url="/api/Customers/cbo"
+        required>
+    <option value="">Select Customer</option>
+</select>
+```
+
+**JavaScript Initialization:**
+```javascript
+this.customerSelect = initTomSelect('#CustomerId', {
+    url: '/api/Customers/cbo',
+    placeholder: 'Select Customer',
+    maxOptions: 50
+});
+```
+
+**❌ NEVER use Select2** - Legacy library being phased out  
+**✅ ALWAYS use TomSelect** - Current standard for dropdowns
 
 ## Project-Specific Conventions
 

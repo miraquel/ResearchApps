@@ -62,6 +62,24 @@ public static class PermissionConstants
         public const string Details = "ItemDepts.Details";
     }
     
+    public static class ItemGroup01s
+    {
+        public const string Index = "ItemGroup01s.Index";
+        public const string Create = "ItemGroup01s.Create";
+        public const string Edit = "ItemGroup01s.Edit";
+        public const string Delete = "ItemGroup01s.Delete";
+        public const string Details = "ItemGroup01s.Details";
+    }
+    
+    public static class ItemGroup02s
+    {
+        public const string Index = "ItemGroup02s.Index";
+        public const string Create = "ItemGroup02s.Create";
+        public const string Edit = "ItemGroup02s.Edit";
+        public const string Delete = "ItemGroup02s.Delete";
+        public const string Details = "ItemGroup02s.Details";
+    }
+    
     public static class Units
     {
         public const string Index = "Units.Index";
@@ -179,6 +197,118 @@ public static class PermissionConstants
         public const string Edit = "Suppliers.Edit";
         public const string Delete = "Suppliers.Delete";
         public const string Details = "Suppliers.Details";
+    }
+    
+    public class GoodsReceipts
+    {
+        public const string Index = "GoodsReceipts.Index";
+        public const string Create = "GoodsReceipts.Create";
+        public const string Edit = "GoodsReceipts.Edit";
+        public const string Delete = "GoodsReceipts.Delete";
+        public const string Details = "GoodsReceipts.Details";
+    }
+    
+    public class Prods
+    {
+        public const string Index = "Prods.Index";
+        public const string Create = "Prods.Create";
+        public const string Edit = "Prods.Edit";
+        public const string Delete = "Prods.Delete";
+        public const string Details = "Prods.Details";
+    }
+    
+    public class Bpbs
+    {
+        public const string Index = "Bpbs.Index";
+        public const string Create = "Bpbs.Create";
+        public const string Edit = "Bpbs.Edit";
+        public const string Delete = "Bpbs.Delete";
+        public const string Details = "Bpbs.Details";
+    }
+    
+    public class MaterialCustomers
+    {
+        public const string Index = "MaterialCustomers.Index";
+        public const string Create = "MaterialCustomers.Create";
+        public const string Edit = "MaterialCustomers.Edit";
+        public const string Delete = "MaterialCustomers.Delete";
+        public const string Details = "MaterialCustomers.Details";
+    }
+    
+    public class Phps
+    {
+        public const string Index = "Phps.Index";
+        public const string Create = "Phps.Create";
+        public const string Edit = "Phps.Edit";
+        public const string Delete = "Phps.Delete";
+        public const string Details = "Phps.Details";
+    }
+    
+    public class Pss
+    {
+        public const string Index = "Pss.Index";
+        public const string Create = "Pss.Create";
+        public const string Edit = "Pss.Edit";
+        public const string Delete = "Pss.Delete";
+        public const string Details = "Pss.Details";
+    }
+    
+    public static class InventLocks
+    {
+        public const string Index = "InventLocks.Index";
+        public const string Close = "InventLocks.Close";
+        public const string Open = "InventLocks.Open";
+    }
+    
+    public static class Workflows
+    {
+        public const string Index = "Workflows.Index";
+        public const string Create = "Workflows.Create";
+        public const string Edit = "Workflows.Edit";
+        public const string Delete = "Workflows.Delete";
+        public const string Details = "Workflows.Details";
+    }
+    
+    public static class Budgets
+    {
+        public const string Index = "Budgets.Index";
+        public const string Create = "Budgets.Create";
+        public const string Edit = "Budgets.Edit";
+        public const string Delete = "Budgets.Delete";
+        public const string Details = "Budgets.Details";
+    }
+    
+    public static class SalesPrices
+    {
+        public const string Index = "SalesPrices.Index";
+        public const string Create = "SalesPrices.Create";
+        public const string Edit = "SalesPrices.Edit";
+        public const string Delete = "SalesPrices.Delete";
+        public const string Details = "SalesPrices.Details";
+    }
+    
+    public static class Tops
+    {
+        public const string Index = "Tops.Index";
+        public const string Create = "Tops.Create";
+        public const string Edit = "Tops.Edit";
+        public const string Delete = "Tops.Delete";
+        public const string Details = "Tops.Details";
+    }
+    
+    public static class RepInventTrans
+    {
+        public const string Index = "RepInventTrans.Index";
+    }
+    
+    public static class RepStock
+    {
+        public const string Index = "RepStock.Index";
+    }
+    
+    public static class RepCustom
+    {
+        public const string Index = "RepCustom.Index";
     }
     
     // Get all permissions from PermissionConstants

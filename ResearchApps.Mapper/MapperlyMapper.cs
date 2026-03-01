@@ -65,6 +65,22 @@ public partial class MapperlyMapper
     public partial IEnumerable<ItemDeptVm> MapToVm(IEnumerable<ItemDept> itemDeptDto);
     public partial PagedListVm<ItemDeptVm> MapToVm(PagedList<ItemDept> pagedListDto);
     
+    // ItemGroup01
+    public partial ItemGroup01 MapToEntity(ItemGroup01Vm itemGroup01Dto);
+    public partial IEnumerable<ItemGroup01> MapToEntity(IEnumerable<ItemGroup01Vm> itemGroup01Dto);
+    public partial PagedList<ItemGroup01> MapToEntity(PagedListVm<ItemGroup01Vm> pagedListDto);
+    public partial ItemGroup01Vm MapToVm(ItemGroup01 itemGroup01);
+    public partial IEnumerable<ItemGroup01Vm> MapToVm(IEnumerable<ItemGroup01> itemGroup01Dto);
+    public partial PagedListVm<ItemGroup01Vm> MapToVm(PagedList<ItemGroup01> pagedListDto);
+    
+    // ItemGroup02
+    public partial ItemGroup02 MapToEntity(ItemGroup02Vm itemGroup02Dto);
+    public partial IEnumerable<ItemGroup02> MapToEntity(IEnumerable<ItemGroup02Vm> itemGroup02Dto);
+    public partial PagedList<ItemGroup02> MapToEntity(PagedListVm<ItemGroup02Vm> pagedListDto);
+    public partial ItemGroup02Vm MapToVm(ItemGroup02 itemGroup02);
+    public partial IEnumerable<ItemGroup02Vm> MapToVm(IEnumerable<ItemGroup02> itemGroup02Dto);
+    public partial PagedListVm<ItemGroup02Vm> MapToVm(PagedList<ItemGroup02> pagedListDto);
+    
     // Unit
     public partial Unit MapToEntity(UnitVm unitDto);
     public partial IEnumerable<Unit> MapToEntity(IEnumerable<UnitVm> unitDto);
@@ -306,4 +322,236 @@ public partial class MapperlyMapper
     public partial SupplierVm MapToVm(Supplier supplier);
     public partial IEnumerable<SupplierVm> MapToVm(IEnumerable<Supplier> suppliers);
     public partial PagedListVm<SupplierVm> MapToVm(PagedList<Supplier> pagedListDto);
+    
+    // Gr (Goods Receipt) - Composite
+    public partial GoodsReceipt MapToEntity(GoodsReceiptVm goodsReceiptDto);
+    public partial IEnumerable<GoodsReceipt> MapToEntity(IEnumerable<GoodsReceiptVm> grDto);
+    public partial GoodsReceiptVm MapToVm(GoodsReceipt goodsReceipt);
+    public partial IEnumerable<GoodsReceiptVm> MapToVm(IEnumerable<GoodsReceipt> grDto);
+    
+    // GrHeader
+    public partial GoodsReceiptHeader MapToEntity(GoodsReceiptHeaderVm goodsReceiptHeaderDto);
+    public partial IEnumerable<GoodsReceiptHeader> MapToEntity(IEnumerable<GoodsReceiptHeaderVm> grHeader);
+    public partial GoodsReceiptHeaderVm MapToVm(GoodsReceiptHeader goodsReceiptHeader);
+    public partial IEnumerable<GoodsReceiptHeaderVm> MapToVm(IEnumerable<GoodsReceiptHeader> grHeader);
+    public partial PagedListVm<GoodsReceiptHeaderVm> MapToVm(PagedList<GoodsReceiptHeader> pagedListDto);
+    public partial PagedList<GoodsReceiptHeader> MapToEntity(PagedListVm<GoodsReceiptHeaderVm> pagedListDto);
+    
+    // GrLine
+    public partial GoodsReceiptLine MapToEntity(GoodsReceiptLineVm goodsReceiptLineDto);
+    public partial IEnumerable<GoodsReceiptLine> MapToEntity(IEnumerable<GoodsReceiptLineVm> grLineDto);
+    public partial GoodsReceiptLineVm MapToVm(GoodsReceiptLine goodsReceiptLine);
+    public partial IEnumerable<GoodsReceiptLineVm> MapToVm(IEnumerable<GoodsReceiptLine> grLineDto);
+    
+    // GrStatus
+    public partial GoodsReceiptStatus MapToEntity(GoodsReceiptStatusVm goodsReceiptStatusDto);
+    public partial GoodsReceiptStatusVm MapToVm(GoodsReceiptStatus goodsReceiptStatus);
+    public partial IEnumerable<GoodsReceiptStatusVm> MapToVm(IEnumerable<GoodsReceiptStatus> grStatusDto);
+    
+    // GrReportItem
+    public partial GrReportItem MapToEntity(GrReportItemVm grReportItemDto);
+    public partial IEnumerable<GrReportItem> MapToEntity(IEnumerable<GrReportItemVm> grReportItemDto);
+    public partial GrReportItemVm MapToVm(GrReportItem grReportItem);
+    public partial IEnumerable<GrReportItemVm> MapToVm(IEnumerable<GrReportItem> grReportItemDto);
+    
+    // Prod (Production)
+    public partial Prod MapToEntity(ProdVm prodVm);
+    public partial IEnumerable<Prod> MapToEntity(IEnumerable<ProdVm> prodVms);
+    public partial PagedList<Prod> MapToEntity(PagedListVm<ProdVm> pagedListVm);
+    public partial ProdVm MapToVm(Prod prod);
+    public partial IEnumerable<ProdVm> MapToVm(IEnumerable<Prod> prods);
+    public partial PagedListVm<ProdVm> MapToVm(PagedList<Prod> pagedList);
+    
+    // ProdStatus
+    public partial ProdStatus MapToEntity(ProdStatusVm prodStatusVm);
+    public partial IEnumerable<ProdStatus> MapToEntity(IEnumerable<ProdStatusVm> prodStatusVms);
+    public partial ProdStatusVm MapToVm(ProdStatus prodStatus);
+    public partial IEnumerable<ProdStatusVm> MapToVm(IEnumerable<ProdStatus> prodStatuses);
+    
+    // Bpb (Bon Pengambilan Barang) - Composite
+    public partial Bpb MapToEntity(BpbVm bpbDto);
+    public partial IEnumerable<Bpb> MapToEntity(IEnumerable<BpbVm> bpbDto);
+    public partial BpbVm MapToVm(Bpb bpb);
+    public partial IEnumerable<BpbVm> MapToVm(IEnumerable<Bpb> bpbDto);
+    
+    // BpbHeader
+    public partial BpbHeader MapToEntity(BpbHeaderVm bpbHeaderDto);
+    public partial IEnumerable<BpbHeader> MapToEntity(IEnumerable<BpbHeaderVm> bpbHeader);
+    public partial BpbHeaderVm MapToVm(BpbHeader bpbHeader);
+    public partial IEnumerable<BpbHeaderVm> MapToVm(IEnumerable<BpbHeader> bpbHeader);
+    public partial PagedListVm<BpbHeaderVm> MapToVm(PagedList<BpbHeader> pagedListDto);
+    public partial PagedList<BpbHeader> MapToEntity(PagedListVm<BpbHeaderVm> pagedListDto);
+    
+    // BpbLine
+    public partial BpbLine MapToEntity(BpbLineVm bpbLineDto);
+    public partial IEnumerable<BpbLine> MapToEntity(IEnumerable<BpbLineVm> bpbLineDto);
+    public partial BpbLineVm MapToVm(BpbLine bpbLine);
+    public partial IEnumerable<BpbLineVm> MapToVm(IEnumerable<BpbLine> bpbLineDto);
+    
+    // BpbStatus
+    public partial BpbStatus MapToEntity(BpbStatusVm bpbStatusDto);
+    public partial BpbStatusVm MapToVm(BpbStatus bpbStatus);
+    public partial IEnumerable<BpbStatusVm> MapToVm(IEnumerable<BpbStatus> bpbStatusDto);
+    
+    // Mc (Material Customer) - Header mappings
+    public partial MaterialCustomerHeader MapToEntity(MaterialCustomerHeaderVm mcHeaderDto);
+    public partial MaterialCustomerHeaderVm MapToVm(MaterialCustomerHeader mcHeader);
+    
+    // Mc - Composite ViewModel (Header + Lines)
+    public MaterialCustomerVm MapToCompositeVm(MaterialCustomerHeader header, IEnumerable<MaterialCustomerLine> lines)
+    {
+        return new MaterialCustomerVm
+        {
+            Header = MapToVm(header),
+            Lines = MapToVm(lines).ToList()
+        };
+    }
+    
+    public MaterialCustomerHeader MapFromCompositeVm(MaterialCustomerVm mcVm)
+    {
+        return MapToEntity(mcVm.Header);
+    }
+    
+    // Mc - List mappings (for Index page - uses Header only)
+    public partial IEnumerable<MaterialCustomerHeaderVm> MapToVm(IEnumerable<MaterialCustomerHeader> mcDto);
+    public partial PagedListVm<MaterialCustomerHeaderVm> MapToVm(PagedList<MaterialCustomerHeader> pagedListDto);
+    
+    // McLine
+    public partial MaterialCustomerLine MapToEntity(MaterialCustomerLineVm mcLineDto);
+    public partial IEnumerable<MaterialCustomerLine> MapToEntity(IEnumerable<MaterialCustomerLineVm> mcLineDto);
+    public partial MaterialCustomerLineVm MapToVm(MaterialCustomerLine mcLine);
+    public partial IEnumerable<MaterialCustomerLineVm> MapToVm(IEnumerable<MaterialCustomerLine> mcLineDto);
+    
+    // McStatus
+    public partial MaterialCustomerStatus MapToEntity(MaterialCustomerStatusVm mcStatusDto);
+    public partial MaterialCustomerStatusVm MapToVm(MaterialCustomerStatus mcStatus);
+    public partial IEnumerable<MaterialCustomerStatusVm> MapToVm(IEnumerable<MaterialCustomerStatus> mcStatusDto);
+    
+    // Php (Penerimaan Hasil Produksi) - Header mappings
+    public partial PhpHeader MapToEntity(PhpHeaderVm phpHeaderDto);
+    public partial PhpHeaderVm MapToVm(PhpHeader phpHeader);
+    
+    // Php - Composite ViewModel (Header + Lines)
+    public PhpVm MapToCompositeVm(PhpHeader header, IEnumerable<PhpLine> lines)
+    {
+        return new PhpVm
+        {
+            Header = MapToVm(header),
+            Lines = MapToVm(lines).ToList()
+        };
+    }
+    
+    public Php MapToEntity(PhpVm phpVm)
+    {
+        return new Php
+        {
+            Header = MapToEntity(phpVm.Header),
+            Lines = MapToEntity(phpVm.Lines).ToList()
+        };
+    }
+    
+    public PhpHeader MapFromCompositeVm(PhpVm phpVm)
+    {
+        return MapToEntity(phpVm.Header);
+    }
+    
+    // Php - List mappings (for Index page - uses Header only)
+    public partial IEnumerable<PhpHeaderVm> MapToVm(IEnumerable<PhpHeader> phpDto);
+    public partial PagedListVm<PhpHeaderVm> MapToVm(PagedList<PhpHeader> pagedListDto);
+    
+    // PhpLine
+    public partial PhpLine MapToEntity(PhpLineVm phpLineDto);
+    public partial IEnumerable<PhpLine> MapToEntity(IEnumerable<PhpLineVm> phpLineDto);
+    public partial PhpLineVm MapToVm(PhpLine phpLine);
+    public partial IEnumerable<PhpLineVm> MapToVm(IEnumerable<PhpLine> phpLineDto);
+    
+    // PhpStatus
+    public partial PhpStatus MapToEntity(PhpStatusVm phpStatusDto);
+    public partial PhpStatusVm MapToVm(PhpStatus phpStatus);
+    public partial IEnumerable<PhpStatusVm> MapToVm(IEnumerable<PhpStatus> phpStatusDto);
+    
+    // Ps (Penyesuaian Stock) - Composite
+    public partial Ps MapToEntity(PsVm psDto);
+    public partial PsVm MapToVm(Ps ps);
+    
+    // PsHeader
+    public partial PsHeader MapToEntity(PsHeaderVm psHeaderDto);
+    public partial IEnumerable<PsHeader> MapToEntity(IEnumerable<PsHeaderVm> psHeader);
+    public partial PsHeaderVm MapToVm(PsHeader psHeader);
+    public partial IEnumerable<PsHeaderVm> MapToVm(IEnumerable<PsHeader> psHeader);
+    
+    // PsLine
+    public partial PsLine MapToEntity(PsLineVm psLineDto);
+    public partial IEnumerable<PsLine> MapToEntity(IEnumerable<PsLineVm> psLineDto);
+    public partial PsLineVm MapToVm(PsLine psLine);
+    public partial IEnumerable<PsLineVm> MapToVm(IEnumerable<PsLine> psLineDto);
+    
+    // PsStatus
+    public partial PsStatus MapToEntity(PsStatusVm psStatusDto);
+    public partial PsStatusVm MapToVm(PsStatus psStatus);
+    public partial IEnumerable<PsStatusVm> MapToVm(IEnumerable<PsStatus> psStatusDto);
+    
+    // InventLock
+    public partial InventLock MapToEntity(InventLockVm inventLockDto);
+    public partial IEnumerable<InventLock> MapToEntity(IEnumerable<InventLockVm> inventLockDto);
+    public partial InventLockVm MapToVm(InventLock inventLock);
+    public partial IEnumerable<InventLockVm> MapToVm(IEnumerable<InventLock> inventLockDto);
+    
+    // WfForm (Workflow Form)
+    public partial WfForm MapToEntity(WfFormVm wfFormDto);
+    public partial IEnumerable<WfForm> MapToEntity(IEnumerable<WfFormVm> wfFormDto);
+    public partial PagedList<WfForm> MapToEntity(PagedListVm<WfFormVm> pagedListDto);
+    public partial WfFormVm MapToVm(WfForm wfForm);
+    public partial IEnumerable<WfFormVm> MapToVm(IEnumerable<WfForm> wfFormDto);
+    public partial PagedListVm<WfFormVm> MapToVm(PagedList<WfForm> pagedListDto);
+    
+    // Wf (Workflow Approval Steps)
+    public partial Wf MapToEntity(WfVm wfDto);
+    public partial IEnumerable<Wf> MapToEntity(IEnumerable<WfVm> wfDto);
+    public partial WfVm MapToVm(Wf wf);
+    public partial IEnumerable<WfVm> MapToVm(IEnumerable<Wf> wfDto);
+    
+    // WfStatusAction
+    public partial WfStatusAction MapToEntity(WfStatusActionVm wfStatusActionDto);
+    public partial IEnumerable<WfStatusAction> MapToEntity(IEnumerable<WfStatusActionVm> wfStatusActionDto);
+    public partial WfStatusActionVm MapToVm(WfStatusAction wfStatusAction);
+    public partial IEnumerable<WfStatusActionVm> MapToVm(IEnumerable<WfStatusAction> wfStatusActionDto);
+    
+    // WfTransHistory
+    public partial WfTransHistory MapToEntity(WfTransHistoryVm wfTransHistoryDto);
+    public partial IEnumerable<WfTransHistory> MapToEntity(IEnumerable<WfTransHistoryVm> wfTransHistoryDto);
+    public partial WfTransHistoryVm MapToVm(WfTransHistory wfTransHistory);
+    public partial IEnumerable<WfTransHistoryVm> MapToVm(IEnumerable<WfTransHistory> wfTransHistoryDto);
+    
+    // SalesPrice
+    public partial SalesPrice MapToEntity(SalesPriceVm salesPriceVm);
+    public partial IEnumerable<SalesPrice> MapToEntity(IEnumerable<SalesPriceVm> salesPriceVms);
+    public partial PagedList<SalesPrice> MapToEntity(PagedListVm<SalesPriceVm> pagedListDto);
+    public partial SalesPriceVm MapToVm(SalesPrice salesPrice);
+    public partial IEnumerable<SalesPriceVm> MapToVm(IEnumerable<SalesPrice> salesPrices);
+    public partial PagedListVm<SalesPriceVm> MapToVm(PagedList<SalesPrice> pagedListDto);
+    
+    // Top (Terms of Payment)
+    public partial Top MapToEntity(TopVm topVm);
+    public partial IEnumerable<Top> MapToEntity(IEnumerable<TopVm> topVms);
+    public partial PagedList<Top> MapToEntity(PagedListVm<TopVm> pagedListDto);
+    public partial TopVm MapToVm(Top top);
+    public partial IEnumerable<TopVm> MapToVm(IEnumerable<Top> tops);
+    public partial PagedListVm<TopVm> MapToVm(PagedList<Top> pagedListDto);
+    
+    // RepInventTransByItem (Report: Inventory Transactions)
+    public partial RepInventTransByItemVm MapToVm(RepInventTransByItem repInventTransByItem);
+    public partial IEnumerable<RepInventTransByItemVm> MapToVm(IEnumerable<RepInventTransByItem> repInventTransByItems);
+    
+    // RepStockCardMonthly (Report: Stock Card Monthly)
+    public partial RepStockCardMonthlyVm MapToVm(RepStockCardMonthly repStockCardMonthly);
+    public partial IEnumerable<RepStockCardMonthlyVm> MapToVm(IEnumerable<RepStockCardMonthly> repStockCardMonthlies);
+    
+    // RepTools (Report: Tools Consumption)
+    public partial RepToolsVm MapToVm(RepTools repTools);
+    public partial IEnumerable<RepToolsVm> MapToVm(IEnumerable<RepTools> repToolsList);
+    
+    // RepToolsAnalysis (Report: Tools Analysis)
+    public partial RepToolsAnalysisVm MapToVm(RepToolsAnalysis repToolsAnalysis);
+    public partial IEnumerable<RepToolsAnalysisVm> MapToVm(IEnumerable<RepToolsAnalysis> repToolsAnalysisList);
 }

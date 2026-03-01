@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <None Remove="Views\JAVASCRIPT_REFACTORING_PROGRESS.md" />
+        <None Remove="Properties\PublishProfiles\nusaflow (1).PublishSettings" />
     </ItemGroup>
 
     <ItemGroup>
@@ -91,6 +92,10 @@
       <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Edit.cshtml" />
       <_ContentIncludedByDefault Remove="Areas\Admin\Views\Companies\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\PrLines\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\PrLines\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\PrLines\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\PrLines\Edit.cshtml" />
     </ItemGroup>
 
 </Project>
