@@ -7,9 +7,9 @@ public class PrWorkflowActionVm
     [Required]
     [Display(Name = "Record ID")]
     public int RecId { get; set; }
-    
+
     [Display(Name = "Notes")]
     [MaxLength(200)]
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
 }
 

@@ -1,4 +1,4 @@
-@model ResearchApps.Service.Vm.PoVm
+﻿@model ResearchApps.Service.Vm.PoVm
 
 @{
     ViewBag.Title = $"Edit Purchase Order - {Model.Header.PoId}";
@@ -49,19 +49,17 @@
             <!-- Header Card -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="ri-file-text-line me-2"></i>Purchase Order Header - @Model.Header.PoId
-                        <span class="badge @(Model.Header.PoStatusId switch {
-                            0 => "bg-secondary",
-                            1 => "bg-success",
-                            4 => "bg-info",
-                            5 => "bg-success",
-                            6 => "bg-danger",
-                            _ => "bg-secondary"
-                        }) ms-2">
-                            @Model.Header.PoStatusName
-                        </span>
-                    </h5>
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="ri-file-text-line me-2"></i>Purchase Order Header - @Model.Header.PoId
+                                @Html.Raw(Model.Header.PoStatusName)
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form id="po-header-form" method="post" action="/Pos/Edit">
@@ -232,7 +230,7 @@
                             </tbody>
                             <tfoot class="table-light" x-show="lines.length > 0">
                                 <tr>
-                                    <th colspan="5" class="text-end">Total:</th>
+                                    <th colspan="4" class="text-end">Total:</th>
                                     <th class="text-end" x-text="formatNumber(calculateTotal())"></th>
                                     <th colspan="2"></th>
                                 </tr>
@@ -315,10 +313,9 @@
                             <input type="text" 
                                    class="form-control form-control-sm text-end" 
                                    inputmode="numeric"
-                                   :value="formatNumber(lineModal.data.qty)"
-                                   @@input="lineModal.data.qty = parseNumber($event.target.value); calculateLineAmount();"
-                                   @@blur="$event.target.value = formatNumber(lineModal.data.qty)"
-                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   x-mask:dynamic="$money($input, '.', ',')"
+                                   x-model="lineModal.data.qty"
+                                   @@input="calculateLineAmount()"
                                    required />
                             <small class="text-danger" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></small>
                         </div>
@@ -327,10 +324,9 @@
                             <input type="text" 
                                    class="form-control form-control-sm text-end" 
                                    inputmode="numeric"
-                                   :value="formatNumber(lineModal.data.price)"
-                                   @@input="lineModal.data.price = parseNumber($event.target.value); calculateLineAmount();"
-                                   @@blur="$event.target.value = formatNumber(lineModal.data.price)"
-                                   @@keypress="if(!/[0-9]/.test($event.key) && $event.key !== 'Backspace' && $event.key !== 'Delete') $event.preventDefault()"
+                                   x-mask:dynamic="$money($input, '.', ',')"
+                                   x-model="lineModal.data.price"
+                                   @@input="calculateLineAmount()"
                                    required />
                             <small class="text-danger" x-show="lineModal.errors.price" x-text="lineModal.errors.price"></small>
                         </div>

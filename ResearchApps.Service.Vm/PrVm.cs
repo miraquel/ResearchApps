@@ -42,4 +42,7 @@ public class PrVm
     public string? CurrentApprover { get; set; }
     [Display(Name = "Current Approval Index")]
     public int? CurrentIndex { get; set; }
+    
+    // Lines
+    public List<PrLineVm>? PrLines { get; set; }
 }

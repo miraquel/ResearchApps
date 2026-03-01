@@ -35,19 +35,6 @@
                             <th>Amount:</th>
                             <td><strong x-text="lineDetailModal.line ? formatNumber(lineDetailModal.line.amount) : ''"></strong></td>
                         </tr>
-                        <tr>
-                            <th>Status:</th>
-                            <td>
-                                <span class="badge"
-                                      :class="{
-                                          'bg-secondary': lineDetailModal.line?.poStatusId === 0,
-                                          'bg-success': lineDetailModal.line?.poStatusId === 1,
-                                          'bg-info': lineDetailModal.line?.poStatusId === 4,
-                                          'bg-danger': lineDetailModal.line?.poStatusId === 6
-                                      }"
-                                      x-text="lineDetailModal.line?.poStatusName"></span>
-                            </td>
-                        </tr>
                         <tr x-show="lineDetailModal.line?.notes">
                             <th>Notes:</th>
                             <td x-text="lineDetailModal.line?.notes"></td>
@@ -59,6 +46,14 @@
                         <tr>
                             <th>Created Date:</th>
                             <td x-text="lineDetailModal.line ? new Date(lineDetailModal.line.createdDate).toLocaleString() : ''"></td>
+                        </tr>
+                        <tr>
+                            <th>Modified By:</th>
+                            <td x-text="lineDetailModal.line?.createdBy"></td>
+                        </tr>
+                        <tr>
+                            <th>Modified Date:</th>
+                            <td x-text="lineDetailModal.line ? new Date(lineDetailModal.line.modifiedDate).toLocaleString() : ''"></td>
                         </tr>
                     </tbody>
                 </table>

@@ -48,8 +48,11 @@ function createWorkflowComponent(config) {
         async execute() {
             // Validate reject action requires notes
             if (this.modal.action === 'reject' && (!this.modal.notes || this.modal.notes.trim() === '')) {
-                alert('Please enter a reason for rejection.');
-                return;
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Please enter a reason for rejection', 'error');
+                } else {
+                    alert('Please enter a reason for rejection.');
+                }
             }
 
             this.modal.isProcessing = true;
@@ -60,7 +63,8 @@ function createWorkflowComponent(config) {
                 const body = new URLSearchParams();
                 body.append('RecId', recId);
                 body.append('RefId', refId);
-                body.append('Notes', this.modal.notes);
+                if (this.modal.notes)
+                    body.append('Notes', this.modal.notes);
                 body.append('__RequestVerificationToken', token);
 
                 const response = await fetch(actionUrls[this.modal.action], {

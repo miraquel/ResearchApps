@@ -100,13 +100,14 @@ public partial class PoService : IPoService
 
     #region Workflow Operations
 
-    public async Task<ServiceResponse<PoVm>> PoSubmitById(int recId, CancellationToken ct)
+    public async Task<ServiceResponse> PoSubmitById(int recId, CancellationToken ct)
     {
         LogSubmittingPo(recId, _userClaimDto.Username);
 
-        var result = await _poRepo.PoSubmitById(recId, _userClaimDto.Username, ct);
+        await _poRepo.PoSubmitById(recId, _userClaimDto.Username, ct);
         _dbTransaction.Commit();
-
+        
+        var result = await _poRepo.PoSelectById(recId, ct) ?? throw new InvalidOperationException("Purchase order not found after submission.");
         LogPoSubmitted(recId, result.CurrentApprover ?? "N/A");
 
         return ServiceResponse<PoVm>.Success(
@@ -130,7 +131,7 @@ public partial class PoService : IPoService
     {
         LogApprovingPo(action.RecId, _userClaimDto.Username);
 
-        await _poRepo.PoApproveById(action.RecId, action.Notes, _userClaimDto.Username, ct);
+        await _poRepo.PoApproveById(action.RecId, action.Notes ?? "", _userClaimDto.Username, ct);
         _dbTransaction.Commit();
 
         LogPoApproved(action.RecId);
@@ -172,9 +173,9 @@ public partial class PoService : IPoService
         return ServiceResponse<IEnumerable<PoHeaderOutstandingVm>>.Success(_mapper.MapToVm(entities));
     }
 
-    public async Task<ServiceResponse<IEnumerable<PoLineOutstandingVm>>> PoOsSelectById(int recId, CancellationToken ct)
+    public async Task<ServiceResponse<IEnumerable<PoLineOutstandingVm>>> PoOsSelectById(int poLineId, CancellationToken ct)
     {
-        var entities = await _poRepo.PoOsSelectById(recId, ct);
+        var entities = await _poRepo.PoOsSelectById(poLineId, ct);
         return ServiceResponse<IEnumerable<PoLineOutstandingVm>>.Success(_mapper.MapToVm(entities));
     }
 
@@ -226,6 +227,42 @@ public partial class PoService : IPoService
 
     [LoggerMessage(LogLevel.Information, "Purchase order {RecId} closed")]
     partial void LogPoClosed(int recId);
+
+    [LoggerMessage(LogLevel.Information, "Retrieving workflow history for PO RefId: {RefId}")]
+    partial void LogRetrievingWfHistoryForPoRefId(string refId);
+
+    [LoggerMessage(LogLevel.Information, "Workflow history retrieved successfully. Count: {Count}")]
+    partial void LogWfHistoryRetrievedSuccessfully(int count);
+
+    #endregion
+
+    #region Workflow History
+
+    public async Task<ServiceResponse<IEnumerable<WfTransHistoryVm>>> GetWfHistory(string refId, int wfFormId, CancellationToken ct)
+    {
+        LogRetrievingWfHistoryForPoRefId(refId);
+        
+        var data = await _poRepo.WfTransSelectByRefId(refId, wfFormId, ct);
+        var vmList = data.Select(item => new WfTransHistoryVm
+        {
+            WfTransId = item.WfTransId,
+            WfId = item.WfId,
+            WfFormId = item.WfFormId,
+            FormName = item.FormName,
+            RefId = item.RefId,
+            Index = item.Index,
+            UserId = item.UserId,
+            WfStatusActionId = item.WfStatusActionId,
+            WfStatusActionName = item.WfStatusActionName,
+            ActionDate = item.ActionDate,
+            ActionDateStr = item.ActionDate.ToString("dd MMM yyyy HH:mm"),
+            CreatedDate = item.CreatedDate,
+            Notes = item.Notes
+        }).ToList();
+        
+        LogWfHistoryRetrievedSuccessfully(vmList.Count);
+        return ServiceResponse<IEnumerable<WfTransHistoryVm>>.Success(vmList, "Workflow history retrieved successfully.");
+    }
 
     #endregion
 }

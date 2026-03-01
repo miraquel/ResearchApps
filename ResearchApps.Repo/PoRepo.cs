@@ -177,7 +177,7 @@ public class PoRepo : IPoRepo
         await _dbConnection.ExecuteAsync(command);
     }
 
-    public async Task<Po> PoSubmitById(int recId, string modifiedBy, CancellationToken ct)
+    public async Task PoSubmitById(int recId, string modifiedBy, CancellationToken ct)
     {
         const string query = "Po_SubmitById";
         var parameters = new DynamicParameters();
@@ -191,8 +191,7 @@ public class PoRepo : IPoRepo
             cancellationToken: ct,
             commandType: CommandType.StoredProcedure);
 
-        return await _dbConnection.QueryFirstOrDefaultAsync<Po>(command)
-            ?? throw new RepoException<Po>("Failed to submit purchase order", new Po { RecId = recId });
+        await _dbConnection.ExecuteAsync(command);
     }
 
     public async Task PoRecallById(int recId, string modifiedBy, CancellationToken ct)
@@ -212,7 +211,7 @@ public class PoRepo : IPoRepo
         await _dbConnection.ExecuteAsync(command);
     }
 
-    public async Task PoApproveById(int recId, string? notes, string modifiedBy, CancellationToken ct)
+    public async Task PoApproveById(int recId, string notes, string modifiedBy, CancellationToken ct)
     {
         const string query = "Po_ApproveById";
         var parameters = new DynamicParameters();
@@ -279,11 +278,11 @@ public class PoRepo : IPoRepo
         return await _dbConnection.QueryAsync<PoHeaderOutstanding>(command);
     }
 
-    public async Task<IEnumerable<PoLineOutstanding>> PoOsSelectById(int recId, CancellationToken ct)
+    public async Task<IEnumerable<PoLineOutstanding>> PoOsSelectById(int poLineId, CancellationToken ct)
     {
         const string query = "Po_OsSelectById";
         var parameters = new DynamicParameters();
-        parameters.Add("@RecId", recId);
+        parameters.Add("@PoLineId", poLineId);
 
         var command = new CommandDefinition(
             query, parameters, _dbTransaction,
@@ -291,5 +290,24 @@ public class PoRepo : IPoRepo
             commandType: CommandType.StoredProcedure);
 
         return await _dbConnection.QueryAsync<PoLineOutstanding>(command);
+    }
+
+    public async Task<IEnumerable<WfTransHistory>> WfTransSelectByRefId(string refId, int wfFormId, CancellationToken ct)
+    {
+        const string query = "WfTrans_SelectByRefId";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RefId", refId);
+        parameters.Add("@WfFormId", wfFormId);
+        
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: ct,
+            commandType: CommandType.StoredProcedure);
+        
+        return await _dbConnection.QueryAsync<WfTransHistory>(command);
     }
 }

@@ -170,12 +170,7 @@ public class PrRepo : IPrRepo
         
         var result = await _dbConnection.QueryFirstOrDefaultAsync<Pr>(command);
         
-        if (result == null)
-        {
-            throw new RepoException<Pr>($"PR with Id {id} not found.", null);
-        }
-
-        return result;
+        return result ?? throw new RepoException<Pr>($"PR with Id {id} not found.", null);
     }
 
     public async Task PrUpdate(Pr pr, CancellationToken cancellationToken)
@@ -208,7 +203,7 @@ public class PrRepo : IPrRepo
         }
     }
 
-    public async Task<Pr> PrSubmitById(int id, string modifiedBy, CancellationToken cancellationToken)
+    public async Task PrSubmitById(int id, string modifiedBy, CancellationToken cancellationToken)
     {
         const string query = "Pr_SubmitById";
         var parameters = new DynamicParameters();
@@ -224,14 +219,7 @@ public class PrRepo : IPrRepo
             cancellationToken: cancellationToken,
             commandType: CommandType.StoredProcedure);
         
-        var result = await _dbConnection.QueryFirstOrDefaultAsync<Pr>(command);
-        
-        if (result == null)
-        {
-            throw new RepoException($"PR with Id {id} could not be submitted.");
-        }
-
-        return result;
+        await _dbConnection.ExecuteAsync(command);
     }
 
     public async Task PrApproveById(int id, string notes, string modifiedBy, CancellationToken cancellationToken)
@@ -291,5 +279,24 @@ public class PrRepo : IPrRepo
             commandType: CommandType.StoredProcedure);
         
         await _dbConnection.ExecuteAsync(command);
+    }
+
+    public async Task<IEnumerable<WfTransHistory>> WfTransSelectByRefId(string refId, int wfFormId, CancellationToken cancellationToken)
+    {
+        const string query = "WfTrans_SelectByRefId";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RefId", refId);
+        parameters.Add("@WfFormId", wfFormId);
+        
+        await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
+        
+        var command = new CommandDefinition(
+            query,
+            parameters,
+            _dbTransaction,
+            cancellationToken: cancellationToken,
+            commandType: CommandType.StoredProcedure);
+        
+        return await _dbConnection.QueryAsync<WfTransHistory>(command);
     }
 }

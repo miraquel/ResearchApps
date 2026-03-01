@@ -81,6 +81,13 @@ public class PosController : Controller
         return View(poResponse.Data);
     }
 
+    [Authorize(PermissionConstants.Pos.Details)]
+    public async Task<IActionResult> DetailsLinesPartial(int id, CancellationToken cancellationToken)
+    {
+        var response = await _poLineService.PoLineSelectByPo(id, cancellationToken);
+        return PartialView("_Partials/_PoDetailsLines", response is { IsSuccess: true } ? response.Data?.ToArray() : []);
+    }
+
     #endregion
 
     #region Create
@@ -442,9 +449,14 @@ public class PosController : Controller
     [Authorize(PermissionConstants.Pos.Details)]
     public async Task<IActionResult> WorkflowHistory(string refId, int wfFormId, CancellationToken cancellationToken)
     {
-        // TODO: Implement workflow history retrieval
-        // For now, return empty list
-        return PartialView("~/Views/Shared/_Partials/_WorkflowHistory.cshtml", new List<WfTransHistoryVm>());
+        var response = await _poService.GetWfHistory(refId, wfFormId, cancellationToken);
+        
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("~/Views/Shared/_Partials/_WorkflowHistory.cshtml", new List<WfTransHistoryVm>());
+        }
+        
+        return PartialView("~/Views/Shared/_Partials/_WorkflowHistory.cshtml", response.Data);
     }
 
     #endregion

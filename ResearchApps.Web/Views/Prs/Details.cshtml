@@ -1,16 +1,26 @@
-﻿@using ResearchApps.Common.Constants
-@model ResearchApps.Service.Vm.PrVm
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.PrCompositeVm
 
 @{
     ViewBag.Title = "Purchase Requisition Details";
-    ViewBag.pTitle = "Purchase Requisition Details";
+    ViewBag.pTitle = $"Purchase Requisition {Model.Header.PrId}";
     Layout = "_Layout";
+    ViewBag.CurrentApprover = Model.Header.CurrentApprover;
 }
 
-@Html.AntiForgeryToken()
-
-<div x-data="prDetails('@Model.PrId', @Model.RecId)" x-init="init()">
-    <div class="card">
+<div x-data="{ 
+        ...prDetails('@Model.Header.PrId', @Model.Header.RecId), 
+        showWorkflow: true,
+        isLoading: false,
+        workflow: createWorkflowComponent({ 
+            recId: @Model.Header.RecId, 
+            refId: '@Model.Header.PrId', 
+            baseUrl: '/Prs'
+        })
+    }" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <div id="prDetails" class="card">
         <div class="card-header">
             <div class="row">
                 <div class="col d-flex justify-content-between align-items-center">
@@ -19,65 +29,31 @@
                             <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
                         </li>
                         <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#lines">Lines</a>
+                        </li>
+                        <li class="nav-item" role="presentation" x-show="showWorkflow">
+                            <a class="nav-link" data-bs-toggle="tab" href="#workflow">Workflow</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
                             <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
                         </li>
                     </ul>
                     <div class="position-absolute top-0 end-0">
-                        @{
-                            var currentUserName = User.Identity?.Name ?? "";
-                            var isCreator = Model.CreatedBy == currentUserName;
-                            var isCurrentApprover = !string.IsNullOrEmpty(Model.CurrentApprover) && Model.CurrentApprover == currentUserName;
-                        }
+                        <!-- Loading Indicator -->
+                        <span x-show="isLoading" x-cloak class="spinner-border spinner-border-sm text-primary"></span>
                         
-                        @* Workflow Actions *@
-                        @* Submit button - only shown to creator when PR status is Draft (0) *@
-                        @if (Model.PrStatusId == 0 && isCreator)
-                        {
-                            <form asp-action="Submit" asp-route-id="@Model.RecId" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-info me-2" onclick="return confirm('Are you sure you want to submit this PR for approval?');">
-                                    <i class="ri-send-plane-line"></i> Submit
-                                </button>
-                            </form>
-                        }
+                        @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
                         
-                        @* Approve button - only shown to current approver when PR status is Pending Approval (4) *@
-                        @if (Model.PrStatusId == 4 && isCurrentApprover)
+                        @if (Model.CanEdit && User.Identity?.Name == Model.Header.CreatedBy)
                         {
-                            <button type="button" class="btn btn-sm btn-success me-2" data-bs-toggle="modal" data-bs-target="#approveModal">
-                                <i class="ri-checkbox-circle-line"></i> Approve
-                            </button>
-                        }
-                        
-                        @* Reject button - only shown to current approver when PR status is Pending Approval (4) *@
-                        @if (Model.PrStatusId == 4 && isCurrentApprover)
-                        {
-                            <button type="button" class="btn btn-sm btn-danger me-2" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                                <i class="ri-close-circle-line"></i> Reject
-                            </button>
-                        }
-                        
-                        @* Recall button - only shown to creator when PR status is Pending Approval (4) *@
-                        @if (Model.PrStatusId == 4 && isCreator)
-                        {
-                            <form asp-action="Recall" asp-route-id="@Model.RecId" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-warning me-2" onclick="return confirm('Are you sure you want to recall this PR?');">
-                                    <i class="ri-arrow-go-back-line"></i> Recall
-                                </button>
-                            </form>
-                        }
-                        
-                        @* Edit/Delete buttons keep permission checks *@
-                        @if(User.HasClaim("permission", PermissionConstants.Prs.Edit))
-                        {
-                            <a href="@Url.Action("Edit", "Prs", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
+                            <a href="/Prs/Edit/@Model.Header.RecId" class="btn btn-sm btn-success">
                                 <i class="ri-edit-line"></i> Edit
                             </a>
                         }
-                        @if (User.HasClaim("permission", PermissionConstants.Prs.Delete))
+                        
+                        @if (Model.CanDelete && User.Identity?.Name == Model.Header.CreatedBy)
                         {
-                            <a href="@Url.Action("Delete", "Prs", new { id = Model.RecId })" class="btn btn-sm btn-danger">
+                            <a href="/Prs/Delete/@Model.Header.RecId" class="btn btn-sm btn-danger">
                                 <i class="ri-delete-bin-line"></i> Delete
                             </a>
                         }
@@ -87,331 +63,170 @@
         </div>
         <div class="card-body">
             <div class="tab-content">
+                <!-- Overview Tab -->
                 <div class="tab-pane active" id="overview" role="tabpanel">
-                    <div class="row mb-4">
-                        <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrId)</strong></div>
-                        <div class="col-9">@Html.DisplayFor(m => m.PrId)</div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">PR No</td>
+                                    <td>@Model.Header.PrId</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">PR Date</td>
+                                    <td>@Model.Header.PrDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">PR Name</td>
+                                    <td>@Model.Header.PrName</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Budget</td>
+                                    <td>@Model.Header.BudgetName</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Status</td>
+                                    <td>@Html.Raw(Model.Header.PrStatusName)</td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td class="fw-bold fs-5">Total</td>
+                                    <td class="fw-bold text-primary fs-5">@(Model.Header.Total?.ToString("N0") ?? "0")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Notes</td>
+                                    <td>@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                    <div class="row mb-4">
-                        <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrDate)</strong></div>
-                        <div class="col-9">@Html.DisplayFor(m => m.PrDateStr)</div>
+                </div>
+                
+                <!-- Lines Tab -->
+                <div class="tab-pane" id="lines" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Item</th>
+                                    <th class="text-center" style="width: 120px;">Request Date</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th class="text-end" style="width: 120px;">Amount</th>
+                                    <th style="width: 200px;">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Lines != null && Model.Lines.Any())
+                                {
+                                    int lineNumber = 1;
+                                    foreach (var line in Model.Lines)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@lineNumber</td>
+                                            <td>@line.ItemName</td>
+                                            <td class="text-center">@(line.RequestDateStr ?? "-")</td>
+                                            <td class="text-end">@line.Qty.ToString("N0")</td>
+                                            <td class="text-center">@line.UnitName</td>
+                                            <td class="text-end">@line.Price.ToString("N0")</td>
+                                            <td class="text-end">@((line.Amount ?? 0).ToString("N0"))</td>
+                                            <td>@(string.IsNullOrEmpty(line.Notes) ? "-" : line.Notes)</td>
+                                        </tr>
+                                        lineNumber++;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">No lines found.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="6" class="text-end">Total:</th>
+                                    <th class="text-end">@(Model.Header.Total?.ToString("N0") ?? "0")</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrName)</strong></div>
-                    <div class="col-9">@Html.DisplayFor(m => m.PrName)</div>
                 </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.BudgetName)</strong></div>
-                    <div class="col-9">@Html.DisplayFor(m => m.BudgetName)</div>
+                
+                <!-- Workflow Tab -->
+                <div class="tab-pane" id="workflow" role="tabpanel" x-show="showWorkflow">
+                    <div id="workflowHistoryContainer" 
+                         hx-get="@Url.Action("WorkflowHistory", "Prs", new { refId = Model.Header.PrId, wfFormId = 1 })"
+                         hx-trigger="load"
+                         hx-swap="innerHTML">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PrStatusName)</strong></div>
-                    <div class="col-9">@Html.Raw(Model.PrStatusName)</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Total)</strong></div>
-                    <div class="col-9">@(Model.Total?.ToString("N0") ?? "0")</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Notes)</strong></div>
-                    <div class="col-9">@Html.DisplayFor(m => m.Notes)</div>
-                </div>
-            </div>
-            <div class="tab-pane" id="log" role="tabpanel">
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
-                    <div class="col-9">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
-                    <div class="col-9">@Html.DisplayFor(m => m.CreatedBy)</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
-                    <div class="col-9">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
-                    <div class="col-9">@Model.ModifiedBy</div>
+                
+                <!-- Log Tab -->
+                <div class="tab-pane" id="log" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Created Date</td>
+                                    <td>@Model.Header.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Created By</td>
+                                    <td>@Model.Header.CreatedBy</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold" style="width: 150px;">Modified Date</td>
+                                    <td>@Model.Header.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Modified By</td>
+                                    <td>@Model.Header.ModifiedBy</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Lines</h5>
-            </div>
-            <div class="card-body">
-                <table id="pr-lines-table" class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" style="width: 100%;">
-                    <thead>
-                    <tr>
-                        <th>Line ID</th>
-                        <th>Item Name</th>
-                        <th>Request Date</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Price</th>
-                        <th>Amount</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                        <th>Line ID</th>
-                        <th>Item Name</th>
-                        <th>Request Date</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Price</th>
-                        <th>Amount</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
-                    </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-@* Approve Modal *@
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-action="Approve" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="RecId" value="@Model.RecId" />
-                <div class="modal-header">
-                    <h5 class="modal-title" id="approveModalLabel">
-                        <i class="ri-checkbox-circle-line text-success"></i> Approve PR
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to approve PR <strong>@Model.PrId</strong>?</p>
-                    <div class="mb-3">
-                        <label for="approveNotes" class="form-label">Notes (Optional)</label>
-                        <textarea class="form-control" id="approveNotes" name="Notes" rows="3" maxlength="200" placeholder="Enter approval notes..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="ri-checkbox-circle-line"></i> Approve
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-@* Reject Modal *@
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-action="Reject" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="RecId" value="@Model.RecId" />
-                <div class="modal-header">
-                    <h5 class="modal-title" id="rejectModalLabel">
-                        <i class="ri-close-circle-line text-danger"></i> Reject PR
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to reject PR <strong>@Model.PrId</strong>?</p>
-                    <div class="mb-3">
-                        <label for="rejectNotes" class="form-label">Reason for Rejection <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="rejectNotes" name="Notes" rows="3" maxlength="200" required placeholder="Enter reason for rejection..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="ri-close-circle-line"></i> Reject
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    @await Html.PartialAsync("_Partials/_WorkflowModal", Model.Header.PrId)
 </div>
 
 @section scripts {
+    <script src="~/js/components/workflow-component.js"></script>
     <script src="~/js/purchase-requisitions/pr-details.js"></script>
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
-    <script src="/assets/js/datatables.min.js"></script>
-    <script src="/assets/js/helper.js"></script>
     <script>
-        // get AntiForgeryToken using jquery
-        const token = $('input[name="__RequestVerificationToken"]').val();
-        const prId = "@Model.PrId";
-        const prRecId = "@Model.RecId";
-        
         // Join PR notification group for real-time updates
         document.addEventListener('prNotificationConnected', function() {
             if (typeof PrNotificationManager !== 'undefined') {
-                PrNotificationManager.joinPrGroup(prId);
+                PrNotificationManager.joinPrGroup('@Model.Header.PrId');
             }
         });
         
         // Handle PR status changes
         document.addEventListener('prStatusChanged', function(e) {
             const notification = e.detail;
-            if (notification.PrId === prId) {
-                // Reload the page to show updated status
+            if (notification.PrId === '@Model.Header.PrId') {
                 setTimeout(function() {
                     location.reload();
                 }, 2000);
             }
-        });
-        
-        $(document).ready(function() {
-            // Initialize datatables for PR Lines
-            $('#pr-lines-table').DataTable({
-                searchDelay: 1000,
-                layout: {
-                    topEnd: {
-                        buttons: [
-                            {
-                                // Add PR Line button
-                                text: '<i class="ri-add-line align-bottom me-1"></i> Add PR Line',
-                                className: 'btn btn-primary btn-sm',
-                                action: function () {
-                                    window.location.href = `/PrLines/Create?prRecId=${prRecId}`;
-                                }
-                            },
-                        ]
-                    }
-                },
-                ajax: {
-                    url: `/api/PrLines/${prId}`,
-                    data: function(d) {
-                        const query = {};
-                        if (d.order && d.order.length) {
-                            query.SortBy = d.columns[d.order[0].column].data;
-                            query.IsSortAscending = d.order[0].dir === 'asc';
-                        }
-
-                        return query;
-                    },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("RequestVerificationToken", token);
-                    },
-                    dataSrc: function(json) {
-                        return json.data;
-                    },
-                    error: function(err){
-                        alert(err.responseJSON?.errorMessage || "An error occurred while fetching PR lines data");
-                    }
-                },
-                columns: [
-                    { data: 'prLineId', width: '50px' },
-                    { data: 'itemName' },
-                    { 
-                        data: 'requestDate',
-                        render: function(data) {
-                            return data ? moment(data).format('DD MMM YYYY') : '';
-                        }
-                    },
-                    { 
-                        data: 'qty',
-                        render: function(data, type) {
-                            // For sorting/filtering use the raw number
-                            if (type === 'sort' || type === 'filter') {
-                                return data ? parseFloat(data) : 0;
-                            }
-                            // For display, round and format with thousands separator
-                            return data ? parseFloat(data).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
-                        }
-                    },
-                    { data: 'unitName' },
-                    { 
-                        data: 'price',
-                        render: function(data, type) {
-                            // For sorting/filtering use the raw number
-                            if (type === 'sort' || type === 'filter') {
-                                return data ? parseFloat(data) : 0;
-                            }
-                            // For display, round and format with thousands separator
-                            return data ? numberFormat.format(data) : '';
-                        }
-                    },
-                    { 
-                        data: 'amount',
-                        render: function(data, type) {
-                            // For sorting/filtering use the raw number
-                            if (type === 'sort' || type === 'filter') {
-                                return data ? parseFloat(data) : 0;
-                            }
-                            // For display, round and format with thousands separator
-                            return data ? numberFormat.format(data) : '';
-                        }
-                    },
-                    { data: 'notes' },
-                    {
-                        data: null,
-                        width: '50px',
-                        defaultContent: '',
-                        orderable: false,
-                        render: function(data, type, row) {
-                            return window.renderActionDropdown([
-                                { href: `/PrLines/Details/${row.prLineId}`, icon: 'ri-eye-fill', text: 'View' },
-                                { href: `/PrLines/Edit/${row.prLineId}`, icon: 'ri-pencil-fill', text: 'Edit', class: 'edit-item-btn' },
-                                { href: `/PrLines/Delete/${row.prLineId}`, icon: 'ri-delete-bin-fill', text: 'Delete', class: 'remove-item-btn' }
-                            ]);
-                         }
-                     },
-                ],
-                columnDefs: [
-                    {
-                        targets: [0, 2, 4, 8],
-                        className: 'text-center'
-                    }
-                ],
-                processing: true,
-                paging: true,
-                searching: true,
-                ordering: true,
-                autoWidth: false,
-                responsive: true,
-                scrollX: true,
-                initComplete: function () {
-                    $('.dt-button').removeClass('dt-button');
-                    this.api()
-                        .columns()
-                        .every(function () {
-                            let column = this;
-                            let title = column.footer().textContent;
-
-                            let header = column.header();
-                            header.style.backgroundColor = '#4F81BD';
-                            header.style.color = 'white';
-
-                            // Skip rendering input for the Actions column (last column)
-                            if (column.index() === (this.columns().count() - 1)) {
-                                column.footer().replaceChildren(); // Clear footer cell
-                                return;
-                            }
-
-                            let input = document.createElement('input');
-                            input.placeholder = title;
-                            input.className = "form-control";
-                            input.style.width = '100%';
-                            column.footer().replaceChildren(input);
-
-                            input.addEventListener('keyup', debounce(() => {
-                                if (column.search() !== input.value) {
-                                    column.search(input.value).draw();
-                                }
-                            }, 1000));
-                        });
-                }
-            });
         });
     </script>
 }

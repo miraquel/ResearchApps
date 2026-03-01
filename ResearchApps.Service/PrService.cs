@@ -12,14 +12,16 @@ namespace ResearchApps.Service;
 public partial class PrService : IPrService
 {
     private readonly IPrRepo _prRepo;
+    private readonly IPrLineRepo _prLineRepo;
     private readonly IDbTransaction _dbTransaction;
     private readonly UserClaimDto _userClaimDto;
     private readonly ILogger<PrService> _logger;
     private readonly MapperlyMapper _mapper = new();
 
-    public PrService(IPrRepo prRepo, IDbTransaction dbTransaction, UserClaimDto userClaimDto, ILogger<PrService> logger)
+    public PrService(IPrRepo prRepo, IPrLineRepo prLineRepo, IDbTransaction dbTransaction, UserClaimDto userClaimDto, ILogger<PrService> logger)
     {
         _prRepo = prRepo;
+        _prLineRepo = prLineRepo;
         _dbTransaction = dbTransaction;
         _userClaimDto = userClaimDto;
         _logger = logger;
@@ -60,6 +62,23 @@ public partial class PrService : IPrService
         return ServiceResponse<PrVm>.Success(_mapper.MapToVm(pr), "PR retrieved successfully.");
     }
 
+    public async Task<ServiceResponse<PrCompositeVm>> GetPurchaseRequisition(int recId, CancellationToken cancellationToken)
+    {
+        LogRetrievingPrCompositeByRecIdRecId(recId);
+        
+        var pr = await _prRepo.PrSelectById(recId, cancellationToken);
+        var lines = await _prLineRepo.PrLineSelectByPr(pr.PrId, cancellationToken);
+
+        var viewModel = new PrCompositeVm
+        {
+            Header = _mapper.MapToVm(pr),
+            Lines = _mapper.MapToVm(lines).ToList()
+        };
+
+        LogPrCompositeRetrievedSuccessfullyWithLinesCount(viewModel.Lines.Count);
+        return ServiceResponse<PrCompositeVm>.Success(viewModel, "PR Composite ViewModel retrieved successfully.");
+    }
+
     public async Task<ServiceResponse> PrUpdate(PrVm pr, CancellationToken cancellationToken)
     {
         LogUpdatingPrRecIdPrNameByUserUsername(pr.RecId, pr.PrName, _userClaimDto.Username);
@@ -71,13 +90,13 @@ public partial class PrService : IPrService
         return ServiceResponse.Success("PR updated successfully.");
     }
 
-    public async Task<ServiceResponse<PrVm>> PrSubmitById(int id, CancellationToken cancellationToken)
+    public async Task<ServiceResponse> PrSubmitById(int id, CancellationToken cancellationToken)
     {
         LogSubmittingPrRecIdForApprovalByUserUsername(id, _userClaimDto.Username);
-        var result = await _prRepo.PrSubmitById(id, _userClaimDto.Username, cancellationToken);
+        await _prRepo.PrSubmitById(id, _userClaimDto.Username, cancellationToken);
         _dbTransaction.Commit();
-        LogPrRecIdSubmittedSuccessfullyCurrentApproverApprover(id, result.CurrentApprover ?? "N/A");
-        return ServiceResponse<PrVm>.Success(_mapper.MapToVm(result), "PR submitted for approval successfully.");
+        LogPrRecIdSubmittedSuccessfullyCurrentApproverApprover(id);
+        return ServiceResponse.Success("PR submitted for approval successfully.");
     }
 
     public async Task<ServiceResponse> PrApproveById(PrWorkflowActionVm action, CancellationToken cancellationToken)
@@ -128,6 +147,12 @@ public partial class PrService : IPrService
     [LoggerMessage(LogLevel.Debug, "Retrieving PR by RecId: {recId}")]
     partial void LogRetrievingPrByRecIdRecId(int recId);
 
+    [LoggerMessage(LogLevel.Debug, "Retrieving PR Composite by RecId: {recId}")]
+    partial void LogRetrievingPrCompositeByRecIdRecId(int recId);
+
+    [LoggerMessage(LogLevel.Debug, "PR Composite retrieved successfully with {count} lines")]
+    partial void LogPrCompositeRetrievedSuccessfullyWithLinesCount(int count);
+
     [LoggerMessage(LogLevel.Information, "Updating PR {recId}: {prName} by user: {username}")]
     partial void LogUpdatingPrRecIdPrNameByUserUsername(int recId, string prName, string username);
 
@@ -137,8 +162,8 @@ public partial class PrService : IPrService
     [LoggerMessage(LogLevel.Information, "Submitting PR {recId} for approval by user: {username}")]
     partial void LogSubmittingPrRecIdForApprovalByUserUsername(int recId, string username);
 
-    [LoggerMessage(LogLevel.Information, "PR {recId} submitted successfully. Current approver: {approver}")]
-    partial void LogPrRecIdSubmittedSuccessfullyCurrentApproverApprover(int recId, string approver);
+    [LoggerMessage(LogLevel.Information, "PR {recId} submitted successfully.")]
+    partial void LogPrRecIdSubmittedSuccessfullyCurrentApproverApprover(int recId);
 
     [LoggerMessage(LogLevel.Information, "Approving PR {recId} by user: {username}. Notes: {notes}")]
     partial void LogApprovingPrRecIdByUserUsernameNotesNotes(int recId, string username, string notes);
@@ -157,4 +182,36 @@ public partial class PrService : IPrService
 
     [LoggerMessage(LogLevel.Information, "PR {recId} recalled successfully by {username}")]
     partial void LogPrRecIdRecalledSuccessfullyByUsername(int recId, string username);
+
+    public async Task<ServiceResponse<IEnumerable<WfTransHistoryVm>>> GetWfHistory(string refId, int wfFormId, CancellationToken cancellationToken)
+    {
+        LogRetrievingWfHistoryForPrRefIdRefId(refId);
+        
+        var data = await _prRepo.WfTransSelectByRefId(refId, wfFormId, cancellationToken);
+        var vmList = data.Select(item => new WfTransHistoryVm
+        {
+            WfTransId = item.WfTransId,
+            WfId = item.WfId,
+            WfFormId = item.WfFormId,
+            FormName = item.FormName,
+            RefId = item.RefId,
+            Index = item.Index,
+            UserId = item.UserId,
+            WfStatusActionId = item.WfStatusActionId,
+            WfStatusActionName = item.WfStatusActionName,
+            ActionDate = item.ActionDate,
+            ActionDateStr = item.ActionDate.ToString("dd MMM yyyy HH:mm"),
+            CreatedDate = item.CreatedDate,
+            Notes = item.Notes
+        }).ToList();
+        
+        LogWfHistoryRetrievedSuccessfullyCountCount(vmList.Count);
+        return ServiceResponse<IEnumerable<WfTransHistoryVm>>.Success(vmList, "Workflow history retrieved successfully.");
+    }
+
+    [LoggerMessage(LogLevel.Debug, "Retrieving workflow history for PR RefId: {refId}")]
+    partial void LogRetrievingWfHistoryForPrRefIdRefId(string refId);
+
+    [LoggerMessage(LogLevel.Debug, "Workflow history retrieved successfully. Count: {count}")]
+    partial void LogWfHistoryRetrievedSuccessfullyCountCount(int count);
 }

@@ -71,7 +71,7 @@ public class PrsController : Controller
     [Authorize(PermissionConstants.Prs.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
-        var response = await _prService.PrSelectById(id, cancellationToken);
+        var response = await _prService.GetPurchaseRequisition(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
         TempData["ErrorMessage"] = response.Message ?? "PR not found.";
         return RedirectToAction(nameof(Index));
@@ -92,13 +92,14 @@ public class PrsController : Controller
     {
         try
         {
-            if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
+            if (!ModelState.IsValid) return View(collection);
 
             var response = await _prService.PrInsert(collection, cancellationToken);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "PR created successfully.";
-                return RedirectToAction(nameof(Index));
+                // Redirect to Edit of the newly created PR
+                return RedirectToAction("Edit", "Prs", new { id = response.Data });
             }
 
             if (response.Message != null) ModelState.AddModelError(string.Empty, response.Message);
@@ -190,29 +191,29 @@ public class PrsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Submit(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Submit(int recId, CancellationToken cancellationToken)
     {
         try
         {
             // Verify user is the creator
-            var prDetails = await _prService.PrSelectById(id, cancellationToken);
+            var prDetails = await _prService.PrSelectById(recId, cancellationToken);
             if (prDetails.Data?.CreatedBy != User.Identity?.Name)
             {
                 TempData["ErrorMessage"] = "You are not authorized to submit this PR.";
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Details), new { id = recId });
             }
             
-            var response = await _prService.PrSubmitById(id, cancellationToken);
+            var response = await _prService.PrSubmitById(recId, cancellationToken);
             
             if (response.IsSuccess)
             {
                 // Get PR details after approval
-                var prAfter = await _prService.PrSelectById(id, cancellationToken);
+                var prAfter = await _prService.PrSelectById(recId, cancellationToken);
                 
                 // Send real-time notification
                 await _notificationService.NotifyPrSubmitted(
                     prAfter.Data?.PrId ?? "",
-                    id,
+                    recId,
                     User.Identity?.Name ?? "Unknown",
                     prAfter.Data?.CurrentApprover);
                 
@@ -223,12 +224,12 @@ public class PrsController : Controller
                 TempData["ErrorMessage"] = response.Message ?? "Failed to submit PR.";
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id = recId });
         }
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = $"Error submitting PR: {ex.Message}";
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id = recId });
         }
     }
 
@@ -372,5 +373,19 @@ public class PrsController : Controller
             TempData["ErrorMessage"] = $"Error recalling PR: {ex.Message}";
             return RedirectToAction(nameof(Details), new { id });
         }
+    }
+    
+    // GET: Prs/WorkflowHistory?refId=xxx&wfFormId=1
+    [Authorize(PermissionConstants.Prs.Details)]
+    public async Task<IActionResult> WorkflowHistory(string refId, int wfFormId, CancellationToken cancellationToken)
+    {
+        var response = await _prService.GetWfHistory(refId, wfFormId, cancellationToken);
+        
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("~/Views/Shared/_Partials/_WorkflowHistory.cshtml", new List<WfTransHistoryVm>());
+        }
+        
+        return PartialView("~/Views/Shared/_Partials/_WorkflowHistory.cshtml", response.Data);
     }
 }

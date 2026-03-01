@@ -13,14 +13,18 @@ public interface IPrService
     Task<ServiceResponse<PagedListVm<PrVm>>> PrSelect(PagedListRequestVm request, CancellationToken cancellationToken);
     // Pr_SelectById
     Task<ServiceResponse<PrVm>> PrSelectById(int id, CancellationToken cancellationToken);
+    // Pr_GetComposite - Get PR with lines
+    Task<ServiceResponse<PrCompositeVm>> GetPurchaseRequisition(int recId, CancellationToken cancellationToken);
     // Pr_Update
     Task<ServiceResponse> PrUpdate(PrVm pr, CancellationToken cancellationToken);
     // Pr_SubmitById - Submit PR and start workflow
-    Task<ServiceResponse<PrVm>> PrSubmitById(int id, CancellationToken cancellationToken);
+    Task<ServiceResponse> PrSubmitById(int id, CancellationToken cancellationToken);
     // Pr_ApproveById - Approve PR
     Task<ServiceResponse> PrApproveById(PrWorkflowActionVm action, CancellationToken cancellationToken);
     // Pr_RejectById - Reject PR
     Task<ServiceResponse> PrRejectById(PrWorkflowActionVm action, CancellationToken cancellationToken);
     // Pr_RecallById - Recall PR
     Task<ServiceResponse> PrRecallById(int id, CancellationToken cancellationToken);
+    // GetWfHistory - Get workflow history
+    Task<ServiceResponse<IEnumerable<WfTransHistoryVm>>> GetWfHistory(string refId, int wfFormId, CancellationToken cancellationToken);
 }

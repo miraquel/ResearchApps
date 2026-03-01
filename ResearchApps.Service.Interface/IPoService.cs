@@ -13,7 +13,7 @@ public interface IPoService
     Task<ServiceResponse> PoDelete(int recId, CancellationToken ct);
 
     // Workflow Operations
-    Task<ServiceResponse<PoVm>> PoSubmitById(int recId, CancellationToken ct);
+    Task<ServiceResponse> PoSubmitById(int recId, CancellationToken ct);
     Task<ServiceResponse> PoRecallById(int recId, CancellationToken ct);
     Task<ServiceResponse> PoApproveById(PoWorkflowActionVm action, CancellationToken ct);
     Task<ServiceResponse> PoRejectById(PoWorkflowActionVm action, CancellationToken ct);
@@ -21,5 +21,8 @@ public interface IPoService
 
     // Outstanding Operations
     Task<ServiceResponse<IEnumerable<PoHeaderOutstandingVm>>> PoOsSelect(int supplierId, CancellationToken ct);
-    Task<ServiceResponse<IEnumerable<PoLineOutstandingVm>>> PoOsSelectById(int recId, CancellationToken ct);
+    Task<ServiceResponse<IEnumerable<PoLineOutstandingVm>>> PoOsSelectById(int poLineId, CancellationToken ct);
+
+    // Workflow History
+    Task<ServiceResponse<IEnumerable<WfTransHistoryVm>>> GetWfHistory(string refId, int wfFormId, CancellationToken ct);
 }

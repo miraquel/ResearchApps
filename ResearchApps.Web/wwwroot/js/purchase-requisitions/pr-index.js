@@ -242,21 +242,13 @@ function prIndex() {
                 document.body.removeChild(a);
                 
                 // Show success message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Success', 'Excel file exported successfully', 'success');
-                } else {
-                    alert('Excel file exported successfully');
-                }
+                showNotificationModal('Excel file exported successfully');
                 
             } catch (error) {
                 console.error('Error exporting to Excel:', error);
                 
                 // Show error message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Error', error.message || 'Failed to export to Excel', 'error');
-                } else {
-                    alert(error.message || 'Failed to export to Excel');
-                }
+                showNotificationModal(error.message || 'Failed to export to Excel', true);
             } finally {
                 this.isExporting = false;
             }

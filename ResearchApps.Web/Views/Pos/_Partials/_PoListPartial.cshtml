@@ -1,4 +1,5 @@
-﻿@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.PoHeaderVm>
+﻿@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.PoHeaderVm>
 
 @if (Model.Items.Any())
 {
@@ -26,7 +27,7 @@
                                 <i class="ri-eye-fill align-bottom me-2 text-muted"></i> View
                             </a>
                         </li>
-                        @if (item.PoStatusId == 0 && item.CreatedBy == User.Identity?.Name)
+                        @if (item.PoStatusId == PoStatusConstants.Draft && item.CreatedBy == User.Identity?.Name)
                         {
                             <li>
                                 <a class="dropdown-item" href="/Pos/Edit/@item.RecId">

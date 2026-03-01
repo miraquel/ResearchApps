@@ -6,31 +6,35 @@
     var isCurrentApprover = Model.CurrentApprover == User.Identity?.Name;
 }
 
+<!-- Workflow Actions -->
+@* Submit button - only shown to creator when PR status is Draft (0) *@
 @if (Model.PoStatusId == PoStatusConstants.Draft && isCreator)
 {
     <button type="button" class="btn btn-sm btn-info" @@click="workflow.showModal('submit')">
-        <i class="ri-send-plane-line me-1"></i>Submit
+        <i class="ri-send-plane-line"></i> Submit
     </button>
 }
 
-@if (Model.PoStatusId == PoStatusConstants.Pending && isCurrentApprover)
+@* Approve button - only shown to current approver when PR status is Pending Approval (4) *@
+@if (Model.PoStatusId == PoStatusConstants.InReview && isCurrentApprover)
 {
     <button type="button" class="btn btn-sm btn-success" @@click="workflow.showModal('approve')">
-        <i class="ri-checkbox-circle-line me-1"></i>Approve
+        <i class="ri-checkbox-circle-line"></i> Approve
     </button>
     <button type="button" class="btn btn-sm btn-danger" @@click="workflow.showModal('reject')">
-        <i class="ri-close-circle-line me-1"></i>Reject
+        <i class="ri-close-circle-line"></i> Reject
     </button>
 }
 
-@if ((Model.PoStatusId == PoStatusConstants.Pending || Model.PoStatusId == PoStatusConstants.Approved) && isCreator)
+@* Recall button - only shown to creator when PR status is Pending Approval (4) *@
+@if (Model.PoStatusId == PoStatusConstants.InReview && isCreator)
 {
     <button type="button" class="btn btn-sm btn-warning" @@click="workflow.showModal('recall')">
-        <i class="ri-arrow-go-back-line me-1"></i>Recall
+        <i class="ri-arrow-go-back-line"></i> Recall
     </button>
 }
 
-@if (Model.PoStatusId == PoStatusConstants.Approved && isCreator)
+@if (Model.PoStatusId == PoStatusConstants.Active && isCreator)
 {
     <button type="button" class="btn btn-sm btn-dark" @@click="workflow.showModal('close')">
         <i class="ri-checkbox-circle-line me-1"></i>Close

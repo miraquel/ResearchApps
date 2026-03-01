@@ -13,13 +13,16 @@ public interface IPoRepo
     Task PoDelete(int recId, CancellationToken ct);
 
     // Workflow Operations
-    Task<Po> PoSubmitById(int recId, string modifiedBy, CancellationToken ct);
+    Task PoSubmitById(int recId, string modifiedBy, CancellationToken ct);
     Task PoRecallById(int recId, string modifiedBy, CancellationToken ct);
-    Task PoApproveById(int recId, string? notes, string modifiedBy, CancellationToken ct);
+    Task PoApproveById(int recId, string notes, string modifiedBy, CancellationToken ct);
     Task PoRejectById(int recId, string? notes, string modifiedBy, CancellationToken ct);
     Task PoCloseById(int recId, string modifiedBy, CancellationToken ct);
 
     // Outstanding Operations
     Task<IEnumerable<PoHeaderOutstanding>> PoOsSelect(int supplierId, CancellationToken ct);
-    Task<IEnumerable<PoLineOutstanding>> PoOsSelectById(int recId, CancellationToken ct);
+    Task<IEnumerable<PoLineOutstanding>> PoOsSelectById(int poLineId, CancellationToken ct);
+
+    // Workflow History
+    Task<IEnumerable<WfTransHistory>> WfTransSelectByRefId(string refId, int wfFormId, CancellationToken ct);
 }

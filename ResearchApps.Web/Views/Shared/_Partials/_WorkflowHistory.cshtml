@@ -4,15 +4,16 @@
     <table id="workflow-history-table" class="table table-bordered table-sm table-hover">
         <thead class="table-light">
             <tr>
-                <th style="width: 10%">Index</th>
-                <th style="width: 20%">User</th>
-                <th style="width: 25%">Status</th>
-                <th style="width: 25%">Action Date</th>
-                <th style="width: 20%">Notes</th>
+                <th class="text-center" style="width: 8%">Index</th>
+                <th style="width: 15%">User</th>
+                <th style="width: 20%">Status</th>
+                <th style="width: 17%">Action Date</th>
+                <th style="width: 17%">Created Date</th>
+                <th style="width: 23%">Notes</th>
             </tr>
         </thead>
         <tbody>
-            @if (Model != null && Model.Any())
+            @if (Model.Any())
             {
                 @foreach (var item in Model)
                 {
@@ -21,6 +22,7 @@
                         <td>@item.UserId</td>
                         <td>@item.WfStatusActionName</td>
                         <td>@item.ActionDateStr</td>
+                        <td>@item.CreatedDate.ToString("dd MMM yyyy HH:mm")</td>
                         <td>@item.Notes</td>
                     </tr>
                 }
@@ -28,7 +30,7 @@
             else
             {
                 <tr>
-                    <td colspan="5" class="text-center text-muted">
+                    <td colspan="6" class="text-center text-muted">
                         <i class="ri-information-line"></i> No workflow history available
                     </td>
                 </tr>

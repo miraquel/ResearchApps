@@ -1,123 +1,419 @@
-@model ResearchApps.Service.Vm.PrVm
+﻿@model ResearchApps.Service.Vm.PrVm
 
 @{
     ViewBag.Title = "Edit Purchase Requisition";
     ViewBag.pTitle = $"Edit Purchase Requisition No. {Model.PrId}";
     Layout = "_Layout";
+    ViewBag.CurrentApprover = Model.CurrentApprover;
+    
+    // Config object for prEdit component
+    var configJson = System.Text.Json.JsonSerializer.Serialize(new {
+        recId = Model.RecId,
+        prId = Model.PrId,
+        prDate = Model.PrDate.ToString("yyyy-MM-dd"),
+        prName = Model.PrName,
+        budgetId = Model.BudgetId,
+        budgetName = Model.BudgetName,
+        notes = Model.Notes ?? "",
+        prStatusId = Model.PrStatusId
+    });
 }
 
-<div x-data="prEditForm()" x-init="init()">
+<div x-data="{ ...prEdit(@configJson), workflow: createWorkflowComponent({ recId: @Model.RecId, refId: '@Model.PrId', baseUrl: '/Prs' }), get isDraft() { return this.config.prStatusId === 0; } }" x-init="init(); loadLines()">
+    @Html.AntiForgeryToken()
+    
+    <!-- Header Section -->
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Edit Purchase Requisition - @Model.PrId</h5>
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                Purchase Requisition Header @Html.Raw(Model.PrStatusName)
+                                <span x-show="isHeaderSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                @await Html.PartialAsync("_Partials/_WorkflowButtons", Model)
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <form id="pr-form" asp-action="Edit" method="post">
-                        @Html.AntiForgeryToken()
+                    <form id="prForm" method="post">
+                        <input type="hidden" name="RecId" value="@Model.RecId" />
+                        <input type="hidden" name="PrId" value="@Model.PrId" />
+                        <input type="hidden" name="PrStatusId" value="@Model.PrStatusId" />
+                        <input type="hidden" name="CreatedDate" value="@Model.CreatedDate.ToString("o")" />
+                        <input type="hidden" name="CreatedBy" value="@Model.CreatedBy" />
                         
-                        <!-- Validation Summary -->
-                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
-                            <div class="alert alert-danger">
-                                <template x-for="(error, field) in errors" :key="field">
-                                    <div x-text="error"></div>
-                                </template>
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" asp-for="PrId" />
-                        <input type="hidden" asp-for="RecId" />
-                        <input type="hidden" asp-for="CreatedDate" />
-                        <input type="hidden" asp-for="CreatedBy" />
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="PrDate" class="form-label">PR Date <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" 
-                                               id="PrDate" 
-                                               name="PrDate"
-                                               class="form-control" 
-                                               value="@Model.PrDate.ToString("yyyy-MM-dd")"
-                                               x-ref="prDatePicker"
-                                               data-flatpickr
-                                               :class="{ 'is-invalid': errors.PrDate }"
-                                               required />
-                                        <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">PR No</label>
+                                            <input type="text" class="form-control bg-light" value="@Model.PrId" readonly />
+                                        </div>
                                     </div>
-                                    <div class="invalid-feedback" x-show="errors.PrDate" x-text="errors.PrDate"></div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">PR Name <span class="text-danger">*</span></label>
+                                            <input type="text" 
+                                                   id="PrName" 
+                                                   name="PrName"
+                                                   class="form-control"
+                                                   x-model="header.prName"
+                                                   :class="{ 'is-invalid': headerErrors.prName, 'bg-light': !isDraft }"
+                                                   placeholder="Enter PR name"
+                                                   maxlength="200"
+                                                   :readonly="!isDraft"
+                                                   required />
+                                            <div class="invalid-feedback" x-show="headerErrors.prName" x-text="headerErrors.prName"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="PrName" class="form-label">PR Name <span class="text-danger">*</span></label>
-                                    <input type="text" 
-                                           id="PrName" 
-                                           name="PrName"
-                                           class="form-control"
-                                           value="@Model.PrName"
-                                           :class="{ 'is-invalid': errors.PrName }"
-                                           maxlength="200"
-                                           required />
-                                    <div class="invalid-feedback" x-show="errors.PrName" x-text="errors.PrName"></div>
+                            
+                            <!-- Middle Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">PR Date <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       class="form-control"
+                                                       id="Header_PrDate"
+                                                       name="PrDate"
+                                                       x-ref="prDatePicker"
+                                                       data-flatpickr
+                                                       :class="{ 'is-invalid': headerErrors.prDate, 'bg-light': !isDraft }"
+                                                       :readonly="!isDraft"
+                                                       required/>
+                                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                            </div>
+                                            <div class="invalid-feedback d-block" x-show="headerErrors.prDate" x-text="headerErrors.prDate"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Budget <span class="text-danger">*</span></label>
+                                            <select id="BudgetId" 
+                                                    name="BudgetId" 
+                                                    class="form-control"
+                                                    x-model="header.budgetId"
+                                                    data-tomselect
+                                                    data-url="/api/Budgets/cbo"
+                                                    :class="{ 'is-invalid': headerErrors.budgetId }"
+                                                    :disabled="!isDraft"
+                                                    required>
+                                                <option value="">Select Budget</option>
+                                                <option value="@Model.BudgetId" selected>@Model.BudgetName</option>
+                                            </select>
+                                            <div class="invalid-feedback" x-show="headerErrors.budgetId" x-text="headerErrors.budgetId"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Notes (Optional)</label>
+                                            <textarea id="Notes" 
+                                                      name="Notes" 
+                                                      class="form-control" 
+                                                      x-model="header.notes"
+                                                      rows="3"
+                                                      placeholder="Enter additional notes"
+                                                      :class="{ 'bg-light': !isDraft }"
+                                                      :readonly="!isDraft"
+                                                      maxlength="500"></textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="BudgetId" class="form-label">Budget <span class="text-danger">*</span></label>
-                                    <select id="BudgetId" 
-                                            name="BudgetId" 
-                                            class="form-control"
-                                            x-ref="budgetSelect"
-                                            data-tomselect
-                                            data-url="/api/Budgets/cbo"
-                                            :class="{ 'is-invalid': errors.BudgetId }"
-                                            required>
-                                        <option value="">Select Budget</option>
-                                        <option value="@Model.BudgetId" selected>@Model.BudgetName</option>
-                                    </select>
-                                    <div class="invalid-feedback" x-show="errors.BudgetId" x-text="errors.BudgetId"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="Notes" class="form-label">Notes (Optional)</label>
-                                    <textarea id="Notes" 
-                                              name="Notes" 
-                                              class="form-control" 
-                                              rows="3"
-                                              maxlength="500">@Model.Notes</textarea>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
+                        <div class="form-group d-flex gap-2 mt-2">
                             <button type="button" 
-                                    class="btn btn-primary" 
-                                    @@click="confirmUpdate()"
-                                    :disabled="isSubmitting">
-                                <span x-show="!isSubmitting">Save Changes</span>
-                                <span x-show="isSubmitting" x-cloak>
+                                    class="btn btn-primary"
+                                    @@click="saveHeader()"
+                                    x-show="isDraft"
+                                    :disabled="isHeaderSaving">
+                                <span x-show="!isHeaderSaving">
+                                    <i class="ri-save-line me-1"></i> Save Changes
+                                </span>
+                                <span x-show="isHeaderSaving" x-cloak>
                                     <span class="spinner-border spinner-border-sm me-1"></span> Saving...
                                 </span>
                             </button>
-                            <a href="/Prs/Details/@Model.RecId" class="btn btn-secondary">Cancel</a>
+                            
+                            <a href="/Prs/Details/@Model.RecId" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> <span x-text="isDraft ? 'Cancel' : 'Back'"></span>
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- PR Lines Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        PR Lines 
+                        <span class="badge bg-primary-subtle text-primary" x-text="lines.length"></span>
+                    </h5>
+                    <button type="button" class="btn btn-primary btn-sm" @@click="showLineModal('add')" x-show="isDraft">
+                        <i class="ri-add-line"></i> Add Line
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th>Item</th>
+                                    <th class="text-center" style="width: 120px;">Request Date</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th class="text-end" style="width: 120px;">Amount</th>
+                                    <th class="text-center" style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="lines.length === 0">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4 text-muted">
+                                            <i class="ri-file-list-3-line fs-1"></i>
+                                            <p class="mb-0">No lines added yet. Click "Add Line" to get started.</p>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="(line, index) in lines" :key="index">
+                                    <tr>
+                                        <td class="text-center" x-text="index + 1"></td>
+                                        <td x-text="line?.itemName || '-'"></td>
+                                        <td class="text-center" x-text="line?.requestDateStr || '-'"></td>
+                                        <td class="text-end" x-text="(line?.qty || 0).toLocaleString()"></td>
+                                        <td class="text-center" x-text="line?.unitName || '-'"></td>
+                                        <td class="text-end" x-text="(line?.price || 0).toLocaleString()"></td>
+                                        <td class="text-end" x-text="(line?.amount || 0).toLocaleString()"></td>
+                                        <td class="text-center">
+                                            <template x-if="isDraft">
+                                                <div>
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-success me-1" 
+                                                            @@click="showLineModal('edit', line)">
+                                                        <i class="ri-edit-line"></i>
+                                                    </button>
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-danger" 
+                                                            @@click="confirmDeleteLine(line)">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <span x-show="!isDraft" class="text-muted">-</span>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="6" class="text-end">Total:</th>
+                                    <th class="text-end" x-text="calculateTotal().toLocaleString()"></th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Modal (Add/Edit) -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': lineModal.show }"
+         x-show="lineModal.show"
+         x-cloak
+         tabindex="-1"
+         @@click.self="closeLineModal()"
+         @@keydown.escape.window="closeLineModal()">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-file-list-3-line me-2"></i>
+                        <span x-text="lineModal.mode === 'add' ? 'Add PR Line' : 'Edit PR Line'"></span>
+                    </h5>
+                    <button type="button" class="btn-close" @@click="closeLineModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Item <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control bg-light" 
+                                       x-model="lineModal.data.itemName" 
+                                       readonly 
+                                       placeholder="Click Browse to select an item"
+                                       :class="{ 'is-invalid': lineModal.errors.itemId }" />
+                                <button type="button" 
+                                        class="btn btn-outline-primary" 
+                                        @@click="openItemSelector()">
+                                    <i class="ri-search-line me-1"></i> Browse
+                                </button>
+                            </div>
+                            <input type="hidden" x-model="lineModal.data.itemId" />
+                            <div class="invalid-feedback" x-show="lineModal.errors.itemId" x-text="lineModal.errors.itemId"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Unit</label>
+                            <input type="text" 
+                                   class="form-control bg-light" 
+                                   x-model="lineModal.data.unitName" 
+                                   readonly 
+                                   placeholder="Will be auto-filled from selected item" />
+                            <input type="hidden" x-model="lineModal.data.unitId" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Request Date</label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control"
+                                       id="lineRequestDate"
+                                       x-ref="lineRequestDatePicker"
+                                       x-model="lineModal.data.requestDate" />
+                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control text-end" 
+                                   :value="formatNumber(lineModal.data.qty)"
+                                   @@input="lineModal.data.qty = parseNumber($event.target.value); calculateLineAmount()"
+                                   :class="{ 'is-invalid': lineModal.errors.qty }" />
+                            <div class="invalid-feedback" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Price <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   class="form-control text-end"
+                                   :value="formatNumber(lineModal.data.price)"
+                                   @@input="lineModal.data.price = parseNumber($event.target.value); calculateLineAmount()"
+                                   :class="{ 'is-invalid': lineModal.errors.price }" />
+                            <div class="invalid-feedback" x-show="lineModal.errors.price" x-text="lineModal.errors.price"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Amount</label>
+                            <input type="text"
+                                   :value="(lineModal.data.amount || 0).toLocaleString()"
+                                   class="form-control"
+                                   disabled />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Notes (Optional)</label>
+                            <textarea class="form-control" 
+                                      x-model="lineModal.data.notes"
+                                      rows="3"
+                                      maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="closeLineModal()" :disabled="lineModal.isSaving">
+                        Cancel
+                    </button>
+                    <button type="button" 
+                            class="btn btn-primary"
+                            @@click="saveLine()"
+                            :disabled="lineModal.isSaving">
+                        <span x-show="!lineModal.isSaving">
+                            <i class="ri-save-line me-1"></i>
+                            <span x-text="lineModal.mode === 'add' ? 'Add Line' : 'Update Line'"></span>
+                        </span>
+                        <span x-show="lineModal.isSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="lineModal.show" x-cloak></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': deleteModal.show }"
+         x-show="deleteModal.show"
+         x-cloak
+         tabindex="-1"
+         @@click.self="deleteModal.show = false"
+         @@keydown.escape.window="deleteModal.show = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">
+                        <i class="ri-delete-bin-line me-2"></i> Delete Line
+                    </h5>
+                    <button type="button" class="btn-close" @@click="deleteModal.show = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this line?</p>
+                    <p class="fw-bold" x-text="deleteModal.line?.itemName"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="deleteModal.show = false" :disabled="deleteModal.isDeleting">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" @@click="deleteLine()" :disabled="deleteModal.isDeleting">
+                        <span x-show="!deleteModal.isDeleting"><i class="ri-delete-bin-line me-1"></i> Delete</span>
+                        <span x-show="deleteModal.isDeleting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1"></span> Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="deleteModal.show" x-cloak></div>
+
+    @await Html.PartialAsync("_Partials/_WorkflowModal", Model.PrId)
+    
+    <!-- Item Selector Modal -->
+    @await Html.PartialAsync("_ItemSelectorModal")
 </div>
 
 @section scripts {
+    <script src="~/js/components/workflow-component.js"></script>
+    <script src="~/js/shared/item-selector.js"></script>
     <script src="~/js/purchase-requisitions/pr-edit.js"></script>
 }
