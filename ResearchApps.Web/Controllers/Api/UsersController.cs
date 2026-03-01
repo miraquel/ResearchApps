@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
+using ResearchApps.Web.Extensions;
 
 namespace ResearchApps.Web.Controllers.Api;
 
@@ -70,5 +71,33 @@ public class UsersController : ControllerBase
         };
         
         return StatusCode(response.StatusCode, response);
+    }
+
+    [HttpGet("cbo")]
+    [Authorize]
+    public IActionResult Cbo([FromQuery] string? term)
+    {
+        var query = _userManager.Users.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(term))
+        {
+            var lowerTerm = term.ToLower();
+            query = query.Where(u =>
+                (u.UserName != null && u.UserName.ToLower().Contains(lowerTerm)) ||
+                u.FirstName.ToLower().Contains(lowerTerm) ||
+                u.LastName.ToLower().Contains(lowerTerm));
+        }
+
+        var users = query
+            .OrderBy(u => u.UserName)
+            .Take(50)
+            .Select(u => new TomSelectOption
+            {
+                Value = u.UserName ?? u.Id,
+                Text = u.UserName + " (" + u.FirstName + " " + u.LastName + ")"
+            })
+            .ToList();
+
+        return Ok(users);
     }
 }

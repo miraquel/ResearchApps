@@ -1,0 +1,109 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.WorkflowConfigVm
+
+@{
+    ViewBag.Title = "Workflow Details";
+    ViewBag.pTitle = $"Workflow: {Model.Form.FormName}";
+    Layout = "_Layout";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#steps">
+                            Approval Steps
+                            <span class="badge bg-primary ms-1">@Model.Steps.Count</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if (User.HasClaim("permission", PermissionConstants.Workflows.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "Workflows", new { Area = "Admin", id = Model.Form.WfFormId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.Workflows.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "Workflows", new { Area = "Admin", id = Model.Form.WfFormId })" class="btn btn-sm btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <!-- Overview Tab -->
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Form.WfFormId)</strong></div>
+                    <div class="col-9">@Model.Form.WfFormId</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Form.FormName)</strong></div>
+                    <div class="col-9">@Model.Form.FormName</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Form.Initial)</strong></div>
+                    <div class="col-9">
+                        <span class="badge bg-info">@Model.Form.Initial</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approval Steps Tab -->
+            <div class="tab-pane" id="steps" role="tabpanel">
+                @if (Model.Steps.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 80px;">Level</th>
+                                <th style="min-width: 200px;">Approver (User ID)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var step in Model.Steps.OrderBy(s => s.Index))
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary rounded-pill">@step.Index</span>
+                                    </td>
+                                    <td>
+                                        <i class="ri-user-line me-1 text-muted"></i>
+                                        <strong>@step.UserId</strong>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="ri-flow-chart fs-2"></i>
+                        <p class="mb-0 mt-2">No approval steps configured</p>
+                        @if (User.HasClaim("permission", PermissionConstants.Workflows.Edit))
+                        {
+                            <a href="@Url.Action("Edit", "Workflows", new { Area = "Admin", id = Model.Form.WfFormId })" class="btn btn-sm btn-primary mt-2">
+                                <i class="ri-add-line me-1"></i> Configure Steps
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+@model ResearchApps.Service.Vm.WfFormVm
+
+@{
+    ViewBag.Title = "Create Workflow Form";
+    ViewBag.pTitle = "Create Workflow Form";
+    Layout = "_Layout";
+}
+
+<div class="card">
+    <div class="card-body">
+        <form id="workflow-form" asp-area="Admin" asp-controller="Workflows" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3">Workflow Form Information</h5>
+
+                    <div class="mb-3">
+                        <label asp-for="FormName" class="form-label"></label>
+                        <input asp-for="FormName" class="form-control" placeholder="Enter form name" required />
+                        <span asp-validation-for="FormName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Initial" class="form-label"></label>
+                        <input asp-for="Initial" class="form-control" placeholder="Enter initial (e.g., PR, CO)" required />
+                        <span asp-validation-for="Initial" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="ri-save-line align-bottom me-1"></i> Create
+                </button>
+                <a asp-area="Admin" asp-controller="Workflows" asp-action="Index" class="btn btn-soft-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

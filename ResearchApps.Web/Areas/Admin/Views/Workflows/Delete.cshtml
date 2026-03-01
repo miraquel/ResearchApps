@@ -1,0 +1,49 @@
+@model ResearchApps.Service.Vm.WfFormVm
+
+@{
+    ViewBag.Title = "Delete Workflow Form";
+    ViewBag.pTitle = "Delete Workflow Form";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="ri-alert-line"></i> Confirm Delete
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="ri-error-warning-line me-2"></i>
+                    Are you sure you want to delete this workflow form? This will also delete all associated approval steps. This action cannot be undone.
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.WfFormId)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(m => m.WfFormId)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.FormName)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(m => m.FormName)</dd>
+
+                    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Initial)</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info">@Model.Initial</span>
+                    </dd>
+                </dl>
+
+                <form asp-area="Admin" asp-controller="Workflows" asp-action="Delete" asp-route-id="@Model.WfFormId" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="WfFormId" />
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </button>
+                        <a asp-area="Admin" asp-controller="Workflows" asp-action="Details" asp-route-id="@Model.WfFormId" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

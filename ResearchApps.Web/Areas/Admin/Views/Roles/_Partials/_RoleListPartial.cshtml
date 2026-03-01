@@ -1,0 +1,34 @@
+@using ResearchApps.Common.Constants
+@using ResearchApps.Web.Areas.Admin.Controllers
+@model RolesController.RoleListVm
+
+@if (Model.Items.Any())
+{
+    foreach (var item in Model.Items)
+    {
+        <tr>
+            <td><span class="fw-medium">@item.Name</span></td>
+            <td>@item.Description</td>
+            <td><span class="text-muted small">@item.Id</span></td>
+            <td class="text-center">
+                <div class="hstack gap-2 justify-content-center">
+                    @if (User.HasClaim("permission", PermissionConstants.Roles.RolePermissions))
+                    {
+                        <a href="/Admin/Roles/RolePermissions?id=@item.Id" class="btn btn-sm btn-soft-primary" title="Assign Permissions">
+                            <i class="ri-settings-3-line align-bottom"></i>
+                        </a>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="4" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-2"></i>
+            <p class="mb-0 mt-2">No roles found</p>
+        </td>
+    </tr>
+}

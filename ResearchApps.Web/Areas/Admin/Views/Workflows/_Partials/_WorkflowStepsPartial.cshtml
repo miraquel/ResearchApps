@@ -1,0 +1,55 @@
+@model IEnumerable<ResearchApps.Service.Vm.WfVm>
+
+@{
+    var wfFormId = ViewBag.WfFormId as int? ?? 0;
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width: 80px;">Level</th>
+            <th style="min-width: 200px;">Approver (User ID)</th>
+            <th class="text-center" style="width: 100px;">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var step in Model.OrderBy(s => s.Index))
+            {
+                <tr>
+                    <td class="text-center">
+                        <span class="badge bg-primary rounded-pill">@step.Index</span>
+                    </td>
+                    <td>
+                        <i class="ri-user-line me-1 text-muted"></i>
+                        <strong>@step.UserId</strong>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-soft-primary btn-sm me-1"
+                                @@click="editStep(@step.WfId, @step.WfFormId, @step.Index, '@step.UserId')"
+                                title="Edit">
+                            <i class="ri-pencil-line"></i>
+                        </button>
+                        <button type="button" class="btn btn-soft-danger btn-sm"
+                                @@click="deleteStep(@step.WfId)"
+                                title="Delete">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center text-muted py-4">
+                    <i class="ri-flow-chart fs-2"></i>
+                    <p class="mb-0 mt-2">No approval steps configured</p>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

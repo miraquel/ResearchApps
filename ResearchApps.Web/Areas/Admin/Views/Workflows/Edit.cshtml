@@ -1,0 +1,103 @@
+@model ResearchApps.Service.Vm.WorkflowConfigVm
+
+@{
+    ViewBag.Title = "Edit Workflow Form";
+    ViewBag.pTitle = $"Edit Workflow: {Model.Form.FormName}";
+    Layout = "_Layout";
+}
+
+<div x-data="workflowDetails(@Model.Form.WfFormId)" x-init="init()">
+    <!-- Workflow Form Details Card -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-settings-3-line me-1"></i> Workflow Form Details
+            </h5>
+        </div>
+        <div class="card-body">
+            <form id="workflow-form" asp-area="Admin" asp-controller="Workflows" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" asp-for="Form.WfFormId" name="WfFormId" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Form.FormName" class="form-label"></label>
+                            <input asp-for="Form.FormName" name="FormName" class="form-control" required />
+                            <span asp-validation-for="Form.FormName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Form.Initial" class="form-label"></label>
+                            <input asp-for="Form.Initial" name="Initial" class="form-control" required />
+                            <span asp-validation-for="Form.Initial" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line align-bottom me-1"></i> Save Changes
+                    </button>
+                    <a asp-area="Admin" asp-controller="Workflows" asp-action="Details" asp-route-id="@Model.Form.WfFormId" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Approval Steps Card -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="ri-flow-chart me-1"></i> Approval Steps
+                </h5>
+                <button type="button" class="btn btn-sm btn-success" @@click="showAddStep()">
+                    <i class="ri-add-line me-1"></i> Add Step
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Add/Edit Step Form (toggled via Alpine) -->
+            <div x-show="showStepForm" x-cloak class="mb-3 p-3 border rounded bg-light">
+                <h6 x-text="editingStepId ? 'Edit Approval Step' : 'Add Approval Step'" class="mb-3"></h6>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Approval Level</label>
+                        <input type="number" class="form-control" x-model.number="stepForm.Index" min="1" placeholder="1" />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Approver</label>
+                        <select id="stepUserIdSelect">
+                            <option value="">Select user...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end gap-2">
+                        <button type="button" class="btn btn-primary" @@click="saveStep()" :disabled="isSaving">
+                            <span x-show="!isSaving">
+                                <i class="ri-save-line me-1"></i> <span x-text="editingStepId ? 'Update' : 'Add'"></span>
+                            </span>
+                            <span x-show="isSaving" x-cloak>
+                                <span class="spinner-border spinner-border-sm me-1"></span> Saving...
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-soft-secondary" @@click="cancelStep()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Steps List (loaded via HTMX) -->
+            <div id="workflow-steps-container">
+                @await Html.PartialAsync("_Partials/_WorkflowStepsPartial", Model.Steps)
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/workflows/workflow-details.js"></script>
+}
