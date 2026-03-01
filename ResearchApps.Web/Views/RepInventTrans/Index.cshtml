@@ -1,0 +1,89 @@
+@{
+    ViewBag.Title = "Inventory Transactions Report";
+    ViewBag.pTitle = "Inventory Transactions Report";
+    Layout = "_Layout";
+}
+
+<div x-data="repInventTransIndex()" x-init="init()">
+    @* Filter card *@
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="ri-filter-3-line me-1"></i> Report Filters
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="ItemId" class="form-label">Item <span class="text-danger">*</span></label>
+                    <select id="ItemId" x-ref="itemSelect">
+                        <option value="">Select Item</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="StartDate" class="form-label">Start Date</label>
+                    <input type="text" id="StartDate" class="form-control" placeholder="Select start date"
+                           x-ref="startDateInput" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label for="EndDate" class="form-label">End Date</label>
+                    <input type="text" id="EndDate" class="form-control" placeholder="Select end date"
+                           x-ref="endDateInput" readonly>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="btn btn-primary flex-fill" @@click="generate()" :disabled="isLoading || !itemId">
+                            <span x-show="!isLoading">
+                                <i class="ri-play-line me-1"></i> Generate
+                            </span>
+                            <span x-show="isLoading" x-cloak>
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                Loading...
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-soft-warning" @@click="clearFilters()" title="Clear Filters">
+                            <i class="ri-filter-off-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Results card *@
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-table-line me-1"></i> Results
+                        <span x-show="resultCount > 0" class="badge bg-primary ms-2" x-text="resultCount + ' records'" x-cloak></span>
+                    </h5>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-success btn-sm" @@click="exportToExcel()" :disabled="isExporting || resultCount === 0" x-show="resultCount > 0" x-cloak>
+                        <span x-show="!isExporting">
+                            <i class="ri-file-excel-2-line me-1"></i> Export to Excel
+                        </span>
+                        <span x-show="isExporting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Exporting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="result-container">
+                <div class="text-center py-5 text-muted">
+                    <i class="ri-file-search-line" style="font-size: 3rem;"></i>
+                    <p class="mb-0 mt-2">Select an item and click Generate to view results</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/rep-inventtrans/rep-inventtrans-index.js"></script>
+}

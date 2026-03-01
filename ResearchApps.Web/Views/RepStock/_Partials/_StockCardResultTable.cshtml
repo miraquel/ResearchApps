@@ -1,0 +1,70 @@
+@model IEnumerable<ResearchApps.Service.Vm.RepStockCardMonthlyVm>
+
+@{
+    var items = Model.ToList();
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width: 50px;">No</th>
+            <th style="width: 120px;">Trans Date</th>
+            <th style="min-width: 120px;">Ref Type</th>
+            <th style="min-width: 120px;">Ref No</th>
+            <th style="min-width: 150px;">Item Name</th>
+            <th class="text-center" style="width: 80px;">Unit</th>
+            <th class="text-end" style="width: 130px;">Stock In</th>
+            <th class="text-end" style="width: 130px;">Stock Out</th>
+            <th class="text-end" style="width: 130px;">Balance</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (items.Any())
+        {
+            foreach (var item in items)
+            {
+                var isSaldoAwal = item.RefType == "Saldo Awal";
+                <tr class="@(isSaldoAwal ? "table-info" : "")">
+                    <td class="text-center text-muted">@item.No</td>
+                    <td>@item.TransDateStr</td>
+                    <td>@(isSaldoAwal ? Html.Raw("<strong>" + item.RefType + "</strong>") : item.RefType)</td>
+                    <td><strong>@item.RefNo</strong></td>
+                    <td>@item.ItemName</td>
+                    <td class="text-center">@item.UnitName</td>
+                    <td class="text-end">@(item.QtyStockIn != 0 ? item.QtyStockIn.ToString("N2") : "-")</td>
+                    <td class="text-end">@(item.QtyStockOut != 0 ? item.QtyStockOut.ToString("N2") : "-")</td>
+                    <td class="text-end"><strong>@item.QtySaldo.ToString("N2")</strong></td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
+                    <i class="ri-inbox-line fs-2"></i>
+                    <p class="mb-0 mt-2">No data found</p>
+                </td>
+            </tr>
+        }
+        </tbody>
+        @if (items.Any())
+        {
+            <tfoot class="table-light">
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="text-end"><strong>Total:</strong></td>
+                <td class="text-end"><strong>@items.Sum(x => x.QtyStockIn).ToString("N2")</strong></td>
+                <td class="text-end"><strong>@items.Sum(x => x.QtyStockOut).ToString("N2")</strong></td>
+                <td class="text-end"><strong>@items.Sum(x => x.QtySaldo).ToString("N0")</strong></td>
+            </tr>
+            </tfoot>
+        }
+    </table>
+</div>
+
+<input type="hidden" id="sc-result-count" value="@items.Count" />

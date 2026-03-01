@@ -1,0 +1,103 @@
+@{
+    ViewBag.Title = "Stock Report";
+    ViewBag.pTitle = "Stock Report";
+    Layout = "_Layout";
+}
+
+<div x-data="repStockIndex()" x-init="init()">
+    <div class="tab-content">
+        @* Stock Card Monthly Tab *@
+        <div class="tab-pane fade show active" id="stockcard-pane" role="tabpanel">
+            @* Filter Card *@
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-filter-3-line me-1"></i> Stock Card Monthly Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="ScItemId" class="form-label">Item <span class="text-danger">*</span></label>
+                            <select id="ScItemId" x-ref="scItemSelect">
+                                <option value="">Select Item</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ScYear" class="form-label">Year <span class="text-danger">*</span></label>
+                            <input type="number" id="ScYear" class="form-control" x-model.number="scYear"
+                                   min="2020" max="2030" placeholder="Year">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ScMonth" class="form-label">Month <span class="text-danger">*</span></label>
+                            <select id="ScMonth" class="form-select" x-model.number="scMonth">
+                                <option value="">Select Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="d-flex gap-2 w-100">
+                                <button type="button" class="btn btn-primary flex-fill"
+                                        @@click="generateStockCard()" :disabled="isLoadingSc || !scItemId || !scYear || !scMonth">
+                                    <span x-show="!isLoadingSc">
+                                        <i class="ri-play-line me-1"></i> Generate
+                                    </span>
+                                    <span x-show="isLoadingSc" x-cloak>
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Loading...
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-soft-warning" @@click="clearScFilters()" title="Clear">
+                                    <i class="ri-filter-off-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Results Card *@
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-0">
+                                <i class="ri-table-line me-1"></i> Results
+                                <span x-show="scResultCount > 0" class="badge bg-primary ms-2" x-text="scResultCount + ' records'" x-cloak></span>
+                            </h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" class="btn btn-success btn-sm" @@click="exportToExcel('sc')"
+                                    :disabled="isExporting || scResultCount === 0" x-show="scResultCount > 0" x-cloak>
+                                <i class="ri-file-excel-2-line me-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="sc-result-container">
+                        <div class="text-center py-5 text-muted">
+                            <i class="ri-file-search-line" style="font-size: 3rem;"></i>
+                            <p class="mb-0 mt-2">Select an item, year, month and click Generate to view results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/rep-stock/rep-stock-index.js"></script>
+}

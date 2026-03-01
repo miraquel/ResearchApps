@@ -1,0 +1,106 @@
+@using ResearchApps.Common.Constants
+@model ResearchApps.Service.Vm.SalesPriceVm
+
+@{
+    ViewBag.Title = "Sales Price Details";
+    ViewBag.pTitle = $"Sales Price Details: #{Model.RecId}";
+    Layout = "_Layout";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-center">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if (User.HasClaim("permission", PermissionConstants.SalesPrices.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "SalesPrices", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.SalesPrices.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "SalesPrices", new { id = Model.RecId })" class="btn btn-sm btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.RecId)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.RecId)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemName)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.ItemName)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CustomerName)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.CustomerName)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StartDate)</strong></div>
+                    <div class="col-9">@Model.StartDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.EndDate)</strong></div>
+                    <div class="col-9">@Model.EndDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.SalesPriceValue)</strong></div>
+                    <div class="col-9">@Model.SalesPriceValue.ToString("N0")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Notes)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.Notes)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
+                    <div class="col-9">
+                        @if (Model.StatusId == 1)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                    <div class="col-9">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.CreatedBy)</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                    <div class="col-9">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                    <div class="col-9">@Html.DisplayFor(m => m.ModifiedBy)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

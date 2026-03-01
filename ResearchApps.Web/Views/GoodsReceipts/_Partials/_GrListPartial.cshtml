@@ -1,0 +1,54 @@
+@model IEnumerable<ResearchApps.Service.Vm.GoodsReceiptHeaderVm>
+
+@if (Model.Any())
+{
+    foreach (var item in Model)
+    {
+        <tr>
+            <td class="text-center fw-semibold">@item.GrId</td>
+            <td class="text-center">@item.GrDate.ToString("dd MMM yyyy")</td>
+            <td>@item.SupplierName</td>
+            <td class="text-end">@item.Total.ToString("N0")</td>
+            <td class="text-center">@Html.Raw(item.GrStatusName)</td>
+            <td class="text-center">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-more-fill align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="/GoodsReceipts/Details/@item.RecId">
+                                <i class="ri-eye-line me-2"></i>View Details
+                            </a>
+                        </li>
+                        @if (item.GrStatusId == 0)
+                        {
+                            <li>
+                                <a class="dropdown-item" href="/GoodsReceipts/Edit/@item.RecId">
+                                    <i class="ri-edit-line me-2"></i>Edit
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider"/>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="/GoodsReceipts/Delete/@item.RecId">
+                                    <i class="ri-delete-bin-line me-2"></i>Delete
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="7" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+            <p class="mb-0 mt-2">No goods receipts found.</p>
+        </td>
+    </tr>
+}

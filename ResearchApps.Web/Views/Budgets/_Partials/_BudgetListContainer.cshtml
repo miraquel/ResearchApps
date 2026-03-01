@@ -1,0 +1,161 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.BudgetVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        @* Sortable header columns with Alpine.js click handlers *@
+        <th class="sortable-header" style="width: 80px; cursor: pointer;"
+            @@click="sort('BudgetId')" data-column="BudgetId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>ID</span>
+                <template x-if="sortBy === 'BudgetId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 80px; cursor: pointer;"
+            @@click="sort('Year')" data-column="Year">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Year</span>
+                <template x-if="sortBy === 'Year'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('BudgetName')" data-column="BudgetName">
+            <div class="d-flex align-items-center">
+                <span>Budget Name</span>
+                <template x-if="sortBy === 'BudgetName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('StartDate')" data-column="StartDate">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Start Date</span>
+                <template x-if="sortBy === 'StartDate'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('EndDate')" data-column="EndDate">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>End Date</span>
+                <template x-if="sortBy === 'EndDate'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('Amount')" data-column="Amount">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Amount</span>
+                <template x-if="sortBy === 'Amount'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('RemAmount')" data-column="RemAmount">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Remaining</span>
+                <template x-if="sortBy === 'RemAmount'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 100px; cursor: pointer;"
+            @@click="sort('StatusId')" data-column="StatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'StatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="budget-table-body">
+        @* Embed list partial for table rows *@
+        @await Html.PartialAsync("_Partials/_BudgetListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        @* Filter inputs for each column *@
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="ID..."
+                   x-model="filters.BudgetId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="number" class="form-control form-control-sm" placeholder="Year..."
+                   x-model="filters.Year" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search name..."
+                   x-model="filters.BudgetName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div class="flatpickr" x-ref="startDateFilter">
+                <input type="text" class="form-control form-control-sm" placeholder="Start date..."
+                       data-input readonly>
+            </div>
+        </td>
+        <td>
+            <div class="flatpickr" x-ref="endDateFilter">
+                <input type="text" class="form-control form-control-sm" placeholder="End date..."
+                       data-input readonly>
+            </div>
+        </td>
+        <td>
+            <div class="d-flex gap-1">
+                <select class="form-control form-control-sm text-center" style="width: 30px;"
+                        x-model="filters.AmountOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" class="form-control form-control-sm text-center" placeholder="Amount..."
+                       inputmode="numeric" x-model="filters.Amount" @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <div class="d-flex gap-1">
+                <select class="form-control form-control-sm text-center" style="width: 30px;"
+                        x-model="filters.RemAmountOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" class="form-control form-control-sm" placeholder="Remaining..."
+                       inputmode="numeric" x-model="filters.RemAmount" @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.StatusId" @@change="fetchList()">
+                <option value="">All</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100"
+                    @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    @* Embed pagination partial *@
+    @await Html.PartialAsync("_Partials/_BudgetPaginationPartial", Model)
+</div>

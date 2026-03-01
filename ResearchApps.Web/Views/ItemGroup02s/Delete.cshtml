@@ -1,0 +1,88 @@
+@model ResearchApps.Service.Vm.ItemGroup02Vm
+
+@{
+    ViewBag.Title = "Delete Item Group 02";
+    Layout = "_Layout";
+}
+
+<div class="card mt-3">
+    <div class="card-header">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h4 class="card-title mb-0">Delete Item Group 02</h4>
+            </div>
+            <div class="col-auto">
+                <a asp-action="Index" class="btn btn-sm btn-secondary me-2">Cancel</a>
+                <button type="button" class="btn btn-sm btn-danger"
+                        data-confirm
+                        data-confirm-modal="deleteModal"
+                        data-confirm-form="#delete-itemgroup02-form"
+                        data-confirm-title="Confirm Delete"
+                        data-confirm-message="Are you sure you want to delete this item group? This action cannot be undone.">
+                    <i class="ri-delete-bin-line"></i> Delete
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form asp-action="Delete" method="post" id="delete-itemgroup02-form">
+            <input type="hidden" asp-for="ItemGroup02Id" />
+        </form>
+
+        <div class="alert alert-danger mb-4">
+            <i class="ri-error-warning-line me-2"></i>
+            <strong>Warning:</strong> You are about to delete this item group. This action cannot be undone.
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemGroup02Id)</strong></div>
+                    <div class="col-9">@Model.ItemGroup02Id</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemGroup02Name)</strong></div>
+                    <div class="col-9">@Model.ItemGroup02Name</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></div>
+                    <div class="col-9">@Model.StatusId</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
+                    <div class="col-9">@Model.StatusName</div>
+                </div>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                    <div class="col-9">@Model.CreatedDate</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                    <div class="col-9">@Model.CreatedBy</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                    <div class="col-9">@Model.ModifiedDate</div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                    <div class="col-9">@Model.ModifiedBy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

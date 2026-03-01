@@ -1,0 +1,83 @@
+@model ResearchApps.Service.Vm.SalesPriceVm
+
+@{
+    ViewBag.Title = "Edit Sales Price";
+    ViewBag.pTitle = $"Edit Sales Price: #{Model.RecId}";
+    Layout = "_Layout";
+}
+
+<div x-data="salesPriceEdit(@Model.ItemId, '@Html.Raw(Model.ItemName)', @Model.CustomerId, '@Html.Raw(Model.CustomerName)', @Model.SalesPriceValue)" x-init="init()">
+    <div class="card">
+        <div class="card-body">
+            <form id="salesprice-form" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" asp-for="RecId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <input type="hidden" asp-for="CreatedBy" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="ItemId" class="form-label"></label>
+                        <select id="ItemId" name="ItemId" x-ref="itemSelect" required>
+                            <option value="">Select Item</option>
+                        </select>
+                        <span asp-validation-for="ItemId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label"></label>
+                        <select id="CustomerId" name="CustomerId" x-ref="customerSelect" required>
+                            <option value="">Select Customer</option>
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="StartDate" class="form-label"></label>
+                        <input asp-for="StartDate" type="text" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="EndDate" class="form-label"></label>
+                        <input asp-for="EndDate" type="text" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="SalesPriceValue" class="form-label"></label>
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   :value="formatNumber(salesPriceValue)"
+                                   @@input="salesPriceValue = parseNumber($event.target.value)"
+                                   placeholder="0" />
+                            <input type="hidden" name="SalesPriceValue" x-model="salesPriceValue" />
+                        </div>
+                        <span asp-validation-for="SalesPriceValue" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line align-bottom me-1"></i> Save Changes
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.RecId" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/sales-prices/sales-price-form.js"></script>
+}

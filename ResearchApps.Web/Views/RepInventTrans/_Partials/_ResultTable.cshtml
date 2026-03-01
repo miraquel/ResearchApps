@@ -1,0 +1,71 @@
+@model IEnumerable<ResearchApps.Service.Vm.RepInventTransByItemVm>
+
+@{
+    var items = Model.ToList();
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width: 50px;">#</th>
+            <th style="width: 120px;">Trans Date</th>
+            <th style="min-width: 120px;">Ref Type</th>
+            <th style="min-width: 120px;">Ref No</th>
+            <th style="min-width: 150px;">Item Name</th>
+            <th style="min-width: 120px;">Warehouse</th>
+            <th class="text-end" style="width: 120px;">Qty</th>
+            <th class="text-center" style="width: 80px;">Unit</th>
+            <th class="text-end" style="width: 150px;">Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (items.Any())
+        {
+            var rowNum = 0;
+            foreach (var item in items)
+            {
+                rowNum++;
+                <tr>
+                    <td class="text-center text-muted">@rowNum</td>
+                    <td>@item.TransDateStr</td>
+                    <td>@item.RefType</td>
+                    <td><strong>@item.RefNo</strong></td>
+                    <td>@item.ItemName</td>
+                    <td>@item.WhName</td>
+                    <td class="text-end">@item.Qty.ToString("N2")</td>
+                    <td class="text-center">@item.UnitName</td>
+                    <td class="text-end">@item.Value.ToString("N0")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="9" class="text-center text-muted py-4">
+                    <i class="ri-inbox-line fs-2"></i>
+                    <p class="mb-0 mt-2">No data found</p>
+                </td>
+            </tr>
+        }
+        </tbody>
+        @if (items.Any())
+        {
+            <tfoot class="table-light">
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="text-end"><strong>Total:</strong></td>
+                <td class="text-end"><strong>@items.Sum(x => x.Qty).ToString("N2")</strong></td>
+                <td></td>
+                <td class="text-end"><strong>@items.Sum(x => x.Value).ToString("N0")</strong></td>
+            </tr>
+            </tfoot>
+        }
+    </table>
+</div>
+
+<input type="hidden" id="result-count" value="@items.Count" />

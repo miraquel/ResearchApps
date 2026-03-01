@@ -1,0 +1,121 @@
+﻿@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.PhpHeaderVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;" 
+            @@click="sort('PhpId')" data-column="PhpId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>PHP No</span>
+                <template x-if="sortBy === 'PhpId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('PhpDate')" data-column="PhpDate">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Date</span>
+                <template x-if="sortBy === 'PhpDate'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('Descr')" data-column="Descr">
+            <div class="d-flex align-items-center">
+                <span>Description</span>
+                <template x-if="sortBy === 'Descr'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('RefId')" data-column="RefId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Ref ID</span>
+                <template x-if="sortBy === 'RefId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;"
+            @@click="sort('Amount')" data-column="Amount">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Amount</span>
+                <template x-if="sortBy === 'Amount'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('PhpStatusId')" data-column="PhpStatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'PhpStatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="php-table-body">
+    @await Html.PartialAsync("_Partials/_PhpListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search ID..."
+                   x-model="filters.PhpId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div id="php-date-range" class="flatpickr input-group">
+                <input type="text" class="form-control form-control-sm" placeholder="Select date range..." data-input>
+                <button class="btn btn-sm btn-outline-secondary" type="button" title="Clear" data-clear>
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search description..."
+                   x-model="filters.Descr" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search ref ID..."
+                   x-model="filters.RefId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div class="input-group input-group-sm">
+                <select class="form-control form-control-sm" style="flex: 0 0 30px;" x-model="filters.AmountOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" class="form-control text-end" placeholder="Amount..."
+                       x-mask:dynamic="$money($input, '.', ',')"
+                       x-model="filters.Amount"
+                       @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.PhpStatusId" @@change="fetchList()">
+                <option value="">All Statuses</option>
+                <option value="0">Draft</option>
+                <option value="1">Posted</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    @await Html.PartialAsync("_Partials/_PhpPaginationPartial", Model)
+</div>

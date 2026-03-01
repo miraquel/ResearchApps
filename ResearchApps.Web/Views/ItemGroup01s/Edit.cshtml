@@ -1,0 +1,59 @@
+@model ResearchApps.Service.Vm.ItemGroup01Vm
+
+@{
+    ViewBag.Title = "Edit Item Group 01";
+    ViewBag.pTitle = $"Edit Item Group 01: {Model.ItemGroup01Name}";
+    Layout = "_Layout";
+}
+
+@* Alpine.js component for item group 01 edit form *@
+<div x-data="itemgroup01Edit()">
+    @* Page header with title and back button *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Edit Item Group 01</h2>
+        <a asp-action="Index" class="btn btn-soft-secondary">
+            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+        </a>
+    </div>
+
+    @* Form card *@
+    <div class="card">
+        <div class="card-body">
+            <form id="itemgroup01-form" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ItemGroup01Id" />
+                <input type="hidden" asp-for="StatusId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="ItemGroup01Name" class="form-label"></label>
+                            <input asp-for="ItemGroup01Name" class="form-control" placeholder="Enter name" required />
+                            <span asp-validation-for="ItemGroup01Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary"
+                            data-confirm
+                            data-confirm-modal="saveItemGroup01Modal"
+                            data-confirm-form="#itemgroup01-form"
+                            data-confirm-validate="true"
+                            data-confirm-title="Confirm Save"
+                            data-confirm-message="Are you sure you want to save changes to this item group?">
+                        <i class="ri-save-line align-bottom me-1"></i> Save
+                    </button>
+                    <a asp-action="Index" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/itemgroup01s/itemgroup01-edit.js"></script>
+}

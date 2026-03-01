@@ -1,0 +1,49 @@
+@model ResearchApps.Service.Vm.TopVm
+
+@{
+    ViewBag.Title = "Edit TOP";
+    ViewBag.pTitle = $"Edit TOP: {Model.TopName}";
+    Layout = "_Layout";
+}
+
+<div>
+    <div class="card">
+        <div class="card-body">
+            <form id="top-form" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <input type="hidden" asp-for="TopId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <input type="hidden" asp-for="CreatedBy" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">TOP Information</h5>
+
+                        <div class="mb-3">
+                            <label asp-for="TopName" class="form-label"></label>
+                            <input asp-for="TopName" class="form-control" required />
+                            <span asp-validation-for="TopName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TopDay" class="form-label"></label>
+                            <input asp-for="TopDay" type="number" min="0" class="form-control" required />
+                            <span asp-validation-for="TopDay" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line align-bottom me-1"></i> Save Changes
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.TopId" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

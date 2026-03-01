@@ -1,0 +1,172 @@
+@* Item Selector Modal - Reusable component for selecting items with pagination and search *@
+
+<!-- Item Selector Modal -->
+<div class="modal fade"
+     :class="{ 'show d-block': itemSelector.show }"
+     x-show="itemSelector.show"
+     x-cloak
+     tabindex="-1"
+     @@click.self="itemSelector.show = false"
+     @@keydown.escape.window="itemSelector.show = false">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ri-search-line me-2"></i>Select Item
+                </h5>
+                <button type="button" class="btn-close" @@click="itemSelector.show = false"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Item ID</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by ID..."
+                               x-model="itemSelector.filters.itemId"
+                               @@keyup.enter="handleItemSearchEnter()" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Item Name</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by name..."
+                               x-model="itemSelector.filters.itemName"
+                               @@keyup.enter="handleItemSearchEnter()" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Item Type</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by type..."
+                               x-model="itemSelector.filters.itemTypeName"
+                               @@keyup.enter="handleItemSearchEnter()" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Department</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by dept..."
+                               x-model="itemSelector.filters.itemDeptName"
+                               @@keyup.enter="handleItemSearchEnter()" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Status</label>
+                        <select class="form-select form-select-sm"
+                                x-model="itemSelector.filters.statusId"
+                                @@change="handleItemSearchEnter()">
+                            <option value="">All</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button"
+                                class="btn btn-primary btn-sm me-2"
+                                :disabled="itemSelector.isLoading"
+                                @@click="handleItemSearchEnter()">
+                            <i class="ri-search-line me-1"></i> Search
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                @@click="resetItemFilters()">
+                            <i class="ri-refresh-line me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div x-show="itemSelector.isLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Loading items...</p>
+                </div>
+
+                <!-- Items Table -->
+                <div x-show="!itemSelector.isLoading" class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th style="min-width: 200px;">Item Name</th>
+                                <th style="width: 120px;">Type</th>
+                                <th style="width: 120px;">Department</th>
+                                <th style="width: 80px;">Unit</th>
+                                <th class="text-center" style="width: 80px;">Status</th>
+                                <th class="text-center" style="width: 80px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-if="itemSelector.items.length === 0">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+                                        No items found. Try adjusting your search criteria.
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-for="item in itemSelector.items" :key="item.itemId">
+                                <tr>
+                                    <td x-text="item.itemId"></td>
+                                    <td>
+                                        <span class="fw-medium" x-text="item.itemName"></span>
+                                    </td>
+                                    <td x-text="item.itemTypeName || '-'"></td>
+                                    <td x-text="item.itemDeptName || '-'"></td>
+                                    <td x-text="item.unitName || '-'"></td>
+                                    <td class="text-center">
+                                        <span x-html="item.statusName"></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary"
+                                                @@click="selectItem(item)"
+                                                title="Select this item">
+                                            <i class="ri-check-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div x-show="!itemSelector.isLoading && itemSelector.totalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        Showing <span x-text="(itemSelector.pageNumber - 1) * itemSelector.pageSize + 1"></span>
+                        - <span x-text="Math.min(itemSelector.pageNumber * itemSelector.pageSize, itemSelector.totalCount)"></span>
+                        of <span x-text="itemSelector.totalCount"></span> items
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" :class="{ 'disabled': itemSelector.pageNumber <= 1 }">
+                                <a class="page-link" href="#" @@click.prevent="goToItemPage(itemSelector.pageNumber - 1)">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </a>
+                            </li>
+                            <template x-for="page in getVisiblePages()" :key="page">
+                                <li class="page-item" :class="{ 'active': page === itemSelector.pageNumber }">
+                                    <a class="page-link" href="#" @@click.prevent="goToItemPage(page)" x-text="page"></a>
+                                </li>
+                            </template>
+                            <li class="page-item" :class="{ 'disabled': itemSelector.pageNumber >= itemSelector.totalPages }">
+                                <a class="page-link" href="#" @@click.prevent="goToItemPage(itemSelector.pageNumber + 1)">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @@click="itemSelector.show = false">
+                    <i class="ri-close-line me-1"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" x-show="itemSelector.show" x-cloak></div>

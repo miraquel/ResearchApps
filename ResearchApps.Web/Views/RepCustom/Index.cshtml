@@ -1,0 +1,193 @@
+@{
+    ViewBag.Title = "Custom Report";
+    ViewBag.pTitle = "Custom Report";
+    Layout = "_Layout";
+}
+
+<div x-data="repCustomIndex()" x-init="init()">
+    @* Tab Navigation *@
+    <ul class="nav nav-tabs nav-border-top mb-3" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tools-tab" data-bs-toggle="tab"
+                    data-bs-target="#tools-pane" type="button" role="tab" @@click="activeTab = 'tools'">
+                <i class="ri-tools-line me-1"></i> Tools Consumption
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tools-analysis-tab" data-bs-toggle="tab"
+                    data-bs-target="#tools-analysis-pane" type="button" role="tab" @@click="activeTab = 'analysis'">
+                <i class="ri-bar-chart-2-line me-1"></i> Tools Analysis
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        @* Tools Consumption Tab *@
+        <div class="tab-pane fade show active" id="tools-pane" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-filter-3-line me-1"></i> Tools Report Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="ToolsYear" class="form-label">Year <span class="text-danger">*</span></label>
+                            <input type="number" id="ToolsYear" class="form-control" x-model.number="toolsYear"
+                                   min="2020" max="2030" placeholder="Year">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="ToolsMonth" class="form-label">Month <span class="text-danger">*</span></label>
+                            <select id="ToolsMonth" class="form-select" x-model.number="toolsMonth">
+                                <option value="">Select Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary"
+                                        @@click="generateTools()" :disabled="isLoadingTools || !toolsYear || !toolsMonth">
+                                    <span x-show="!isLoadingTools">
+                                        <i class="ri-play-line me-1"></i> Generate
+                                    </span>
+                                    <span x-show="isLoadingTools" x-cloak>
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Loading...
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-soft-warning" @@click="clearToolsFilters()" title="Clear">
+                                    <i class="ri-filter-off-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-0">
+                                <i class="ri-table-line me-1"></i> Results
+                                <span x-show="toolsResultCount > 0" class="badge bg-primary ms-2" x-text="toolsResultCount + ' records'" x-cloak></span>
+                            </h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" class="btn btn-success btn-sm" @@click="exportToExcel('tools')"
+                                    :disabled="isExporting || toolsResultCount === 0" x-show="toolsResultCount > 0" x-cloak>
+                                <i class="ri-file-excel-2-line me-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="tools-result-container">
+                        <div class="text-center py-5 text-muted">
+                            <i class="ri-file-search-line" style="font-size: 3rem;"></i>
+                            <p class="mb-0 mt-2">Select year and month, then click Generate to view results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Tools Analysis Tab *@
+        <div class="tab-pane fade" id="tools-analysis-pane" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-filter-3-line me-1"></i> Tools Analysis Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="AnalysisYear" class="form-label">Year <span class="text-danger">*</span></label>
+                            <input type="number" id="AnalysisYear" class="form-control" x-model.number="analysisYear"
+                                   min="2020" max="2030" placeholder="Year">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="AnalysisMonth" class="form-label">Month <span class="text-danger">*</span></label>
+                            <select id="AnalysisMonth" class="form-select" x-model.number="analysisMonth">
+                                <option value="">Select Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary"
+                                        @@click="generateAnalysis()" :disabled="isLoadingAnalysis || !analysisYear || !analysisMonth">
+                                    <span x-show="!isLoadingAnalysis">
+                                        <i class="ri-play-line me-1"></i> Generate
+                                    </span>
+                                    <span x-show="isLoadingAnalysis" x-cloak>
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Loading...
+                                    </span>
+                                </button>
+                                <button type="button" class="btn btn-soft-warning" @@click="clearAnalysisFilters()" title="Clear">
+                                    <i class="ri-filter-off-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-0">
+                                <i class="ri-table-line me-1"></i> Results
+                                <span x-show="analysisResultCount > 0" class="badge bg-primary ms-2" x-text="analysisResultCount + ' records'" x-cloak></span>
+                            </h5>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button type="button" class="btn btn-success btn-sm" @@click="exportToExcel('analysis')"
+                                    :disabled="isExporting || analysisResultCount === 0" x-show="analysisResultCount > 0" x-cloak>
+                                <i class="ri-file-excel-2-line me-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="analysis-result-container">
+                        <div class="text-center py-5 text-muted">
+                            <i class="ri-file-search-line" style="font-size: 3rem;"></i>
+                            <p class="mb-0 mt-2">Select year and month, then click Generate to view results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/rep-custom/rep-custom-index.js"></script>
+}

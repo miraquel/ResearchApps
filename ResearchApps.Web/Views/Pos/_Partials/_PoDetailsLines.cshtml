@@ -1,0 +1,60 @@
+@model ResearchApps.Service.Vm.PoLineVm[]
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+        <tr>
+            <th width="5%">#</th>
+            <th>Item</th>
+            <th width="10%" class="text-end">Qty</th>
+            <th width="10%">Unit</th>
+            <th width="15%" class="text-end">Price</th>
+            <th width="15%" class="text-end">Amount</th>
+            <th width="30%">Notes</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (Model.Any())
+        {
+            @for (var i = 0; i < Model.Length; i++)
+            {
+                var line = Model[i];
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>
+                        <a href="#" 
+                           @@click.prevent="showLineDetail(@i)" 
+                           class="text-decoration-none">
+                            @line.ItemName
+                        </a>
+                    </td>
+                    <td class="text-end">@line.Qty.ToString("N2")</td>
+                    <td>@line.UnitName</td>
+                    <td class="text-end">@line.Price.ToString("N0")</td>
+                    <td class="text-end">@line.Amount.ToString("N0")</td>
+                    <td><span class="text-muted">@(line.Notes ?? "-")</span></td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                    <i class="ri-inbox-line" style="font-size: 3rem;"></i>
+                    <p class="mt-2">No line items found.</p>
+                </td>
+            </tr>
+        }
+        </tbody>
+        @if (Model.Any())
+        {
+            <tfoot class="table-light">
+            <tr>
+                <th colspan="5" class="text-end">Total:</th>
+                <th class="text-end">@Model.Sum(l => l.Amount).ToString("N0")</th>
+                <th colspan="2"></th>
+            </tr>
+            </tfoot>
+        }
+    </table>
+</div>

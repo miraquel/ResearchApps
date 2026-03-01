@@ -1,0 +1,491 @@
+﻿@model ResearchApps.Service.Vm.PhpVm
+
+@{
+    ViewBag.Title = "Edit Penerimaan Hasil Produksi";
+    ViewBag.pTitle = $"Edit PHP No. {Model.Header.PhpId}";
+    Layout = "_Layout";
+    
+    // Serialize lines for Alpine.js with camelCase
+    var linesJson = System.Text.Json.JsonSerializer.Serialize(Model.Lines.Select(l => new {
+        phpLineId = l.PhpLineId,
+        phpId = l.PhpId,
+        phpRecId = l.PhpRecId,
+        itemId = l.ItemId,
+        itemName = l.ItemName,
+        whId = l.WhId,
+        whName = l.WhName,
+        qty = l.Qty,
+        unitName = l.UnitName,
+        price = l.Price,
+        prodId = l.ProdId,
+        notes = l.Notes ?? "",
+        createdDate = l.CreatedDate,
+        createdBy = l.CreatedBy,
+        modifiedDate = l.ModifiedDate,
+        modifiedBy = l.ModifiedBy
+    }));
+    
+    // Config object for phpEdit component
+    var configJson = System.Text.Json.JsonSerializer.Serialize(new {
+        recId = Model.Header.RecId,
+        phpId = Model.Header.PhpId,
+        phpDate = Model.Header.PhpDate.ToString("yyyy-MM-dd"),
+        descr = Model.Header.Descr ?? "",
+        refId = Model.Header.RefId ?? "",
+        notes = Model.Header.Notes ?? ""
+    });
+}
+
+<div x-data="phpEdit(@linesJson, @configJson)" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <!-- Header Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                PHP Header
+                                <span class="badge bg-@(Model.Header.PhpStatusId == 0 ? "warning" : "success")">
+                                    @Model.Header.PhpStatusName
+                                </span>
+                                <span x-show="isHeaderSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a href="/Phps" class="btn btn-secondary btn-sm">
+                                    <i class="ri-arrow-left-line me-1"></i> Back to List
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="phpForm" method="post">
+                        <input type="hidden" name="RecId" value="@Model.Header.RecId" />
+                        <input type="hidden" name="PhpId" value="@Model.Header.PhpId" />
+                        <input type="hidden" name="PhpStatusId" value="@Model.Header.PhpStatusId" />
+                        <input type="hidden" name="CreatedDate" value="@Model.Header.CreatedDate.ToString("o")" />
+                        <input type="hidden" name="CreatedBy" value="@Model.Header.CreatedBy" />
+                        
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">PHP No</label>
+                                            <input type="text" class="form-control bg-light" value="@Model.Header.PhpId" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">PHP Date <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="text" 
+                                                       class="form-control bg-light" 
+                                                       id="Header_PhpDate"
+                                                       name="PhpDate"
+                                                       value="@Model.Header.PhpDate.ToString("dd MMM yyyy")"
+                                                       readonly />
+                                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Middle Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Description</label>
+                                            <input type="text" 
+                                                   class="form-control bg-light"
+                                                   value="@Model.Header.Descr"
+                                                   readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Reference ID</label>
+                                            <input type="text" 
+                                                   class="form-control bg-light"
+                                                   value="@Model.Header.RefId"
+                                                   readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Notes</label>
+                                            <textarea name="Notes" 
+                                                      class="form-control" 
+                                                      rows="2"
+                                                      x-model="header.notes">@Model.Header.Notes</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="card bg-light mb-0">
+                                            <div class="card-body py-2 px-3">
+                                                <table class="table table-borderless table-sm mb-0">
+                                                    <tr class="border-top">
+                                                        <td class="fw-bold fs-6">Total Amount:</td>
+                                                        <td class="text-end fw-bold text-primary fs-6">@Model.Header.Amount.ToString("N0")</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12 d-flex gap-2">
+                                <button type="submit" 
+                                        class="btn btn-primary"
+                                        :disabled="isHeaderSaving"
+                                        @@click.prevent="saveHeader()">
+                                    <span x-show="!isHeaderSaving">
+                                        <i class="ri-save-line me-1"></i> Save Header
+                                    </span>
+                                    <span x-show="isHeaderSaving" x-cloak>
+                                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                        Saving...
+                                    </span>
+                                </button>
+                                <a href="/Phps/Details/@Model.Header.RecId" class="btn btn-info">
+                                    <i class="ri-eye-line me-1"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lines Section -->
+    <div class="row mt-3">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                PHP Lines
+                                <span x-show="lineModal.isSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-success" @@click="showAddLineModal()">
+                                <i class="ri-add-line me-1"></i> Add Line
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
+                                    <th style="min-width: 200px;">Item</th>
+                                    <th style="width: 120px;">Warehouse</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th style="width: 120px;">Prod ID</th>
+                                    <th style="width: 150px;">Notes</th>
+                                    <th class="text-center" style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="lines.length === 0">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+                                            No lines added yet. Click "Add Line" to start.
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="(line, index) in lines" :key="line.phpLineId || index">
+                                    <tr>
+                                        <td class="text-center" x-text="index + 1"></td>
+                                        <td x-text="line.itemName"></td>
+                                        <td x-text="line.whName"></td>
+                                        <td class="text-end" x-text="formatNumber(line.qty)"></td>
+                                        <td class="text-center" x-text="line.unitName"></td>
+                                        <td class="text-end" x-text="formatNumber(line.price)"></td>
+                                        <td x-text="line.prodId || '-'"></td>
+                                        <td x-text="line.notes || '-'"></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-info" @@click="editLine(index)" title="Edit">
+                                                <i class="ri-edit-line"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" @@click="confirmDeleteLine(index)" title="Delete">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add/Edit Line Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': lineModal.show }"
+         x-show="lineModal.show"
+         x-cloak
+         tabindex="-1"
+         @@click.self="closeLineModal()"
+         @@keydown.escape.window="closeLineModal()">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-file-list-3-line me-2"></i>
+                        <span x-text="lineModal.mode === 'add' ? 'Add Line' : 'Edit Line'"></span>
+                    </h5>
+                    <button type="button" class="btn-close" @@click="closeLineModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Production Order <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control bg-light" 
+                                       :class="{ 'is-invalid': lineModal.errors.prodId }"
+                                       x-model="lineModal.data.prodDisplayText" 
+                                       readonly 
+                                       placeholder="Click to select production order" />
+                                <button type="button" 
+                                        class="btn btn-primary" 
+                                        @@click="openProdSelector()">
+                                    <i class="ri-search-line"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback" x-show="lineModal.errors.prodId" x-text="lineModal.errors.prodId"></div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Item <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control bg-light" 
+                                   x-model="lineModal.data.itemName" 
+                                   readonly 
+                                   placeholder="Auto-filled from production order" />
+                            <small class="text-muted">Item will be auto-filled when you select a production order</small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Qty <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control text-end" 
+                                   inputmode="numeric"
+                                   x-mask:dynamic="$money($input, '.', ',')"
+                                   x-model="lineModal.data.qty"
+                                   :class="{ 'is-invalid': lineModal.errors.qty }" />
+                            <div class="invalid-feedback" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Unit</label>
+                            <input type="text" 
+                                   class="form-control bg-light text-center" 
+                                   x-model="lineModal.data.unitName" 
+                                   readonly 
+                                   placeholder="Auto-filled" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Warehouse <span class="text-danger">*</span></label>
+                            <select class="form-control form-select"
+                                    x-ref="warehouseSelect"
+                                    data-tomselect
+                                    data-url="/api/Warehouses/cbo"
+                                    :class="{ 'is-invalid': lineModal.errors.whId }"
+                                    required>
+                                <option value="">Select Warehouse</option>
+                            </select>
+                            <div class="invalid-feedback" x-show="lineModal.errors.whId" x-text="lineModal.errors.whId"></div>
+                            <small class="text-muted">Note: Warehouse TL (ID=1) is not allowed</small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Notes</label>
+                            <input type="text" 
+                                   class="form-control"
+                                   x-model="lineModal.data.notes"
+                                   placeholder="Enter notes (optional)"
+                                   maxlength="100" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="closeLineModal()">
+                        <i class="ri-close-line me-1"></i> Cancel
+                    </button>
+                    <button type="button" 
+                            class="btn btn-primary"
+                            :disabled="lineModal.isSaving"
+                            @@click="saveLine()">
+                        <span x-show="!lineModal.isSaving">
+                            <i class="ri-save-line me-1"></i> Save Line
+                        </span>
+                        <span x-show="lineModal.isSaving" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Saving...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="lineModal.show && !prodModal.show" x-cloak></div>
+    
+    <!-- Production Selector Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': prodModal.show }"
+         :style="prodModal.show ? 'background: rgba(0,0,0,0.5);' : ''"
+         x-show="prodModal.show"
+         x-cloak
+         tabindex="-1"
+         @@click.self="prodModal.show = false"
+         @@keydown.escape.window="prodModal.show = false">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="ri-search-line me-2"></i>
+                        Select Production Order
+                    </h5>
+                    <button type="button" class="btn-close" @@click="prodModal.show = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" 
+                                   class="form-control" 
+                                   placeholder="Search Production ID..."
+                                   x-model="prodModal.search"
+                                   @@input.debounce.300ms="searchProductions()" />
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th style="width: 120px;">Prod ID</th>
+                                    <th>Description</th>
+                                    <th class="text-center" style="width: 100px;">Status</th>
+                                    <th class="text-center" style="width: 100px;">Select</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-if="prodModal.isLoading">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                            <span class="ms-2">Loading...</span>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-if="!prodModal.isLoading && prodModal.items.length === 0">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            No production orders found
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="prod in prodModal.items" :key="prod.prodId">
+                                    <tr>
+                                        <td x-text="prod.prodId"></td>
+                                        <td x-text="prod.descr || '-'"></td>
+                                        <td class="text-center" x-html="prod.prodStatusName"></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-primary" @@click="selectProduction(prod)">
+                                                <i class="ri-check-line"></i> Select
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="prodModal.show = false">
+                        <i class="ri-close-line me-1"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" 
+         :class="{ 'show d-block': showDeleteConfirm }"
+         x-show="showDeleteConfirm"
+         x-cloak
+         tabindex="-1"
+         @@click.self="showDeleteConfirm = false"
+         @@keydown.escape.window="showDeleteConfirm = false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="ri-error-warning-line me-2"></i>Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @@click="showDeleteConfirm = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this line?</p>
+                    <p class="text-danger mb-0"><small>This action cannot be undone.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @@click="showDeleteConfirm = false">Cancel</button>
+                    <button type="button" 
+                            class="btn btn-danger"
+                            :disabled="isDeleting"
+                            @@click="deleteLine()">
+                        <span x-show="!isDeleting">
+                            <i class="ri-delete-bin-line me-1"></i> Delete
+                        </span>
+                        <span x-show="isDeleting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Deleting...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show" x-show="showDeleteConfirm" x-cloak></div>
+</div>
+
+@section scripts {
+    <script src="~/js/phps/php-edit.js"></script>
+}

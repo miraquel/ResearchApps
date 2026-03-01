@@ -1,0 +1,59 @@
+@using ResearchApps.Service.Vm.Common
+@model PagedListVm<ResearchApps.Service.Vm.GoodsReceiptHeaderVm>
+
+<div class="row align-items-center">
+    <div class="col-sm-12 col-md-5">
+        <div class="dataTables_info text-muted">
+            Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount) of @Model.TotalCount entries
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-7">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end mb-0">
+                <!-- First Page -->
+                <li class="page-item" :class="{ 'disabled': @Model.PageNumber == 1 }">
+                    <a class="page-link" href="#" @@click.prevent="fetchList(1)" title="First">
+                        <i class="ri-skip-back-mini-line"></i>
+                    </a>
+                </li>
+                
+                <!-- Previous Page -->
+                <li class="page-item" :class="{ 'disabled': @Model.PageNumber == 1 }">
+                    <a class="page-link" href="#" @@click.prevent="fetchList(@(Model.PageNumber - 1))" title="Previous">
+                        <i class="ri-arrow-left-s-line"></i>
+                    </a>
+                </li>
+                
+                @{
+                    var startPage = Math.Max(1, Model.PageNumber - 2);
+                    var endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+                }
+                
+                <!-- Page Numbers -->
+                @for (var p = startPage; p <= endPage; p++)
+                {
+                    var currentPageNum = p;
+                    <li class="page-item" :class="{ 'active': @currentPageNum == @Model.PageNumber }">
+                        <a class="page-link" href="#" @@click.prevent="fetchList(@currentPageNum)">
+                            @currentPageNum
+                        </a>
+                    </li>
+                }
+                
+                <!-- Next Page -->
+                <li class="page-item" :class="{ 'disabled': @Model.PageNumber >= @Model.TotalPages || @Model.TotalPages == 0 }">
+                    <a class="page-link" href="#" @@click.prevent="fetchList(@(Model.PageNumber + 1))" title="Next">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </a>
+                </li>
+                
+                <!-- Last Page -->
+                <li class="page-item" :class="{ 'disabled': @Model.PageNumber >= @Model.TotalPages || @Model.TotalPages == 0 }">
+                    <a class="page-link" href="#" @@click.prevent="fetchList(@Model.TotalPages)" title="Last">
+                        <i class="ri-skip-forward-mini-line"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

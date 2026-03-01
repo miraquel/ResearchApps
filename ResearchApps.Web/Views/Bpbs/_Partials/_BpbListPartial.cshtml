@@ -1,0 +1,56 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.BpbHeaderVm>
+
+@if (Model.Items.Any())
+{
+    @foreach (var item in Model.Items)
+    {
+        <tr>
+            <td class="text-center fw-semibold">@item.BpbId</td>
+            <td class="text-center">@item.BpbDateStr</td>
+            <td class="text-center">
+                @if (!string.IsNullOrEmpty(item.RefId))
+                {
+                    <a href="/Prods/Details?prodId=@item.RefId" class="text-info">
+                        @item.RefId
+                    </a>
+                }
+            </td>
+            <td>@item.Descr</td>
+            <td class="text-end">@item.Amount.ToString("N0")</td>
+            <td class="text-center">@Html.Raw(item.BpbStatusName)</td>
+            <td class="text-center">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                        <i class="ri-more-2-fill"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="/Bpbs/Details/@item.RecId">
+                                <i class="ri-eye-line me-2"></i> View
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/Bpbs/Edit/@item.RecId">
+                                <i class="ri-pencil-line me-2"></i> Edit
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="/Bpbs/Delete/@item.RecId">
+                                <i class="ri-delete-bin-line me-2"></i> Delete
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="7" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-1 d-block mb-2"></i>
+            No BPB records found.
+        </td>
+    </tr>
+}

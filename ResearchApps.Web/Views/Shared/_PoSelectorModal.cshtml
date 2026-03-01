@@ -1,0 +1,152 @@
+@* PO Line Selector Modal - Reusable component for selecting PO lines with outstanding quantities *@
+
+<!-- PO Line Selector Modal -->
+<div class="modal fade"
+     :class="{ 'show d-block': poSelector.show }"
+     x-show="poSelector.show"
+     x-cloak
+     tabindex="-1"
+     @@click.self="poSelector.show = false"
+     @@keydown.escape.window="poSelector.show = false">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ri-file-list-line me-2"></i>Select PO Line
+                </h5>
+                <button type="button" class="btn-close" @@click="poSelector.show = false"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">PO No</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by PO..."
+                               x-model="poSelector.filters.poId"
+                               @@keyup.enter="handlePoSearchEnter()" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Item Name</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by item..."
+                               x-model="poSelector.filters.itemName"
+                               @@keyup.enter="handlePoSearchEnter()" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Delivery Date</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               placeholder="Search by date..."
+                               x-model="poSelector.filters.deliveryDate"
+                               @@keyup.enter="handlePoSearchEnter()" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="button"
+                                class="btn btn-primary btn-sm me-2"
+                                :disabled="poSelector.isLoading"
+                                @@click="handlePoSearchEnter()">
+                            <i class="ri-search-line me-1"></i> Search
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                @@click="resetPoFilters()">
+                            <i class="ri-refresh-line me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div x-show="poSelector.isLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Loading PO lines...</p>
+                </div>
+
+                <!-- PO Lines Table -->
+                <div x-show="!poSelector.isLoading" class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 120px;">PO No</th>
+                                <th style="min-width: 200px;">Item Name</th>
+                                <th style="width: 100px;">Delivery Date</th>
+                                <th class="text-end" style="width: 100px;">Qty PO</th>
+                                <th class="text-end" style="width: 100px;">Qty GR</th>
+                                <th class="text-end" style="width: 100px;">Qty OS</th>
+                                <th style="width: 80px;">Unit</th>
+                                <th class="text-center" style="width: 80px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-if="poSelector.items.length === 0">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+                                        No outstanding PO lines found.
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-for="po in poSelector.items" :key="po.poLineId">
+                                <tr>
+                                    <td x-text="po.poId"></td>
+                                    <td>
+                                        <span class="fw-medium" x-text="po.itemName"></span>
+                                    </td>
+                                    <td x-text="po.deliveryDateStr || '-'"></td>
+                                    <td class="text-end" x-text="formatNumber(po.qtyPo)"></td>
+                                    <td class="text-end" x-text="formatNumber(po.qtyGr)"></td>
+                                    <td class="text-end fw-bold text-primary" x-text="formatNumber(po.qtyOs)"></td>
+                                    <td class="text-center" x-text="po.unitName"></td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary"
+                                                @@click="selectPoLine(po)"
+                                                title="Select this PO line">
+                                            <i class="ri-check-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div x-show="!poSelector.isLoading && poSelector.totalPages > 0" class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted small">
+                        Showing <span x-text="(poSelector.pageNumber - 1) * poSelector.pageSize + 1"></span>
+                        - <span x-text="Math.min(poSelector.pageNumber * poSelector.pageSize, poSelector.totalCount)"></span>
+                        of <span x-text="poSelector.totalCount"></span> items
+                    </div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" :class="{ 'disabled': poSelector.pageNumber <= 1 }">
+                                <a class="page-link" href="#" @@click.prevent="goToPoPage(poSelector.pageNumber - 1)">
+                                    <i class="ri-arrow-left-s-line"></i>
+                                </a>
+                            </li>
+                            <template x-for="page in getVisiblePoPages()" :key="page">
+                                <li class="page-item" :class="{ 'active': page === poSelector.pageNumber }">
+                                    <a class="page-link" href="#" @@click.prevent="goToPoPage(page)" x-text="page"></a>
+                                </li>
+                            </template>
+                            <li class="page-item" :class="{ 'disabled': poSelector.pageNumber >= poSelector.totalPages }">
+                                <a class="page-link" href="#" @@click.prevent="goToPoPage(poSelector.pageNumber + 1)">
+                                    <i class="ri-arrow-right-s-line"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @@click="poSelector.show = false">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" x-show="poSelector.show" x-cloak></div>

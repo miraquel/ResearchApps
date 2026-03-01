@@ -1,0 +1,53 @@
+@{
+    ViewBag.Title = "Terms of Payment";
+    ViewBag.pTitle = "Terms of Payment";
+    Layout = "_Layout";
+}
+
+@Html.AntiForgeryToken()
+
+<div x-data="topIndex()" x-init="init()">
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-soft-secondary" @@click="fetchList()" title="Refresh">
+                            <i class="ri-refresh-line" :class="{ 'spin': isLoading }"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-soft-warning" @@click="clearFilters()" title="Clear All Filters">
+                            <i class="ri-filter-off-line me-1"></i> Clear Filters
+                        </button>
+
+                        <div x-show.important="isLoading" class="d-flex align-items-center text-muted" x-cloak>
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="/Tops/Create" class="btn btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Create
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="top-list-container">
+                <div class="text-center py-5 row justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="mt-3 text-muted">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/tops/top-index.js"></script>
+}

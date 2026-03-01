@@ -1,0 +1,145 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.ProdVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        <th class="sortable-header" style="width: 140px; cursor: pointer;" 
+            @@click="sort('ProdId')" data-column="ProdId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Prod ID</span>
+                <template x-if="sortBy === 'ProdId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 130px; cursor: pointer;"
+            @@click="sort('ProdDate')" data-column="ProdDate">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Date</span>
+                <template x-if="sortBy === 'ProdDate'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('CustomerName')" data-column="CustomerName">
+            <div class="d-flex align-items-center">
+                <span>Customer</span>
+                <template x-if="sortBy === 'CustomerName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;"
+            @@click="sort('ItemName')" data-column="ItemName">
+            <div class="d-flex align-items-center">
+                <span>Item</span>
+                <template x-if="sortBy === 'ItemName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('PlanQty')" data-column="PlanQty">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Plan Qty</span>
+                <template x-if="sortBy === 'PlanQty'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('ResultQty')" data-column="ResultQty">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Result Qty</span>
+                <template x-if="sortBy === 'ResultQty'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('ProdStatusId')" data-column="ProdStatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'ProdStatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="prod-table-body">
+    @await Html.PartialAsync("_Partials/_ProdListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search ID..."
+                   x-model="filters.ProdId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div id="prod-date-range" class="flatpickr input-group">
+                <input type="text" class="form-control form-control-sm" placeholder="Select date range..." data-input>
+                <button class="btn btn-sm btn-outline-secondary" type="button" title="Clear" data-clear>
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search customer..."
+                   x-model="filters.CustomerName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search item..."
+                   x-model="filters.ItemName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <div class="input-group input-group-sm">
+                <select class="form-control form-control-sm" style="flex: 0 0 30px;" x-model="filters.PlanQtyOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" x-mask:dynamic="$money($input, '.', ',')" class="form-control text-end" placeholder="Qty..."
+                       x-model="filters.PlanQty"
+                       @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <div class="input-group input-group-sm">
+                <select class="form-control form-control-sm" style="flex: 0 0 30px;" x-model="filters.ResultQtyOperator" @@change="fetchList()">
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value=">=">>=</option>
+                    <option value="<"><</option>
+                    <option value="<="><=</option>
+                </select>
+                <input type="text" x-mask:dynamic="$money($input, '.', ',')" class="form-control text-end" placeholder="Qty..."
+                       x-model="filters.ResultQty"
+                       @@input.debounce.500ms="fetchList()">
+            </div>
+        </td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.ProdStatusId" @@change="fetchList()">
+                <option value="">All</option>
+                <option value="1">Draft</option>
+                <option value="2">Processing</option>
+                <option value="3">Completed</option>
+                <option value="4">Cancelled</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100" @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    @await Html.PartialAsync("_Partials/_ProdPaginationPartial", Model)
+</div>

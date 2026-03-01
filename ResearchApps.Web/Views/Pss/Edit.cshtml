@@ -1,0 +1,203 @@
+@model ResearchApps.Service.Vm.PsVm
+
+@{
+    ViewBag.Title = "Edit Penyesuaian Stock";
+    ViewBag.pTitle = $"Edit Penyesuaian Stock {Model.Header.PsId}";
+    Layout = "_Layout";
+}
+
+<div x-data="psEditForm()" x-init="init()">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Edit Penyesuaian Stock - @Model.Header.PsId</h5>
+                    <span class="badge bg-info">@Model.Lines.Count() line(s)</span>
+                </div>
+                <div class="card-body">
+                    <form id="ps-form" 
+                          method="post"
+                          action="/Pss/Edit">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="RecId" value="@Model.Header.RecId" />
+                        <input type="hidden" name="PsId" value="@Model.Header.PsId" />
+                        
+                        <!-- Validation Summary -->
+                        <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
+                            <div class="alert alert-danger">
+                                <template x-for="(error, field) in errors" :key="field">
+                                    <div x-text="error"></div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">PS No</label>
+                                    <input type="text" 
+                                           name="PsId"
+                                           class="form-control bg-light"
+                                           value="@Model.Header.PsId"
+                                           readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">PS Date</label>
+                                    <input type="text" 
+                                           name="PsDate"
+                                           class="form-control bg-light"
+                                           value="@Model.Header.PsDate.ToString("dd MMM yyyy")"
+                                           readonly />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" 
+                                           name="Descr"
+                                           class="form-control bg-light"
+                                           value="@Model.Header.Descr"
+                                           readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="Notes" class="form-label">Notes (Optional)</label>
+                                    <textarea id="Notes" 
+                                              name="Notes"
+                                              class="form-control"
+                                              rows="2"
+                                              maxlength="100"
+                                              placeholder="Enter notes">@Model.Header.Notes</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <!-- Lines Section -->
+                    <div class="card border mt-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="card-title mb-0">Stock Adjustment Lines</h6>
+                            <button type="button" class="btn btn-sm btn-primary" @@click="showAddLineModal()">
+                                <i class="ri-add-line me-1"></i> Add Line
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="ps-lines-container"
+                                 hx-get="/Pss/Lines/@Model.Header.RecId"
+                                 hx-trigger="load">
+                                <!-- Lines loaded here via HTMX -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" form="ps-form">
+                            <i class="ri-save-line me-1"></i> Save
+                        </button>
+                        <a href="/Pss/Details/@Model.Header.RecId" class="btn btn-secondary">
+                            <i class="ri-arrow-left-line me-1"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Line Modal -->
+    <div class="modal fade" id="addLineModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" x-text="editingLineId ? 'Edit Line' : 'Add Line'">Add Line</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="line-form" method="post" :action="editingLineId ? '/Pss/UpdateLine' : '/Pss/AddLine'">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="PsRecId" value="@Model.Header.RecId" />
+                    <input type="hidden" name="PsLineId" x-model="editingLineId" />
+                    
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="LineItemId" class="form-label">Item <span class="text-danger">*</span></label>
+                                    <select class="form-control form-select"
+                                            id="LineItemId" 
+                                            name="ItemId"
+                                            x-ref="lineItemSelect"
+                                            required>
+                                        <option value="">Select Item</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="LineWhId" class="form-label">Warehouse <span class="text-danger">*</span></label>
+                                    <select class="form-control form-select"
+                                            id="LineWhId" 
+                                            name="WhId"
+                                            x-ref="lineWhSelect"
+                                            required>
+                                        <option value="">Select Warehouse</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="LineQty" class="form-label">Quantity <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           id="LineQty" 
+                                           name="Qty"
+                                           class="form-control"
+                                           x-model="lineQty"
+                                           x-mask:dynamic="$money($input, '.', ',')"
+                                           placeholder="Positive = Stock In, Negative = Stock Out"
+                                           required />
+                                    <small class="text-muted">
+                                        Positive value for stock increase, negative for stock decrease
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="LineNotes" class="form-label">Notes (Optional)</label>
+                                    <input type="text" 
+                                           id="LineNotes" 
+                                           name="Notes"
+                                           class="form-control"
+                                           maxlength="100"
+                                           x-model="lineNotes"
+                                           placeholder="Enter notes" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-line me-1"></i> <span x-text="editingLineId ? 'Update Line' : 'Add Line'">Add Line</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/pss/ps-edit.js"></script>
+}

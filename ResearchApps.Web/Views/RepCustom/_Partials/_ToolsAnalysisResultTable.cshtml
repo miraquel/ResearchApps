@@ -1,0 +1,89 @@
+@model IEnumerable<ResearchApps.Service.Vm.RepToolsAnalysisVm>
+
+@{
+    var items = Model.ToList();
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width: 50px;">#</th>
+            <th style="width: 110px;">Period</th>
+            <th style="min-width: 120px;">Customer</th>
+            <th style="min-width: 100px;">Prod ID</th>
+            <th style="min-width: 120px;">Product</th>
+            <th style="min-width: 80px;">Item ID</th>
+            <th style="min-width: 130px;">Item Name</th>
+            <th class="text-center" style="width: 70px;">Unit</th>
+            <th class="text-end" style="width: 90px;">Qty</th>
+            <th class="text-end" style="width: 110px;">Cost Price</th>
+            <th class="text-end" style="width: 120px;">Value</th>
+            <th class="text-end" style="width: 90px;">Qty DO</th>
+            <th class="text-end" style="width: 100px;">Tool Life</th>
+            <th class="text-end" style="width: 110px;">Cost/Pcs</th>
+            <th class="text-end" style="width: 110px;">Sales Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (items.Any())
+        {
+            var rowNum = 0;
+            foreach (var item in items)
+            {
+                rowNum++;
+                <tr>
+                    <td class="text-center text-muted">@rowNum</td>
+                    <td>@item.MonthName</td>
+                    <td><strong>@item.CustomerName</strong></td>
+                    <td>@item.ProdId</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.ItemId</td>
+                    <td>@item.ItemName</td>
+                    <td class="text-center">@item.UnitName</td>
+                    <td class="text-end">@item.Qty.ToString("N2")</td>
+                    <td class="text-end">@item.CostPrice.ToString("N2")</td>
+                    <td class="text-end">@item.Value.ToString("N2")</td>
+                    <td class="text-end">@item.QtyDo.ToString("N2")</td>
+                    <td class="text-end">@item.ToolLife.ToString("N0")</td>
+                    <td class="text-end">@item.ToolCostPerPcs.ToString("N2")</td>
+                    <td class="text-end">@item.SalesPrice.ToString("N2")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="15" class="text-center text-muted py-4">
+                    <i class="ri-inbox-line fs-2"></i>
+                    <p class="mb-0 mt-2">No data found</p>
+                </td>
+            </tr>
+        }
+        </tbody>
+        @if (items.Any())
+        {
+            <tfoot class="table-light">
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="text-end"><strong>Total:</strong></td>
+                <td class="text-end"><strong>@items.Sum(x => x.Qty).ToString("N2")</strong></td>
+                <td></td>
+                <td class="text-end"><strong>@items.Sum(x => x.Value).ToString("N0")</strong></td>
+                <td class="text-end"><strong>@items.Sum(x => x.QtyDo).ToString("N2")</strong></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tfoot>
+        }
+    </table>
+</div>
+
+<input type="hidden" id="analysis-result-count" value="@items.Count" />

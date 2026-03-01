@@ -1,0 +1,52 @@
+@model ResearchApps.Service.Vm.ItemGroup01Vm
+
+@{
+    ViewBag.Title = "Create Item Group 01";
+    ViewBag.pTitle = "Create Item Group 01";
+    Layout = "_Layout";
+}
+
+@* Alpine.js component for item group 01 creation form *@
+<div x-data="itemgroup01Create()">
+    @* Page header with title and back button *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Create Item Group 01</h2>
+        <a asp-action="Index" class="btn btn-soft-secondary">
+            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+        </a>
+    </div>
+
+    @* Form card *@
+    <div class="card">
+        <div class="card-body">
+            <form id="itemgroup01-form" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="StatusId" value="1" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="ItemGroup01Name" class="form-label"></label>
+                            <input asp-for="ItemGroup01Name" class="form-control" placeholder="Enter name" required />
+                            <span asp-validation-for="ItemGroup01Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line align-bottom me-1"></i> Create
+                    </button>
+                    <a asp-action="Index" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/itemgroup01s/itemgroup01-create.js"></script>
+}

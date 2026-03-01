@@ -1,0 +1,92 @@
+@model IEnumerable<ResearchApps.Service.Vm.PsLineVm>
+
+@{
+    var psRecId = ViewBag.PsRecId as int? ?? 0;
+    var canEdit = ViewBag.CanEdit as bool? ?? false;
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle mb-0">
+        <thead class="table-light">
+        <tr>
+            <th class="text-center" style="width: 50px;">#</th>
+            <th>Item</th>
+            <th>Warehouse</th>
+            <th class="text-end" style="width: 120px;">Qty</th>
+            <th style="width: 80px;">Unit</th>
+            <th class="text-end" style="width: 140px;">Price</th>
+            <th class="text-end" style="width: 160px;">Amount</th>
+            <th style="width: 150px;">Notes</th>
+            @if (canEdit)
+            {
+                <th class="text-center" style="width: 100px;">Actions</th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="@(canEdit ? 9 : 8)" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="ri-inbox-line fs-2"></i>
+                        <p class="mb-0 mt-2">No lines added yet</p>
+                    </div>
+                </td>
+            </tr>
+        }
+        else
+        {
+            var lineNo = 0;
+            decimal totalAmount = 0;
+            @foreach (var line in Model)
+            {
+                lineNo++;
+                var lineAmount = line.Qty * line.Price;
+                totalAmount += lineAmount;
+                var qtyClass = line.Qty >= 0 ? "text-success" : "text-danger";
+                <tr>
+                    <td class="text-center">@lineNo</td>
+                    <td>@line.ItemName</td>
+                    <td>@line.WhName</td>
+                    <td class="text-end @qtyClass fw-semibold">@line.Qty.ToString("N2")</td>
+                    <td>@line.UnitName</td>
+                    <td class="text-end">@line.Price.ToString("N0")</td>
+                    <td class="text-end fw-semibold">@lineAmount.ToString("N0")</td>
+                    <td>@(string.IsNullOrEmpty(line.Notes) ? "-" : line.Notes)</td>
+                    @if (canEdit)
+                    {
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-soft-primary" 
+                                        title="Edit"
+                                        @@click="editLine(@line.PsLineId)">
+                                    <i class="ri-edit-line"></i>
+                                </button>
+                                <form method="post" action="/Pss/DeleteLine" class="d-inline"
+                                      onsubmit="return confirm('Are you sure you want to delete this line?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="lineId" value="@line.PsLineId" />
+                                    <input type="hidden" name="psRecId" value="@psRecId" />
+                                    <button type="submit" class="btn btn-soft-danger" title="Delete">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+            <tr class="table-light">
+                <td colspan="6" class="text-end fw-bold">Total:</td>
+                <td class="text-end fw-bold text-primary">@totalAmount.ToString("N0")</td>
+                <td></td>
+                @if (canEdit)
+                {
+                    <td></td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

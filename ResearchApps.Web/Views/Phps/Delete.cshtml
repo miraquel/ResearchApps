@@ -1,0 +1,86 @@
+@model ResearchApps.Service.Vm.PhpVm
+
+@{
+    ViewBag.Title = "Delete Penerimaan Hasil Produksi";
+    ViewBag.pTitle = $"Delete PHP No. {Model.Header.PhpId}";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="ri-error-warning-line me-2"></i>
+                    Confirm Delete
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="ri-alert-line me-2"></i>
+                    Are you sure you want to delete this Penerimaan Hasil Produksi? This action cannot be undone.
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <table class="table table-borderless table-sm">
+                            <tr>
+                                <td class="text-muted" style="width: 120px;">PHP No:</td>
+                                <td class="fw-semibold">@Model.Header.PhpId</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">PHP Date:</td>
+                                <td>@Model.Header.PhpDate.ToString("dd MMM yyyy")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Description:</td>
+                                <td>@(string.IsNullOrEmpty(Model.Header.Descr) ? "-" : Model.Header.Descr)</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Reference ID:</td>
+                                <td>@(string.IsNullOrEmpty(Model.Header.RefId) ? "-" : Model.Header.RefId)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless table-sm">
+                            <tr>
+                                <td class="text-muted" style="width: 120px;">Status:</td>
+                                <td>@Model.Header.PhpStatusName</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Total Amount:</td>
+                                <td class="fw-semibold">@Model.Header.Amount.ToString("N0")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Lines:</td>
+                                <td>@Model.Lines.Count() item(s)</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Notes:</td>
+                                <td>@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <form method="post" action="/Phps/Delete/@Model.Header.RecId" id="delete-php-form">
+                    @Html.AntiForgeryToken()
+                </form>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-danger"
+                            data-confirm
+                            data-confirm-modal="deleteModal"
+                            data-confirm-form="#delete-php-form"
+                            data-confirm-title="Confirm Delete"
+                            data-confirm-message="Are you sure you want to delete this Penerimaan Hasil Produksi? This action cannot be undone.">
+                        <i class="ri-delete-bin-line me-1"></i> Yes, Delete
+                    </button>
+                    <a href="/Phps/Details/@Model.Header.RecId" class="btn btn-secondary">
+                        <i class="ri-arrow-left-line me-1"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

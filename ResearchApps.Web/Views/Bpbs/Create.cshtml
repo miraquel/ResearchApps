@@ -1,0 +1,230 @@
+@model ResearchApps.Service.Vm.BpbHeaderVm
+
+@{
+    ViewBag.Title = "Create BPB";
+    ViewBag.pTitle = "Create Bon Pengambilan Barang";
+    Layout = "_Layout";
+}
+
+<div x-data="bpbCreate()" x-init="init()">
+    @Html.AntiForgeryToken()
+    
+    <!-- Header Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">BPB Header</h5>
+                            <a href="/Bpbs" class="btn btn-secondary btn-sm">
+                                <i class="ri-arrow-left-line me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="bpbForm" method="post" action="/Bpbs/Create">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label for="BpbDate" class="form-label">BPB Date <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" 
+                                           id="BpbDate" 
+                                           name="BpbDate"
+                                           class="form-control"
+                                           x-ref="bpbDatePicker"
+                                           placeholder="Select date"
+                                           required />
+                                    <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="RefType" class="form-label">Reference Type <span class="text-danger">*</span></label>
+                                <select class="form-select"
+                                        id="RefType" 
+                                        name="RefType"
+                                        x-model="refType"
+                                        required>
+                                    <option value="">Select Type</option>
+                                    <option value="Production" selected>Production</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Inventory">Inventory</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="RefId" class="form-label">Reference ID <span class="text-danger">*</span></label>
+                                <input type="hidden" 
+                                       id="RefIdHidden"
+                                       name="RefId"
+                                       x-model="selectedProdId" />
+                                <div class="input-group">
+                                    <input type="text" 
+                                           id="RefId" 
+                                           class="form-control"
+                                           :value="selectedProdId"
+                                           placeholder="Select production"
+                                           readonly
+                                           required />
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary" 
+                                            @@click="showProdModal = true"
+                                            x-show="refType === 'Production'">
+                                        <i class="ri-search-line"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted" x-show="selectedProdName" x-text="selectedProdName"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="Descr" class="form-label">Description</label>
+                                <input type="text" 
+                                       id="Descr" 
+                                       name="Descr"
+                                       class="form-control"
+                                       maxlength="50"
+                                       placeholder="Enter description" />
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label for="Notes" class="form-label">Notes</label>
+                                <input type="text" 
+                                       id="Notes" 
+                                       name="Notes"
+                                       class="form-control"
+                                       maxlength="100"
+                                       placeholder="Enter notes" />
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" 
+                                    class="btn btn-primary" 
+                                    :disabled="isSubmitting"
+                                    @@click.prevent="submitForm()">
+                                <span x-show="!isSubmitting">
+                                    <i class="ri-save-line me-1"></i> Create BPB
+                                </span>
+                                <span x-show="isSubmitting" x-cloak>
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                    Creating...
+                                </span>
+                            </button>
+                            <a href="/Bpbs" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info Card -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="alert alert-info">
+                <i class="ri-information-line me-2"></i>
+                <strong>Note:</strong> Create the BPB header first, then add line items in the Edit page.
+                Line items will withdraw materials from inventory and update production costs.
+            </div>
+        </div>
+    </div>
+    
+    <!-- Production Selection Modal -->
+    <template x-if="showProdModal">
+        <div class="modal fade show d-block" 
+             @@click.self="showProdModal = false"
+             @@keydown.escape.window="showProdModal = false">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="ri-search-line me-2"></i>Select Production Order
+                        </h5>
+                        <button type="button" class="btn-close" @@click="showProdModal = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Search -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" 
+                                       class="form-control" 
+                                       placeholder="Search by Production ID..."
+                                       x-model="prodSearch"
+                                       @@input.debounce.300ms="fetchProductions()">
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <button type="button" class="btn btn-sm btn-secondary" @@click="fetchProductions()">
+                                    <i class="ri-refresh-line"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div x-show="loadingProds" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading production orders...</p>
+                        </div>
+                        
+                        <!-- Productions Table -->
+                        <div x-show="!loadingProds" class="table-responsive">
+                            <table class="table table-hover table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Production ID</th>
+                                        <th>Date</th>
+                                        <th>Item</th>
+                                        <th>Plan Quantity</th>
+                                        <th>Result Qty</th>
+                                        <th>Status</th>
+                                        <th class="text-center" style="width: 100px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr x-show="productions.length === 0">
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            <i class="ri-inbox-line fs-1 d-block mb-2"></i>
+                                            No production orders found
+                                        </td>
+                                    </tr>
+                                    <template x-for="prod in productions" :key="prod.value || prod.prodId">
+                                        <tr>
+                                            <td x-text="prod.prodId"></td>
+                                            <td x-text="formatDate(prod.prodDate) || '-'"></td>
+                                            <td x-text="prod.text || prod.itemName || '-'"></td>
+                                            <td x-text="prod.planQty || '-'"></td>
+                                            <td x-text="prod.resultQty || '-'"></td>
+                                            <td><span x-html="prod.prodStatusName || 'Unknown'"></span></td>
+                                            <td class="text-center">
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-primary"
+                                                        @@click="selectProduction(prod)">
+                                                    <i class="ri-check-line"></i> Select
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @@click="showProdModal = false">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="modal-backdrop fade show" x-show="showProdModal"></div>
+</div>
+
+@section scripts {
+    <script src="~/js/bpbs/bpb-create.js"></script>
+}

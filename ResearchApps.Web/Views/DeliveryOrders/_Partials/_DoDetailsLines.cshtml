@@ -1,0 +1,51 @@
+﻿@model List<ResearchApps.Service.Vm.DeliveryOrderLineVm>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th class="text-center" style="width: 50px;">#</th>
+                <th>CO No</th>
+                <th class="text-center">CO Line</th>
+                <th>Item</th>
+                <th class="text-end" style="width: 100px;">Qty</th>
+                <th class="text-center" style="width: 80px;">Unit</th>
+                <th class="text-end" style="width: 120px;">Price</th>
+                <th class="text-end" style="width: 120px;">Amount</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ var lineNumber = 0; }
+            @foreach (var line in Model)
+            {
+                lineNumber++;
+                <tr>
+                    <td class="text-center">@lineNumber</td>
+                    <td>@line.CoId</td>
+                    <td class="text-center">@line.CoLineId</td>
+                    <td>
+                        <a href="#" 
+                           @@click.prevent="showLineDetailModal(@System.Text.Json.JsonSerializer.Serialize(line, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }))"
+                           class="text-primary text-decoration-none">
+                            @line.ItemName
+                        </a>
+                    </td>
+                    <td class="text-end">@line.Qty.ToString("N2")</td>
+                    <td class="text-center">@line.UnitName</td>
+                    <td class="text-end">@line.Price.ToString("N0")</td>
+                    @* qty * price  *@
+                    <td class="text-end">@((line.Qty * line.Price).ToString("N0"))</td>
+                    <td>@line.Notes</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="7" class="text-end fw-bold">Total:</td>
+                <td class="text-end fw-bold text-primary">@Model.Sum(l => l.Qty * l.Price).ToString("N0")</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

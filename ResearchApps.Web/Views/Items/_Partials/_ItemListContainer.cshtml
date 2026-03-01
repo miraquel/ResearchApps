@@ -1,0 +1,147 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.ItemVm>
+
+<table class="table table-bordered table-hover align-middle mb-0" style="width: 100%;">
+    <thead class="table-light">
+    <tr>
+        @* Sortable header columns with Alpine.js click handlers *@
+        <th class="sortable-header" style="width: 80px; cursor: pointer;" 
+            @@click="sort('ItemId')" data-column="ItemId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>ID</span>
+                <template x-if="sortBy === 'ItemId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="min-width: 200px; cursor: pointer;" 
+            @@click="sort('ItemName')" data-column="ItemName">
+            <div class="d-flex align-items-center">
+                <span>Item Name</span>
+                <template x-if="sortBy === 'ItemName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('ItemTypeName')" data-column="ItemTypeName">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Type</span>
+                <template x-if="sortBy === 'ItemTypeName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('ItemDeptName')" data-column="ItemDeptName">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Department</span>
+                <template x-if="sortBy === 'ItemDeptName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('ItemGroup01Name')" data-column="ItemGroup01Name">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Group 01</span>
+                <template x-if="sortBy === 'ItemGroup01Name'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 150px; cursor: pointer;"
+            @@click="sort('ItemGroup02Name')" data-column="ItemGroup02Name">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Group 02</span>
+                <template x-if="sortBy === 'ItemGroup02Name'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 100px; cursor: pointer;"
+            @@click="sort('UnitName')" data-column="UnitName">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Unit</span>
+                <template x-if="sortBy === 'UnitName'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 120px; cursor: pointer;"
+            @@click="sort('BufferStock')" data-column="BufferStock">
+            <div class="d-flex align-items-center justify-content-end">
+                <span>Buffer Stock</span>
+                <template x-if="sortBy === 'BufferStock'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="sortable-header" style="width: 100px; cursor: pointer;"
+            @@click="sort('StatusId')" data-column="StatusId">
+            <div class="d-flex align-items-center justify-content-center">
+                <span>Status</span>
+                <template x-if="sortBy === 'StatusId'">
+                    <i :class="sortAsc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="ms-1"></i>
+                </template>
+            </div>
+        </th>
+        <th class="text-center" style="width: 80px;">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="item-table-body">
+        @* Embed list partial for table rows *@
+        @await Html.PartialAsync("_Partials/_ItemListPartial", Model)
+    </tbody>
+    <tfoot class="table-light">
+    <tr>
+        @* Filter inputs for each column *@
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="ID..."
+                   x-model="filters.ItemId" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search name..."
+                   x-model="filters.ItemName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search type..."
+                   x-model="filters.ItemTypeName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search dept..."
+                   x-model="filters.ItemDeptName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search group 01..."
+                   x-model="filters.ItemGroup01Name" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search group 02..."
+                   x-model="filters.ItemGroup02Name" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td>
+            <input type="text" class="form-control form-control-sm" placeholder="Search unit..."
+                   x-model="filters.UnitName" @@input.debounce.500ms="fetchList()">
+        </td>
+        <td></td>
+        <td>
+            <select class="form-select form-select-sm" x-model="filters.StatusId" @@change="fetchList()">
+                <option value="">All Status</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                    @@click="clearFilters()" title="Clear All Filters">
+                <i class="ri-filter-off-line"></i>
+            </button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<div class="mt-3">
+    @* Embed pagination partial *@
+    @await Html.PartialAsync("_Partials/_ItemPaginationPartial", Model)
+</div>

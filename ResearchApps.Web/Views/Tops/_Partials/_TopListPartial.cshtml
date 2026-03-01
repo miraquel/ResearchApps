@@ -1,0 +1,51 @@
+@model ResearchApps.Service.Vm.Common.PagedListVm<ResearchApps.Service.Vm.TopVm>
+
+@if (Model.Items.Any())
+{
+    foreach (var item in Model.Items)
+    {
+        <tr>
+            <td class="text-center">@item.TopId</td>
+            <td><strong>@item.TopName</strong></td>
+            <td class="text-center">@item.TopDay</td>
+            <td class="text-center">
+                @Html.Raw(item.StatusName)
+            </td>
+            <td class="text-center">
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-more-fill align-middle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a href="/Tops/Details/@item.TopId" class="dropdown-item">
+                                <i class="ri-eye-fill align-bottom me-2 text-muted"></i> View
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Tops/Edit/@item.TopId" class="dropdown-item">
+                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a href="/Tops/Delete/@item.TopId" class="dropdown-item text-danger">
+                                <i class="ri-delete-bin-fill align-bottom me-2"></i> Delete
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-2"></i>
+            <p class="mb-0 mt-2">No TOP records found</p>
+        </td>
+    </tr>
+}

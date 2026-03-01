@@ -1,0 +1,177 @@
+@using ResearchApps.Common.Constants
+@{
+    ViewBag.Title = "Inventory Closing";
+    ViewBag.pTitle = "Inventory Closing";
+    Layout = "_Layout";
+    
+    var currentYear = DateTime.Now.Year;
+    var canClose = User.HasClaim("permission", PermissionConstants.InventLocks.Close);
+    var canOpen = User.HasClaim("permission", PermissionConstants.InventLocks.Open);
+}
+
+@Html.AntiForgeryToken()
+
+<div x-data="inventLockIndex()" x-init="init()">
+    <!-- Inventory Closing Management Container -->
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2 align-items-center">
+                        <!-- Year Selector -->
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="yearSelector" class="form-label mb-0 fw-semibold">Year:</label>
+                            <select id="yearSelector" class="form-select form-select-sm" style="width: 120px;"
+                                    x-model="selectedYear" @@change="fetchList()">
+                                @for (var y = currentYear + 1; y >= currentYear - 5; y--)
+                                {
+                                    if (y == currentYear)
+                                    {
+                                        <option value="@y" selected>@y</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@y">@y</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Refresh Button -->
+                        <button type="button" class="btn btn-soft-secondary btn-sm" @@click="fetchList()" title="Refresh">
+                            <i class="ri-refresh-line" :class="{ 'spin': isLoading }"></i>
+                        </button>
+
+                        <!-- Loading Indicator -->
+                        <div x-show.important="isLoading" class="d-flex align-items-center text-muted" x-cloak>
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    @if (canClose)
+                    {
+                        <button type="button" class="btn btn-danger" @@click="showCloseModal()" title="Run Monthly Closing">
+                            <i class="ri-lock-line align-bottom me-1"></i> Run Monthly Closing
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Info Alert -->
+            <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+                <div class="d-flex">
+                    <i class="ri-information-line me-2 fs-5"></i>
+                    <div>
+                        <strong>Inventory Closing Management</strong>
+                        <p class="mb-0 small">The monthly closing process locks all inventory transactions (GR, BPB, PHP, PS, MC, DO) for the specified period and calculates weighted average costs. This process runs automatically on the 5th of each month for the previous month.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
+            <div id="invent-lock-list-container"
+                 hx-get="/InventLocks/List"
+                 hx-trigger="load"
+                 :hx-vals="JSON.stringify({year: selectedYear})">
+                <!-- Initial loading placeholder -->
+                <div class="text-center py-5 row justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="mt-3 text-muted">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Close Confirmation Modal -->
+    <div class="modal fade" id="closeInventoryModal" tabindex="-1" aria-labelledby="closeInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="closeInventoryModalLabel">
+                        <i class="ri-lock-line me-2"></i>Confirm Monthly Closing
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="ri-error-warning-line text-warning" style="font-size: 4rem;"></i>
+                    </div>
+                    <p class="text-center">Are you sure you want to run the <strong>Monthly Inventory Closing</strong> process?</p>
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>This will lock all inventory documents for the previous month</li>
+                            <li>Affected documents: GR, BPB, PHP, PS, MC, DO</li>
+                            <li>Weighted average costs will be recalculated</li>
+                            <li>This process only runs on the 5th day of the month</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ri-close-line me-1"></i>Cancel
+                    </button>
+                    <form action="/InventLocks/Close" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ri-lock-line me-1"></i>Run Closing
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Open Confirmation Modal -->
+    <div class="modal fade" id="openInventoryModal" tabindex="-1" aria-labelledby="openInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="openInventoryModalLabel">
+                        <i class="ri-lock-unlock-line me-2"></i>Confirm Unlock Period
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="ri-lock-unlock-line text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <p class="text-center">Are you sure you want to unlock inventory for <strong x-text="modalPeriod"></strong>?</p>
+                    <div class="alert alert-info">
+                        <strong>Note:</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>This will unlock all inventory documents for the selected period</li>
+                            <li>Users will be able to modify documents again</li>
+                            <li>You may need to re-run the closing process after changes</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ri-close-line me-1"></i>Cancel
+                    </button>
+                    <form action="/InventLocks/Open" method="post" id="openInventoryForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="RecId" x-model="modalRecId">
+                        <input type="hidden" name="Year" x-model="modalYear">
+                        <input type="hidden" name="Month" x-model="modalMonth">
+                        <button type="submit" class="btn btn-success">
+                            <i class="ri-lock-unlock-line me-1"></i>Unlock Period
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/invent-locks/invent-lock-index.js"></script>
+}
