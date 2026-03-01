@@ -32,6 +32,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IItemRepo, ItemRepo>();
         services.AddScoped<IWarehouseRepo, WarehouseRepo>();
         services.AddScoped<IItemDeptRepo, ItemDeptRepo>();
+        services.AddScoped<IItemGroup01Repo, ItemGroup01Repo>();
+        services.AddScoped<IItemGroup02Repo, ItemGroup02Repo>();
         services.AddScoped<IStatusRepo, StatusRepo>();
         services.AddScoped<IUnitRepo, UnitRepo>();
         services.AddScoped<IPrRepo, PrRepo>();
@@ -55,5 +57,40 @@ public static class ServiceCollectionExtensions
         
         // Supplier Management
         services.AddScoped<ISupplierRepo, SupplierRepo>();
+        
+        // Goods Receipt Management
+        services.AddScoped<IGoodsReceiptRepo, GoodsReceiptRepo>();
+        
+        // BPB (Bon Pengambilan Barang) Management
+        services.AddScoped<IBpbRepo, BpbRepo>();
+        
+        // Production Management
+        services.AddScoped<IProdRepo, ProdRepo>();
+        
+        // Material Customer Management
+        services.AddScoped<IMaterialCustomerRepo, MaterialCustomerRepo>();
+        
+        // Penerimaan Hasil Produksi Management
+        services.AddScoped<IPhpRepo, PhpRepo>();
+        
+        // Penyesuaian Stock Management
+        services.AddScoped<IPsRepo, PsRepo>();
+        
+        // Inventory Lock Management
+        services.AddScoped<IInventLockRepo, InventLockRepo>();
+        
+        // Workflow Management
+        services.AddScoped<IWfFormRepo, WfFormRepo>();
+        services.AddScoped<IWfRepo, WfRepo>();
+        services.AddScoped<IWfTransRepo, WfTransRepo>();
+        
+        // Sales Price & TOP Management
+        services.AddScoped<ISalesPriceRepo, SalesPriceRepo>();
+        services.AddScoped<ITopRepo, TopRepo>();
+        
+        // Report Repositories
+        services.AddScoped<IRepInventTransRepo, RepInventTransRepo>();
+        services.AddScoped<IRepStockRepo, RepStockRepo>();
+        services.AddScoped<IRepCustomRepo, RepCustomRepo>();
     }
 }
