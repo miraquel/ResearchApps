@@ -13,3 +13,23 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .fake
+
+# Publish profiles (contain server credentials, passwords, subscription IDs)
+**/Properties/PublishProfiles/*.pubxml
+**/Properties/PublishProfiles/*.pubxml.user
+
+# User-specific settings and secrets
+*.user
+appsettings.Local.json
+appsettings.Development.json
+.env
+.env.*
+
+# IDE artifacts
+.vs/
+.vscode/
+.idea/
+
+# Logs
+**/Logs/
+*.log
