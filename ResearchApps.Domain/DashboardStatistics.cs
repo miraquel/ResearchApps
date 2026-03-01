@@ -28,6 +28,7 @@ public class RecentPr
 
 public class PendingApproval
 {
+    public int RecId { get; set; }
     public string PrId { get; set; } = string.Empty;
     public DateTime PrDate { get; set; }
     public string PrName { get; set; } = string.Empty;

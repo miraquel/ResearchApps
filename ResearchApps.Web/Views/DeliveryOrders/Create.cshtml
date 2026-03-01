@@ -8,7 +8,7 @@
     var coId = ViewBag.CoId as string;
 }
 
-<!-- Hidden fields for pre-selected values -->
+<!-- Hidden fields for pre-selected values from URL params -->
 <input type="hidden" id="preSelectedCustomerId" value="@(customerId.HasValue ? customerId.Value.ToString() : "")" />
 <input type="hidden" id="preSelectedCoId" value="@(coId ?? "")" />
 
@@ -20,10 +20,10 @@
                     <h5 class="card-title mb-0">Create New Delivery Order</h5>
                 </div>
                 <div class="card-body">
-                    <form id="do-form" method="post" action="/DeliveryOrders/Create">
+                    <form id="do-form">
                         @Html.AntiForgeryToken()
                         
-                        <!-- Validation Summary -->
+                        <!-- Validation Summary, filter error.Lines -->
                         <div id="validation-summary" x-show="Object.keys(errors).length > 0" x-cloak>
                             <div class="alert alert-danger">
                                 <template x-for="(error, field) in errors" :key="field">
@@ -60,7 +60,7 @@
                                                     id="Header_CoId" 
                                                     x-ref="coSelect"
                                                     disabled>
-                                                <option value="">Select CO (optional)</option>
+                                                <option value="">Select CO</option>
                                             </select>
                                             <!-- Hidden fields for CO binding -->
                                             <input type="hidden" name="Header.CoRecId" :value="coRecId || 0" />
@@ -173,7 +173,7 @@
                                         </div>
                                         
                                         <!-- Outstanding lines table -->
-                                        <div x-show="!isLoadingOutstanding" class="table-responsive">
+                                        <div x-show="!isLoadingOutstanding" class="table-responsive" style="overflow: visible;">
                                             <table class="table table-bordered table-hover align-middle mb-0">
                                                 <thead class="table-light">
                                                     <tr>
@@ -187,6 +187,8 @@
                                                         <th class="text-end">Delivered</th>
                                                         <th class="text-end">Outstanding</th>
                                                         <th class="text-end" style="width: 120px;">Qty to Deliver</th>
+                                                        <th style="width: 150px;">Warehouse</th>
+                                                        <th style="width: 200px;">Notes</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -206,13 +208,30 @@
                                                             <td class="text-end" x-text="formatNumber(line.qtyDo)"></td>
                                                             <td class="text-end" x-text="formatNumber(line.qtyOs)"></td>
                                                             <td class="text-end">
-                                                                <input type="number" 
-                                                                       class="form-control form-control-sm text-end"
-                                                                       x-model.number="line.qty"
-                                                                       :max="line.qtyOs"
-                                                                       :disabled="!line.selected"
+                                                                <input type="text" 
+                                                                       class="form-control text-end"
+                                                                       :value="formatNumber(line.qty)"
+                                                                       @@input="line.qty = parseNumber($event.target.value)"
                                                                        min="0"
-                                                                       step="0.01" />
+                                                                       :max="line.qtyOs"
+                                                                       :disabled="!line.selected"/>
+                                                            </td>
+                                                            <td>
+                                                                <select :id="'whSelect_' + index"
+                                                                        class="form-select warehouse-select"
+                                                                        x-model="line.whId"
+                                                                        :data-index="index"
+                                                                        :data-selected="line.selected ? '1' : '0'">
+                                                                    <option value="">Select Warehouse</option>
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" 
+                                                                       class="form-control"
+                                                                       x-model="line.notes"
+                                                                       placeholder="Optional notes"
+                                                                       :disabled="!line.selected"
+                                                                       maxlength="500"/>
                                                             </td>
                                                         </tr>
                                                     </template>
@@ -232,13 +251,12 @@
                         </div>
                         
                         <!-- Lines validation error -->
-                        <div class="alert alert-danger mt-3" x-show="errors.Lines" x-cloak>
-                            <i class="ri-error-warning-line me-1"></i>
-                            <span x-text="errors.Lines"></span>
-                        </div>
-                        
-                        <!-- Hidden container for line items -->
-                        <div id="lines-container"></div>
+                        <template x-for="error in errorLines">
+                            <div class="alert alert-danger mt-3">
+                                <i class="ri-error-warning-line me-1"></i>
+                                <span x-text="error"></span>
+                            </div>
+                        </template>
                         
                         <div class="form-group d-flex gap-2 mt-4">
                             <button type="submit" 

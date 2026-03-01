@@ -8,7 +8,6 @@
 }
 
 @section styles {
-    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
 }
 
 @Html.AntiForgeryToken()
@@ -31,19 +30,19 @@
                 <div class="position-absolute top-0 end-0">
                     @if(User.HasClaim("permission", PermissionConstants.CustomerOrders.Create))
                     {
-                        <a href="@Url.Action("Create", "CustomerOrders", new { customerId = Model.RecId })" class="btn btn-sm btn-info me-2">
+                        <a href="@Url.Action("Create", "CustomerOrders", new { customerId = Model.CustomerId })" class="btn btn-sm btn-info me-2">
                             <i class="ri-file-add-line"></i> New CO
                         </a>
                     }
                     @if(User.HasClaim("permission", PermissionConstants.Customers.Edit))
                     {
-                        <a href="@Url.Action("Edit", "Customers", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
+                        <a href="@Url.Action("Edit", "Customers", new { id = Model.CustomerId })" class="btn btn-sm btn-success me-2">
                             <i class="ri-edit-line"></i> Edit
                         </a>
                     }
                     @if (User.HasClaim("permission", PermissionConstants.Customers.Delete))
                     {
-                        <a href="@Url.Action("Delete", "Customers", new { id = Model.RecId })" class="btn btn-sm btn-danger">
+                        <a href="@Url.Action("Delete", "Customers", new { id = Model.CustomerId })" class="btn btn-sm btn-danger">
                             <i class="ri-delete-bin-line"></i> Delete
                         </a>
                     }
@@ -101,26 +100,32 @@
                 </div>
             </div>
             <div class="tab-pane" id="orders" role="tabpanel">
-                <table id="co-table" class="table table-bordered dt-responsive nowrap table-striped align-middle" style="width: 100%;">
-                    <thead>
-                    <tr>
-                        <th>CO No</th>
-                        <th>CO Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                        <th>CO No</th>
-                        <th>CO Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </tfoot>
-                </table>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Customer Orders</h6>
+                    <div class="d-flex gap-2 align-items-center">
+                        <div id="ordersLoadingIndicator" class="htmx-indicator d-flex align-items-center text-muted">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                        <button type="button" 
+                                class="btn btn-sm btn-soft-secondary" 
+                                hx-get="@Url.Action("CustomerOrders", "Customers", new { customerId = Model.CustomerId })"
+                                hx-target="#customer-orders-container"
+                                hx-swap="innerHTML"
+                                hx-indicator="#ordersLoadingIndicator"
+                                title="Refresh Orders">
+                            <i class="ri-refresh-line"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="customer-orders-container"
+                     hx-get="@Url.Action("CustomerOrders", "Customers", new { customerId = Model.CustomerId })"
+                     hx-trigger="load"
+                     hx-swap="innerHTML"
+                     hx-indicator="#ordersLoadingIndicator">
+                </div>
             </div>
             <div class="tab-pane" id="log" role="tabpanel">
                 <div class="row mb-4">
@@ -143,65 +148,3 @@
         </div>
     </div>
 </div>
-
-@section scripts {
-    <script type="module">
-        import { DataTableHelper } from '/assets/js/views/view-helpers-standalone.js';
-
-        const customerId = @Model.RecId;
-
-        DataTableHelper.initializeServerSideTable({
-            tableId: 'co-table',
-            apiUrl: '/api/CustomerOrders/',
-            addButtonText: '<i class="ri-add-line align-bottom me-1"></i> Create CO',
-            addButtonUrl: `/CustomerOrders/Create?customerId=${customerId}`,
-            order: [[0, 'desc']],
-            extraParams: { customerId: customerId },
-            columns: [
-                { data: 'coId', width: '100px' },
-                { 
-                    data: 'coDate',
-                    render: (data, type) => {
-                        if (type === 'display' && data) {
-                            const date = new Date(data);
-                            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-                        }
-                        return data;
-                    }
-                },
-                { 
-                    data: 'total',
-                    render: (data, type) => {
-                        if (type === 'display' && data !== null) {
-                            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data);
-                        }
-                        return data;
-                    }
-                },
-                { data: 'coStatusName', width: '100px' },
-                {
-                    data: null,
-                    width: '50px',
-                    defaultContent: '',
-                    orderable: false,
-                    render: (data, type, row) => `
-                        <div class="dropdown d-inline-block">
-                            <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ri-more-fill align-middle"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a href="/CustomerOrders/Details/${row.recId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
-                                <li><a href="/CustomerOrders/Edit/${row.recId}" class="dropdown-item edit-item-btn"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
-                            </ul>
-                        </div>`
-                }
-            ],
-            columnDefs: [
-                {
-                    targets: [0, 3, 4],
-                    className: 'text-center'
-                }
-            ]
-        });
-    </script>
-}

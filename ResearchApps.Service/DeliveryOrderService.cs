@@ -1,6 +1,8 @@
 using System.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using ResearchApps.Common.Exceptions;
 using ResearchApps.Domain;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
@@ -52,13 +54,17 @@ public partial class DeliveryOrderService : IDeliveryOrderService
         var headerResult = await _deliveryOrderRepo.DoInsert(entity.Header, cancellationToken);
         
         // Set required fields for each line
-        foreach (var line in entity.Lines)
+        var lines = entity.Lines.ToList();
+        for (var i = 0; i < lines.Count; i++)
         {
+            var line = lines[i];
+            var lineVm = deliveryOrderHeader.Lines[i]; // Keep VM reference for error context
+            
             line.CreatedBy = _userClaimDto.Username;
             line.DoRecId = headerResult.RecId; // Set the foreign key
             line.DoId = headerResult.DoId; // Set DO ID
             line.CustomerId = entity.Header.CustomerId; // Set customer from header
-            line.WhId = 1; // Default warehouse - adjust as needed
+            line.WhId = line.WhId;
             
             // If CoId is not set, try to get it from the header
             if (string.IsNullOrEmpty(line.CoId))
@@ -66,7 +72,17 @@ public partial class DeliveryOrderService : IDeliveryOrderService
                 line.CoId = entity.Header.CoId;
             }
             
-            _ = await _deliveryOrderRepo.DoLineInsert(line, cancellationToken);
+            try
+            {
+                _ = await _deliveryOrderRepo.DoLineInsert(line, cancellationToken);
+            }
+            catch (SqlException ex)
+            {
+                var itemLabel = !string.IsNullOrEmpty(lineVm.ItemName) 
+                    ? lineVm.ItemName 
+                    : $"ItemId {line.ItemId}";
+                throw new RepoException($"Line {i + 1} ({itemLabel}): {ex.Message}", ex);
+            }
         }
         var result = (headerResult.RecId, headerResult.DoId);
         _dbTransaction.Commit();

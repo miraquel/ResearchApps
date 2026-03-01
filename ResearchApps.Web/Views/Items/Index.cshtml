@@ -1,75 +1,71 @@
-﻿@model ResearchApps.Service.Vm.ItemVm
-
-@{
+﻿@{
     ViewBag.Title = "Items";
     ViewBag.pTitle = "Items";
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
-}
-
 @Html.AntiForgeryToken()
 
-<div class="row">
-    <div class="col-12">
-        <table id="item-table" 
-               class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" 
-               style="width: 100%;"
-               data-datatable
-               data-api-url="/api/Items/"
-               data-create-url="/Items/Create"
-               data-create-text="Add Item">
-            <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(m => m.ItemId)</th>
-                <th>@Html.DisplayNameFor(m => m.ItemName)</th>
-                <th>@Html.DisplayNameFor(m => m.ItemTypeName)</th>
-                <th>@Html.DisplayNameFor(m => m.StatusName)</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>@Html.DisplayNameFor(m => m.ItemId)</th>
-                <th>@Html.DisplayNameFor(m => m.ItemName)</th>
-                <th>@Html.DisplayNameFor(m => m.ItemTypeName)</th>
-                <th>@Html.DisplayNameFor(m => m.StatusName)</th>
-                <th>Actions</th>
-            </tr>
-            </tfoot>
-        </table>
+<div x-data="itemIndex()" x-init="init()">
+    @* List container card *@
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        @* Refresh button *@
+                        <button type="button" class="btn btn-soft-secondary" @@click="fetchList()" title="Refresh">
+                            <i class="ri-refresh-line" :class="{ 'spin': isLoading }"></i>
+                        </button>
+                        
+                        @* Clear all filters button *@
+                        <button type="button" class="btn btn-soft-warning" @@click="clearFilters()" title="Clear All Filters">
+                            <i class="ri-filter-off-line me-1"></i> Clear Filters
+                        </button>
+
+                        @* Loading indicator *@
+                        <div x-show.important="isLoading" class="d-flex align-items-center text-muted" x-cloak>
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    @* Export to Excel button *@
+                    <button type="button" class="btn btn-success me-2" @@click="exportToExcel()" :disabled="isExporting">
+                        <span x-show="!isExporting">
+                            <i class="ri-file-excel-2-line align-bottom me-1"></i> Export to Excel
+                        </span>
+                        <span x-show="isExporting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Exporting...
+                        </span>
+                    </button>
+                    
+                    @* Create button *@
+                    <a href="/Items/Create" class="btn btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Create
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @* HTMX container - content loaded via Alpine.js fetchList() *@
+            <div id="item-list-container">
+                @* Initial loading placeholder *@
+                <div class="text-center py-5 row justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="mt-3 text-muted">Loading...</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/js/datatables.min.js"></script>
-    <script type="module">
-        import { DataTableComponent, ColumnRenderers } from '/assets/js/components/data-table.js';
-        
-        $(function() {
-            DataTableComponent.init('#item-table', {
-                columns: [
-                    { data: 'itemId', width: '50px' },
-                    { data: 'itemName' },
-                    { data: 'itemTypeName' },
-                    { data: 'statusName', width: '50px' },
-                    {
-                        data: null,
-                        width: '50px',
-                        defaultContent: '',
-                        orderable: false,
-                        render: ColumnRenderers.actions({
-                            baseUrl: '/Items',
-                            idField: 'itemId'
-                        })
-                    }
-                ],
-                columnDefs: [
-                    { targets: [0, 3, 4], className: 'text-center' }
-                ]
-            });
-        });
-    </script>
+    <script src="~/js/items/item-index.js"></script>
 }

@@ -11,10 +11,12 @@ namespace ResearchApps.Web.Controllers;
 public class ItemsController : Controller
 {
     private readonly IItemService _itemService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public ItemsController(IItemService itemService)
+    public ItemsController(IItemService itemService, IWebHostEnvironment webHostEnvironment)
     {
         _itemService = itemService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     // GET: ItemsController
@@ -22,6 +24,46 @@ public class ItemsController : Controller
     public ActionResult Index()
     {
         return View();
+    }
+
+    // GET: Items/List (HTMX partial)
+    [Authorize(PermissionConstants.Items.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _itemService.SelectAsync(request, cancellationToken);
+
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_ItemListContainer", new PagedListVm<ItemVm>());
+        }
+
+        var result = new PagedListVm<ItemVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_ItemListContainer", result);
     }
 
     // GET: ItemsController/Details/5
@@ -45,12 +87,30 @@ public class ItemsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Items.Create)]
-    public ActionResult Create([FromForm] ItemVm collection)
+    public async Task<IActionResult> Create([FromForm] ItemVm collection, IFormFile? imageUpload)
     {
         try
         {
             if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
-            var response = _itemService.InsertAsync(collection, HttpContext.RequestAborted).Result;
+
+            // Handle image upload
+            if (imageUpload != null && imageUpload.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "items");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageUpload.CopyToAsync(fileStream);
+                }
+
+                collection.Image = uniqueFileName;
+            }
+
+            var response = await _itemService.InsertAsync(collection, HttpContext.RequestAborted);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Item created successfully.";
@@ -79,12 +139,40 @@ public class ItemsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Items.Edit)]
-    public ActionResult Edit([FromForm] ItemVm collection)
+    public async Task<IActionResult> Edit([FromForm] ItemVm collection, IFormFile? imageUpload)
     {
         try
         {
             if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
-            var response = _itemService.UpdateAsync(collection, HttpContext.RequestAborted).Result;
+
+            // Handle image upload
+            if (imageUpload is { Length: > 0 })
+            {
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "items");
+                Directory.CreateDirectory(uploadsFolder);
+
+                // Delete old image if exists
+                if (!string.IsNullOrEmpty(collection.Image))
+                {
+                    var oldFilePath = Path.Combine(uploadsFolder, collection.Image);
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageUpload.CopyToAsync(fileStream);
+                }
+
+                collection.Image = uniqueFileName;
+            }
+
+            var response = await _itemService.UpdateAsync(collection, HttpContext.RequestAborted);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Item updated successfully.";

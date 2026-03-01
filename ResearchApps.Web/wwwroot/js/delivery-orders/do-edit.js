@@ -390,7 +390,7 @@ function doEditForm(linesData, config) {
                     url = `/api/CustomerOrders/${this.header.coRecId}/outstanding`;
                 } else {
                     // popup error if no coRecId
-                    showError('Cannot load outstanding lines because the Delivery Order is not linked to a valid Customer Order.', 'Error Loading Outstanding Lines');
+                    showNotificationModal('Cannot load outstanding lines because the Delivery Order is not linked to a valid Customer Order.', 'error');
                     this.outstandingLines = [];
                     return;
                 }
@@ -449,12 +449,12 @@ function doEditForm(linesData, config) {
          */
         async addLine() {
             if (!this.newLine.coLineId || !this.newLine.whId || !this.newLine.qty || this.newLine.qty <= 0) {
-                showWarning('Please select a CO line, warehouse, and enter a valid quantity.', 'Validation Error');
+                showNotificationModal('Please select a CO line, warehouse, and enter a valid quantity.', 'warning');
                 return;
             }
             
             if (this.newLine.qty > this.newLine.maxQty) {
-                showWarning(`Quantity cannot exceed outstanding amount (${this.newLine.maxQty})`, 'Quantity Exceeded');
+                showNotificationModal(`Quantity cannot exceed outstanding amount (${this.newLine.maxQty})`, 'warning');
                 return;
             }
             
@@ -487,11 +487,11 @@ function doEditForm(linesData, config) {
                 } else {
                     // Extract error message from API response
                     const errorMessage = result.detail || result.message || result.title || 'Error adding line';
-                    showError(errorMessage, 'Failed to Add Line');
+                    showNotificationModal(errorMessage, 'error');
                 }
             } catch (error) {
                 console.error('Error adding line:', error);
-                showError('Error adding line. Please try again.', 'Error');
+                showNotificationModal('Error adding line. Please try again.', 'error');
             } finally {
                 this.isLineSaving = false;
             }
@@ -608,11 +608,11 @@ function doEditForm(linesData, config) {
                 } else {
                     // Extract error message from API response
                     const errorMessage = result.detail || result.message || result.title || 'Error updating line';
-                    showError(errorMessage, 'Failed to Update Line');
+                    showNotificationModal(errorMessage, 'error');
                 }
             } catch (error) {
                 console.error('Error updating line:', error);
-                showError('Error updating line. Please try again.', 'Error');
+                showNotificationModal('Error updating line. Please try again.', 'error');
             } finally {
                 this.isLineSaving = false;
             }
@@ -659,11 +659,11 @@ function doEditForm(linesData, config) {
                     const result = await response.json();
                     // Extract error message from API response
                     const errorMessage = result.detail || result.message || result.title || 'Error deleting line';
-                    showError(errorMessage, 'Failed to Delete Line');
+                    showNotificationModal(errorMessage, 'error');
                 }
             } catch (error) {
                 console.error('Error deleting line:', error);
-                showError('Error deleting line. Please try again.', 'Error');
+                showNotificationModal('Error deleting line. Please try again.', 'error');
             } finally {
                 this.isLineSaving = false;
             }

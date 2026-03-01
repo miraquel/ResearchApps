@@ -49,11 +49,11 @@ public class Report
     /// The MIME type of the template file.
     /// </summary>
     public string? TemplateContentType { get; set; }
-    
+
     /// <summary>
     /// Status ID (active/inactive).
     /// </summary>
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     
     /// <summary>
     /// Status name for display.

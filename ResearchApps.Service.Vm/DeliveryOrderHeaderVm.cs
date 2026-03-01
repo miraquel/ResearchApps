@@ -47,9 +47,9 @@ public class DeliveryOrderHeaderVm
     
     [Display(Name = "Notes")]
     public string? Notes { get; set; }
-    
-    [Display(Name = "Status")]
-    public int DoStatusId { get; set; }
+
+    [Display(Name = "Status")] 
+    public int DoStatusId { get; set; } = 1;
     
     [Display(Name = "Status")]
     public string? DoStatusName { get; set; }

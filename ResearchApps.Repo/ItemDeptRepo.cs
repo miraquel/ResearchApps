@@ -75,6 +75,10 @@ public class ItemDeptRepo : IItemDeptRepo
             {
                 parameters.Add($"@{filter.Key}", strValue);
             }
+            else if (filter.Key.Equals("StatusId", StringComparison.OrdinalIgnoreCase) && int.TryParse(filter.Value, out var statusId))
+            {
+                parameters.Add($"@{filter.Key}", statusId);
+            }
             else
             {
                 parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
@@ -83,6 +87,8 @@ public class ItemDeptRepo : IItemDeptRepo
         
         parameters.Add("@PageNumber", listRequest.PageNumber);
         parameters.Add("@PageSize", listRequest.PageSize);
+        parameters.Add("@SortOrder", listRequest.IsSortAscending ? "ASC" : "DESC");
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(listRequest.SortBy) ? "ItemDeptName" : listRequest.SortBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         

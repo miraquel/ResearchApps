@@ -75,10 +75,18 @@ public class DeliveryOrdersController : Controller
         TempData["ErrorMessage"] = response.Message ?? "Delivery Order not found.";
         return RedirectToAction(nameof(Index));
     }
+    
+    // partial view to display details lines
+    [Authorize(PermissionConstants.DeliveryOrders.Details)]
+    public async Task<IActionResult> DetailsLinesPartial(int id, CancellationToken cancellationToken)
+    {
+        var response = await _deliveryOrderService.DoLineSelectByDo(id, cancellationToken);
+        return PartialView("_Partials/_DoDetailsLines", response is { IsSuccess: true } ? response.Data?.ToList() : new List<DeliveryOrderLineVm>());
+    }
 
     // GET: DeliveryOrders/Create
     [Authorize(PermissionConstants.DeliveryOrders.Create)]
-    public ActionResult Create(int? customerId, string coId)
+    public ActionResult Create(int? customerId, string? coId)
     {
         ViewBag.CustomerId = customerId;
         ViewBag.CoId = coId;
@@ -96,15 +104,24 @@ public class DeliveryOrdersController : Controller
             return View(vm);
         }
 
-        var response = await _deliveryOrderService.DoInsert(vm, cancellationToken);
-        if (response.IsSuccess)
+        try
         {
-            TempData["SuccessMessage"] = $"Delivery Order {response.Data.DoId} created successfully.";
-            return RedirectToAction("Edit", new { id = response.Data.RecId });
-        }
+            var response = await _deliveryOrderService.DoInsert(vm, cancellationToken);
+            
+            if (response.IsSuccess)
+            {
+                TempData["SuccessMessage"] = $"Delivery Order {response.Data.DoId} created successfully.";
+                return RedirectToAction("Edit", new { id = response.Data.RecId });
+            }
 
-        ModelState.AddModelError(string.Empty, response.Message ?? "Failed to create delivery order.");
-        return View(vm);
+            ModelState.AddModelError(string.Empty, response.Message ?? "Failed to create delivery order.");
+            return View(vm);
+        }
+        catch (Exception e)
+        {
+            ModelState.AddModelError(string.Empty, $"An error occurred: {e.Message}");
+            return View(vm);
+        }
     }
 
     // GET: DeliveryOrders/Edit/5

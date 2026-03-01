@@ -1,65 +1,51 @@
-﻿@model ResearchApps.Service.Vm.WarehouseVm
+@model ResearchApps.Service.Vm.WarehouseVm
 
 @{
     ViewBag.Title = "Edit Warehouse";
+    ViewBag.pTitle = $"Edit Warehouse: {Model.WhName}";
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-}
+@* Page header with title and back button *@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Edit Warehouse</h2>
+    <a asp-action="Index" class="btn btn-soft-secondary">
+        <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+    </a>
+</div>
 
-<div class="card mt-3">
-    <div class="card-header">
-        <h4 class="card-title">Edit Warehouse</h4>
-    </div>
+@* Form card *@
+<div class="card">
     <div class="card-body">
         <form id="warehouse-form" asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="WhId" />
-            <div class="row mb-3">
-                <div class="col-lg-3"><label asp-for="WhName"></label></div>
-                <div class="col-lg-9"><input asp-for="WhName" class="form-control" /></div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-lg-3">
-                    <label><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></label>
-                </div>
-                <div class="col-lg-9">
-                    <select asp-for="StatusId" class="form-control select2-ajax"
-                            data-ajax-url="/api/Status/"
-                            data-placeholder="Select Status"
-                            data-id-field="statusId"
-                            data-text-field="statusName"
-                            data-selected-id="@Model.StatusId">
-                        <option value="">Select Status</option>
-                    </select>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="WhName" class="form-label"></label>
+                        <input asp-for="WhName" class="form-control" placeholder="Enter warehouse name" required />
+                        <span asp-validation-for="WhName" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
-            <div class="text-end">
+
+            <hr class="my-4" />
+
+            <div class="d-flex gap-2">
                 <button type="button" class="btn btn-primary"
                         data-confirm
                         data-confirm-modal="saveWarehouseModal"
                         data-confirm-form="#warehouse-form"
                         data-confirm-validate="true"
-                        data-confirm-title="Are you sure?"
-                        data-confirm-message="Are you sure you want to update this warehouse?">
-                    Save
+                        data-confirm-title="Confirm Save"
+                        data-confirm-message="Are you sure you want to save changes to this warehouse?">
+                    <i class="ri-save-line align-bottom me-1"></i> Save
                 </button>
+                <a asp-action="Index" class="btn btn-soft-secondary">Cancel</a>
             </div>
         </form>
     </div>
 </div>
-
-@section scripts {
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/js/components/select2.js"></script>
-    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
-    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            Select2Helper.initAll();
-        });
-    </script>
-}
-

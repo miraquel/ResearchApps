@@ -24,6 +24,46 @@ public class WarehousesController : Controller
         return View();
     }
 
+    // GET: Warehouses/List (HTMX partial)
+    [Authorize(PermissionConstants.Warehouses.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _warehouseService.SelectAsync(request, cancellationToken);
+
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_WarehouseListContainer", new PagedListVm<WarehouseVm>());
+        }
+
+        var result = new PagedListVm<WarehouseVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_WarehouseListContainer", result);
+    }
+
     // GET: WarehousesController/Details/5
     [Authorize(PermissionConstants.Warehouses.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
@@ -45,12 +85,12 @@ public class WarehousesController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Warehouses.Create)]
-    public ActionResult Create([FromForm] WarehouseVm collection)
+    public async Task<IActionResult> Create([FromForm] WarehouseVm collection)
     {
         try
         {
             if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
-            var response = _warehouseService.InsertAsync(collection, HttpContext.RequestAborted).Result;
+            var response = await _warehouseService.InsertAsync(collection, HttpContext.RequestAborted);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Warehouse created successfully.";
@@ -79,12 +119,12 @@ public class WarehousesController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Warehouses.Edit)]
-    public ActionResult Edit([FromForm] WarehouseVm collection)
+    public async Task<IActionResult> Edit([FromForm] WarehouseVm collection)
     {
         try
         {
             if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
-            var response = _warehouseService.UpdateAsync(collection, HttpContext.RequestAborted).Result;
+            var response = await _warehouseService.UpdateAsync(collection, HttpContext.RequestAborted);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Warehouse updated successfully.";
@@ -113,14 +153,12 @@ public class WarehousesController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Warehouses.Delete)]
-    public ActionResult Delete(int id, [FromForm] WarehouseVm warehouseVm, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(int id, [FromForm] WarehouseVm warehouseVm, CancellationToken cancellationToken)
     {
         try
         {
-            // For DeleteAsync, the service expects a modifiedBy string, but MVC does not provide it directly.
-            // You may want to extract the username from User.Identity.Name or similar.
             var modifiedBy = User.Identity?.Name ?? string.Empty;
-            var response = _warehouseService.DeleteAsync(id, modifiedBy, cancellationToken).Result;
+            var response = await _warehouseService.DeleteAsync(id, modifiedBy, cancellationToken);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Warehouse deleted successfully.";

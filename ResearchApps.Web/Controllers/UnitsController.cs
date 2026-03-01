@@ -24,6 +24,46 @@ public class UnitsController : Controller
         return View();
     }
 
+    // GET: Units/List (HTMX partial)
+    [Authorize(PermissionConstants.Units.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _unitService.SelectAsync(request, cancellationToken);
+
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_UnitListContainer", new PagedListVm<UnitVm>());
+        }
+
+        var result = new PagedListVm<UnitVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_UnitListContainer", result);
+    }
+
     // GET: UnitsController/Details/5
     [Authorize(PermissionConstants.Units.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
@@ -79,12 +119,12 @@ public class UnitsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Units.Edit)]
-    public ActionResult Edit([FromForm] UnitVm collection)
+    public async Task<IActionResult> Edit([FromForm] UnitVm collection)
     {
         try
         {
             if (!ModelState.IsValid) return RedirectToAction(nameof(Index));
-            var response = _unitService.UpdateAsync(collection, HttpContext.RequestAborted).Result;
+            var response = await _unitService.UpdateAsync(collection, HttpContext.RequestAborted);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Unit updated successfully.";
@@ -113,11 +153,11 @@ public class UnitsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(PermissionConstants.Units.Delete)]
-    public ActionResult Delete(int id, [FromForm] UnitVm unitVm, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(int id, [FromForm] UnitVm unitVm, CancellationToken cancellationToken)
     {
         try
         {
-            var response = _unitService.DeleteAsync(id, cancellationToken).Result;
+            var response = await _unitService.DeleteAsync(id, cancellationToken);
             if (response.IsSuccess)
             {
                 TempData["SuccessMessage"] = "Unit deleted successfully.";

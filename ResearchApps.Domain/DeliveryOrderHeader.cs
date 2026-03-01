@@ -16,7 +16,7 @@ public class DeliveryOrderHeader
     public decimal Ppn { get; set; }
     public decimal Total { get; set; }
     public string? Notes { get; set; }
-    public int DoStatusId { get; set; }
+    public int DoStatusId { get; set; } = 1;
     public string? DoStatusName { get; set; }
     public DateTime CreatedDate { get; set; }
     public string CreatedBy { get; set; } = string.Empty;

@@ -24,6 +24,46 @@ public class ItemDeptsController : Controller
         return View();
     }
 
+    // GET: ItemDepts/List (HTMX partial)
+    [Authorize(PermissionConstants.ItemDepts.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _itemDeptService.SelectAsync(request, cancellationToken);
+        
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_ItemDeptListContainer", new PagedListVm<ItemDeptVm>());
+        }
+
+        var result = new PagedListVm<ItemDeptVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_ItemDeptListContainer", result);
+    }
+
     // GET: ItemDeptsController/Details/5
     [Authorize(PermissionConstants.ItemDepts.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)

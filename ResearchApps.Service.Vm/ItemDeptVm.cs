@@ -8,8 +8,8 @@ public class ItemDeptVm
     public int ItemDeptId { get; set; }
     [Display(Name = "Name")]
     public string ItemDeptName { get; set; } = string.Empty;
-    [Display(Name = "Status ID")]
-    public int StatusId { get; set; }
+    [Display(Name = "Status ID")] 
+    public int StatusId { get; set; } = 1;
     [Display(Name = "Status Name")]
     public string? StatusName { get; set; }
     [Display(Name = "Created Date")]

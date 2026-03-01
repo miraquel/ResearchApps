@@ -61,7 +61,7 @@ function coCreateForm() {
             try {
                 const response = await fetch(`/api/Customers/${customerId}`);
                 const data = await response.json();
-                if (data.isSuccess && data.data) {
+                if (data.data) {
                     this.customerSelect.addOption({
                         value: data.data.customerId.toString(),
                         text: data.data.customerName

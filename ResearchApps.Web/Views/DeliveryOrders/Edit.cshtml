@@ -462,12 +462,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Quantity <span class="text-danger">*</span></label>
-                                    <input type="number" 
+                                    <input type="text" 
                                            class="form-control" 
                                            x-model.number="newLine.qty"
                                            :max="newLine.maxQty"
                                            min="0.01"
-                                           step="0.01" />
+                                           x-mask:dynamic="$money($input, '.', ',')"/>
                                 </div>
                             </div>
                             <div class="row mt-3">
@@ -562,13 +562,13 @@
                     
                     <div class="mb-3">
                         <label class="form-label">New Quantity <span class="text-danger">*</span></label>
-                        <input type="number" 
+                        <input type="text" 
                                class="form-control" 
                                :class="{ 'is-invalid': lineErrors.qty }"
                                x-model.number="editingLine.qty"
                                :max="editingLine.qtyOutstanding"
                                min="0.01"
-                               step="0.01"
+                               x-mask:dynamic="$money($input, '.', ',')"
                                @@input="lineErrors = {}" />
                         <small class="text-muted">Max: <span x-text="formatNumber(editingLine.qtyOutstanding)"></span></small>
                         <div class="invalid-feedback d-block" x-show="lineErrors.qty" x-text="lineErrors.qty"></div>
@@ -644,6 +644,5 @@
 </div>
 
 @section scripts {
-    <script src="~/js/components/alert-modal.js"></script>
     <script src="~/js/delivery-orders/do-edit.js"></script>
 }

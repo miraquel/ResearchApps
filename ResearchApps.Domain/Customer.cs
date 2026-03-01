@@ -15,7 +15,7 @@ public class Customer
     public bool IsPpn { get; set; }
     public string? Npwp { get; set; }
     public string? Notes { get; set; }
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     public string? StatusName { get; set; }
     public DateTime CreatedDate { get; set; }
     public string CreatedBy { get; set; } = string.Empty;

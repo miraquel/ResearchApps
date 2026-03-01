@@ -9,7 +9,7 @@ public class WarehouseVm
     [Display(Name = "Name")]
     public string WhName { get; set; } = string.Empty;
     [Display(Name = "Status ID")]
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     [Display(Name = "Status Name")]
     public string? StatusName { get; set; }
     [Display(Name = "Created Date")]

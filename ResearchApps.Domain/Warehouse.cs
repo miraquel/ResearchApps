@@ -4,7 +4,7 @@ public class Warehouse
 {
     public int WhId { get; set; }
     public string WhName { get; set; } = string.Empty;
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     public string? StatusName { get; set; }
     public DateTime CreatedDate { get; set; }
     public string CreatedBy { get; set; } = string.Empty;

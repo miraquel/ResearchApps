@@ -6,113 +6,151 @@
     Layout = "_Layout";
 }
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <form id="customer-form" asp-action="Edit" method="post">
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    
-                    <input type="hidden" asp-for="RecId" />
-                    <input type="hidden" asp-for="CustomerId" />
-                    <input type="hidden" asp-for="CreatedDate" />
-                    <input type="hidden" asp-for="CreatedBy" />
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="CustomerName" class="form-label"></label>
-                                <input asp-for="CustomerName" type="text" class="form-control" />
-                                <span asp-validation-for="CustomerName" class="text-danger"></span>
-                            </div>
+@* Alpine.js component for customer edit form *@
+<div x-data="customerEdit(@Model.TopId)">
+    @* Page header with title and back button *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Edit Customer</h2>
+        <a asp-action="Details" asp-route-id="@Model.CustomerId" class="btn btn-soft-secondary">
+            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to Details
+        </a>
+    </div>
+
+    @* Form card *@
+    <div class="card">
+        <div class="card-body">
+            <form id="customer-form" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                
+                <input type="hidden" asp-for="CustomerId" />
+                <input type="hidden" asp-for="CreatedDate" />
+                <input type="hidden" asp-for="CreatedBy" />
+
+                <div class="row">
+                    @* Basic information section *@
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Basic Information</h5>
+                        
+                        <div class="mb-3">
+                            <label asp-for="CustomerName" class="form-label"></label>
+                            <input asp-for="CustomerName" class="form-control" required />
+                            <span asp-validation-for="CustomerName" class="text-danger"></span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ContactPerson" class="form-label"></label>
-                                <input asp-for="ContactPerson" type="text" class="form-control" />
-                                <span asp-validation-for="ContactPerson" class="text-danger"></span>
-                            </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ContactPerson" class="form-label"></label>
+                            <input asp-for="ContactPerson" class="form-control" />
+                            <span asp-validation-for="ContactPerson" class="text-danger"></span>
                         </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Telp" class="form-label"></label>
-                                <input asp-for="Telp" type="text" class="form-control" />
-                                <span asp-validation-for="Telp" class="text-danger"></span>
-                            </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label"></label>
+                            <textarea asp-for="Address" class="form-control" rows="3" required></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Email" class="form-label"></label>
-                                <input asp-for="Email" type="email" class="form-control" />
-                                <span asp-validation-for="Email" class="text-danger"></span>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="City" class="form-label"></label>
+                                    <input asp-for="City" class="form-control" />
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label asp-for="Address" class="form-label"></label>
-                                <textarea asp-for="Address" class="form-control" rows="3"></textarea>
-                                <span asp-validation-for="Address" class="text-danger"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="City" class="form-label"></label>
-                                <input asp-for="City" type="text" class="form-control" />
-                                <span asp-validation-for="City" class="text-danger"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="PostalCode" class="form-label"></label>
-                                <input asp-for="PostalCode" type="text" class="form-control" />
-                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="PostalCode" class="form-label"></label>
+                                    <input asp-for="PostalCode" class="form-control" />
+                                    <span asp-validation-for="PostalCode" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="form-check form-switch">
-                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-                                <label asp-for="IsActive" class="form-check-label"></label>
+
+                    @* Contact and tax information section *@
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Contact & Tax Information</h5>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Telp" class="form-label"></label>
+                                    <input asp-for="Telp" class="form-control" />
+                                    <span asp-validation-for="Telp" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Fax" class="form-label"></label>
+                                    <input asp-for="Fax" class="form-control" />
+                                    <span asp-validation-for="Fax" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TopId" class="form-label"></label>
+                            <select asp-for="TopId" id="topSelect" class="form-control">
+                                <option value="">-- Select TOP --</option>
+                            </select>
+                            <span asp-validation-for="TopId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Npwp" class="form-label"></label>
+                            <input asp-for="Npwp" class="form-control" placeholder="XX.XXX.XXX.X-XXX.XXX" />
+                            <span asp-validation-for="Npwp" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsPpn" class="form-check-input" type="checkbox" />
+                            <label asp-for="IsPpn" class="form-check-label"></label>
+                            <div class="form-text">Check if customer is subject to 11% PPN/VAT</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StatusId" class="form-label"></label>
+                            <select asp-for="StatusId" class="form-select">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <button type="button" class="btn btn-primary"
-                                data-confirm
-                                data-confirm-modal="saveModal"
-                                data-confirm-form="#customer-form"
-                                data-confirm-validate="true"
-                                data-confirm-title="Are you sure?"
-                                data-confirm-message="Are you sure you want to update this customer?">
-                            Save Changes
-                        </button>
-                        <a asp-action="Details" asp-route-id="@Model.RecId" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary"
+                            data-confirm
+                            data-confirm-modal="saveModal"
+                            data-confirm-form="#customer-form"
+                            data-confirm-validate="true"
+                            data-confirm-title="Confirm Update"
+                            data-confirm-message="Are you sure you want to update this customer?">
+                        <i class="ri-save-line align-bottom me-1"></i> Save Changes
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.CustomerId" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
-    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
-    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script type="module">
-        import { AppInit } from '/assets/js/app-init.js';
-        AppInit.refresh();
-    </script>
+    <script src="~/js/customers/customer-edit.js"></script>
 }

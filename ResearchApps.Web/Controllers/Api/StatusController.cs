@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm.Common;
+using ResearchApps.Web.Extensions;
 
 namespace ResearchApps.Web.Controllers.Api
 {
@@ -22,6 +23,24 @@ namespace ResearchApps.Web.Controllers.Api
         {
             var response = await _statusService.StatusCboAsync(cboRequestVm, cancellationToken);
             return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("cbo")]
+        [Authorize(PermissionConstants.Status.Index)]
+        public async Task<IActionResult> StatusCboSelectAsync([FromQuery] CboRequestVm cboRequestVm, CancellationToken cancellationToken)
+        {
+            var response = await _statusService.StatusCboAsync(cboRequestVm, cancellationToken);
+            
+            // Return TomSelect format if X-TomSelect header is present
+            if (!Request.IsTomSelectRequest() || response is not { IsSuccess: true, Data: not null })
+                return StatusCode(response.StatusCode, response);
+            
+            var tomSelectOptions = response.Data.Select(s => new TomSelectOption
+            {
+                Value = s.StatusId.ToString(),
+                Text = s.StatusName
+            });
+            return Ok(tomSelectOptions);
         }
     }
 }

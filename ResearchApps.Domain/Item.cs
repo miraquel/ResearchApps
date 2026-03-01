@@ -8,16 +8,21 @@ public class Item
     public string ItemTypeName { get; set; } = string.Empty;
     public int ItemDeptId { get; set; }
     public string ItemDeptName { get; set; } = string.Empty;
+    public int ItemGroup01Id { get; set; }
+    public string ItemGroup01Name { get; set; } = string.Empty;
+    public int ItemGroup02Id { get; set; }
+    public string ItemGroup02Name { get; set; } = string.Empty;
     public decimal BufferStock { get; set; }
     public int UnitId { get; set; }
     public string UnitName { get; set; } = string.Empty;
     public int WhId { get; set; }
+    public string WhName { get; set; } = string.Empty;
     public decimal PurchasePrice { get; set; }
     public decimal SalesPrice { get; set; }
     public decimal CostPrice { get; set; }
     public string Image { get; set; } = string.Empty;
     public string Notes { get; set; } = string.Empty;
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     public string? StatusName { get; set; }
     public DateTime CreatedDate { get; set; }
     public string CreatedBy { get; set; } = string.Empty;

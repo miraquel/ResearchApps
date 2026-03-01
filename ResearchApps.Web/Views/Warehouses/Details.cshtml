@@ -3,32 +3,14 @@
 
 @{
     ViewBag.Title = "Warehouse Details";
+    ViewBag.pTitle = $"Warehouse {Model.WhId}";
     Layout = "_Layout";
 }
 
-<div class="card mt-3">
+<div class="card">
     <div class="card-header">
-        <div class="row align-items-center mb-4">
-            <div class="col">
-                <h4 class="card-title mb-0">Warehouse Details</h4>
-            </div>
-            <div class="col-auto">
-                @if(User.HasClaim("permission", PermissionConstants.Warehouses.Edit))
-                {
-                    <a href="@Url.Action("Edit", "Warehouses", new { id = Model.WhId })" class="btn btn-sm btn-success me-2">
-                        <i class="ri-edit-line"></i> Edit
-                    </a>
-                }
-                @if (User.HasClaim("permission", PermissionConstants.Warehouses.Delete))
-                {
-                    <a href="@Url.Action("Delete", "Warehouses", new { id = Model.WhId })" class="btn btn-sm btn-danger">
-                        <i class="ri-delete-bin-line"></i> Delete
-                    </a>
-                }
-            </div>
-        </div>
         <div class="row">
-            <div class="col">
+            <div class="col d-flex justify-content-between align-items-center">
                 <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
                     <li class="nav-item" role="presentation">
                         <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
@@ -37,41 +19,71 @@
                         <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
                     </li>
                 </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if(User.HasClaim("permission", PermissionConstants.Warehouses.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "Warehouses", new { id = Model.WhId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.Warehouses.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "Warehouses", new { id = Model.WhId })" class="btn btn-sm btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="tab-content">
             <div class="tab-pane active" id="overview" role="tabpanel">
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.WhId)</strong></div>
-                    <div class="col-9">@Model.WhId</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.WhName)</strong></div>
-                    <div class="col-9">@Model.WhName</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
-                    <div class="col-9">@Model.StatusName</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">@Html.DisplayNameFor(m => m.WhId)</td>
+                                <td>@Model.WhId</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">@Html.DisplayNameFor(m => m.WhName)</td>
+                                <td>@Model.WhName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">@Html.DisplayNameFor(m => m.StatusName)</td>
+                                <td>@Html.Raw(Model.StatusName)</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="tab-pane" id="log" role="tabpanel">
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
-                    <div class="col-9">@Model.CreatedDate</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
-                    <div class="col-9">@Model.CreatedBy</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
-                    <div class="col-9">@Model.ModifiedDate</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
-                    <div class="col-9">@Model.ModifiedBy</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">@Html.DisplayNameFor(m => m.CreatedDate)</td>
+                                <td>@Model.CreatedDate</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">@Html.DisplayNameFor(m => m.CreatedBy)</td>
+                                <td>@Model.CreatedBy</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold" style="width: 150px;">@Html.DisplayNameFor(m => m.ModifiedDate)</td>
+                                <td>@Model.ModifiedDate</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">@Html.DisplayNameFor(m => m.ModifiedBy)</td>
+                                <td>@Model.ModifiedBy</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

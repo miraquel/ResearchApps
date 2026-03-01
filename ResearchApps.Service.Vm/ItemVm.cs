@@ -16,6 +16,14 @@ public class ItemVm
     public int ItemDeptId { get; set; }
     [Display(Name = "Department Name")]
     public string ItemDeptName { get; set; } = string.Empty;
+    [Display(Name = "Item Group 01 ID")]
+    public int ItemGroup01Id { get; set; }
+    [Display(Name = "Item Group 01 Name")]
+    public string ItemGroup01Name { get; set; } = string.Empty;
+    [Display(Name = "Item Group 02 ID")]
+    public int ItemGroup02Id { get; set; }
+    [Display(Name = "Item Group 02 Name")]
+    public string ItemGroup02Name { get; set; } = string.Empty;
     [Display(Name = "Buffer Stock")]
     public decimal BufferStock { get; set; }
     [Display(Name = "Unit ID")]
@@ -24,6 +32,8 @@ public class ItemVm
     public string UnitName { get; set; } = string.Empty;
     [Display(Name = "Warehouse ID")]
     public int WhId { get; set; }
+    [Display(Name = "Warehouse Name")]
+    public string WhName { get; set; } = string.Empty;
     [Display(Name = "Purchase Price")]
     public decimal PurchasePrice { get; set; }
     [Display(Name = "Sales Price")]
@@ -31,11 +41,11 @@ public class ItemVm
     [Display(Name = "Cost Price")]
     public decimal CostPrice { get; set; }
     [Display(Name = "Image")]
-    public string Image { get; set; } = string.Empty;
+    public string? Image { get; set; }
     [Display(Name = "Notes")]
-    public string Notes { get; set; } = string.Empty;
+    public string? Notes { get; set; }
     [Display(Name = "Status ID")]
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
     [Display(Name = "Status Name")]
     public string? StatusName { get; set; }
     [Display(Name = "Created Date")]

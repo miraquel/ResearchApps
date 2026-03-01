@@ -31,14 +31,14 @@ public class CustomerRepo : ICustomerRepo
             }
             else
             {
-                parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
+                parameters.Add($"@{filter.Key}", filter.Value);
             }
         }
         
         parameters.Add("@PageNumber", request.PageNumber);
         parameters.Add("@PageSize", request.PageSize);
-        // parameters.Add("@SortOrder", request.IsSortAscending ? "ASC" : "DESC");
-        // parameters.Add("@SortColumn", request.SortBy);
+        parameters.Add("@SortOrder", request.IsSortAscending ? "ASC" : "DESC");
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(request.SortBy) ? "CustomerName" : request.SortBy);
 
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         

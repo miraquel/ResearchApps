@@ -1,86 +1,71 @@
-﻿@model ResearchApps.Service.Vm.ItemTypeVm
-
-@{
+﻿@{
     ViewBag.Title = "Item Types";
-    ViewBag.ptitle = "Item Types";
+    ViewBag.pTitle = "Item Types";
     Layout = "_Layout";
-}
-
-@section styles {
-    <link href="/assets/css/datatables.min.css" rel="stylesheet" type="text/css" />
 }
 
 @Html.AntiForgeryToken()
 
-<div class="row">
-    <div class="col-12">
-        <table id="item-type" class="table table-bordered dt-responsive nowrap table-striped align-middle dataTable no-footer dtr-inline" style="width: 100%;">
-            <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(m => m.ItemTypeId)</th>
-                <th>@Html.DisplayNameFor(m => m.ItemTypeName)</th>
-                <th>@Html.DisplayNameFor(m => m.StatusName)</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>@Html.DisplayNameFor(m => m.ItemTypeId)</th>
-                <th>@Html.DisplayNameFor(m => m.ItemTypeName)</th>
-                <th>@Html.DisplayNameFor(m => m.StatusName)</th>
-                <th>Actions</th>
-            </tr>
-            </tfoot>
-        </table>
+<div x-data="itemTypeIndex()" x-init="init()">
+    @* List container card *@
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        @* Refresh button *@
+                        <button type="button" class="btn btn-soft-secondary" @@click="fetchList()" title="Refresh">
+                            <i class="ri-refresh-line" :class="{ 'spin': isLoading }"></i>
+                        </button>
+
+                        @* Clear all filters button *@
+                        <button type="button" class="btn btn-soft-warning" @@click="clearFilters()" title="Clear All Filters">
+                            <i class="ri-filter-off-line me-1"></i> Clear Filters
+                        </button>
+
+                        @* Loading indicator *@
+                        <div x-show.important="isLoading" class="d-flex align-items-center text-muted" x-cloak>
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <small>Loading...</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    @* Export to Excel button *@
+                    <button type="button" class="btn btn-success me-2" @@click="exportToExcel()" :disabled="isExporting">
+                        <span x-show="!isExporting">
+                            <i class="ri-file-excel-2-line align-bottom me-1"></i> Export to Excel
+                        </span>
+                        <span x-show="isExporting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Exporting...
+                        </span>
+                    </button>
+
+                    @* Create button *@
+                    <a href="/ItemTypes/Create" class="btn btn-primary">
+                        <i class="ri-add-line align-bottom me-1"></i> Create
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @* HTMX container - content loaded via Alpine.js fetchList() *@
+            <div id="item-type-list-container">
+                @* Initial loading placeholder *@
+                <div class="text-center py-5 row justify-content-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="mt-3 text-muted">Loading...</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section scripts {
-    <script src="/assets/js/datatables.min.js"></script>
-    <script type="module">
-        import { DataTableHelper } from '/assets/js/views/view-helpers.js';
-        $(function() {
-            DataTableHelper.init('#item-type', {
-                apiUrl: '/api/ItemTypes/',
-                tableOptions: {
-                    layout: {
-                        topEnd: {
-                            buttons: [
-                                {
-                                    text: '<i class="ri-add-line align-bottom me-1"></i> Add Item Type',
-                                    className: 'btn btn-primary btn-sm',
-                                    action: function() {
-                                        window.location.href = '/ItemTypes/Create';
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    columns: [
-                        { data: 'itemTypeId', width: '50px' },
-                        { data: 'itemTypeName' },
-                        { data: 'statusName', width: '50px' },
-                        {
-                            data: null,
-                            width: '50px',
-                            defaultContent: '',
-                            orderable: false,
-                            render: (data, type, row) => `
-                                <div class="dropdown d-inline-block">
-                                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ri-more-fill align-middle"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a href="/ItemTypes/Details/${row.itemTypeId}" class="dropdown-item"><i class="ri-eye-fill align-bottom me-2 text-muted"></i> View</a></li>
-                                        <li><a href="/ItemTypes/Edit/${row.itemTypeId}" class="dropdown-item"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</a></li>
-                                        <li><a href="/ItemTypes/Delete/${row.itemTypeId}" class="dropdown-item"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</a></li>
-                                    </ul>
-                                </div>`
-                        }
-                    ],
-                    columnDefs: [{ targets: [0, 2, 3], className: 'text-center' }]
-                }
-            });
-        });
-    </script>
+    <script src="~/js/item-types/item-type-index.js"></script>
 }

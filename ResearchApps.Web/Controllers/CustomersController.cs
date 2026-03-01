@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
+using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
@@ -10,10 +11,12 @@ namespace ResearchApps.Web.Controllers;
 public class CustomersController : Controller
 {
     private readonly ICustomerService _customerService;
+    private readonly ICustomerOrderService _customerOrderService;
 
-    public CustomersController(ICustomerService customerService)
+    public CustomersController(ICustomerService customerService, ICustomerOrderService customerOrderService)
     {
         _customerService = customerService;
+        _customerOrderService = customerOrderService;
     }
 
     // GET: Customers
@@ -21,6 +24,46 @@ public class CustomersController : Controller
     public ActionResult Index()
     {
         return View();
+    }
+
+    // GET: Customers/List (HTMX partial)
+    [Authorize(PermissionConstants.Customers.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _customerService.CustomerSelect(request, cancellationToken);
+        
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_CustomerListContainer", new PagedListVm<CustomerVm>());
+        }
+
+        var result = new PagedListVm<CustomerVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_CustomerListContainer", result);
     }
 
     // GET: Customers/Details/5
@@ -106,6 +149,30 @@ public class CustomersController : Controller
         {
             return View(collection);
         }
+    }
+
+    // GET: Customers/CustomerOrders (HTMX partial for customer orders)
+    [Authorize(PermissionConstants.CustomerOrders.Index)]
+    public async Task<IActionResult> CustomerOrders(int customerId, CancellationToken cancellationToken)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = 1,
+            PageSize = 100,
+            SortBy = "CoId",
+            IsSortAscending = false,
+            Filters = new Dictionary<string, string> { { "customerId", customerId.ToString() } }
+        };
+
+        var response = await _customerOrderService.CoSelect(request, cancellationToken);
+        
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_CustomerOrdersPartial", new List<CustomerOrderHeaderVm>());
+        }
+
+        ViewBag.CustomerId = customerId;
+        return PartialView("_Partials/_CustomerOrdersPartial", response.Data.Items);
     }
 
     // GET: Customers/Delete/5

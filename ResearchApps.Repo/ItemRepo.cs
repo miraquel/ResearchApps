@@ -20,7 +20,7 @@ public class ItemRepo : IItemRepo
 
     public async Task<IEnumerable<Item>> CboAsync(CboRequest cboRequest, CancellationToken cancellationToken)
     {
-        const string query = "ItemCbo";
+        const string query = "Item_Cbo";
         var parameters = new DynamicParameters();
         
         if (cboRequest.Id > 0)
@@ -46,7 +46,7 @@ public class ItemRepo : IItemRepo
 
     public async Task DeleteAsync(int itemId, CancellationToken cancellationToken)
     {
-        const string query = "ItemDelete";
+        const string query = "Item_Delete";
         var parameters = new DynamicParameters();
         parameters.Add("@ItemId", itemId);
         parameters.Add("@ModifiedBy", "Admin"); // TODO: Pass the actual user id
@@ -69,11 +69,13 @@ public class ItemRepo : IItemRepo
 
     public async Task<Item> InsertAsync(Item item, CancellationToken cancellationToken)
     {
-        const string query = "ItemInsert";
+        const string query = "Item_Insert";
         var parameters = new DynamicParameters();
         parameters.Add("@ItemName", item.ItemName);
         parameters.Add("@ItemTypeId", item.ItemTypeId);
         parameters.Add("@ItemDeptId", item.ItemDeptId);
+        parameters.Add("@ItemGroup01Id", item.ItemGroup01Id);
+        parameters.Add("@ItemGroup02Id", item.ItemGroup02Id);
         parameters.Add("@BufferStock", item.BufferStock);
         parameters.Add("@UnitId", item.UnitId);
         parameters.Add("@WhId", item.WhId);
@@ -99,7 +101,7 @@ public class ItemRepo : IItemRepo
 
     public async Task<PagedList<Item>> SelectAsync(PagedListRequest listRequest, CancellationToken cancellationToken)
     {
-        const string query = "ItemSelect";
+        const string query = "Item_Select";
         var parameters = new DynamicParameters();
         // loop Filters
         foreach (var filter in listRequest.Filters)
@@ -107,6 +109,11 @@ public class ItemRepo : IItemRepo
             if (filter.Value is { } strValue && strValue.Contains('%'))
             {
                 parameters.Add($"@{filter.Key}", strValue);
+            }
+            // if statusId then convert to int
+            else if (filter.Key.Equals("StatusId", StringComparison.OrdinalIgnoreCase) && int.TryParse(filter.Value, out var statusId))
+            {
+                parameters.Add($"@{filter.Key}", statusId);
             }
             else
             {
@@ -116,6 +123,8 @@ public class ItemRepo : IItemRepo
         
         parameters.Add("@PageNumber", listRequest.PageNumber);
         parameters.Add("@PageSize", listRequest.PageSize);
+        parameters.Add("@SortOrder", listRequest.IsSortAscending ? "ASC" : "DESC");
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(listRequest.SortBy) ? "CustomerName" : listRequest.SortBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         
@@ -135,7 +144,7 @@ public class ItemRepo : IItemRepo
 
     public async Task<Item> SelectByIdAsync(int itemId, CancellationToken cancellationToken)
     {
-        const string query = "ItemSelectById";
+        const string query = "Item_SelectById";
         var parameters = new DynamicParameters();
         parameters.Add("@ItemId", itemId);
 
@@ -153,17 +162,21 @@ public class ItemRepo : IItemRepo
 
     public async Task<Item> UpdateAsync(Item item, CancellationToken cancellationToken)
     {
-        const string query = "ItemUpdate";
+        const string query = "Item_Update";
         var parameters = new DynamicParameters();
         parameters.Add("@ItemId", item.ItemId);
         parameters.Add("@ItemName", item.ItemName);
         parameters.Add("@ItemTypeId", item.ItemTypeId);
         parameters.Add("@ItemDeptId", item.ItemDeptId);
+        parameters.Add("@ItemGroup01Id", item.ItemGroup01Id);
+        parameters.Add("@ItemGroup02Id", item.ItemGroup02Id);
         parameters.Add("@BufferStock", item.BufferStock);
         parameters.Add("@UnitId", item.UnitId);
         parameters.Add("@WhId", item.WhId);
-        parameters.Add("@CostPrice", item.CostPrice);
+        parameters.Add("@PurchasePrice", item.PurchasePrice);
         parameters.Add("@SalesPrice", item.SalesPrice);
+        parameters.Add("@CostPrice", item.CostPrice);
+        parameters.Add("@Image", item.Image);
         parameters.Add("@Notes", item.Notes);
         parameters.Add("@StatusId", item.StatusId);
         parameters.Add("@ModifiedBy", item.ModifiedBy);

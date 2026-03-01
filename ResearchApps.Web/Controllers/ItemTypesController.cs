@@ -17,11 +17,51 @@ public class ItemTypesController : Controller
         _itemTypeService = itemTypeService;
     }
 
-    // GET: ItemTypeServiceController
+    // GET: ItemTypes
     [Authorize(PermissionConstants.ItemTypes.Index)]
     public ActionResult Index()
     {
         return View();
+    }
+
+    // GET: ItemTypes/List (HTMX partial)
+    [Authorize(PermissionConstants.ItemTypes.Index)]
+    public async Task<IActionResult> List(
+        [FromQuery] int page = 1,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = page,
+            PageSize = 10,
+            SortBy = sortBy ?? string.Empty,
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _itemTypeService.ItemTypeSelectAsync(request, cancellationToken);
+
+        if (!response.IsSuccess || response.Data == null)
+        {
+            return PartialView("_Partials/_ItemTypeListContainer", new PagedListVm<ItemTypeVm>());
+        }
+
+        var result = new PagedListVm<ItemTypeVm>
+        {
+            Items = response.Data.Items,
+            PageNumber = response.Data.PageNumber,
+            PageSize = response.Data.PageSize,
+            TotalCount = response.Data.TotalCount
+        };
+
+        ViewBag.SortBy = sortBy;
+        ViewBag.SortAsc = sortAsc;
+        ViewBag.Filters = filters;
+
+        return PartialView("_Partials/_ItemTypeListContainer", result);
     }
 
     // GET: ItemTypeServiceController/Details/5

@@ -252,8 +252,8 @@ function coIndex() {
                 this.showReportModal = false;
                 
                 // Show success message (using alert-modal if available)
-                if (window.showAlertModal) {
-                    window.showAlertModal('Success', 'Report generated successfully', 'success');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Success', 'Report generated successfully', 'success');
                 } else {
                     alert('Report generated successfully');
                 }
@@ -262,8 +262,8 @@ function coIndex() {
                 console.error('Error generating report:', error);
                 
                 // Show error message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Error', error.message || 'Failed to generate report', 'error');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Error', error.message || 'Failed to generate report', 'error');
                 } else {
                     alert(error.message || 'Failed to generate report');
                 }
@@ -323,8 +323,8 @@ function coIndex() {
                 document.body.removeChild(a);
                 
                 // Show success message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Success', 'Excel file exported successfully', 'success');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Success', 'Excel file exported successfully', 'success');
                 } else {
                     alert('Excel file exported successfully');
                 }
@@ -333,8 +333,8 @@ function coIndex() {
                 console.error('Error exporting to Excel:', error);
                 
                 // Show error message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Error', error.message || 'Failed to export to Excel', 'error');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Error', error.message || 'Failed to export to Excel', 'error');
                 } else {
                     alert(error.message || 'Failed to export to Excel');
                 }

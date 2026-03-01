@@ -6,6 +6,7 @@ function doCreateForm() {
     return {
         // State
         errors: {},
+        errorLines: [],
         isSubmitting: false,
         showConfirmModal: false,
         isLoadingCustomers: false,
@@ -40,7 +41,7 @@ function doCreateForm() {
             this.initializeDatePicker();
             this.initializeCustomerSelect();
             
-            // Check for pre-selected values passed from view
+            // Read pre-selected values passed from view (URL params)
             const customerIdEl = document.getElementById('preSelectedCustomerId');
             const coIdEl = document.getElementById('preSelectedCoId');
             
@@ -51,6 +52,13 @@ function doCreateForm() {
             if (this.preSelectedCustomerId) {
                 this.loadPreSelectedCustomer();
             }
+            
+            // Initialize warehouse selects when outstanding lines are rendered
+            this.$watch('outstandingLines', () => {
+                this.$nextTick(() => {
+                    this.initializeWarehouseSelects();
+                });
+            });
         },
         
         /**
@@ -62,6 +70,50 @@ function doCreateForm() {
                 altInput: true,
                 altFormat: 'd M Y',
                 defaultDate: 'today'
+            });
+        },
+        
+        /**
+         * Initialize warehouse TomSelect for all outstanding lines
+         */
+        initializeWarehouseSelects() {
+            const self = this;
+            const warehouseSelects = document.querySelectorAll('.warehouse-select');
+            
+            warehouseSelects.forEach(selectElement => {
+                // Skip if already initialized or if id not yet set by Alpine
+                if (selectElement.tomselect || !selectElement.id) {
+                    return;
+                }
+                
+                const index = parseInt(selectElement.dataset.index);
+                const line = this.outstandingLines[index];
+                const isSelected = selectElement.dataset.selected === '1';
+                
+                const whSelect = initTomSelect(`#${selectElement.id}`, {
+                    url: '/api/Warehouses/Cbo',
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: 'text',
+                    preload: 'focus',
+                    dropdownParent: 'body',
+                    onChange: function(value) {
+                        if (line) {
+                            line.whId = value ? parseInt(value) : null;
+                        }
+                    }
+                });
+                
+                // Set initial disabled state
+                if (!isSelected) {
+                    whSelect.disable();
+                }
+                
+                // Pre-select warehouse if line has one
+                if (line && line.whId) {
+                    // TomSelect will load options from API and set value
+                    whSelect.setValue(line.whId);
+                }
             });
         },
         
@@ -246,7 +298,7 @@ function doCreateForm() {
                     url = `/api/CustomerOrders/${this.coRecId}/outstanding`;
                 } else {
                     // popup error if no coRecId
-                    showError('Cannot load outstanding lines because the Delivery Order is not linked to a valid Customer Order.', 'Error Loading Outstanding Lines');
+                    showNotificationModal('Cannot load outstanding lines because the Delivery Order is not linked to a valid Customer Order.', 'error');
                     this.outstandingLines = [];
                     return;
                 }
@@ -268,9 +320,10 @@ function doCreateForm() {
                         qtyOs: item.qtyOs || item.qtyOutstanding || 0,
                         unitId: item.unitId || 0,
                         unitName: item.unitName,
-                        whId: item.whId || 0,
+                        whId: item.whId || null, // Default to null, user must select
                         price: item.price || 0,
                         qty: item.qtyOs || item.qtyOutstanding || 0, // Default to full outstanding
+                        notes: '', // Default empty notes
                         selected: false
                     }));
                 } else {
@@ -290,15 +343,34 @@ function doCreateForm() {
         toggleLineSelection(index) {
             this.outstandingLines[index].selected = !this.outstandingLines[index].selected;
             this.updateSelectedLines();
+            
+            // Enable/disable warehouse TomSelect
+            const whSelectElement = document.getElementById(`whSelect_${index}`);
+            if (whSelectElement && whSelectElement.tomselect) {
+                if (this.outstandingLines[index].selected) {
+                    whSelectElement.tomselect.enable();
+                    // Force refresh the input state to update placeholder visibility
+                    whSelectElement.tomselect.inputState();
+                } else {
+                    whSelectElement.tomselect.clear();
+                    whSelectElement.tomselect.disable();
+                    this.outstandingLines[index].whId = null;
+                }
+            }
         },
         
         /**
          * Select all visible lines
          */
         selectAllLines() {
-            this.outstandingLines.forEach(line => {
+            this.outstandingLines.forEach((line, index) => {
                 if (line.qtyOs > 0) {
                     line.selected = true;
+                    // Enable warehouse TomSelect
+                    const whSelectElement = document.getElementById(`whSelect_${index}`);
+                    if (whSelectElement && whSelectElement.tomselect) {
+                        whSelectElement.tomselect.enable();
+                    }
                 }
             });
             this.updateSelectedLines();
@@ -308,8 +380,15 @@ function doCreateForm() {
          * Deselect all lines
          */
         deselectAllLines() {
-            this.outstandingLines.forEach(line => {
+            this.outstandingLines.forEach((line, index) => {
                 line.selected = false;
+                // Disable warehouse TomSelect and clear value
+                const whSelectElement = document.getElementById(`whSelect_${index}`);
+                if (whSelectElement && whSelectElement.tomselect) {
+                    whSelectElement.tomselect.clear();
+                    whSelectElement.tomselect.disable();
+                    line.whId = null;
+                }
             });
             this.updateSelectedLines();
         },
@@ -326,6 +405,7 @@ function doCreateForm() {
          */
         validateForm() {
             this.errors = {};
+            this.errorLines = [];
             
             if (!this.customerId) {
                 this.errors.CustomerId = 'Please select a customer';
@@ -336,24 +416,31 @@ function doCreateForm() {
                 this.errors.DoDate = 'Please select a delivery date';
             }
             
+            if (!this.coId) {
+                this.errors.CoId = 'Please select a customer order';
+            }
+
             // Check if at least one line is selected
             if (this.selectedLines.length === 0) {
                 this.errors.Lines = 'Please select at least one line item';
             }
             
-            // Validate quantities
-            for (const line of this.selectedLines) {
+            // Validate quantities, for loop with index
+            for (const [index, line] of this.selectedLines.entries()) {
+                if (!line.whId) {
+                    this.errorLines[index] = `Please select a warehouse for ${line.itemName}`;
+                    break;
+                }
                 if (!line.qty || line.qty <= 0) {
-                    this.errors.Lines = 'All selected lines must have a valid quantity';
+                    this.errorLines[index] = 'All selected lines must have a valid quantity';
                     break;
                 }
                 if (line.qty > line.qtyOs) {
-                    this.errors.Lines = `Quantity cannot exceed outstanding amount for ${line.itemName}`;
-                    break;
+                    this.errorLines[index] = `Quantity cannot exceed outstanding amount for ${line.itemName}`;
                 }
             }
             
-            return Object.keys(this.errors).length === 0;
+            return Object.keys(this.errors).length === 0 && this.errorLines.length === 0;
         },
         
         /**
@@ -361,48 +448,90 @@ function doCreateForm() {
          */
         confirmCreate() {
             if (this.validateForm()) {
-                this.collectLinesForForm();
                 this.showConfirmModal = true;
             }
         },
         
         /**
-         * Collect selected lines and add to form as hidden fields
+         * Submit the form via API
          */
-        collectLinesForForm() {
-            const container = document.getElementById('lines-container');
-            if (!container) return;
-            
-            container.innerHTML = '';
-            
-            this.selectedLines.forEach((line, index) => {
-                container.innerHTML += `
-                    <input type="hidden" name="Lines[${index}].CoLineId" value="${line.coLineId}" />
-                    <input type="hidden" name="Lines[${index}].ItemId" value="${line.itemId}" />
-                    <input type="hidden" name="Lines[${index}].Qty" value="${line.qty}" />
-                    <input type="hidden" name="Lines[${index}].UnitId" value="${line.unitId || 0}" />
-                `;
-            });
-        },
-        
-        /**
-         * Submit the form
-         */
-        proceedSubmit() {
+        async proceedSubmit() {
             this.showConfirmModal = false;
             this.isSubmitting = true;
-            document.getElementById('do-form').submit();
+            this.errors = {};
+            this.errorLines = [];
+            
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            
+            // Build the request payload
+            const payload = {
+                header: {
+                    customerId: parseInt(this.customerId) || 0,
+                    coRecId: parseInt(this.coRecId) || 0,
+                    coId: this.coId || '',
+                    doDate: document.getElementById('Header_DoDate')?.value || '',
+                    refId: document.getElementById('Header_RefId')?.value || '',
+                    descr: document.getElementById('Header_Descr')?.value || '',
+                    dn: document.getElementById('Header_Dn')?.value || '',
+                    notes: document.getElementById('Header_Notes')?.value || ''
+                },
+                lines: this.selectedLines.map(line => ({
+                    coLineId: line.coLineId,
+                    itemId: line.itemId,
+                    itemName: line.itemName || '',
+                    qty: line.qty,
+                    unitId: line.unitId || 0,
+                    whId: line.whId || 0,
+                    notes: line.notes || ''
+                }))
+            };
+            
+            try {
+                const response = await fetch('/api/DeliveryOrders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Try to parse JSON safely (500 errors may return non-JSON)
+                let result = null;
+                try {
+                    result = await response.json();
+                } catch (e) {
+                    // Response body is not valid JSON
+                }
+                
+                if (response.ok) {
+                    // Success - redirect to edit page
+                    const recId = result?.data;
+                    const doId = result.data?.doId || result.data?.DoId || '';
+                    
+                    showNotificationModal(`Delivery Order ${doId} created successfully.`, 'success');
+                    
+                    // Short delay to show success then redirect
+                    setTimeout(() => {
+                        window.location.href = `/DeliveryOrders/Edit/${recId}`;
+                    }, 800);
+                } else {
+                    // Extract error message from API response
+                    const message = result?.detail || result?.message || result?.Message || result?.title
+                        || `Failed to create delivery order. (HTTP ${response.status})`;
+                    
+                    showNotificationModal(message, 'error');
+                    
+                    // Scroll to top so user sees the error
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    this.isSubmitting = false;
+                }
+            } catch (error) {
+                console.error('Error creating delivery order:', error);
+                showNotificationModal('An unexpected error occurred. Please try again.', 'error');
+                this.isSubmitting = false;
+            }
         },
-        
-        /**
-         * Format number with thousand separators
-         */
-        formatNumber(value) {
-            if (value === null || value === undefined || value === '') return '';
-            const num = parseFloat(String(value).replace(/,/g, ''));
-            if (isNaN(num)) return value;
-            return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
     };
 }
 

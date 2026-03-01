@@ -51,9 +51,9 @@ public class CustomerVm
     
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
-    
-    [Display(Name = "Status")]
-    public int StatusId { get; set; }
+
+    [Display(Name = "Status")] 
+    public int StatusId { get; set; } = 1;
     
     [Display(Name = "Status")]
     public string? StatusName { get; set; }

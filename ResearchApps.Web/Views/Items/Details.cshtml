@@ -3,32 +3,16 @@
 
 @{
     ViewBag.Title = "Item Details";
+    ViewBag.pTitle = "Item Details";
     Layout = "_Layout";
 }
 
-<div class="card mt-3">
+@Html.AntiForgeryToken()
+
+<div class="card">
     <div class="card-header">
-        <div class="row align-items-center mb-4">
-            <div class="col">
-                <h4 class="card-title mb-0">Item Details</h4>
-            </div>
-            <div class="col-auto">
-                @if(User.HasClaim("permission", PermissionConstants.Items.Edit))
-                {
-                    <a href="@Url.Action("Edit", "Items", new { id = Model.ItemId })" class="btn btn-sm btn-success me-2">
-                        <i class="ri-edit-line"></i> Edit
-                    </a>
-                }
-                @if (User.HasClaim("permission", PermissionConstants.Items.Delete))
-                {
-                    <a href="@Url.Action("Delete", "Items", new { id = Model.ItemId })" class="btn btn-sm btn-danger">
-                        <i class="ri-delete-bin-line"></i> Delete
-                    </a>
-                }
-            </div>
-        </div>
         <div class="row">
-            <div class="col">
+            <div class="col d-flex justify-content-between align-items-center">
                 <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
                     <li class="nav-item" role="presentation">
                         <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
@@ -37,81 +21,154 @@
                         <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
                     </li>
                 </ul>
+                <div class="position-absolute top-0 end-0">
+                    @if(User.HasClaim("permission", PermissionConstants.Items.Edit))
+                    {
+                        <a href="@Url.Action("Edit", "Items", new { id = Model.ItemId })" class="btn btn-sm btn-success me-2">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.Items.Delete))
+                    {
+                        <a href="@Url.Action("Delete", "Items", new { id = Model.ItemId })" class="btn btn-sm btn-danger">
+                            <i class="ri-delete-bin-line"></i> Delete
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="tab-content">
+            <!-- Overview Tab -->
             <div class="tab-pane active" id="overview" role="tabpanel">
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemId)</strong></div>
-                    <div class="col-9">@Model.ItemId</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemName)</strong></div>
-                    <div class="col-9">@Model.ItemName</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemTypeName)</strong></div>
-                    <div class="col-9">@Model.ItemTypeName</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ItemDeptName)</strong></div>
-                    <div class="col-9">@Model.ItemDeptName</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.BufferStock)</strong></div>
-                    <div class="col-9">@Model.BufferStock</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.UnitName)</strong></div>
-                    <div class="col-9">@Model.UnitName</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.PurchasePrice)</strong></div>
-                    <div class="col-9">@Model.PurchasePrice</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.SalesPrice)</strong></div>
-                    <div class="col-9">@Model.SalesPrice</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CostPrice)</strong></div>
-                    <div class="col-9">@Model.CostPrice</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Image)</strong></div>
-                    <div class="col-9">
-                        @if (!string.IsNullOrEmpty(Model.Image)) {
-                            <img src="@Model.Image" alt="Image" style="max-width:80px;max-height:80px;" />
-                        }
+                <div class="row">
+                    <!-- Left Column: Basic Information -->
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase fw-semibold mb-3">
+                            <i class="ri-information-line me-1"></i> Basic Information
+                        </h6>
+                        <table class="table table-borderless mb-4">
+                            <tr>
+                                <td class="fw-bold text-muted" style="width: 160px;">ID</td>
+                                <td>@Model.ItemId</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ItemName)</td>
+                                <td class="fw-semibold">@Model.ItemName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ItemTypeName)</td>
+                                <td>@(Model.ItemTypeName ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ItemDeptName)</td>
+                                <td>@(Model.ItemDeptName ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ItemGroup01Name)</td>
+                                <td>@(string.IsNullOrEmpty(Model.ItemGroup01Name) ? "-" : Model.ItemGroup01Name)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.ItemGroup02Name)</td>
+                                <td>@(string.IsNullOrEmpty(Model.ItemGroup02Name) ? "-" : Model.ItemGroup02Name)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.UnitName)</td>
+                                <td>@(Model.UnitName ?? "-")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.WhName)</td>
+                                <td>@(string.IsNullOrEmpty(Model.WhName) ? "-" : Model.WhName)</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.BufferStock)</td>
+                                <td>@Model.BufferStock.ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">@Html.DisplayNameFor(m => m.StatusName)</td>
+                                <td>@Html.Raw(Model.StatusName)</td>
+                            </tr>
+                        </table>
+
+                        <h6 class="text-muted text-uppercase fw-semibold mb-3">
+                            <i class="ri-sticky-note-line me-1"></i> Notes
+                        </h6>
+                        <div class="bg-light rounded p-3">
+                            <p class="mb-0 text-muted">@(string.IsNullOrEmpty(Model.Notes) ? "No notes" : Model.Notes)</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Pricing & Image -->
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase fw-semibold mb-3">
+                            <i class="ri-money-dollar-circle-line me-1"></i> Pricing
+                        </h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-4">
+                                <div class="border rounded p-3 text-center">
+                                    <p class="text-muted mb-1 fs-12">@Html.DisplayNameFor(m => m.PurchasePrice)</p>
+                                    <h5 class="mb-0 text-primary">@Model.PurchasePrice.ToString("N0")</h5>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="border rounded p-3 text-center">
+                                    <p class="text-muted mb-1 fs-12">@Html.DisplayNameFor(m => m.SalesPrice)</p>
+                                    <h5 class="mb-0 text-success">@Model.SalesPrice.ToString("N0")</h5>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="border rounded p-3 text-center">
+                                    <p class="text-muted mb-1 fs-12">@Html.DisplayNameFor(m => m.CostPrice)</p>
+                                    <h5 class="mb-0 text-info">@Model.CostPrice.ToString("N0")</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="text-muted text-uppercase fw-semibold mb-3">
+                            <i class="ri-image-line me-1"></i> Image
+                        </h6>
+                        <div class="border rounded p-3 text-center bg-light" style="min-height: 180px;">
+                            @if (!string.IsNullOrEmpty(Model.Image))
+                            {
+                                <img src="/images/items/@Model.Image" alt="@Model.ItemName" 
+                                     class="img-fluid rounded" style="max-height: 250px;" />
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-column align-items-center justify-content-center py-4 text-muted">
+                                    <i class="ri-image-2-line" style="font-size: 3rem;"></i>
+                                    <p class="mb-0 mt-2">No image uploaded</p>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.Notes)</strong></div>
-                    <div class="col-9">@Model.Notes</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
-                    <div class="col-9">@Model.StatusName</div>
-                </div>
             </div>
+
+            <!-- Log Tab -->
             <div class="tab-pane" id="log" role="tabpanel">
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
-                    <div class="col-9">@Model.CreatedDate</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
-                    <div class="col-9">@Model.CreatedBy</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
-                    <div class="col-9">@Model.ModifiedDate</div>
-                </div>
-                <div class="row mb-4">
-                    <div class="col-3"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
-                    <div class="col-9">@Model.ModifiedBy</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold text-muted" style="width: 160px;">Created Date</td>
+                                <td>@Model.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Created By</td>
+                                <td>@Model.CreatedBy</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Modified Date</td>
+                                <td>@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Modified By</td>
+                                <td>@Model.ModifiedBy</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -234,8 +234,8 @@ function doIndex() {
                 document.body.removeChild(a);
                 
                 // Show success message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Success', 'Excel file exported successfully', 'success');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Success', 'Excel file exported successfully', 'success');
                 } else {
                     alert('Excel file exported successfully');
                 }
@@ -244,8 +244,8 @@ function doIndex() {
                 console.error('Error exporting to Excel:', error);
                 
                 // Show error message
-                if (window.showAlertModal) {
-                    window.showAlertModal('Error', error.message || 'Failed to export to Excel', 'error');
+                if (window.showNotificationModal) {
+                    window.showNotificationModal('Error', error.message || 'Failed to export to Excel', 'error');
                 } else {
                     alert(error.message || 'Failed to export to Excel');
                 }

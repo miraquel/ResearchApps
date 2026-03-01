@@ -92,6 +92,12 @@ public class WarehouseRepo : IWarehouseRepo
             {
                 parameters.Add($"@{filter.Key}", strValue);
             }
+            // status
+            else if (filter.Key.Equals("StatusId", StringComparison.OrdinalIgnoreCase) &&
+                     int.TryParse(filter.Value?.ToString(), out var statusId))
+            {
+                parameters.Add("@StatusId", statusId);
+            }
             else
             {
                 parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
@@ -100,6 +106,8 @@ public class WarehouseRepo : IWarehouseRepo
         
         parameters.Add("@PageNumber", listRequest.PageNumber);
         parameters.Add("@PageSize", listRequest.PageSize);
+        parameters.Add("@SortOrder", listRequest.IsSortAscending ? "ASC" : "DESC");
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(listRequest.SortBy) ? "WhId" : listRequest.SortBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         

@@ -95,6 +95,12 @@ public class UnitRepo : IUnitRepo
             {
                 parameters.Add($"@{filter.Key}", strValue);
             }
+            // status
+            else if (filter.Key.Equals("StatusId", StringComparison.OrdinalIgnoreCase) &&
+                     int.TryParse(filter.Value, out var statusId))
+            {
+                parameters.Add("@StatusId", statusId);
+            }
             else
             {
                 parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
@@ -102,6 +108,8 @@ public class UnitRepo : IUnitRepo
         }
         parameters.Add("@PageNumber", listRequest.PageNumber);
         parameters.Add("@PageSize", listRequest.PageSize);
+        parameters.Add("@SortOrder", listRequest.IsSortAscending ? "ASC" : "DESC");
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(listRequest.SortBy) ? "UnitId" : listRequest.SortBy);
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         var command = new CommandDefinition(
             query,

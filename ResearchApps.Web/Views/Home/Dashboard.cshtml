@@ -171,7 +171,7 @@
         <div class="card">
             <div class="card-header align-items-center d-flex">
                 <h4 class="card-title mb-0 flex-grow-1">Recent PRs</h4>
-                <div class="flex-shrink-0">
+                <div class="position-absolute top-1 end-0">
                     <a href="@Url.Action("Index", "Prs")" class="btn btn-soft-info btn-sm">View All <i class="ri-arrow-right-line align-middle"></i></a>
                 </div>
             </div>
@@ -236,7 +236,6 @@
                                 <th scope="col">PR Name</th>
                                 <th scope="col">Requested By</th>
                                 <th scope="col">Total</th>
-                                <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -246,14 +245,11 @@
                                 {
                                     <tr>
                                         <td>
-                                            <a href="@Url.Action("Edit", "Prs", new { id = approval.PrId })" class="fw-medium link-primary">@approval.PrId</a>
+                                            <a href="@Url.Action("Edit", "Prs", new { id = approval.RecId })" class="fw-medium link-primary">@approval.PrId</a>
                                         </td>
                                         <td>@approval.PrName</td>
                                         <td>@approval.CreatedBy</td>
                                         <td>@approval.Total.ToString("C0")</td>
-                                        <td>
-                                            <a href="@Url.Action("Edit", "Prs", new { id = approval.PrId })" class="btn btn-sm btn-success">Review</a>
-                                        </td>
                                     </tr>
                                 }
                             }
@@ -329,20 +325,22 @@
         const prTrendCtx = document.getElementById('prTrendChart').getContext('2d');
         const prTrendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PrTrend));
         
+        console.log('PR Trend Data:', prTrendData); // Debug log
+        
         new Chart(prTrendCtx, {
             type: 'line',
             data: {
-                labels: prTrendData.map(d => d.monthYear),
+                labels: prTrendData.map(d => d.MonthYear),
                 datasets: [{
                     label: 'PR Count',
-                    data: prTrendData.map(d => d.prCount),
+                    data: prTrendData.map(d => d.PrCount),
                     borderColor: 'rgb(75, 192, 192)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     tension: 0.4,
                     yAxisID: 'y'
                 }, {
                     label: 'Total Amount',
-                    data: prTrendData.map(d => d.totalAmount),
+                    data: prTrendData.map(d => d.TotalAmount),
                     borderColor: 'rgb(255, 99, 132)',
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     tension: 0.4,
@@ -394,13 +392,15 @@
         const budgetDeptCtx = document.getElementById('budgetDeptChart').getContext('2d');
         const budgetDeptData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BudgetByDepartment));
         
+        console.log('Budget Dept Data:', budgetDeptData); // Debug log
+        
         new Chart(budgetDeptCtx, {
             type: 'doughnut',
             data: {
-                labels: budgetDeptData.map(d => d.department),
+                labels: budgetDeptData.map(d => d.Department),
                 datasets: [{
                     label: 'Total Spent',
-                    data: budgetDeptData.map(d => d.totalSpent),
+                    data: budgetDeptData.map(d => d.TotalSpent),
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.8)',
                         'rgba(54, 162, 235, 0.8)',

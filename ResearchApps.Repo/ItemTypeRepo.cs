@@ -29,6 +29,10 @@ public class ItemTypeRepo : IItemTypeRepo
             {
                 parameters.Add($"@{filter.Key}", strValue);
             }
+            else if (filter.Key == "StatusId" && int.TryParse(filter.Value.ToString(), out var statusId))
+            {
+                parameters.Add($"@{filter.Key}", statusId);
+            }
             else
             {
                 parameters.Add($"@{filter.Key}", $"%{filter.Value}%");
@@ -37,6 +41,8 @@ public class ItemTypeRepo : IItemTypeRepo
         
         parameters.Add("@PageNumber", listRequest.PageNumber);
         parameters.Add("@PageSize", listRequest.PageSize);
+        parameters.Add("@SortOrder", listRequest.IsSortAscending ? "ASC" : "DESC");
+        parameters.Add("@SortColumn", string.IsNullOrEmpty(listRequest.SortBy) ? "ItemTypeName" : listRequest.SortBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         
@@ -77,7 +83,7 @@ public class ItemTypeRepo : IItemTypeRepo
         const string query = "ItemTypeInsert";
         var parameters = new DynamicParameters();
         parameters.Add("@ItemTypeName", itemType.ItemTypeName);
-        // parameters.Add("@StatusId", itemType.StatusId);
+        parameters.Add("@StatusId", itemType.StatusId);
         parameters.Add("@CreatedBy", itemType.CreatedBy);
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);

@@ -2,66 +2,42 @@
 
 @{
     ViewBag.Title = "Edit Item Type";
-    ViewBag.pTitle = "Edit Item Type";
+    ViewBag.pTitle = $"Edit Item Type: {Model.ItemTypeName}";
     Layout = "_Layout";
 }
 
-@section styles {
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-}
-
-<div class="card mt-3">
+<div class="card">
     <div class="card-body">
         <form id="itemtype-form" asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="ItemTypeId"/>
-            <div class="row mb-3">
-                <div class="col-lg-3">
-                    <label><strong>@Html.DisplayNameFor(m => m.ItemTypeName)</strong></label>
-                </div>
-                <div class="col-lg-9">
-                    <input asp-for="ItemTypeName" class="form-control"/>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-lg-3">
-                    <label><strong>@Html.DisplayNameFor(m => m.StatusId)</strong></label>
-                </div>
-                <div class="col-lg-9">
-                    <select asp-for="StatusId" class="form-control select2-ajax"
-                            data-ajax-url="/api/Status/"
-                            data-placeholder="Select Status"
-                            data-id-field="statusId"
-                            data-text-field="statusName"
-                            data-selected-id="@Model.StatusId">
-                        <option value="">Select Status</option>
-                    </select>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <input type="hidden" asp-for="ItemTypeId" />
+            <input type="hidden" asp-for="StatusId" />
+            <input type="hidden" asp-for="CreatedDate" />
+            <input type="hidden" asp-for="CreatedBy" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3">Item Type Information</h5>
+                    
+                    <div class="mb-3">
+                        <label asp-for="ItemTypeName" class="form-label"></label>
+                        <input asp-for="ItemTypeName" class="form-control" required />
+                        <span asp-validation-for="ItemTypeName" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
-            <div class="text-end">
-                <button type="button" class="btn btn-primary"
-                        data-confirm
-                        data-confirm-modal="saveItemTypeModal"
-                        data-confirm-form="#itemtype-form"
-                        data-confirm-validate="true"
-                        data-confirm-title="Are you sure?"
-                        data-confirm-message="Are you sure you want to update this item type?">
-                    Save
+
+            <hr class="my-4" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="ri-save-line align-bottom me-1"></i> Save Changes
                 </button>
+                <a asp-action="Details" asp-route-id="@Model.ItemTypeId" class="btn btn-soft-secondary">Cancel</a>
             </div>
         </form>
     </div>
 </div>
-
-@section scripts {
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
-    <script src="/assets/js/components/select2.js"></script>
-    <script src="/assets/libs/jquery-validation/jquery.validate.min.js"></script>
-    <script src="/assets/libs/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            Select2Helper.initAll();
-        });
-    </script>
-}
 

@@ -76,11 +76,17 @@ function coEdit(initialLines, config = {}) {
         // TomSelect instances
         customerSelect: null,
         coTypeSelect: null,
-        lineItemSelect: null,
         
         // Flatpickr instances
         coDatePicker: null,
         lineWantedDatePicker: null,
+        
+        // Item Selector state (shared component)
+        itemSelector: createItemSelector({
+            useTypeFilter: true,
+            useDeptFilter: true,
+            priceField: 'salesPrice'
+        }),
         
         init() {
             this.header.recId = this.config.recId;
@@ -130,25 +136,7 @@ function coEdit(initialLines, config = {}) {
         },
         
         initLineItemSelect() {
-            // Destroy existing instance if present
-            if (this.lineItemSelect) {
-                this.lineItemSelect.destroy();
-            }
-            
-            // Initialize Item TomSelect for line modal
-            this.lineItemSelect = initTomSelect('#lineItemId', {
-                url: '/api/Items/cbo',
-                placeholder: 'Select Item',
-                maxOptions: 100,
-                onChange: (value) => {
-                    // Get selected item details
-                    const option = this.lineItemSelect.options[value];
-                    if (option) {
-                        this.lineModal.data.itemId = value;
-                        this.lineModal.data.itemName = option.text;
-                    }
-                }
-            });
+            // No TomSelect initialization needed for items - using item selector modal
             
             // Initialize wanted date picker for line modal
             if (this.lineWantedDatePicker) {
@@ -160,6 +148,34 @@ function coEdit(initialLines, config = {}) {
                 altInput: true,
                 altFormat: 'd M Y',
             });
+        },
+        
+        openItemSelector() {
+            this.itemSelector.open(this.$refs.itemTypeFilter, this.$refs.itemDeptFilter, this.$nextTick.bind(this));
+        },
+        
+        resetItemFilters() {
+            this.itemSelector.resetFilters();
+        },
+        
+        searchItems() {
+            this.itemSelector.search();
+        },
+        
+        selectItem(item) {
+            this.itemSelector.select(item, this.lineModal.data, this.lineModal.data.qty);
+        },
+        
+        handleItemSearchEnter() {
+            this.itemSelector.handleSearchEnter();
+        },
+        
+        goToItemPage(page) {
+            this.itemSelector.goToPage(page);
+        },
+        
+        getVisiblePages() {
+            return this.itemSelector.getVisiblePages();
         },
         
         // ============================================
@@ -194,11 +210,11 @@ function coEdit(initialLines, config = {}) {
                 } else {
                     const errorMessage = await this.parseErrorResponse(response);
                     console.error('Save error:', errorMessage);
-                    alert('Error saving order:\n\n' + errorMessage);
+                    showNotificationModal('Error saving order: ' + errorMessage, true);
                 }
             } catch (error) {
                 console.error('Save error:', error);
-                alert('Error saving order:\n\n' + error.message);
+                showNotificationModal('Error saving order: ' + error.message, true);
             } finally {
                 this.isHeaderSaving = false;
             }
@@ -298,7 +314,8 @@ function coEdit(initialLines, config = {}) {
                     qty: line.qty,
                     price: line.price,
                     amount: line.amount,
-                    notes: line.notes || ''
+                    notes: line.notes || '',
+                    unitName: line.unitName,
                 };
             }
             
@@ -392,11 +409,11 @@ function coEdit(initialLines, config = {}) {
                     // Refresh page to get updated lines
                     window.location.reload();
                 } else {
-                    alert(result.message || 'Error saving line');
+                    showNotificationModal(result.message || 'Error saving line', true);
                 }
             } catch (error) {
                 console.error('Save line error:', error);
-                alert('Error saving line');
+                showNotificationModal('Error saving line', true);
             } finally {
                 this.lineModal.isSaving = false;
             }
@@ -432,11 +449,11 @@ function coEdit(initialLines, config = {}) {
                     this.deleteModal.line = null;
                 } else {
                     const result = await response.json();
-                    alert(result.message || 'Error deleting line');
+                    showNotificationModal(result.message || 'Error deleting line', true);
                 }
             } catch (error) {
                 console.error('Delete line error:', error);
-                alert('Error deleting line');
+                showNotificationModal('Error deleting line', true);
             } finally {
                 this.deleteModal.isDeleting = false;
             }
