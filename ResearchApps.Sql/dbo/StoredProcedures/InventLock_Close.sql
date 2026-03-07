@@ -58,7 +58,7 @@ BEGIN
 	WHERE [RecId] = @RecId
 
 	--* Proses Inventory Closing *--
-	EXEC [InventClosing] @Year = @Year, @Month = @Month, @CreatedBy = 'system'
+	EXEC [Invent_Closing] @Year = @Year, @Month = @Month, @CreatedBy = 'system'
 
 	SELECT 'ok'
 END

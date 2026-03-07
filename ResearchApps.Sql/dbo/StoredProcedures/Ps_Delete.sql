@@ -8,25 +8,25 @@ BEGIN
 	SELECT @PsId = PsId FROM Ps WHERE RecId = @RecId
 
 	--* Ps Line *--
-	DECLARE x_cursor CURSOR FOR   
-	SELECT PsLineId  
-	FROM [PsLine]  
-	WHERE PsId = @PsId  
+	DECLARE x_cursor CURSOR FOR 
+	SELECT PsLineId 
+	FROM [PsLine] 
+	WHERE PsId = @PsId 
 
-	OPEN x_cursor  
+	OPEN x_cursor 
 
-	FETCH NEXT FROM x_cursor   
-	INTO @PsLineId  
+	FETCH NEXT FROM x_cursor 
+	INTO @PsLineId 
 
-	WHILE @@FETCH_STATUS = 0  
-	BEGIN  
-		EXEC [PsLineDelete] @PsLineId
+	WHILE @@FETCH_STATUS = 0 
+	BEGIN 
+		EXEC [PsLine_Delete] @PsLineId
 		
-		-- Get the next vendor.  
-		FETCH NEXT FROM x_cursor   
-		INTO @PsLineId  
-	END   
-	CLOSE x_cursor;  
+		-- Get the next vendor. 
+		FETCH NEXT FROM x_cursor 
+		INTO @PsLineId 
+	END 
+	CLOSE x_cursor; 
 	DEALLOCATE x_cursor;
 	
 	--* Ps Header *--

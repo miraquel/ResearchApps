@@ -8,25 +8,25 @@ BEGIN
 	SELECT @GrId = GrId FROM Gr WHERE RecId = @RecId
 
 	--* Gr Line *--
-	DECLARE x_cursor CURSOR FOR   
-	SELECT GrLineId  
-	FROM [GrLine]  
-	WHERE GrId = @GrId  
+	DECLARE x_cursor CURSOR FOR 
+	SELECT GrLineId 
+	FROM [GrLine] 
+	WHERE GrId = @GrId 
 
-	OPEN x_cursor  
+	OPEN x_cursor 
 
-	FETCH NEXT FROM x_cursor   
-	INTO @GrLineId  
+	FETCH NEXT FROM x_cursor 
+	INTO @GrLineId 
 
-	WHILE @@FETCH_STATUS = 0  
-	BEGIN  
-		EXEC [GrLineDelete] @GrLineId
+	WHILE @@FETCH_STATUS = 0 
+	BEGIN 
+		EXEC [GrLine_Delete] @GrLineId
 		
-		-- Get the next vendor.  
-		FETCH NEXT FROM x_cursor   
-		INTO @GrLineId  
-	END   
-	CLOSE x_cursor;  
+		-- Get the next vendor. 
+		FETCH NEXT FROM x_cursor 
+		INTO @GrLineId 
+	END 
+	CLOSE x_cursor; 
 	DEALLOCATE x_cursor;
 
 
