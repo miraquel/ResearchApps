@@ -23,7 +23,7 @@
     <div id="prDetails" class="card">
         <div class="card-header">
             <div class="row">
-                <div class="col d-flex justify-content-between align-items-center">
+                <div class="col d-flex justify-content-between align-items-end">
                     <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
@@ -38,11 +38,17 @@
                             <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
                         </li>
                     </ul>
-                    <div class="position-absolute top-0 end-0">
+                    <div class="d-flex align-items-center gap-1 align-self-center">
                         <!-- Loading Indicator -->
                         <span x-show="isLoading" x-cloak class="spinner-border spinner-border-sm text-primary"></span>
                         
-                        @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                        <div id="workflow-buttons-container"
+                             hx-get="/Prs/WorkflowButtons/@Model.Header.RecId"
+                             hx-target="this"
+                             hx-swap="innerHTML"
+                             hx-trigger="workflowRefresh from:body">
+                            @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                        </div>
                         
                         @if (Model.CanEdit && User.Identity?.Name == Model.Header.CreatedBy)
                         {
@@ -90,7 +96,7 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <td class="fw-bold" style="width: 150px;">Status</td>
-                                    <td>@Html.Raw(Model.Header.PrStatusName)</td>
+                                    <td><span id="pr-status-badge">@Html.Raw(Model.Header.PrStatusName)</span></td>
                                 </tr>
                                 <tr class="border-top">
                                     <td class="fw-bold fs-5">Total</td>
@@ -213,19 +219,16 @@
     <script src="~/js/purchase-requisitions/pr-details.js"></script>
     <script>
         // Join PR notification group for real-time updates
-        document.addEventListener('prNotificationConnected', function() {
-            if (typeof PrNotificationManager !== 'undefined') {
-                PrNotificationManager.joinPrGroup('@Model.Header.PrId');
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            WorkflowNotificationManager.joinEntityGroup('pr', '@Model.Header.PrId');
         });
         
-        // Handle PR status changes
-        document.addEventListener('prStatusChanged', function(e) {
-            const notification = e.detail;
-            if (notification.PrId === '@Model.Header.PrId') {
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
+        // Handle PR status changes — immediately disable buttons, then refresh just the buttons partial
+        document.addEventListener('workflow:statusChanged', function(e) {
+            var notification = e.detail;
+            if (notification.entityId === '@Model.Header.PrId' && notification.type.startsWith('pr')) {
+                document.querySelectorAll('#workflow-buttons-container button').forEach(function(b) { b.disabled = true; });
+                htmx.trigger(document.body, 'workflowRefresh');
             }
         });
     </script>

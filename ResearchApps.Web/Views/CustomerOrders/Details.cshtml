@@ -14,7 +14,7 @@
     <div id="coDetails" class="card">
         <div class="card-header">
             <div class="row">
-                <div class="col d-flex justify-content-between align-items-center">
+                <div class="col d-flex justify-content-between align-items-end">
                     <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
@@ -29,11 +29,17 @@
                             <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
                         </li>
                     </ul>
-                    <div class="position-absolute top-0 end-0">
+                    <div class="d-flex align-items-center gap-1 align-self-center">
                         <!-- Loading Indicator -->
                         <span x-show="isLoading" x-cloak class="spinner-border spinner-border-sm text-primary"></span>
                         
-                        @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                        <div id="workflow-buttons-container"
+                             hx-get="/CustomerOrders/WorkflowButtons/@Model.Header.RecId"
+                             hx-target="this"
+                             hx-swap="innerHTML"
+                             hx-trigger="workflowRefresh from:body">
+                            @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                        </div>
                         
                         @if (Model.Header.CoStatusId == CoStatusConstants.Cancel && Model.Lines.Any(l => l.QtyOs > 0) && User.HasClaim("permission", PermissionConstants.DeliveryOrders.Create))
                         {
@@ -96,7 +102,7 @@
                             <table class="table table-borderless">
                                 <tr>
                                     <td class="fw-bold" style="width: 150px;">Status</td>
-                                    <td>@Html.Raw(Model.Header.CoStatusName)</td>
+                                    <td><span id="co-status-badge">@Html.Raw(Model.Header.CoStatusName)</span></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">Subtotal</td>
@@ -229,4 +235,19 @@
 @section scripts {
     <script src="~/js/components/workflow-history.js"></script>
     <script src="~/js/customer-orders/co-details.js"></script>
+    <script>
+        // Join CO notification group for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            WorkflowNotificationManager.joinEntityGroup('co', '@Model.Header.CoId');
+        });
+
+        // Handle CO status changes — immediately disable buttons, then refresh just the buttons partial
+        document.addEventListener('workflow:statusChanged', function(e) {
+            var notification = e.detail;
+            if (notification.entityId === '@Model.Header.CoId' && notification.type.startsWith('co')) {
+                document.querySelectorAll('#workflow-buttons-container button').forEach(function(b) { b.disabled = true; });
+                htmx.trigger(document.body, 'workflowRefresh');
+            }
+        });
+    </script>
 }

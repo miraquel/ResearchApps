@@ -6,6 +6,12 @@
     var isCurrentApprover = !string.IsNullOrEmpty(Model.CurrentApprover) && Model.CurrentApprover == User.Identity?.Name;
 }
 
+@* OOB: update the status badge in the Details view without a separate request *@
+@if (Context.Request.Headers.ContainsKey("HX-Request"))
+{
+    <span id="pr-status-badge" hx-swap-oob="true">@Html.Raw(Model.PrStatusName)</span>
+}
+
 <!-- Workflow Actions -->
 @* Submit button - only shown to creator when PR status is Draft (0) *@
 @if (Model.PrStatusId == 0 && isCreator)

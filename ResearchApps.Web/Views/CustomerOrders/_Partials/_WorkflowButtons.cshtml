@@ -3,7 +3,13 @@
 
 @{
     var isCreator = Model.CreatedBy == User.Identity?.Name;
-    var isCurrentApprover = ViewBag.CurrentApprover?.ToString() == User.Identity?.Name;
+    var isCurrentApprover = !string.IsNullOrEmpty(Model.CurrentApprover) && Model.CurrentApprover == User.Identity?.Name;
+}
+
+@* OOB: update the status badge in the Details view without a separate request *@
+@if (Context.Request.Headers.ContainsKey("HX-Request"))
+{
+    <span id="co-status-badge" hx-swap-oob="true">@Html.Raw(Model.CoStatusName)</span>
 }
 
 <!-- Workflow Actions -->

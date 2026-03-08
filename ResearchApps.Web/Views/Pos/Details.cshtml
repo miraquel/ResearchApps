@@ -14,7 +14,7 @@
     <div class="card">
         <div class="card-header">
             <div class="row">
-                <div class="col d-flex justify-content-between align-items-center">
+                <div class="col d-flex justify-content-between align-items-end">
                     <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a class="nav-link active" data-bs-toggle="tab" href="#overview" role="tab">Overview</a>
@@ -29,8 +29,14 @@
                             <a class="nav-link" data-bs-toggle="tab" href="#log" role="tab">Log</a>
                         </li>
                     </ul>
-                    <div class="position-absolute top-0 end-0">
-                        @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                    <div class="d-flex align-items-center gap-1 align-self-center">
+                        <div id="workflow-buttons-container"
+                             hx-get="/Pos/WorkflowButtons/@Model.Header.RecId"
+                             hx-target="this"
+                             hx-swap="innerHTML"
+                             hx-trigger="workflowRefresh from:body">
+                            @await Html.PartialAsync("_Partials/_WorkflowButtons", Model.Header)
+                        </div>
                             
                         @if (Model.Header.PoStatusId == 0 && isCreator)
                         {
@@ -80,7 +86,7 @@
                                 <tbody>
                                 <tr>
                                     <th width="40%">Status:</th>
-                                    <td>@Html.Raw(Model.Header.PoStatusName)</td>
+                                    <td><span id="po-status-badge">@Html.Raw(Model.Header.PoStatusName)</span></td>
                                 </tr>
                                 <tr>
                                     <th>Notes</th>
@@ -191,5 +197,19 @@
     <script>
         // Pass lines data to Alpine component camelCase
         window.poLinesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Lines ?? [], new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+
+        // Join PO notification group for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            WorkflowNotificationManager.joinEntityGroup('po', '@Model.Header.PoId');
+        });
+
+        // Handle PO status changes — immediately disable buttons, then refresh just the buttons partial
+        document.addEventListener('workflow:statusChanged', function(e) {
+            var notification = e.detail;
+            if (notification.entityId === '@Model.Header.PoId' && notification.type.startsWith('po')) {
+                document.querySelectorAll('#workflow-buttons-container button').forEach(function(b) { b.disabled = true; });
+                htmx.trigger(document.body, 'workflowRefresh');
+            }
+        });
     </script>
 }

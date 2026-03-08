@@ -4,6 +4,7 @@ using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
+using ResearchApps.Web.Hubs;
 using ResearchApps.Web.Services;
 
 namespace ResearchApps.Web.Controllers;
@@ -12,11 +13,11 @@ namespace ResearchApps.Web.Controllers;
 public class CustomerOrdersController : Controller
 {
     private readonly ICustomerOrderService _customerOrderService;
-    private readonly ICoNotificationService _notificationService;
+    private readonly IWorkflowNotificationService _notificationService;
 
     public CustomerOrdersController(
         ICustomerOrderService customerOrderService,
-        ICoNotificationService notificationService)
+        IWorkflowNotificationService notificationService)
     {
         _customerOrderService = customerOrderService;
         _notificationService = notificationService;
@@ -208,7 +209,8 @@ public class CustomerOrdersController : Controller
             var coAfter = await _customerOrderService.CoSelectById(action.RecId, cancellationToken);
             
             // Send notification to next approver
-            await _notificationService.NotifyCoSubmitted(
+            await _notificationService.NotifySubmitted(
+                EntityTypes.Co,
                 coAfter.Data?.CoId ?? "",
                 action.RecId,
                 User.Identity?.Name ?? "Unknown",
@@ -241,7 +243,8 @@ public class CustomerOrdersController : Controller
         if (response.IsSuccess)
         {
             // Send recall notification
-            await _notificationService.NotifyCoRecalled(
+            await _notificationService.NotifyRecalled(
+                EntityTypes.Co,
                 coBefore.Data?.CoId ?? "",
                 action.RecId,
                 User.Identity?.Name ?? "Unknown");
@@ -273,7 +276,8 @@ public class CustomerOrdersController : Controller
         if (response.IsSuccess)
         {
             // Notify the creator about rejection
-            await _notificationService.NotifyCoRejected(
+            await _notificationService.NotifyRejected(
+                EntityTypes.Co,
                 coBefore.Data?.CoId ?? "",
                 action.RecId,
                 User.Identity?.Name ?? "Unknown",
@@ -307,10 +311,12 @@ public class CustomerOrdersController : Controller
         if (response.IsSuccess)
         {
             // Send close notification
-            await _notificationService.NotifyCoClosed(
+            await _notificationService.NotifyStatusChanged(
+                EntityTypes.Co,
                 coBefore.Data?.CoId ?? "",
                 action.RecId,
-                User.Identity?.Name ?? "Unknown");
+                User.Identity?.Name ?? "Unknown",
+                "Closed");
             
             TempData["SuccessMessage"] = "Customer Order closed successfully.";
         }
@@ -343,7 +349,8 @@ public class CustomerOrdersController : Controller
             var isFullyApproved = coAfter.Data?.CoStatusId == CoStatusConstants.Active;
             
             // Send approval notification
-            await _notificationService.NotifyCoApproved(
+            await _notificationService.NotifyApproved(
+                EntityTypes.Co,
                 coAfter.Data?.CoId ?? "",
                 action.RecId,
                 User.Identity?.Name ?? "Unknown",
@@ -407,6 +414,15 @@ public class CustomerOrdersController : Controller
         }
     }
     
+    // GET: CustomerOrders/WorkflowButtons/5
+    [Authorize(PermissionConstants.CustomerOrders.Details)]
+    public async Task<IActionResult> WorkflowButtons(int id, CancellationToken cancellationToken)
+    {
+        var response = await _customerOrderService.CoSelectById(id, cancellationToken);
+        if (!response.IsSuccess || response.Data == null) return Content(string.Empty);
+        return PartialView("_Partials/_WorkflowButtons", response.Data);
+    }
+
     // GET: CustomerOrders/WorkflowHistory?refId=xxx&wfFormId=2
     [Authorize(PermissionConstants.CustomerOrders.Details)]
     public async Task<IActionResult> WorkflowHistory(string refId, int wfFormId, CancellationToken cancellationToken)

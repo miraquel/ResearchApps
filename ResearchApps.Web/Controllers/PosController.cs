@@ -5,20 +5,27 @@ using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
 
+using ResearchApps.Web.Hubs;
+using ResearchApps.Web.Services;
+
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Purchase Orders")]
 [Authorize]
 public class PosController : Controller
 {
     private readonly IPoService _poService;
     private readonly IPoLineService _poLineService;
     private readonly UserClaimDto _userClaimDto;
+    private readonly IWorkflowNotificationService _notificationService;
 
-    public PosController(IPoService poService, IPoLineService poLineService, UserClaimDto userClaimDto)
+    public PosController(IPoService poService, IPoLineService poLineService, UserClaimDto userClaimDto,
+        IWorkflowNotificationService notificationService)
     {
         _poService = poService;
         _poLineService = poLineService;
         _userClaimDto = userClaimDto;
+        _notificationService = notificationService;
     }
 
     #region Index & List
@@ -303,8 +310,13 @@ public class PosController : Controller
         {
             TempData["SuccessMessage"] = "Purchase Order submitted successfully for approval.";
             
-            // TODO: Send SignalR notification
-            // await _notificationService.NotifyPoSubmitted(...)
+            var poAfter = await _poService.PoSelectById(action.RecId, cancellationToken);
+            await _notificationService.NotifySubmitted(
+                EntityTypes.Po,
+                poAfter.Data?.Header.PoId ?? "",
+                action.RecId,
+                _userClaimDto.Username,
+                poAfter.Data?.Header.CurrentApprover);
         }
         else
         {
@@ -336,8 +348,15 @@ public class PosController : Controller
         {
             TempData["SuccessMessage"] = "Purchase Order approved successfully.";
             
-            // TODO: Send SignalR notification
-            // await _notificationService.NotifyPoApproved(...)
+            var poAfter = await _poService.PoSelectById(action.RecId, cancellationToken);
+            var isFullyApproved = poAfter.Data?.Header.PoStatusId == PoStatusConstants.Active;
+            await _notificationService.NotifyApproved(
+                EntityTypes.Po,
+                poAfter.Data?.Header.PoId ?? "",
+                action.RecId,
+                _userClaimDto.Username,
+                poAfter.Data?.Header.CurrentApprover,
+                isFullyApproved);
         }
         else
         {
@@ -369,8 +388,13 @@ public class PosController : Controller
         {
             TempData["SuccessMessage"] = "Purchase Order rejected.";
             
-            // TODO: Send SignalR notification
-            // await _notificationService.NotifyPoRejected(...)
+            await _notificationService.NotifyRejected(
+                EntityTypes.Po,
+                poBefore.Data?.Header.PoId ?? "",
+                action.RecId,
+                _userClaimDto.Username,
+                action.Notes ?? "No reason provided",
+                poBefore.Data?.Header.CreatedBy ?? "");
         }
         else
         {
@@ -402,8 +426,11 @@ public class PosController : Controller
         {
             TempData["SuccessMessage"] = "Purchase Order recalled successfully.";
             
-            // TODO: Send SignalR notification
-            // await _notificationService.NotifyPoRecalled(...)
+            await _notificationService.NotifyRecalled(
+                EntityTypes.Po,
+                poBefore.Data?.Header.PoId ?? "",
+                action.RecId,
+                _userClaimDto.Username);
         }
         else
         {
@@ -435,8 +462,12 @@ public class PosController : Controller
         {
             TempData["SuccessMessage"] = "Purchase Order closed successfully.";
             
-            // TODO: Send SignalR notification
-            // await _notificationService.NotifyPoClosed(...)
+            await _notificationService.NotifyStatusChanged(
+                EntityTypes.Po,
+                poBefore.Data?.Header.PoId ?? "",
+                action.RecId,
+                _userClaimDto.Username,
+                "Closed");
         }
         else
         {
@@ -444,6 +475,15 @@ public class PosController : Controller
         }
 
         return RedirectToAction(nameof(Details), new { id = action.RecId });
+    }
+
+    // GET: Pos/WorkflowButtons/5
+    [Authorize(PermissionConstants.Pos.Details)]
+    public async Task<IActionResult> WorkflowButtons(int id, CancellationToken cancellationToken)
+    {
+        var response = await _poService.PoSelectById(id, cancellationToken);
+        if (!response.IsSuccess || response.Data == null) return Content(string.Empty);
+        return PartialView("_Partials/_WorkflowButtons", response.Data.Header);
     }
 
     [Authorize(PermissionConstants.Pos.Details)]

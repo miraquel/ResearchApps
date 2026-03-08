@@ -4,17 +4,19 @@ using ResearchApps.Common.Constants;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
+using ResearchApps.Web.Hubs;
 using ResearchApps.Web.Services;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Purchase Requisitions")]
 [Authorize]
 public class PrsController : Controller
 {
     private readonly IPrService _prService;
-    private readonly IPrNotificationService _notificationService;
+    private readonly IWorkflowNotificationService _notificationService;
 
-    public PrsController(IPrService prService, IPrNotificationService notificationService)
+    public PrsController(IPrService prService, IWorkflowNotificationService notificationService)
     {
         _prService = prService;
         _notificationService = notificationService;
@@ -211,7 +213,8 @@ public class PrsController : Controller
                 var prAfter = await _prService.PrSelectById(recId, cancellationToken);
                 
                 // Send real-time notification
-                await _notificationService.NotifyPrSubmitted(
+                await _notificationService.NotifySubmitted(
+                    EntityTypes.Pr,
                     prAfter.Data?.PrId ?? "",
                     recId,
                     User.Identity?.Name ?? "Unknown",
@@ -260,7 +263,8 @@ public class PrsController : Controller
                 var isFullyApproved = prAfter.Data?.PrStatusId == 1;
                 
                 // Send real-time notification
-                await _notificationService.NotifyPrApproved(
+                await _notificationService.NotifyApproved(
+                    EntityTypes.Pr,
                     prAfter.Data?.PrId ?? "",
                     action.RecId,
                     User.Identity?.Name ?? "Unknown",
@@ -308,7 +312,8 @@ public class PrsController : Controller
             if (response.IsSuccess)
             {
                 // Send real-time notification
-                await _notificationService.NotifyPrRejected(
+                await _notificationService.NotifyRejected(
+                    EntityTypes.Pr,
                     prDetails.Data?.PrId ?? "",
                     action.RecId,
                     User.Identity?.Name ?? "Unknown",
@@ -331,32 +336,33 @@ public class PrsController : Controller
         }
     }
 
-    // POST: PrsController/Recall/5
+    // POST: PrsController/Recall
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Recall(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Recall([FromForm] PrWorkflowActionVm action, CancellationToken cancellationToken)
     {
         try
         {
             // Get PR details for notification and validation
-            var prDetails = await _prService.PrSelectById(id, cancellationToken);
+            var prDetails = await _prService.PrSelectById(action.RecId, cancellationToken);
             
             // Verify user is the creator
             if (prDetails.Data?.CreatedBy != User.Identity?.Name)
             {
                 TempData["ErrorMessage"] = "You are not authorized to recall this PR.";
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction(nameof(Details), new { id = action.RecId });
             }
             
-            var response = await _prService.PrRecallById(id, cancellationToken);
+            var response = await _prService.PrRecallById(action.RecId, cancellationToken);
             
             if (response.IsSuccess)
             {
                 // Send real-time notification
-                await _notificationService.NotifyPrRecalled(
+                await _notificationService.NotifyRecalled(
+                    EntityTypes.Pr,
                     prDetails.Data?.PrId ?? "",
-                    id,
+                    action.RecId,
                     User.Identity?.Name ?? "Unknown");
                 
                 TempData["SuccessMessage"] = "PR recalled successfully.";
@@ -366,15 +372,24 @@ public class PrsController : Controller
                 TempData["ErrorMessage"] = response.Message ?? "Failed to recall PR.";
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id = action.RecId });
         }
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = $"Error recalling PR: {ex.Message}";
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id = action.RecId });
         }
     }
     
+    // GET: Prs/WorkflowButtons/5
+    [Authorize(PermissionConstants.Prs.Details)]
+    public async Task<IActionResult> WorkflowButtons(int id, CancellationToken cancellationToken)
+    {
+        var response = await _prService.PrSelectById(id, cancellationToken);
+        if (!response.IsSuccess || response.Data == null) return Content(string.Empty);
+        return PartialView("_Partials/_WorkflowButtons", response.Data);
+    }
+
     // GET: Prs/WorkflowHistory?refId=xxx&wfFormId=1
     [Authorize(PermissionConstants.Prs.Details)]
     public async Task<IActionResult> WorkflowHistory(string refId, int wfFormId, CancellationToken cancellationToken)
