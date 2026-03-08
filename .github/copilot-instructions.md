@@ -102,9 +102,8 @@ public partial class ItemService : IItemService
 }
 ```
 
-## SignalR Hubs
-- PR: `/hubs/pr-notifications` → `PrNotificationHub`
-- CO: `/hubs/co-notifications` → `CoNotificationHub`
+## SignalR Hub
+- Workflow: `/hubs/workflow` → `WorkflowHub` (unified for all entities)
 
 ## Frontend Stack (Alpine.js + HTMX + TomSelect)
 
