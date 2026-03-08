@@ -9,6 +9,7 @@ using System.Data;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Report Management")]
 [Authorize]
 public class ReportsController : Controller
 {

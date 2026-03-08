@@ -7,6 +7,7 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Terms of Payment")]
 [Authorize]
 public class TopsController : Controller
 {

@@ -7,6 +7,7 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Item Group 02")]
 [Authorize]
 public class ItemGroup02sController : Controller
 {

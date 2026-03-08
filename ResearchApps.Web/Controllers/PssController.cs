@@ -7,6 +7,7 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Penyesuaian Stock")]
 [Authorize]
 public class PssController : Controller
 {

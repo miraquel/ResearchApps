@@ -6,6 +6,7 @@ using ResearchApps.Service.Vm;
 
 namespace ResearchApps.Web.Controllers
 {
+    [BreadcrumbLabel("PR Lines")]
     [Authorize]
     public class PrLinesController : Controller
     {

@@ -7,6 +7,7 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Penerimaan Hasil Produksi")]
 [Authorize]
 public class PhpsController : Controller
 {

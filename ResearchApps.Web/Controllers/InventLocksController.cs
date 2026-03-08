@@ -7,6 +7,7 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Inventory Closing")]
 [Authorize]
 public class InventLocksController : Controller
 {

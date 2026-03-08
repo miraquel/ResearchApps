@@ -5,6 +5,7 @@ using ResearchApps.Service.Interface;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Inventory Transaction Report")]
 [Authorize]
 public class RepInventTransController : Controller
 {

@@ -7,6 +7,7 @@ using ResearchApps.Service.Vm.Common;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Bon Pengambilan Barang")]
 [Authorize]
 public class BpbsController : Controller
 {

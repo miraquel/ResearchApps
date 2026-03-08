@@ -5,6 +5,7 @@ using ResearchApps.Service.Interface;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Stock Report")]
 [Authorize]
 public class RepStockController : Controller
 {

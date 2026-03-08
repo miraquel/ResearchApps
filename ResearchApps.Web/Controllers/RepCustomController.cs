@@ -5,6 +5,7 @@ using ResearchApps.Service.Interface;
 
 namespace ResearchApps.Web.Controllers;
 
+[BreadcrumbLabel("Custom Report")]
 [Authorize]
 public class RepCustomController : Controller
 {
