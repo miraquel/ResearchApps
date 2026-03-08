@@ -32,9 +32,30 @@
     <!-- Notification Modal -->
     @await Html.PartialAsync("~/Views/Shared/_NotificationModal.cshtml")
 
+    <!-- Alpine.js Toast Notification Container -->
+    <div x-data class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999; pointer-events: none;">
+        <template x-for="msg in $store.toast.messages" :key="msg.id">
+            <div class="toast show mb-2" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: all; min-width: 280px;">
+                <div class="toast-header"
+                     :class="{
+                         'bg-success text-white': msg.type === 'success',
+                         'bg-danger text-white': msg.type === 'danger',
+                         'bg-warning text-white': msg.type === 'warning',
+                         'bg-info text-white': msg.type === 'info'
+                     }">
+                    <strong class="me-auto text-white"
+                            x-text="msg.type === 'danger' ? 'Error' : msg.type.charAt(0).toUpperCase() + msg.type.slice(1)"></strong>
+                    <button type="button" class="btn-close btn-close-white" @@click="$store.toast.dismiss(msg.id)"></button>
+                </div>
+                <div class="toast-body" x-text="msg.message"></div>
+            </div>
+        </template>
+    </div>
+
     @await Html.PartialAsync("~/Views/Shared/_vendor_scripts.cshtml")
     
     <script src="~/js/shared/notification-modal.js"></script>
+    <script src="~/js/shared/htmx-focus-restore.js"></script>
 
     @await RenderSectionAsync("scripts", required: false)
     </body>
