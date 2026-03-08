@@ -98,12 +98,7 @@ public partial class NotificationService : INotificationService
         return ServiceResponse.Success("Notification deleted successfully.");
     }
 
-    public async Task<ServiceResponse<int>> CreateWorkflowNotification(string userId, string title, string message, 
-        string notificationType, string prId, int prRecId, CancellationToken cancellationToken = default)
-    {
-        var url = $"/Prs/Details/{prRecId}";
-        return await CreateNotification(userId, title, message, notificationType, url, prId, prRecId, cancellationToken);
-    }
+
 
     private static NotificationVm MapToVm(Notification notification)
     {

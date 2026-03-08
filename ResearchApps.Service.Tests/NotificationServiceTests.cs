@@ -228,35 +228,6 @@ public class NotificationServiceTests
     }
 
     [Fact]
-    public async Task CreateWorkflowNotification_CreatesNotificationWithCorrectUrl()
-    {
-        // Arrange
-        var userId = "user123";
-        var title = "PR Approval";
-        var message = "Please approve PR001";
-        var notificationType = "Workflow";
-        var prId = "PR001";
-        var prRecId = 100;
-        var notificationId = 1;
-        Notification? capturedNotification = null;
-
-        _notificationRepoMock
-            .Setup(x => x.NotificationInsert(It.IsAny<Notification>(), It.IsAny<CancellationToken>()))
-            .Callback<Notification, CancellationToken>((n, _) => capturedNotification = n)
-            .ReturnsAsync(notificationId);
-
-        // Act
-        var result = await _sut.CreateWorkflowNotification(userId, title, message, notificationType, prId, prRecId);
-
-        // Assert
-        Assert.True(result.IsSuccess);
-        Assert.NotNull(capturedNotification);
-        Assert.Equal($"/Prs/Details/{prRecId}", capturedNotification.Url);
-        Assert.Equal(prId, capturedNotification.RefId);
-        Assert.Equal(prRecId, capturedNotification.RefRecId);
-    }
-
-    [Fact]
     public async Task CreateNotification_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
         // Arrange

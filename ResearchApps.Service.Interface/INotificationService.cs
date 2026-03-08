@@ -26,9 +26,5 @@ public interface INotificationService
     
     // Delete a notification
     Task<ServiceResponse> DeleteNotification(int notificationId, CancellationToken cancellationToken = default);
-    
-    // Create workflow notification (helper method)
-    Task<ServiceResponse<int>> CreateWorkflowNotification(string userId, string title, string message, 
-        string notificationType, string prId, int prRecId, CancellationToken cancellationToken = default);
 }
 
