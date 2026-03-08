@@ -111,11 +111,8 @@ builder.Services.AddScoped<IReportGeneratorService, ReportGeneratorService>();
 // Register SignalR
 builder.Services.AddSignalR();
 
-// Register PR Notification service
-builder.Services.AddScoped<IPrNotificationService, PrNotificationService>();
-
-// Register CO Notification service
-builder.Services.AddScoped<ICoNotificationService, CoNotificationService>();
+// Register unified workflow notification service as Singleton (stateless, IHubContext<T> is Singleton)
+builder.Services.AddSingleton<IWorkflowNotificationService, WorkflowNotificationService>();
 
 var app = builder.Build();
 
@@ -157,11 +154,11 @@ app.MapControllerRoute(
 app.MapRazorPages()
     .WithStaticAssets();
 
-// Map SignalR hub for PR notifications
-app.MapHub<PrNotificationHub>("/hubs/pr-notifications");
-
-// Map SignalR hub for CO notifications
-app.MapHub<CoNotificationHub>("/hubs/co-notifications");
+// Map SignalR hub with stateful reconnect for reliability during brief disconnections
+app.MapHub<WorkflowHub>("/hubs/workflow", options =>
+{
+    options.AllowStatefulReconnects = true;
+});
 
     app.Run();
 }

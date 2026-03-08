@@ -21,10 +21,7 @@
 <script src="~/assets/js/alpine-components.js"></script>
 <script src="~/js/components/item-selector.js"></script>
 
-<!-- SignalR and PR Notifications -->
+<!-- SignalR and Notifications -->
 <script src="~/assets/libs/@("@microsoft")/signalr/dist/browser/signalr.min.js"></script>
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7fs5fHftyZ1HfKJbR7mGbKAfCDPJXCnC1FR98cvnLtJBUFfhqCVjqeK5VpfJC6X+P0TNHsGYT5l3LqFEh6sLIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
-<script src="~/assets/js/pr-notifications.js"></script>
-
-<!-- Toast notification container -->
-<div id="notification-toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+<script src="~/js/shared/signalr-notifications.js"></script>
+<script src="~/js/shared/workflow-notifications.js"></script>
