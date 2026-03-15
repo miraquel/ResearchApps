@@ -39,6 +39,17 @@
             </dd>
             <dt class="col-sm-3 mb-3 fw-medium">Phone Number</dt>
             <dd class="col-sm-9 mb-3">@(Model.PhoneNumber ?? "—")</dd>
+            <dt class="col-sm-3 mb-3 fw-medium">Tenant</dt>
+            <dd class="col-sm-9 mb-3">
+                @if (string.IsNullOrEmpty(Model.TenantName))
+                {
+                    <span class="badge bg-warning-subtle text-warning">Super Admin (No Tenant)</span>
+                }
+                else
+                {
+                    <span class="badge bg-info-subtle text-info">@Model.TenantName</span>
+                }
+            </dd>
         </dl>
         <div class="mt-4">
             <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="btn btn-secondary">Back to List</a>

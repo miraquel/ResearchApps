@@ -24,6 +24,7 @@
             </div>
         </th>
         <th style="min-width: 120px;">Role</th>
+        <th style="min-width: 120px;">Tenant</th>
         <th style="width: 100px;">Status</th>
         <th class="text-center" style="width: 160px;">Actions</th>
     </tr>
@@ -41,6 +42,7 @@
             <input type="text" class="form-control form-control-sm" placeholder="Search email..."
                    x-model="filters.Email" @@input.debounce.500ms="fetchList()">
         </td>
+        <td></td>
         <td></td>
         <td></td>
         <td class="text-center">
