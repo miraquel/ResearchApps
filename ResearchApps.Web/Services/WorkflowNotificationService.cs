@@ -9,15 +9,18 @@ public partial class WorkflowNotificationService : IWorkflowNotificationService
     private readonly IHubContext<WorkflowHub, IWorkflowNotificationClient> _hubContext;
     private readonly ILogger<WorkflowNotificationService> _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public WorkflowNotificationService(
         IHubContext<WorkflowHub, IWorkflowNotificationClient> hubContext,
         ILogger<WorkflowNotificationService> logger,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory,
+        IHttpContextAccessor httpContextAccessor)
     {
         _hubContext = hubContext;
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task NotifySubmitted(string entityType, string entityId, int recId, string submittedBy, string? nextApprover)
@@ -154,10 +157,16 @@ public partial class WorkflowNotificationService : IWorkflowNotificationService
     }
 
     private IWorkflowNotificationClient UserGroup(string userId) =>
-        _hubContext.Clients.Group($"user_{userId}");
+        _hubContext.Clients.Group($"{GetTenantPrefix()}user_{userId}");
 
     private IWorkflowNotificationClient EntityGroup(string entityType, string entityId) =>
-        _hubContext.Clients.Group($"{entityType}_{entityId}");
+        _hubContext.Clients.Group($"{GetTenantPrefix()}{entityType}_{entityId}");
+
+    private string GetTenantPrefix()
+    {
+        var tenantId = _httpContextAccessor.HttpContext?.User.FindFirst("TenantId")?.Value;
+        return string.IsNullOrEmpty(tenantId) ? "" : $"{tenantId}_";
+    }
 
     private async Task StoreNotificationAsync(
         string entityType, string userId, string title, string message,

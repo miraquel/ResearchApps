@@ -400,7 +400,8 @@
                 @{
                     var hasAdminAccess = User.HasClaim("permission", PermissionConstants.Users.Index) ||
                                          User.HasClaim("permission", PermissionConstants.Roles.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.Workflows.Index);
+                                         User.HasClaim("permission", PermissionConstants.Workflows.Index) ||
+                                         User.HasClaim("permission", PermissionConstants.Tenants.Index);
                 }
                 @if (hasAdminAccess)
                 {
@@ -433,6 +434,15 @@
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Workflows", new { Area = "Admin" })" class="nav-link" data-key="t-workflows">
                                             Workflows
+                                        </a>
+                                    </li>
+                                }
+                                
+                                @if (User.HasClaim("permission", PermissionConstants.Tenants.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Tenants", new { Area = "Admin" })" class="nav-link" data-key="t-tenants">
+                                            Tenants
                                         </a>
                                     </li>
                                 }
