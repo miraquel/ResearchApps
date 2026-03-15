@@ -15,6 +15,7 @@
 | [Adding New Entities](./07-NEW-ENTITY-GUIDE.md) | Step-by-step CRUD implementation |
 | [**Module Generation Quick Start**](./08-MODULE-GENERATION-QUICK-START.md) | **Fast-track guide for generating new modules** |
 | [**Coding Style Guide**](./09-STYLING-GUIDE.md) | **Naming conventions, patterns, consistency rules** |
+| [**Multi-Tenancy Guide**](./10-MULTI-TENANCY.md) | **Tenant architecture, admin, onboarding, developer guide** |
 
 ## System Overview
 

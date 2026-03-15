@@ -14,6 +14,7 @@
 | SignalR notifications | `Docs/05-SIGNALR.md` |
 | Testing | `Docs/06-TESTING.md` |
 | Adding new entities | `Docs/07-NEW-ENTITY-GUIDE.md` |
+| **Multi-tenancy** | **`Docs/10-MULTI-TENANCY.md`** |
 
 ## Architecture (Clean Architecture + Dapper)
 
