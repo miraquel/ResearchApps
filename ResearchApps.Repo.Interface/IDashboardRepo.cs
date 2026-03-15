@@ -4,8 +4,11 @@ namespace ResearchApps.Repo.Interface;
 
 public interface IDashboardRepo
 {
-    // Dashboard_GetStatistics
+    // Dashboard_GetStatistics (legacy)
     Task<DashboardStatistics> GetStatistics(string userId, CancellationToken cancellationToken);
+    
+    // Dashboard_GetModuleCounts (cross-module KPIs)
+    Task<DashboardModuleCounts> GetModuleCounts(string userId, CancellationToken cancellationToken);
     
     // Dashboard_GetRecentPrs
     Task<List<RecentPr>> GetRecentPrs(string userId, int top, CancellationToken cancellationToken);
@@ -19,6 +22,12 @@ public interface IDashboardRepo
     // Dashboard_GetPrTrend
     Task<List<PrTrend>> GetPrTrend(int months, CancellationToken cancellationToken);
     
+    // Dashboard_GetSalesTrend
+    Task<List<SalesTrend>> GetSalesTrend(int months, CancellationToken cancellationToken);
+    
     // Dashboard_GetBudgetByDepartment
     Task<List<BudgetByDepartment>> GetBudgetByDepartment(CancellationToken cancellationToken);
+    
+    // Dashboard_GetLowStockItems
+    Task<List<LowStockItem>> GetLowStockItems(int top, CancellationToken cancellationToken);
 }
