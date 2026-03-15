@@ -1,7 +1,9 @@
 ﻿using System.Data;
+using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ResearchApps.Common.Tenant;
 using ResearchApps.Repo.Interface;
 
 namespace ResearchApps.Repo;
@@ -10,10 +12,14 @@ public static class ServiceCollectionExtensions
 {
     public static void AddRepositories(this IServiceCollection services)
     {
-        // register IDbConnection
+        // register IDbConnection — tenant-aware: uses the resolved tenant's connection string,
+        // falls back to DefaultConnection for admin/setup scenarios where no tenant is resolved
         services.AddScoped<IDbConnection>(sp =>
         {
-            var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString("DefaultConnection");
+            var accessor = sp.GetRequiredService<IMultiTenantContextAccessor<AppTenantInfo>>();
+            var tenantInfo = accessor.MultiTenantContext?.TenantInfo;
+            var connectionString = tenantInfo?.ConnectionString
+                ?? sp.GetRequiredService<IConfiguration>().GetConnectionString("DefaultConnection");
             return new SqlConnection(connectionString);
         });
         // register IDbTransaction
