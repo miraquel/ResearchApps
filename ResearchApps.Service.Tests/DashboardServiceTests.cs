@@ -20,7 +20,7 @@ public class DashboardServiceTests
         const string userId = "user123";
         var cancellationToken = CancellationToken.None;
 
-        var statistics = new DashboardStatistics();
+        var moduleCounts = new DashboardModuleCounts();
 
         var recentPrs = new List<RecentPr>
         {
@@ -43,23 +43,37 @@ public class DashboardServiceTests
             new() { MonthYear = "January 2026", MonthDate = new DateTime(2026, 1, 1), PrCount = 5, TotalAmount = 10000 }
         };
 
+        var salesTrend = new List<SalesTrend>
+        {
+            new() { MonthYear = "January 2026", MonthDate = new DateTime(2026, 1, 1), CoCount = 3, CoTotal = 5000 }
+        };
+
         var budgetByDepartment = new List<BudgetByDepartment>
         {
             new() { Department = "IT", TotalSpent = 50000, PrCount = 10, AvgAmount = 5000 }
         };
 
-        _dashboardRepoMock.Setup(x => x.GetStatistics(userId, cancellationToken))
-            .ReturnsAsync(statistics);
-        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 10, cancellationToken))
+        var lowStockItems = new List<LowStockItem>
+        {
+            new() { ItemName = "Item Low", BufferStock = 100, CurrentStock = 10, Deficit = 90 }
+        };
+
+        _dashboardRepoMock.Setup(x => x.GetModuleCounts(userId, cancellationToken))
+            .ReturnsAsync(moduleCounts);
+        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 5, cancellationToken))
             .ReturnsAsync(recentPrs);
-        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 5, cancellationToken))
             .ReturnsAsync(pendingApprovals);
-        _dashboardRepoMock.Setup(x => x.GetTopItems(10, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetTopItems(5, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
             .ReturnsAsync(topItems);
         _dashboardRepoMock.Setup(x => x.GetPrTrend(6, cancellationToken))
             .ReturnsAsync(prTrend);
+        _dashboardRepoMock.Setup(x => x.GetSalesTrend(6, cancellationToken))
+            .ReturnsAsync(salesTrend);
         _dashboardRepoMock.Setup(x => x.GetBudgetByDepartment(cancellationToken))
             .ReturnsAsync(budgetByDepartment);
+        _dashboardRepoMock.Setup(x => x.GetLowStockItems(10, cancellationToken))
+            .ReturnsAsync(lowStockItems);
 
         // Act
         var result = await _sut.GetDashboardData(userId, cancellationToken);
@@ -68,12 +82,14 @@ public class DashboardServiceTests
         Assert.NotNull(result);
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
-        Assert.NotNull(result.Data.Statistics);
+        Assert.NotNull(result.Data.ModuleCounts);
         Assert.NotNull(result.Data.RecentPrs);
         Assert.NotNull(result.Data.PendingApprovals);
         Assert.NotNull(result.Data.TopItems);
         Assert.NotNull(result.Data.PrTrend);
+        Assert.NotNull(result.Data.SalesTrend);
         Assert.NotNull(result.Data.BudgetByDepartment);
+        Assert.NotNull(result.Data.LowStockItems);
         Assert.Equal(2, result.Data.RecentPrs.Count);
         Assert.Single(result.Data.PendingApprovals);
     }
@@ -85,29 +101,35 @@ public class DashboardServiceTests
         var userId = "user123";
         var cancellationToken = CancellationToken.None;
 
-        _dashboardRepoMock.Setup(x => x.GetStatistics(userId, cancellationToken))
-            .ReturnsAsync(new DashboardStatistics());
-        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetModuleCounts(userId, cancellationToken))
+            .ReturnsAsync(new DashboardModuleCounts());
+        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetTopItems(10, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetTopItems(5, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
             .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetPrTrend(6, cancellationToken))
             .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetSalesTrend(6, cancellationToken))
+            .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetBudgetByDepartment(cancellationToken))
+            .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetLowStockItems(10, cancellationToken))
             .ReturnsAsync([]);
 
         // Act
         await _sut.GetDashboardData(userId, cancellationToken);
 
         // Assert
-        _dashboardRepoMock.Verify(x => x.GetStatistics(userId, cancellationToken), Times.Once);
-        _dashboardRepoMock.Verify(x => x.GetRecentPrs(userId, 10, cancellationToken), Times.Once);
-        _dashboardRepoMock.Verify(x => x.GetPendingApprovals(userId, 10, cancellationToken), Times.Once);
-        _dashboardRepoMock.Verify(x => x.GetTopItems(10, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken), Times.Once);
+        _dashboardRepoMock.Verify(x => x.GetModuleCounts(userId, cancellationToken), Times.Once);
+        _dashboardRepoMock.Verify(x => x.GetRecentPrs(userId, 5, cancellationToken), Times.Once);
+        _dashboardRepoMock.Verify(x => x.GetPendingApprovals(userId, 5, cancellationToken), Times.Once);
+        _dashboardRepoMock.Verify(x => x.GetTopItems(5, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken), Times.Once);
         _dashboardRepoMock.Verify(x => x.GetPrTrend(6, cancellationToken), Times.Once);
+        _dashboardRepoMock.Verify(x => x.GetSalesTrend(6, cancellationToken), Times.Once);
         _dashboardRepoMock.Verify(x => x.GetBudgetByDepartment(cancellationToken), Times.Once);
+        _dashboardRepoMock.Verify(x => x.GetLowStockItems(10, cancellationToken), Times.Once);
     }
 
     [Fact]
@@ -117,17 +139,21 @@ public class DashboardServiceTests
         var userId = "user123";
         var cancellationToken = CancellationToken.None;
 
-        _dashboardRepoMock.Setup(x => x.GetStatistics(userId, cancellationToken))
-            .ReturnsAsync(new DashboardStatistics());
-        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetModuleCounts(userId, cancellationToken))
+            .ReturnsAsync(new DashboardModuleCounts());
+        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetTopItems(10, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetTopItems(5, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
             .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetPrTrend(6, cancellationToken))
             .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetSalesTrend(6, cancellationToken))
+            .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetBudgetByDepartment(cancellationToken))
+            .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetLowStockItems(10, cancellationToken))
             .ReturnsAsync([]);
 
         // Act
@@ -141,17 +167,19 @@ public class DashboardServiceTests
         Assert.Empty(result.Data.PendingApprovals);
         Assert.Empty(result.Data.TopItems);
         Assert.Empty(result.Data.PrTrend);
+        Assert.Empty(result.Data.SalesTrend);
         Assert.Empty(result.Data.BudgetByDepartment);
+        Assert.Empty(result.Data.LowStockItems);
     }
 
     [Fact]
-    public async Task GetDashboardData_WhenGetStatisticsThrowsException_PropagatesException()
+    public async Task GetDashboardData_WhenGetModuleCountsThrowsException_PropagatesException()
     {
         // Arrange
         var userId = "user123";
         var cancellationToken = CancellationToken.None;
 
-        _dashboardRepoMock.Setup(x => x.GetStatistics(userId, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetModuleCounts(userId, cancellationToken))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
         // Act & Assert
@@ -168,14 +196,14 @@ public class DashboardServiceTests
         DateTime? capturedStartDate = null;
         DateTime? capturedEndDate = null;
 
-        _dashboardRepoMock.Setup(x => x.GetStatistics(userId, cancellationToken))
-            .ReturnsAsync(new DashboardStatistics());
-        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetModuleCounts(userId, cancellationToken))
+            .ReturnsAsync(new DashboardModuleCounts());
+        _dashboardRepoMock.Setup(x => x.GetRecentPrs(userId, 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(userId, 5, cancellationToken))
             .ReturnsAsync([]);
         _dashboardRepoMock
-            .Setup(x => x.GetTopItems(10, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), cancellationToken))
+            .Setup(x => x.GetTopItems(5, It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), cancellationToken))
             .Callback<int, DateTime?, DateTime?, CancellationToken>((_, start, end, _) =>
             {
                 capturedStartDate = start;
@@ -184,7 +212,11 @@ public class DashboardServiceTests
             .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetPrTrend(6, cancellationToken))
             .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetSalesTrend(6, cancellationToken))
+            .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetBudgetByDepartment(cancellationToken))
+            .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetLowStockItems(10, cancellationToken))
             .ReturnsAsync([]);
 
         // Act
@@ -205,17 +237,21 @@ public class DashboardServiceTests
         string? userId = null;
         var cancellationToken = CancellationToken.None;
 
-        _dashboardRepoMock.Setup(x => x.GetStatistics(It.IsAny<string>(), cancellationToken))
-            .ReturnsAsync(new DashboardStatistics());
-        _dashboardRepoMock.Setup(x => x.GetRecentPrs(It.IsAny<string>(), 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetModuleCounts(It.IsAny<string>(), cancellationToken))
+            .ReturnsAsync(new DashboardModuleCounts());
+        _dashboardRepoMock.Setup(x => x.GetRecentPrs(It.IsAny<string>(), 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(It.IsAny<string>(), 10, cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetPendingApprovals(It.IsAny<string>(), 5, cancellationToken))
             .ReturnsAsync([]);
-        _dashboardRepoMock.Setup(x => x.GetTopItems(10, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
+        _dashboardRepoMock.Setup(x => x.GetTopItems(5, It.IsAny<DateTime>(), It.IsAny<DateTime>(), cancellationToken))
             .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetPrTrend(6, cancellationToken))
             .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetSalesTrend(6, cancellationToken))
+            .ReturnsAsync([]);
         _dashboardRepoMock.Setup(x => x.GetBudgetByDepartment(cancellationToken))
+            .ReturnsAsync([]);
+        _dashboardRepoMock.Setup(x => x.GetLowStockItems(10, cancellationToken))
             .ReturnsAsync([]);
 
         // Act

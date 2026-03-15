@@ -24,29 +24,37 @@ public partial class DashboardService : IDashboardService
         LogRetrievingDashboardData(userId);
         var dashboardVm = new DashboardVm();
 
-        // Get statistics
-        var statistics = await _dashboardRepo.GetStatistics(userId, cancellationToken);
-        dashboardVm.Statistics = _mapper.Map(statistics);
+        // Get cross-module counts
+        var moduleCounts = await _dashboardRepo.GetModuleCounts(userId, cancellationToken);
+        dashboardVm.ModuleCounts = _mapper.Map(moduleCounts);
 
-        // Get recent PRs
-        var recentPrs = await _dashboardRepo.GetRecentPrs(userId, 10, cancellationToken);
+        // Get recent PRs (top 5 for compact view)
+        var recentPrs = await _dashboardRepo.GetRecentPrs(userId, 5, cancellationToken);
         dashboardVm.RecentPrs = recentPrs.Select(_mapper.Map).ToList();
 
-        // Get pending approvals
-        var pendingApprovals = await _dashboardRepo.GetPendingApprovals(userId, 10, cancellationToken);
+        // Get pending approvals (top 5 for compact view)
+        var pendingApprovals = await _dashboardRepo.GetPendingApprovals(userId, 5, cancellationToken);
         dashboardVm.PendingApprovals = pendingApprovals.Select(_mapper.Map).ToList();
 
-        // Get top items (last 3 months)
-        var topItems = await _dashboardRepo.GetTopItems(10, DateTime.Now.AddMonths(-3), DateTime.Now, cancellationToken);
+        // Get top items (last 3 months, top 5)
+        var topItems = await _dashboardRepo.GetTopItems(5, DateTime.Now.AddMonths(-3), DateTime.Now, cancellationToken);
         dashboardVm.TopItems = topItems.Select(_mapper.Map).ToList();
 
         // Get PR trend (last 6 months)
         var prTrend = await _dashboardRepo.GetPrTrend(6, cancellationToken);
         dashboardVm.PrTrend = prTrend.Select(_mapper.Map).ToList();
 
+        // Get Sales trend (last 6 months)
+        var salesTrend = await _dashboardRepo.GetSalesTrend(6, cancellationToken);
+        dashboardVm.SalesTrend = salesTrend.Select(_mapper.Map).ToList();
+
         // Get budget by department
         var budgetByDepartment = await _dashboardRepo.GetBudgetByDepartment(cancellationToken);
         dashboardVm.BudgetByDepartment = budgetByDepartment.Select(_mapper.Map).ToList();
+
+        // Get low stock items (top 10)
+        var lowStockItems = await _dashboardRepo.GetLowStockItems(10, cancellationToken);
+        dashboardVm.LowStockItems = lowStockItems.Select(_mapper.Map).ToList();
 
         LogDashboardDataRetrieved(userId);
         return ServiceResponse<DashboardVm>.Success(dashboardVm, "Dashboard data retrieved successfully.");

@@ -1,9 +1,11 @@
 @model ResearchApps.Service.Vm.DashboardVm
 @{
     ViewData["Title"] = "Dashboard";
+    var mc = Model.ModuleCounts;
 }
 
 <!-- Page Title -->
+<link rel="stylesheet" href="/assets/css/dashboard-cards.css" />
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
@@ -18,30 +20,50 @@
     </div>
 </div>
 
-<!-- Statistics Cards -->
-<div class="row">
-    <!-- Total PRs -->
+<!-- Row 1: Module KPI Cards -->
+<div class="row g-2">
+    <!-- Sales: Customer Orders -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Total PRs</p>
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Customer Orders</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.ActiveCos.ToString("N0") <span class="fs-11 text-muted fw-normal">active</span></h5>
                     </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-success fs-14 mb-0">
-                            <i class="ri-file-list-3-line align-middle"></i>
-                        </h5>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle rounded fs-5">
+                            <i class="ri-shopping-cart-line text-info"></i>
+                        </span>
                     </div>
                 </div>
-                <div class="d-flex align-items-end justify-content-between mt-4">
+                <div class="mt-1">
+                    @if (mc.OutstandingCos > 0)
+                    {
+                        <span class="badge bg-warning-subtle text-warning fs-10">@mc.OutstandingCos outstanding</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success-subtle text-success fs-10">All fulfilled</span>
+                    }
+                    <span class="text-muted fs-11 ms-1">@mc.TotalCos total</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales: Delivery Orders -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.TotalPrs.ToString("N0")</h4>
-                        <a href="@Url.Action("Index", "Prs")" class="text-decoration-underline">View all PRs</a>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Delivery Orders</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.TotalDos.ToString("N0") <span class="fs-11 text-muted fw-normal">total</span></h5>
                     </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-success-subtle rounded fs-3">
-                            <i class="bx bx-file text-success"></i>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle rounded fs-5">
+                            <i class="ri-truck-line text-info"></i>
                         </span>
                     </div>
                 </div>
@@ -49,215 +71,254 @@
         </div>
     </div>
 
-    <!-- Pending PRs -->
+    <!-- Sales: Invoices & Revenue -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Pending PRs</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-warning fs-14 mb-0">
-                            <i class="ri-time-line align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-4">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.PendingPrs.ToString("N0")</h4>
-                        <span class="badge bg-warning-subtle text-warning">Needs attention</span>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Sales Invoices</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.TotalSis.ToString("N0")</h5>
                     </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-warning-subtle rounded fs-3">
-                            <i class="bx bx-time text-warning"></i>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle rounded fs-5">
+                            <i class="ri-money-dollar-circle-line text-info"></i>
                         </span>
                     </div>
+                </div>
+                <div class="mt-1">
+                    <span class="text-muted fs-11">Revenue: <span class="fw-medium text-dark">@mc.SiRevenue.ToString("C0")</span></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- My Pending Approvals -->
+    <!-- Procurement: PRs -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">My Approvals</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-info fs-14 mb-0">
-                            <i class="ri-checkbox-circle-line align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-4">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.MyPendingApprovals.ToString("N0")</h4>
-                        <a href="#pendingApprovals" class="text-decoration-underline">View pending</a>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Purchase Requisitions</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.TotalPrs.ToString("N0") <span class="fs-11 text-muted fw-normal">total</span></h5>
                     </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-info-subtle rounded fs-3">
-                            <i class="bx bx-check-circle text-info"></i>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-5">
+                            <i class="ri-file-list-3-line text-success"></i>
                         </span>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Budget Utilization -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Budget Used</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-primary fs-14 mb-0">
-                            @Model.Statistics.BudgetUtilizationPercentage.ToString("F1")%
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-4">
-                    <div>
-                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">@Model.Statistics.UsedBudget.ToString("C0")</h4>
-                        <span class="text-muted">of @Model.Statistics.TotalBudget.ToString("C0")</span>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-primary-subtle rounded fs-3">
-                            <i class="bx bx-wallet text-primary"></i>
-                        </span>
-                    </div>
+                <div class="mt-1">
+                    <span class="badge bg-warning-subtle text-warning fs-10">@mc.PendingPrs pending</span>
+                    <span class="badge bg-success-subtle text-success fs-10">@mc.ApprovedPrs approved</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="row">
-    <!-- PR Trend Chart -->
-    <div class="col-xl-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">PR Trend (Last 6 Months)</h4>
-            </div>
-            <div class="card-body">
-                <canvas id="prTrendChart" style="height: 300px;"></canvas>
+<!-- Row 2: More Module KPIs -->
+<div class="row g-2">
+    <!-- Procurement: POs -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm mb-2">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Purchase Orders</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.TotalPos.ToString("N0") <span class="fs-11 text-muted fw-normal">total</span></h5>
+                    </div>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-5">
+                            <i class="ri-shopping-bag-line text-success"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    @if (mc.OutstandingPos > 0)
+                    {
+                        <span class="badge bg-warning-subtle text-warning fs-10">@mc.OutstandingPos active</span>
+                    }
+                    <span class="text-muted fs-11 ms-1">@mc.TotalGrs GRs received</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Budget by Department Chart -->
-    <div class="col-xl-4">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Budget by Department</h4>
+    <!-- Inventory: Items -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm mb-2">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Active Items</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.ActiveItems.ToString("N0")</h5>
+                    </div>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-warning-subtle rounded fs-5">
+                            <i class="ri-archive-line text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    @if (mc.LowStockCount > 0)
+                    {
+                        <span class="badge bg-danger-subtle text-danger fs-10"><i class="ri-alert-line"></i> @mc.LowStockCount low stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success-subtle text-success fs-10">Stock OK</span>
+                    }
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="budgetDeptChart" style="height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Production -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm mb-2">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">Production Orders</p>
+                        <h5 class="fs-16 fw-semibold mb-0">@mc.ActiveProds.ToString("N0") <span class="fs-11 text-muted fw-normal">active</span></h5>
+                    </div>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title bg-secondary-subtle rounded fs-5">
+                            <i class="ri-tools-line text-secondary"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    <span class="text-muted fs-11">@mc.TotalProds total</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Approvals -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate border shadow-sm mb-2 @(mc.MyPendingApprovals > 0 ? "border-warning" : "")">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-1 fs-12">My Pending Approvals</p>
+                        <h5 class="fs-16 fw-semibold mb-0 @(mc.MyPendingApprovals > 0 ? "text-warning" : "text-success")">@mc.MyPendingApprovals.ToString("N0")</h5>
+                    </div>
+                    <div class="avatar-xs flex-shrink-0">
+                        <span class="avatar-title @(mc.MyPendingApprovals > 0 ? "bg-warning-subtle" : "bg-success-subtle") rounded fs-5">
+                            <i class="ri-checkbox-circle-line @(mc.MyPendingApprovals > 0 ? "text-warning" : "text-success")"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    @if (mc.MyPendingApprovals > 0)
+                    {
+                        <a href="#pendingApprovals" class="text-warning fs-11 text-decoration-underline">Review now</a>
+                    }
+                    else
+                    {
+                        <span class="text-success fs-11">All caught up</span>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent PRs and Pending Approvals -->
+<!-- Row 3: Budget Progress Bar -->
+<div class="row g-2 mb-2">
+    <div class="col-12">
+        <div class="card border shadow-sm mb-0">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="fw-medium fs-13">Budget Utilization</span>
+                    <span class="fs-12">
+                        <span class="fw-semibold">@mc.UsedBudget.ToString("C0")</span>
+                        <span class="text-muted">/ @mc.TotalBudget.ToString("C0")</span>
+                        <span class="badge @(mc.BudgetUtilizationPercentage > 90 ? "bg-danger" : mc.BudgetUtilizationPercentage > 70 ? "bg-warning" : "bg-success") ms-1">@mc.BudgetUtilizationPercentage.ToString("F1")%</span>
+                    </span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    @{
+                        var pct = mc.BudgetUtilizationPercentage;
+                        var barClass = pct > 90 ? "bg-danger" : pct > 70 ? "bg-warning" : "bg-success";
+                    }
+                    <div class="progress-bar @barClass" role="progressbar" style="width: @pct.ToString("F1")%;" aria-valuenow="@pct.ToString("F1")" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <span class="text-muted fs-11">Available: <span class="fw-medium text-success">@mc.AvailableBudget.ToString("C0")</span></span>
+                    @if (mc.UnreadNotifications > 0)
+                    {
+                        <span class="badge bg-danger-subtle text-danger fs-10"><i class="ri-notification-3-line"></i> @mc.UnreadNotifications unread notifications</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 4: Dual Trend Charts -->
 <div class="row">
-    <!-- Recent PRs -->
+    <!-- Procurement Trend -->
     <div class="col-xl-6">
         <div class="card">
-            <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Recent PRs</h4>
-                <div class="position-absolute top-1 end-0">
-                    <a href="@Url.Action("Index", "Prs")" class="btn btn-soft-info btn-sm">View All <i class="ri-arrow-right-line align-middle"></i></a>
-                </div>
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0 fs-13">Procurement Trend <span class="text-muted fw-normal">(6 months)</span></h6>
             </div>
-            <div class="card-body">
-                <div class="table-responsive table-card">
-                    <table class="table table-borderless table-hover table-nowrap align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">PR ID</th>
-                                <th scope="col">PR Name</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Total</th>
-                                <th scope="col">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.RecentPrs.Any())
-                            {
-                                foreach (var pr in Model.RecentPrs)
-                                {
-                                    <tr>
-                                        <td>
-                                            <a href="@Url.Action("Edit", "Prs", new { id = pr.PrId })" class="fw-medium link-primary">@pr.PrId</a>
-                                        </td>
-                                        <td>@pr.PrName</td>
-                                        <td>@pr.PrDate.ToString("dd MMM yyyy")</td>
-                                        <td>@pr.Total.ToString("C0")</td>
-                                        <td>
-                                            <span class="badge bg-@pr.StatusBadge">@pr.PrStatusName</span>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="5" class="text-center">No recent PRs</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+            <div class="card-body py-2">
+                <canvas id="prTrendChart" style="height: 220px;"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Pending Approvals -->
-    <div class="col-xl-6" id="pendingApprovals">
+    <!-- Sales Trend -->
+    <div class="col-xl-6">
         <div class="card">
-            <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Pending Approvals</h4>
-                <div class="flex-shrink-0">
-                    <span class="badge bg-warning">@Model.Statistics.MyPendingApprovals items</span>
-                </div>
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0 fs-13">Sales Trend <span class="text-muted fw-normal">(6 months)</span></h6>
             </div>
-            <div class="card-body">
-                <div class="table-responsive table-card">
-                    <table class="table table-borderless table-hover table-nowrap align-middle mb-0">
+            <div class="card-body py-2">
+                <canvas id="salesTrendChart" style="height: 220px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 5: Three Compact Tables -->
+<div class="row">
+    <!-- Pending Approvals -->
+    <div class="col-xl-4" id="pendingApprovals">
+        <div class="card">
+            <div class="card-header py-2 d-flex align-items-center">
+                <h6 class="card-title mb-0 flex-grow-1 fs-13">Pending Approvals</h6>
+                <span class="badge bg-warning">@mc.MyPendingApprovals</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-nowrap align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col">PR ID</th>
-                                <th scope="col">PR Name</th>
-                                <th scope="col">Requested By</th>
-                                <th scope="col">Total</th>
+                                <th class="ps-3 fs-11">PR ID</th>
+                                <th class="fs-11">Name</th>
+                                <th class="pe-3 fs-11 text-end">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if (Model.PendingApprovals.Any())
                             {
-                                foreach (var approval in Model.PendingApprovals)
+                                foreach (var a in Model.PendingApprovals)
                                 {
                                     <tr>
-                                        <td>
-                                            <a href="@Url.Action("Edit", "Prs", new { id = approval.RecId })" class="fw-medium link-primary">@approval.PrId</a>
-                                        </td>
-                                        <td>@approval.PrName</td>
-                                        <td>@approval.CreatedBy</td>
-                                        <td>@approval.Total.ToString("C0")</td>
+                                        <td class="ps-3"><a href="@Url.Action("Edit", "Prs", new { id = a.RecId })" class="fw-medium link-primary fs-12">@a.PrId</a></td>
+                                        <td class="fs-12 text-truncate" style="max-width: 120px;" title="@a.PrName">@a.PrName</td>
+                                        <td class="pe-3 text-end fs-12">@a.Total.ToString("C0")</td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr>
-                                    <td colspan="5" class="text-center">No pending approvals</td>
-                                </tr>
+                                <tr><td colspan="3" class="text-center text-muted py-3 fs-12">No pending approvals</td></tr>
                             }
                         </tbody>
                     </table>
@@ -265,26 +326,70 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Top Requested Items -->
-<div class="row">
-    <div class="col-12">
+    <!-- Low Stock Items -->
+    <div class="col-xl-4">
         <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">Top Requested Items (Last 3 Months)</h4>
+            <div class="card-header py-2 d-flex align-items-center">
+                <h6 class="card-title mb-0 flex-grow-1 fs-13">Low Stock Alerts</h6>
+                @if (mc.LowStockCount > 0)
+                {
+                    <span class="badge bg-danger">@mc.LowStockCount</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">OK</span>
+                }
             </div>
-            <div class="card-body">
+            <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-nowrap align-middle mb-0">
+                    <table class="table table-sm table-hover table-nowrap align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th scope="col">Item Name</th>
-                                <th scope="col">Type</th>
-                                <th scope="col">Department</th>
-                                <th scope="col">Request Count</th>
-                                <th scope="col">Total Quantity</th>
-                                <th scope="col">Total Amount</th>
+                                <th class="ps-3 fs-11">Item</th>
+                                <th class="fs-11 text-end">Stock</th>
+                                <th class="fs-11 text-end">Buffer</th>
+                                <th class="pe-3 fs-11 text-end">Deficit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.LowStockItems.Any())
+                            {
+                                foreach (var item in Model.LowStockItems)
+                                {
+                                    <tr>
+                                        <td class="ps-3 fs-12 text-truncate" style="max-width: 120px;" title="@item.ItemName">@item.ItemName</td>
+                                        <td class="text-end fs-12">@item.CurrentStock.ToString("N0")</td>
+                                        <td class="text-end fs-12">@item.BufferStock.ToString("N0")</td>
+                                        <td class="pe-3 text-end fs-12 text-danger fw-medium">@item.Deficit.ToString("N0")</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3 fs-12">All stock levels OK</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Requested Items -->
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0 fs-13">Top Requested Items <span class="text-muted fw-normal">(3 mo)</span></h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-nowrap align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3 fs-11">Item</th>
+                                <th class="fs-11 text-end">Requests</th>
+                                <th class="pe-3 fs-11 text-end">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -293,22 +398,74 @@
                                 foreach (var item in Model.TopItems)
                                 {
                                     <tr>
-                                        <td>@item.ItemName</td>
-                                        <td>@item.ItemTypeName</td>
-                                        <td>@item.ItemDeptName</td>
-                                        <td>
-                                            <span class="badge bg-primary">@item.RequestCount</span>
-                                        </td>
-                                        <td>@item.TotalQuantity.ToString("N0")</td>
-                                        <td>@item.TotalAmount.ToString("C0")</td>
+                                        <td class="ps-3 fs-12 text-truncate" style="max-width: 120px;" title="@item.ItemName">@item.ItemName</td>
+                                        <td class="text-end"><span class="badge bg-primary-subtle text-primary fs-10">@item.RequestCount</span></td>
+                                        <td class="pe-3 text-end fs-12">@item.TotalAmount.ToString("C0")</td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr>
-                                    <td colspan="6" class="text-center">No data available</td>
-                                </tr>
+                                <tr><td colspan="3" class="text-center text-muted py-3 fs-12">No data</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 6: Budget Doughnut + Recent PRs -->
+<div class="row">
+    <!-- Budget by Department -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0 fs-13">Budget by Department</h6>
+            </div>
+            <div class="card-body py-2">
+                <canvas id="budgetDeptChart" style="height: 220px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent PRs -->
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header py-2 d-flex align-items-center">
+                <h6 class="card-title mb-0 flex-grow-1 fs-13">Recent PRs</h6>
+                <a href="@Url.Action("Index", "Prs")" class="btn btn-soft-info btn-sm py-0 px-2 fs-11">View All <i class="ri-arrow-right-line align-middle"></i></a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover table-nowrap align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3 fs-11">PR ID</th>
+                                <th class="fs-11">Name</th>
+                                <th class="fs-11">Date</th>
+                                <th class="fs-11 text-end">Total</th>
+                                <th class="pe-3 fs-11 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentPrs.Any())
+                            {
+                                foreach (var pr in Model.RecentPrs)
+                                {
+                                    <tr>
+                                        <td class="ps-3"><a href="@Url.Action("Edit", "Prs", new { id = pr.PrId })" class="fw-medium link-primary fs-12">@pr.PrId</a></td>
+                                        <td class="fs-12 text-truncate" style="max-width: 100px;" title="@pr.PrName">@pr.PrName</td>
+                                        <td class="fs-12">@pr.PrDate.ToString("dd MMM yy")</td>
+                                        <td class="text-end fs-12">@pr.Total.ToString("C0")</td>
+                                        <td class="pe-3 text-center"><span class="badge bg-@pr.StatusBadge fs-10">@pr.PrStatusName</span></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="5" class="text-center text-muted py-3 fs-12">No recent PRs</td></tr>
                             }
                         </tbody>
                     </table>
@@ -321,13 +478,13 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // PR Trend Chart
-        const prTrendCtx = document.getElementById('prTrendChart').getContext('2d');
+        // Shared chart defaults
+        Chart.defaults.font.size = 11;
+        Chart.defaults.plugins.legend.labels.boxWidth = 12;
+
+        // === Procurement Trend Chart ===
         const prTrendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PrTrend));
-        
-        console.log('PR Trend Data:', prTrendData); // Debug log
-        
-        new Chart(prTrendCtx, {
+        new Chart(document.getElementById('prTrendChart').getContext('2d'), {
             type: 'line',
             data: {
                 labels: prTrendData.map(d => d.MonthYear),
@@ -335,88 +492,82 @@
                     label: 'PR Count',
                     data: prTrendData.map(d => d.PrCount),
                     borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
                     tension: 0.4,
+                    fill: true,
                     yAxisID: 'y'
                 }, {
-                    label: 'Total Amount',
+                    label: 'Amount',
                     data: prTrendData.map(d => d.TotalAmount),
                     borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
                     tension: 0.4,
+                    fill: true,
                     yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: false
-                    }
-                },
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'top' } },
                 scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'PR Count'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Total Amount'
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    },
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Count' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Amount' }, grid: { drawOnChartArea: false } }
                 }
             }
         });
 
-        // Budget by Department Chart
-        const budgetDeptCtx = document.getElementById('budgetDeptChart').getContext('2d');
+        // === Sales Trend Chart ===
+        const salesTrendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SalesTrend));
+        new Chart(document.getElementById('salesTrendChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: salesTrendData.map(d => d.MonthYear),
+                datasets: [{
+                    label: 'CO Count',
+                    data: salesTrendData.map(d => d.CoCount),
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y'
+                }, {
+                    label: 'SI Revenue',
+                    data: salesTrendData.map(d => d.SiTotal),
+                    borderColor: 'rgb(255, 159, 64)',
+                    backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Count' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Revenue' }, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+
+        // === Budget by Department Doughnut ===
         const budgetDeptData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BudgetByDepartment));
-        
-        console.log('Budget Dept Data:', budgetDeptData); // Debug log
-        
-        new Chart(budgetDeptCtx, {
+        const deptColors = [
+            'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+            'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)'
+        ];
+        new Chart(document.getElementById('budgetDeptChart').getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: budgetDeptData.map(d => d.Department),
                 datasets: [{
-                    label: 'Total Spent',
                     data: budgetDeptData.map(d => d.TotalSpent),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 206, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)',
-                        'rgba(255, 159, 64, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
+                    backgroundColor: deptColors.slice(0, budgetDeptData.length),
                     borderWidth: 1
                 }]
             },
@@ -424,12 +575,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                    title: {
-                        display: false
-                    }
+                    legend: { position: 'right', labels: { font: { size: 10 }, padding: 8 } }
                 }
             }
         });

@@ -143,11 +143,14 @@ public partial class MapperlyMapper
     
     // Dashboard
     public partial DashboardStatisticsVm Map(DashboardStatistics statistics);
+    public partial DashboardModuleCountsVm Map(DashboardModuleCounts moduleCounts);
     public partial RecentPrVm Map(RecentPr recentPr);
     public partial PendingApprovalVm Map(PendingApproval pendingApproval);
     public partial TopItemVm Map(TopItem topItem);
     public partial PrTrendVm Map(PrTrend prTrend);
+    public partial SalesTrendVm Map(SalesTrend salesTrend);
     public partial BudgetByDepartmentVm Map(BudgetByDepartment budgetByDepartment);
+    public partial LowStockItemVm Map(LowStockItem lowStockItem);
     
     // Customer
     public partial Customer MapToEntity(CustomerVm customerDto);
