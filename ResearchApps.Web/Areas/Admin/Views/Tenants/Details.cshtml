@@ -1,0 +1,65 @@
+@using ResearchApps.Common.Constants
+@using ResearchApps.Web.Areas.Admin.Controllers
+@model TenantsController.TenantDetailsVm
+
+@{
+    ViewBag.Title = "Tenant Details";
+    ViewBag.pTitle = "Tenant Details";
+    Layout = "_Layout";
+}
+
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Tenant Details</h5>
+        <small class="text-muted float-end">Tenant Information</small>
+    </div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3 mb-3 fw-medium">Name</dt>
+            <dd class="col-sm-9 mb-3">@Model.Name</dd>
+            <dt class="col-sm-3 mb-3 fw-medium">Identifier (Subdomain)</dt>
+            <dd class="col-sm-9 mb-3"><code>@Model.Identifier</code></dd>
+            <dt class="col-sm-3 mb-3 fw-medium">Status</dt>
+            <dd class="col-sm-9 mb-3">
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactive</span>
+                }
+            </dd>
+            <dt class="col-sm-3 mb-3 fw-medium">Connection String</dt>
+            <dd class="col-sm-9 mb-3"><code class="text-break">@Model.ConnectionString</code></dd>
+            <dt class="col-sm-3 mb-3 fw-medium">Created Date</dt>
+            <dd class="col-sm-9 mb-3">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+            <dt class="col-sm-3 mb-3 fw-medium">Logo URL</dt>
+            <dd class="col-sm-9 mb-3">@(Model.LogoUrl ?? "—")</dd>
+        </dl>
+        <div class="mt-4">
+            <a asp-area="Admin" asp-controller="Tenants" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">Edit</a>
+            @if (User.HasClaim("permission", PermissionConstants.Tenants.Provision))
+            {
+                <form asp-area="Admin" asp-controller="Tenants" asp-action="Provision" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-warning ms-2"
+                            onclick="return confirm('Provision a new database for this tenant?');">
+                        <i class="ri-database-2-line me-1"></i> Provision Database
+                    </button>
+                </form>
+            }
+            @if (User.HasClaim("permission", PermissionConstants.Tenants.DeploySchema))
+            {
+                <form asp-area="Admin" asp-controller="Tenants" asp-action="DeploySchema" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success ms-2"
+                            onclick="return confirm('Deploy schema (tables &amp; stored procedures) to this tenant database? This is safe to run multiple times.')">
+                        <i class="ri-code-s-slash-line me-1"></i> Deploy Schema
+                    </button>
+                </form>
+            }
+            <a asp-area="Admin" asp-controller="Tenants" asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
+        </div>
+    </div>
+</div>

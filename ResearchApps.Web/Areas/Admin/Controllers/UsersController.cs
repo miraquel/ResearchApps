@@ -2,8 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using ResearchApps.Common.Constants;
 using ResearchApps.Domain;
+using ResearchApps.Web.Context;
 
 namespace ResearchApps.Web.Areas.Admin.Controllers;
 
@@ -13,15 +16,18 @@ public class UsersController : Controller
 {
     private readonly UserManager<AppIdentityUser> _userManager;
     private readonly RoleManager<AppIdentityRole> _roleManager;
+    private readonly TenantStoreDbContext _tenantDb;
     private readonly ILogger<UsersController> _logger;
 
     public UsersController(
         UserManager<AppIdentityUser> userManager,
         RoleManager<AppIdentityRole> roleManager,
+        TenantStoreDbContext tenantDb,
         ILogger<UsersController> logger)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _tenantDb = tenantDb;
         _logger = logger;
     }
 
@@ -76,6 +82,14 @@ public class UsersController : Controller
             .Take(pageSize)
             .ToList();
 
+        var tenantIds = users.Where(u => !string.IsNullOrEmpty(u.TenantId))
+            .Select(u => u.TenantId!).Distinct().ToList();
+        var tenantNames = tenantIds.Count > 0
+            ? await _tenantDb.TenantInfo.AsNoTracking()
+                .Where(t => tenantIds.Contains(t.Id!))
+                .ToDictionaryAsync(t => t.Id!, t => t.Name ?? t.Identifier ?? "—")
+            : new Dictionary<string, string>();
+
         var userVms = new List<UserListItemVm>();
         foreach (var u in users)
         {
@@ -88,7 +102,8 @@ public class UsersController : Controller
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Active = !(u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.UtcNow && u.LockoutEnabled),
-                Roles = string.Join(", ", roles)
+                Roles = string.Join(", ", roles),
+                TenantName = !string.IsNullOrEmpty(u.TenantId) && tenantNames.TryGetValue(u.TenantId, out var tn) ? tn : null
             });
         }
 
@@ -116,6 +131,14 @@ public class UsersController : Controller
         if (user == null) return NotFound();
         var roles = await _userManager.GetRolesAsync(user);
 
+        string? tenantName = null;
+        if (!string.IsNullOrEmpty(user.TenantId))
+        {
+            var tenant = await _tenantDb.TenantInfo.AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == user.TenantId);
+            tenantName = tenant?.Name;
+        }
+
         var model = new UserDetailsVm
         {
             Id = user.Id,
@@ -125,7 +148,8 @@ public class UsersController : Controller
             LastName = user.LastName,
             Active = !(user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow),
             Roles = string.Join(", ", roles),
-            PhoneNumber = user.PhoneNumber
+            PhoneNumber = user.PhoneNumber,
+            TenantName = tenantName
         };
 
         return View(model);
@@ -133,8 +157,9 @@ public class UsersController : Controller
 
     // GET: Admin/Users/Create
     [Authorize(PermissionConstants.Users.Create)]
-    public ActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await PopulateTenantListAsync();
         return View(new CreateUserVm());
     }
 
@@ -144,7 +169,11 @@ public class UsersController : Controller
     [Authorize(PermissionConstants.Users.Create)]
     public async Task<IActionResult> Create([FromForm] CreateUserVm model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            await PopulateTenantListAsync();
+            return View(model);
+        }
 
         var user = new AppIdentityUser
         {
@@ -153,6 +182,7 @@ public class UsersController : Controller
             FirstName = model.FirstName,
             LastName = model.LastName ?? string.Empty,
             PhoneNumber = model.PhoneNumber,
+            TenantId = model.TenantId,
             EmailConfirmed = true,
             PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(model.PhoneNumber)
         };
@@ -166,6 +196,7 @@ public class UsersController : Controller
         foreach (var error in result.Errors)
             ModelState.AddModelError(string.Empty, error.Description);
 
+        await PopulateTenantListAsync();
         return View(model);
     }
 
@@ -183,9 +214,11 @@ public class UsersController : Controller
             Email = user.Email ?? string.Empty,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            PhoneNumber = user.PhoneNumber
+            PhoneNumber = user.PhoneNumber,
+            TenantId = user.TenantId
         };
 
+        await PopulateTenantListAsync();
         return View(model);
     }
 
@@ -195,7 +228,11 @@ public class UsersController : Controller
     [Authorize(PermissionConstants.Users.Edit)]
     public async Task<IActionResult> Edit(string id, [FromForm] EditUserVm model)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+        {
+            await PopulateTenantListAsync();
+            return View(model);
+        }
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound();
 
@@ -204,6 +241,7 @@ public class UsersController : Controller
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         user.PhoneNumber = model.PhoneNumber;
+        user.TenantId = model.TenantId;
         user.PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(model.PhoneNumber);
 
         var result = await _userManager.UpdateAsync(user);
@@ -216,6 +254,7 @@ public class UsersController : Controller
         foreach (var error in result.Errors)
             ModelState.AddModelError(string.Empty, error.Description);
 
+        await PopulateTenantListAsync();
         return View(model);
     }
 
@@ -376,6 +415,7 @@ public class UsersController : Controller
         public string LastName { get; set; } = string.Empty;
         public bool Active { get; set; }
         public string Roles { get; set; } = string.Empty;
+        public string? TenantName { get; set; }
     }
 
     public class UserDetailsVm
@@ -388,6 +428,7 @@ public class UsersController : Controller
         public bool Active { get; set; }
         public string Roles { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
+        public string? TenantName { get; set; }
     }
 
     public class CreateUserVm
@@ -399,6 +440,7 @@ public class UsersController : Controller
         [Required] [DataType(DataType.Password)] [Display(Name = "Password")] public string Password { get; set; } = string.Empty;
         [Required] [DataType(DataType.Password)] [Display(Name = "Confirm Password")] [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")] public string ConfirmPassword { get; set; } = string.Empty;
         [Phone] [Display(Name = "Phone Number")] public string? PhoneNumber { get; set; }
+        [Display(Name = "Tenant")] public string? TenantId { get; set; }
     }
 
     public class EditUserVm
@@ -408,6 +450,7 @@ public class UsersController : Controller
         [Required] [Display(Name = "First Name")] public string FirstName { get; set; } = string.Empty;
         [Display(Name = "Last Name")] public string LastName { get; set; } = string.Empty;
         [Phone] [Display(Name = "Phone Number")] public string? PhoneNumber { get; set; }
+        [Display(Name = "Tenant")] public string? TenantId { get; set; }
     }
 
     public class SuspendUserVm
@@ -441,4 +484,14 @@ public class UsersController : Controller
     }
 
     #endregion
+
+    private async Task PopulateTenantListAsync()
+    {
+        var tenants = await _tenantDb.TenantInfo.AsNoTracking()
+            .Where(t => t.IsActive)
+            .OrderBy(t => t.Name)
+            .Select(t => new { t.Id, t.Name })
+            .ToListAsync();
+        ViewBag.Tenants = new SelectList(tenants, "Id", "Name");
+    }
 }

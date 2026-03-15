@@ -29,6 +29,16 @@
                 <span class="badge bg-primary-subtle text-primary">@(string.IsNullOrEmpty(item.Roles) ? "No Role" : item.Roles)</span>
             </td>
             <td>
+                @if (string.IsNullOrEmpty(item.TenantName))
+                {
+                    <span class="badge bg-warning-subtle text-warning">Super Admin</span>
+                }
+                else
+                {
+                    <span class="badge bg-info-subtle text-info">@item.TenantName</span>
+                }
+            </td>
+            <td>
                 @if (item.Active)
                 {
                     <span class="badge bg-success">Active</span>
@@ -72,7 +82,7 @@
 else
 {
     <tr>
-        <td colspan="5" class="text-center text-muted py-4">
+        <td colspan="6" class="text-center text-muted py-4">
             <i class="ri-inbox-line fs-2"></i>
             <p class="mb-0 mt-2">No users found</p>
         </td>

@@ -268,7 +268,18 @@ public static class PermissionConstants
         public const string Delete = "Workflows.Delete";
         public const string Details = "Workflows.Details";
     }
-    
+
+    public static class Tenants
+    {
+        public const string Index = "Tenants.Index";
+        public const string Create = "Tenants.Create";
+        public const string Edit = "Tenants.Edit";
+        public const string Delete = "Tenants.Delete";
+        public const string Details = "Tenants.Details";
+        public const string Provision = "Tenants.Provision";
+        public const string DeploySchema = "Tenants.DeploySchema";
+    }
+
     public static class Budgets
     {
         public const string Index = "Budgets.Index";

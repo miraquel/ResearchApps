@@ -1,0 +1,112 @@
+@using ResearchApps.Web.Areas.Admin.Controllers
+@model TenantsController.CreateTenantVm
+
+@{
+    ViewBag.Title = "Add Tenant";
+    ViewBag.pTitle = "Add Tenant";
+    Layout = "_Layout";
+}
+
+<div class="card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Add Tenant</h5>
+        <small class="text-muted float-end">Tenant Registration</small>
+    </div>
+    <div class="card-body">
+        <form id="create-tenant-form" asp-area="Admin" asp-controller="Tenants" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <div class="row mb-4">
+                <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <label asp-for="Identifier" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <input asp-for="Identifier" class="form-control" placeholder="e.g. acme" />
+                    <span asp-validation-for="Identifier" class="text-danger"></span>
+                    <small class="form-text text-muted">Lowercase alphanumeric with optional hyphens. Used as subdomain (e.g., acme.yourdomain.com).</small>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <label asp-for="ConnectionString" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <textarea asp-for="ConnectionString" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="ConnectionString" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <label asp-for="IsActive" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <div class="form-check form-switch mt-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <label asp-for="LogoUrl" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <input asp-for="LogoUrl" class="form-control" placeholder="https://..." />
+                    <span asp-validation-for="LogoUrl" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row justify-content-end">
+                <div class="col-sm-10">
+                    <button type="button" class="btn btn-primary" id="create-tenant-btn">Create Tenant</button>
+                    <a asp-area="Admin" asp-controller="Tenants" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="createTenantModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>Are you sure?</h4>
+                        <p class="text-muted mx-4 mb-0">Are you sure you want to create this tenant?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn w-sm btn-primary" id="confirm-create-tenant">Yes, Create It!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('create-tenant-form');
+            const btn = document.getElementById('create-tenant-btn');
+            const confirmBtn = document.getElementById('confirm-create-tenant');
+            const modal = new bootstrap.Modal(document.getElementById('createTenantModal'));
+
+            btn.addEventListener('click', function () {
+                if (form.checkValidity()) {
+                    modal.show();
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            confirmBtn.addEventListener('click', function () {
+                modal.hide();
+                form.submit();
+            });
+        });
+    </script>
+}

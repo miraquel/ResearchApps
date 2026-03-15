@@ -1,0 +1,64 @@
+@using ResearchApps.Common.Constants
+@using ResearchApps.Web.Areas.Admin.Controllers
+@model TenantsController.TenantListVm
+
+@if (Model.Items.Any())
+{
+    foreach (var item in Model.Items)
+    {
+        var initials = item.Name.Length > 0 ? item.Name[..1].ToUpper() : "T";
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar-xs">
+                            <span class="avatar-title rounded-circle bg-info-subtle text-info">@initials</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fs-14 mb-0">
+                            <a href="/Admin/Tenants/Details/@item.Id" class="text-body">@item.Name</a>
+                        </h5>
+                    </div>
+                </div>
+            </td>
+            <td><code>@item.Identifier</code></td>
+            <td>
+                @if (item.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactive</span>
+                }
+            </td>
+            <td>@item.CreatedDate.ToString("yyyy-MM-dd")</td>
+            <td class="text-center">
+                <div class="hstack gap-2 justify-content-center">
+                    @if (User.HasClaim("permission", PermissionConstants.Tenants.Edit))
+                    {
+                        <a href="/Admin/Tenants/Edit/@item.Id" class="btn btn-sm btn-soft-info" title="Edit">
+                            <i class="ri-pencil-fill align-bottom"></i>
+                        </a>
+                    }
+                    @if (User.HasClaim("permission", PermissionConstants.Tenants.Details))
+                    {
+                        <a href="/Admin/Tenants/Details/@item.Id" class="btn btn-sm btn-soft-primary" title="Details">
+                            <i class="ri-eye-fill align-bottom"></i>
+                        </a>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+            <i class="ri-inbox-line fs-2"></i>
+            <p class="mb-0 mt-2">No tenants found</p>
+        </td>
+    </tr>
+}
