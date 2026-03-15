@@ -15,7 +15,9 @@ CREATE TABLE [identity].[AspNetUsers] (
     [TwoFactorEnabled]     BIT                NOT NULL,
     [LockoutEnd]           DATETIMEOFFSET (7) NULL,
     [LockoutEnabled]       BIT                NOT NULL,
-    [AccessFailedCount]    INT                NOT NULL
+    [AccessFailedCount]    INT                NOT NULL,
+    [TenantId]             NVARCHAR (64)      NULL,
+    CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 GO
 
@@ -29,5 +31,10 @@ GO
 
 ALTER TABLE [identity].[AspNetUsers]
     ADD CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
+
+
+CREATE NONCLUSTERED INDEX [IX_AspNetUsers_TenantId]
+    ON [identity].[AspNetUsers]([TenantId] ASC);
 GO
 

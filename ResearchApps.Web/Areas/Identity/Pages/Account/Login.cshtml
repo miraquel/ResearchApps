@@ -167,7 +167,24 @@
             </div>
 
             <form id="account" method="post">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                @Html.AntiForgeryToken()
+                @{
+                    var loginErrors = ViewData.ModelState
+                        .Where(x => x.Key == string.Empty)
+                        .SelectMany(x => x.Value?.Errors ?? [])
+                        .Select(x => x.ErrorMessage)
+                        .Where(x => !string.IsNullOrEmpty(x))
+                        .ToList();
+                }
+                @if (loginErrors.Any())
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @foreach (var error in loginErrors)
+                        {
+                            <p class="mb-0">@error</p>
+                        }
+                    </div>
+                }
                 
                 <div class="mb-3">
                     <label asp-for="Input.UserName" class="form-label">Username</label>
@@ -222,7 +239,8 @@
         </div>
     </div>
 
-    @await Html.PartialAsync("~/Views/Shared/_vendor_scripts.cshtml")
+    <script src="~/assets/libs/jquery/jquery.min.js"></script>
+    <script src="~/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
 </body>
 

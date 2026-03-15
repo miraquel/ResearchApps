@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResearchApps.Web.Context;
 
 #nullable disable
 
-namespace ResearchApps.Web.Context.Migrations
+namespace ResearchApps.Web.Context.Migrations.Identity
 {
     [DbContext(typeof(ResearchAppsDbContext))]
-    partial class ResearchAppsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260309012343_AddTenantIdToUser")]
+    partial class AddTenantIdToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

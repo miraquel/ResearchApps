@@ -17,5 +17,11 @@ public class ResearchAppsDbContext : IdentityDbContext<AppIdentityUser, AppIdent
         
         // use identity as the schema for identity tables
         modelBuilder.HasDefaultSchema("identity");
+
+        modelBuilder.Entity<AppIdentityUser>(entity =>
+        {
+            entity.Property(e => e.TenantId).HasMaxLength(64);
+            entity.HasIndex(e => e.TenantId);
+        });
     }
 }

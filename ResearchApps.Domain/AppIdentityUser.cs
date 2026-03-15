@@ -9,4 +9,9 @@ public class AppIdentityUser : IdentityUser
 
     [PersonalData]
     public string LastName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The tenant this user belongs to. Maps to AppTenantInfo.Id in the tenant catalog.
+    /// </summary>
+    public string? TenantId { get; set; }
 }
