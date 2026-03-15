@@ -1,5 +1,7 @@
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using ResearchApps.Common.Tenant;
 
 namespace ResearchApps.Web.Hubs;
 
@@ -18,7 +20,8 @@ public partial class WorkflowHub : Hub<IWorkflowNotificationClient>
         var userId = Context.User?.Identity?.Name;
         if (!string.IsNullOrEmpty(userId))
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
+            var tenantPrefix = GetTenantPrefix();
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"{tenantPrefix}user_{userId}");
             LogUserConnected(userId, Context.ConnectionId);
         }
 
@@ -40,7 +43,8 @@ public partial class WorkflowHub : Hub<IWorkflowNotificationClient>
         if (string.IsNullOrEmpty(entityType) || string.IsNullOrEmpty(entityId)) return;
         if (!EntityTypes.IsValid(entityType)) return;
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"{entityType}_{entityId}");
+        var tenantPrefix = GetTenantPrefix();
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"{tenantPrefix}{entityType}_{entityId}");
         LogJoinedGroup(Context.ConnectionId, entityType, entityId);
     }
 
@@ -49,8 +53,15 @@ public partial class WorkflowHub : Hub<IWorkflowNotificationClient>
         if (string.IsNullOrEmpty(entityType) || string.IsNullOrEmpty(entityId)) return;
         if (!EntityTypes.IsValid(entityType)) return;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{entityType}_{entityId}");
+        var tenantPrefix = GetTenantPrefix();
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{tenantPrefix}{entityType}_{entityId}");
         LogLeftGroup(Context.ConnectionId, entityType, entityId);
+    }
+
+    private string GetTenantPrefix()
+    {
+        var tenantId = Context.User?.FindFirst("TenantId")?.Value;
+        return string.IsNullOrEmpty(tenantId) ? "" : $"{tenantId}_";
     }
 
     [LoggerMessage(LogLevel.Debug, "User {UserId} connected to workflow hub with connection {ConnectionId}")]

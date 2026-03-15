@@ -1,3 +1,5 @@
+@using Finbuckle.MultiTenant.Abstractions
+@inject IMultiTenantContextAccessor<ResearchApps.Common.Tenant.AppTenantInfo> TenantAccessor
 <header id="page-topbar">
     <div class="layout-width">
         <div class="navbar-header">
@@ -31,6 +33,18 @@
                         <span></span>
                     </span>
                 </button>
+
+                @{
+                    var tenantInfo = TenantAccessor.MultiTenantContext?.TenantInfo;
+                }
+                @if (tenantInfo != null)
+                {
+                    <div class="d-none d-md-flex align-items-center ms-3">
+                        <span class="badge bg-primary-subtle text-primary fs-12 px-3 py-2">
+                            <i class="ri-building-line me-1"></i>@tenantInfo.Name
+                        </span>
+                    </div>
+                }
             </div>
 
             <div class="d-flex align-items-center">
