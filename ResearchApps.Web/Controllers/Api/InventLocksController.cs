@@ -23,7 +23,7 @@ public class InventLocksController : ControllerBase
     /// Returns inventory lock records for a specific year.
     /// </summary>
     [HttpGet]
-    [Authorize(PermissionConstants.InventLocks.Index)]
+    [Authorize(PermissionConstants.InventoryClosing.Index)]
     public async Task<IActionResult> SelectByYear([FromQuery] int? year, CancellationToken cancellationToken)
     {
         var selectedYear = year ?? DateTime.Now.Year;
@@ -36,7 +36,7 @@ public class InventLocksController : ControllerBase
     /// Runs the inventory closing process.
     /// </summary>
     [HttpPost("close")]
-    [Authorize(PermissionConstants.InventLocks.Close)]
+    [Authorize(PermissionConstants.InventoryClosing.Close)]
     public async Task<IActionResult> Close(CancellationToken cancellationToken)
     {
         var response = await _inventLockService.CloseAsync(cancellationToken);
@@ -48,7 +48,7 @@ public class InventLocksController : ControllerBase
     /// Opens/unlocks an inventory lock record.
     /// </summary>
     [HttpPost("open")]
-    [Authorize(PermissionConstants.InventLocks.Open)]
+    [Authorize(PermissionConstants.InventoryClosing.Open)]
     public async Task<IActionResult> Open([FromBody] InventLockActionVm action, CancellationToken cancellationToken)
     {
         var response = await _inventLockService.OpenAsync(action, cancellationToken);
@@ -60,7 +60,7 @@ public class InventLocksController : ControllerBase
     /// Runs the manual inventory closing for a specific period.
     /// </summary>
     [HttpPost("run-closing")]
-    [Authorize(PermissionConstants.InventLocks.Close)]
+    [Authorize(PermissionConstants.InventoryClosing.Close)]
     public async Task<IActionResult> RunClosing([FromBody] InventLockActionVm action, CancellationToken cancellationToken)
     {
         var response = await _inventLockService.RunClosingAsync(action, cancellationToken);

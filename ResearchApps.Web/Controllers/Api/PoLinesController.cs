@@ -19,7 +19,7 @@ public class PoLinesController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    [Authorize(PermissionConstants.PoLines.Details)]
+    [Authorize(PermissionConstants.PurchaseOrderLines.Details)]
     public async Task<IActionResult> SelectById(int id, CancellationToken ct)
     {
         var response = await _poLineService.PoLineSelectById(id, ct);
@@ -27,7 +27,7 @@ public class PoLinesController : ControllerBase
     }
 
     [HttpGet("by-po/{poId}")]
-    [Authorize(PermissionConstants.PoLines.Index)]
+    [Authorize(PermissionConstants.PurchaseOrderLines.Index)]
     public async Task<IActionResult> SelectByPo(string poId, CancellationToken ct)
     {
         var response = await _poLineService.PoLineSelectByPo(int.Parse(poId), ct);
@@ -35,7 +35,7 @@ public class PoLinesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(PermissionConstants.PoLines.Create)]
+    [Authorize(PermissionConstants.PurchaseOrderLines.Create)]
     public async Task<IActionResult> Insert([FromBody] PoLineVm poLineVm, CancellationToken ct)
     {
         var response = await _poLineService.PoLineInsert(poLineVm, ct);
@@ -43,7 +43,7 @@ public class PoLinesController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(PermissionConstants.PoLines.Edit)]
+    [Authorize(PermissionConstants.PurchaseOrderLines.Edit)]
     public async Task<IActionResult> Update(int id, [FromBody] PoLineVm poLineVm, CancellationToken ct)
     {
         poLineVm.PoLineId = id;
@@ -52,7 +52,7 @@ public class PoLinesController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(PermissionConstants.PoLines.Delete)]
+    [Authorize(PermissionConstants.PurchaseOrderLines.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
         var response = await _poLineService.PoLineDelete(id, ct);

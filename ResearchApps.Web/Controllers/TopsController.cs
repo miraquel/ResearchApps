@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -9,6 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Terms of Payment")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Finance.TermsOfPayment)]
 public class TopsController : Controller
 {
     private readonly ITopService _topService;
@@ -19,14 +21,14 @@ public class TopsController : Controller
     }
 
     // GET: Tops
-    [Authorize(PermissionConstants.Tops.Index)]
+    [Authorize(PermissionConstants.TermsOfPayment.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: Tops/List (HTMX partial)
-    [Authorize(PermissionConstants.Tops.Index)]
+    [Authorize(PermissionConstants.TermsOfPayment.Index)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
@@ -66,7 +68,7 @@ public class TopsController : Controller
     }
 
     // GET: Tops/Details/5
-    [Authorize(PermissionConstants.Tops.Details)]
+    [Authorize(PermissionConstants.TermsOfPayment.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var response = await _topService.SelectByIdAsync(id, cancellationToken) as ServiceResponse<TopVm>;
@@ -76,7 +78,7 @@ public class TopsController : Controller
     }
 
     // GET: Tops/Create
-    [Authorize(PermissionConstants.Tops.Create)]
+    [Authorize(PermissionConstants.TermsOfPayment.Create)]
     public ActionResult Create()
     {
         return View();
@@ -85,7 +87,7 @@ public class TopsController : Controller
     // POST: Tops/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Tops.Create)]
+    [Authorize(PermissionConstants.TermsOfPayment.Create)]
     public async Task<IActionResult> Create([FromForm] TopVm collection)
     {
         try
@@ -110,7 +112,7 @@ public class TopsController : Controller
     }
 
     // GET: Tops/Edit/5
-    [Authorize(PermissionConstants.Tops.Edit)]
+    [Authorize(PermissionConstants.TermsOfPayment.Edit)]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         var response = await _topService.SelectByIdAsync(id, cancellationToken) as ServiceResponse<TopVm>;
@@ -122,7 +124,7 @@ public class TopsController : Controller
     // POST: Tops/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Tops.Edit)]
+    [Authorize(PermissionConstants.TermsOfPayment.Edit)]
     public ActionResult Edit([FromForm] TopVm collection)
     {
         try
@@ -147,7 +149,7 @@ public class TopsController : Controller
     }
 
     // GET: Tops/Delete/5
-    [Authorize(PermissionConstants.Tops.Delete)]
+    [Authorize(PermissionConstants.TermsOfPayment.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var response = await _topService.SelectByIdAsync(id, cancellationToken) as ServiceResponse<TopVm>;
@@ -159,7 +161,7 @@ public class TopsController : Controller
     // POST: Tops/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Tops.Delete)]
+    [Authorize(PermissionConstants.TermsOfPayment.Delete)]
     public ActionResult Delete(int id, [FromForm] TopVm topVm, CancellationToken cancellationToken)
     {
         try

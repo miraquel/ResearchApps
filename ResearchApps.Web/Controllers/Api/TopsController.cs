@@ -21,7 +21,7 @@ public class TopsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(PermissionConstants.Tops.Index)]
+    [Authorize(PermissionConstants.TermsOfPayment.Index)]
     public async Task<IActionResult> SelectAsync([FromQuery] PagedListRequestVm listRequest, CancellationToken cancellationToken)
     {
         var response = await _topService.SelectAsync(listRequest, cancellationToken);
@@ -29,7 +29,7 @@ public class TopsController : ControllerBase
     }
 
     [HttpGet("{topId:int}")]
-    [Authorize(PermissionConstants.Tops.Details)]
+    [Authorize(PermissionConstants.TermsOfPayment.Details)]
     public async Task<IActionResult> SelectByIdAsync(int topId, CancellationToken cancellationToken)
     {
         var response = await _topService.SelectByIdAsync(topId, cancellationToken);
@@ -37,7 +37,7 @@ public class TopsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(PermissionConstants.Tops.Create)]
+    [Authorize(PermissionConstants.TermsOfPayment.Create)]
     public async Task<IActionResult> InsertAsync([FromBody] TopVm topVm, CancellationToken cancellationToken)
     {
         var response = await _topService.InsertAsync(topVm, cancellationToken);
@@ -45,7 +45,7 @@ public class TopsController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(PermissionConstants.Tops.Edit)]
+    [Authorize(PermissionConstants.TermsOfPayment.Edit)]
     public async Task<IActionResult> UpdateAsync([FromBody] TopVm topVm, CancellationToken cancellationToken)
     {
         var response = await _topService.UpdateAsync(topVm, cancellationToken);
@@ -53,7 +53,7 @@ public class TopsController : ControllerBase
     }
 
     [HttpDelete("{topId:int}")]
-    [Authorize(PermissionConstants.Tops.Delete)]
+    [Authorize(PermissionConstants.TermsOfPayment.Delete)]
     public async Task<IActionResult> DeleteAsync(int topId, CancellationToken cancellationToken)
     {
         var response = await _topService.DeleteAsync(topId, cancellationToken);
@@ -61,7 +61,7 @@ public class TopsController : ControllerBase
     }
 
     [HttpGet("cbo")]
-    [Authorize(PermissionConstants.Tops.Index)]
+    [Authorize(PermissionConstants.TermsOfPayment.Index)]
     public async Task<IActionResult> CboAsync([FromQuery] CboRequestVm cboRequestVm, CancellationToken cancellationToken)
     {
         var response = await _topService.CboAsync(cboRequestVm, cancellationToken);

@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 
 namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Stock Report")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Inventory.StockReport)]
 public class RepStockController : Controller
 {
     private readonly IRepStockService _repStockService;
@@ -17,14 +19,14 @@ public class RepStockController : Controller
     }
 
     // GET: RepStock
-    [Authorize(PermissionConstants.RepStock.Index)]
+    [Authorize(PermissionConstants.StockReport.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: RepStock/StockCardResults (HTMX partial)
-    [Authorize(PermissionConstants.RepStock.Index)]
+    [Authorize(PermissionConstants.StockReport.Index)]
     public async Task<IActionResult> StockCardResults(
         [FromQuery] int itemId,
         [FromQuery] int year,

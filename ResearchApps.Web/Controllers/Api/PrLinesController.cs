@@ -19,7 +19,7 @@ namespace ResearchApps.Web.Controllers.Api
 
         // GET: api/<PrLinesController>
         [HttpGet("{prId}")]
-        [Authorize(PermissionConstants.PrLines.Index)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Index)]
         public async Task<IActionResult> Get(string prId, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineSelectByPr(prId, cancellationToken);
@@ -68,7 +68,7 @@ namespace ResearchApps.Web.Controllers.Api
 
         // GET api/<PrLinesController>/5
         [HttpGet("{id:int}")]
-        [Authorize(PermissionConstants.PrLines.Details)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Details)]
         public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
@@ -77,7 +77,7 @@ namespace ResearchApps.Web.Controllers.Api
 
         // POST api/<PrLinesController>
         [HttpPost]
-        [Authorize(PermissionConstants.PrLines.Create)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Create)]
         public async Task<IActionResult> Post([FromBody] PrLineVm prLineVm, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineInsert(prLineVm, cancellationToken);
@@ -86,7 +86,7 @@ namespace ResearchApps.Web.Controllers.Api
 
         // PUT api/<PrLinesController>/5
         [HttpPut]
-        [Authorize(PermissionConstants.PrLines.Edit)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Edit)]
         public async Task<IActionResult> Put([FromBody] PrLineVm prLineVm, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineUpdate(prLineVm, cancellationToken);

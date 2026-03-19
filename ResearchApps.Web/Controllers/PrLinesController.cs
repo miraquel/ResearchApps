@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 
@@ -8,6 +9,7 @@ namespace ResearchApps.Web.Controllers
 {
     [BreadcrumbLabel("PR Lines")]
     [Authorize]
+    [TenantFeature(TenantFeatureConstants.Procurement.PurchaseRequisitions)]
     public class PrLinesController : Controller
     {
         private readonly IPrLineService _prLineService;
@@ -18,7 +20,7 @@ namespace ResearchApps.Web.Controllers
         }
 
         // GET: PrLinesController/Details/5
-        [Authorize(PermissionConstants.PrLines.Details)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Details)]
         public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
@@ -28,7 +30,7 @@ namespace ResearchApps.Web.Controllers
         }
 
         // GET: PrLinesController/Create
-        [Authorize(PermissionConstants.PrLines.Create)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Create)]
         public ActionResult Create(int prRecId)
         {
             if (prRecId <= 0)
@@ -44,7 +46,7 @@ namespace ResearchApps.Web.Controllers
         // POST: PrLinesController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(PermissionConstants.PrLines.Create)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Create)]
         public async Task<IActionResult> Create([FromForm] PrLineVm collection, CancellationToken cancellationToken)
         {
             try
@@ -69,7 +71,7 @@ namespace ResearchApps.Web.Controllers
         }
 
         // GET: PrLinesController/Edit/5
-        [Authorize(PermissionConstants.PrLines.Edit)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Edit)]
         public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
@@ -81,7 +83,7 @@ namespace ResearchApps.Web.Controllers
         // POST: PrLinesController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(PermissionConstants.PrLines.Edit)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Edit)]
         public async Task<IActionResult> Edit([FromForm] PrLineVm collection, CancellationToken cancellationToken)
         {
             try
@@ -105,7 +107,7 @@ namespace ResearchApps.Web.Controllers
         }
 
         // GET: PrLinesController/Delete/5
-        [Authorize(PermissionConstants.PrLines.Delete)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Delete)]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
@@ -117,7 +119,7 @@ namespace ResearchApps.Web.Controllers
         // POST: PrLinesController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(PermissionConstants.PrLines.Delete)]
+        [Authorize(PermissionConstants.PurchaseRequisitionLines.Delete)]
         public async Task<IActionResult> Delete(int id, [FromForm] PrLineVm prLineVm, CancellationToken cancellationToken)
         {
             try

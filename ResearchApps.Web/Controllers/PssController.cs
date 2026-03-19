@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -9,6 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Penyesuaian Stock")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Inventory.StockAdjustments)]
 public class PssController : Controller
 {
     private readonly IPsService _psService;
@@ -19,14 +21,14 @@ public class PssController : Controller
     }
 
     // GET: Pss
-    [Authorize(PermissionConstants.Pss.Index)]
+    [Authorize(PermissionConstants.StockAdjustments.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: Pss/List (htmx partial)
-    [Authorize(PermissionConstants.Pss.Index)]
+    [Authorize(PermissionConstants.StockAdjustments.Index)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
@@ -66,7 +68,7 @@ public class PssController : Controller
     }
 
     // GET: Pss/Details/5
-    [Authorize(PermissionConstants.Pss.Details)]
+    [Authorize(PermissionConstants.StockAdjustments.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var response = await _psService.GetPs(id, cancellationToken);
@@ -76,7 +78,7 @@ public class PssController : Controller
     }
 
     // GET: Pss/Create
-    [Authorize(PermissionConstants.Pss.Create)]
+    [Authorize(PermissionConstants.StockAdjustments.Create)]
     public ActionResult Create()
     {
         return View(new PsVm());
@@ -85,7 +87,7 @@ public class PssController : Controller
     // POST: Pss/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pss.Create)]
+    [Authorize(PermissionConstants.StockAdjustments.Create)]
     public async Task<IActionResult> Create([FromForm] PsVm collection, CancellationToken cancellationToken)
     {
         try
@@ -113,7 +115,7 @@ public class PssController : Controller
     }
 
     // GET: Pss/Edit/5
-    [Authorize(PermissionConstants.Pss.Edit)]
+    [Authorize(PermissionConstants.StockAdjustments.Edit)]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         var response = await _psService.GetPs(id, cancellationToken);
@@ -128,7 +130,7 @@ public class PssController : Controller
     // POST: Pss/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pss.Edit)]
+    [Authorize(PermissionConstants.StockAdjustments.Edit)]
     public async Task<IActionResult> Edit([FromForm] PsHeaderVm collection, CancellationToken cancellationToken)
     {
         try
@@ -160,7 +162,7 @@ public class PssController : Controller
     // POST: Pss/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pss.Delete)]
+    [Authorize(PermissionConstants.StockAdjustments.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var response = await _psService.PsDelete(id, cancellationToken);
@@ -175,7 +177,7 @@ public class PssController : Controller
     }
 
     // GET: Pss/Lines/5 (htmx partial for lines)
-    [Authorize(PermissionConstants.Pss.Details)]
+    [Authorize(PermissionConstants.StockAdjustments.Details)]
     public async Task<IActionResult> Lines(int id, CancellationToken cancellationToken)
     {
         var response = await _psService.PsLineSelectByPs(id, cancellationToken);
@@ -186,7 +188,7 @@ public class PssController : Controller
     // POST: Pss/AddLine
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pss.Edit)]
+    [Authorize(PermissionConstants.StockAdjustments.Edit)]
     public async Task<IActionResult> AddLine([FromForm] PsLineVm line, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -211,7 +213,7 @@ public class PssController : Controller
     // POST: Pss/UpdateLine
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pss.Edit)]
+    [Authorize(PermissionConstants.StockAdjustments.Edit)]
     public async Task<IActionResult> UpdateLine([FromForm] PsLineVm line, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -236,7 +238,7 @@ public class PssController : Controller
     // POST: Pss/DeleteLine
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pss.Edit)]
+    [Authorize(PermissionConstants.StockAdjustments.Edit)]
     public async Task<IActionResult> DeleteLine(int lineId, int psRecId, CancellationToken cancellationToken)
     {
         var response = await _psService.PsLineDelete(lineId, cancellationToken);
@@ -254,7 +256,7 @@ public class PssController : Controller
 
     // GET: Pss/GetLineForEdit/5 (for editing a specific line)
     [HttpGet]
-    [Authorize(PermissionConstants.Pss.Edit)]
+    [Authorize(PermissionConstants.StockAdjustments.Edit)]
     public async Task<IActionResult> GetLineForEdit(int lineId, CancellationToken cancellationToken)
     {
         var response = await _psService.PsLineSelectById(lineId, cancellationToken);

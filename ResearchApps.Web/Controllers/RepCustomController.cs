@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 
 namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Custom Report")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Production.ToolsReport)]
 public class RepCustomController : Controller
 {
     private readonly IRepCustomService _repCustomService;
@@ -17,14 +19,14 @@ public class RepCustomController : Controller
     }
 
     // GET: RepCustom
-    [Authorize(PermissionConstants.RepCustom.Index)]
+    [Authorize(PermissionConstants.ToolsReport.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: RepCustom/ToolsResults (HTMX partial)
-    [Authorize(PermissionConstants.RepCustom.Index)]
+    [Authorize(PermissionConstants.ToolsReport.Index)]
     public async Task<IActionResult> ToolsResults(
         [FromQuery] int year,
         [FromQuery] int month,
@@ -46,7 +48,7 @@ public class RepCustomController : Controller
     }
 
     // GET: RepCustom/ToolsAnalysisResults (HTMX partial)
-    [Authorize(PermissionConstants.RepCustom.Index)]
+    [Authorize(PermissionConstants.ToolsReport.Index)]
     public async Task<IActionResult> ToolsAnalysisResults(
         [FromQuery] int year,
         [FromQuery] int month,

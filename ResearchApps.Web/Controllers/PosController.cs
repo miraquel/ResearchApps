@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -12,6 +13,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Purchase Orders")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Procurement.PurchaseOrders)]
 public class PosController : Controller
 {
     private readonly IPoService _poService;
@@ -30,13 +32,13 @@ public class PosController : Controller
 
     #region Index & List
 
-    [Authorize(PermissionConstants.Pos.Index)]
+    [Authorize(PermissionConstants.PurchaseOrders.Index)]
     public IActionResult Index()
     {
         return View();
     }
 
-    [Authorize(PermissionConstants.Pos.Index)]
+    [Authorize(PermissionConstants.PurchaseOrders.Index)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
@@ -67,7 +69,7 @@ public class PosController : Controller
 
     #region Details
 
-    [Authorize(PermissionConstants.Pos.Details)]
+    [Authorize(PermissionConstants.PurchaseOrders.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var poResponse = await _poService.PoSelectById(id, cancellationToken);
@@ -88,7 +90,7 @@ public class PosController : Controller
         return View(poResponse.Data);
     }
 
-    [Authorize(PermissionConstants.Pos.Details)]
+    [Authorize(PermissionConstants.PurchaseOrders.Details)]
     public async Task<IActionResult> DetailsLinesPartial(int id, CancellationToken cancellationToken)
     {
         var response = await _poLineService.PoLineSelectByPo(id, cancellationToken);
@@ -99,7 +101,7 @@ public class PosController : Controller
 
     #region Create
 
-    [Authorize(PermissionConstants.Pos.Create)]
+    [Authorize(PermissionConstants.PurchaseOrders.Create)]
     public IActionResult Create()
     {
         var model = new PoVm
@@ -114,7 +116,7 @@ public class PosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pos.Create)]
+    [Authorize(PermissionConstants.PurchaseOrders.Create)]
     public async Task<IActionResult> Create([FromForm] PoHeaderVm header, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -144,7 +146,7 @@ public class PosController : Controller
 
     #region Edit
 
-    [Authorize(PermissionConstants.Pos.Edit)]
+    [Authorize(PermissionConstants.PurchaseOrders.Edit)]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         var poResponse = await _poService.PoSelectById(id, cancellationToken);
@@ -174,7 +176,7 @@ public class PosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pos.Edit)]
+    [Authorize(PermissionConstants.PurchaseOrders.Edit)]
     public async Task<IActionResult> Edit([FromForm] PoHeaderVm header, CancellationToken cancellationToken)
     {
         // Verify still Draft before update
@@ -223,7 +225,7 @@ public class PosController : Controller
 
     #region Delete
 
-    [Authorize(PermissionConstants.Pos.Delete)]
+    [Authorize(PermissionConstants.PurchaseOrders.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var poResponse = await _poService.PoSelectById(id, cancellationToken);
@@ -252,7 +254,7 @@ public class PosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Pos.Delete)]
+    [Authorize(PermissionConstants.PurchaseOrders.Delete)]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {
         // Verify still Draft and user is creator
@@ -478,7 +480,7 @@ public class PosController : Controller
     }
 
     // GET: Pos/WorkflowButtons/5
-    [Authorize(PermissionConstants.Pos.Details)]
+    [Authorize(PermissionConstants.PurchaseOrders.Details)]
     public async Task<IActionResult> WorkflowButtons(int id, CancellationToken cancellationToken)
     {
         var response = await _poService.PoSelectById(id, cancellationToken);
@@ -486,7 +488,7 @@ public class PosController : Controller
         return PartialView("_Partials/_WorkflowButtons", response.Data.Header);
     }
 
-    [Authorize(PermissionConstants.Pos.Details)]
+    [Authorize(PermissionConstants.PurchaseOrders.Details)]
     public async Task<IActionResult> WorkflowHistory(string refId, int wfFormId, CancellationToken cancellationToken)
     {
         var response = await _poService.GetWfHistory(refId, wfFormId, cancellationToken);

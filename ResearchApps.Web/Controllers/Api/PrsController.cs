@@ -21,7 +21,7 @@ public class PrsController : ControllerBase
 
     // GET: api/<PrsController>
     [HttpGet]
-    [Authorize(PermissionConstants.Prs.Index)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Index)]
     public async Task<IActionResult> GetAsync([FromQuery] PagedListRequestVm request, CancellationToken cancellationToken)
     {
         var response = await _prsService.PrSelect(request, cancellationToken);
@@ -30,7 +30,7 @@ public class PrsController : ControllerBase
 
     // GET api/<PrsController>/5
     [HttpGet("{id:int}")]
-    [Authorize(PermissionConstants.Prs.Details)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Details)]
     public async Task<IActionResult> GetAsync(int id, CancellationToken cancellationToken)
     {
         var response = await _prsService.PrSelectById(id, cancellationToken);
@@ -39,7 +39,7 @@ public class PrsController : ControllerBase
 
     // POST api/<PrsController>
     [HttpPost]
-    [Authorize(PermissionConstants.Prs.Create)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Create)]
     public async Task<IActionResult> PostAsync([FromBody] PrVm pr, CancellationToken cancellationToken)
     {
         var response = await _prsService.PrInsert(pr, cancellationToken);
@@ -48,7 +48,7 @@ public class PrsController : ControllerBase
 
     // PUT api/<PrsController>/5
     [HttpPut]
-    [Authorize(PermissionConstants.Prs.Edit)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Edit)]
     public async Task<IActionResult> PutAsync([FromBody] PrVm pr, CancellationToken cancellationToken)
     {
         var response = await _prsService.PrUpdate(pr, cancellationToken);
@@ -57,7 +57,7 @@ public class PrsController : ControllerBase
 
     // DELETE api/<PrsController>/5
     [HttpDelete("{recId:int}")]
-    [Authorize(PermissionConstants.Prs.Delete)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Delete)]
     public async Task<IActionResult> DeleteAsync(int recId, CancellationToken cancellationToken)
     {
         var response = await _prsService.PrDelete(recId, cancellationToken);

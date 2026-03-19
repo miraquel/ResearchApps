@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -8,6 +9,7 @@ using ResearchApps.Service.Vm.Common;
 namespace ResearchApps.Web.Controllers;
 
 [Authorize]
+[TenantFeature(TenantFeatureConstants.MaterialCustomers)]
 public class MaterialCustomersController : Controller
 {
     private readonly IMaterialCustomerService _materialCustomerService;
