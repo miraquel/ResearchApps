@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 
 namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Inventory Transaction Report")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Finance.InventTransReport)]
 public class RepInventTransController : Controller
 {
     private readonly IRepInventTransService _repInventTransService;
@@ -17,14 +19,14 @@ public class RepInventTransController : Controller
     }
 
     // GET: RepInventTrans
-    [Authorize(PermissionConstants.RepInventTrans.Index)]
+    [Authorize(PermissionConstants.InventTransReport.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: RepInventTrans/Results (HTMX partial)
-    [Authorize(PermissionConstants.RepInventTrans.Index)]
+    [Authorize(PermissionConstants.InventTransReport.Index)]
     public async Task<IActionResult> Results(
         [FromQuery] int itemId,
         [FromQuery] DateTime? startDate,

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -11,6 +12,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Purchase Requisitions")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Procurement.PurchaseRequisitions)]
 public class PrsController : Controller
 {
     private readonly IPrService _prService;
@@ -23,14 +25,14 @@ public class PrsController : Controller
     }
 
     // GET: PrsController
-    [Authorize(PermissionConstants.Prs.Index)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: Prs/List (htmx partial)
-    [Authorize(PermissionConstants.Prs.Index)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Index)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
@@ -70,7 +72,7 @@ public class PrsController : Controller
     }
 
     // GET: PrsController/Details/5
-    [Authorize(PermissionConstants.Prs.Details)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var response = await _prService.GetPurchaseRequisition(id, cancellationToken);
@@ -80,7 +82,7 @@ public class PrsController : Controller
     }
 
     // GET: PrsController/Create
-    [Authorize(PermissionConstants.Prs.Create)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Create)]
     public ActionResult Create()
     {
         return View();
@@ -89,7 +91,7 @@ public class PrsController : Controller
     // POST: PrsController/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Prs.Create)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Create)]
     public async Task<IActionResult> Create([FromForm] PrVm collection, CancellationToken cancellationToken)
     {
         try
@@ -115,7 +117,7 @@ public class PrsController : Controller
     }
 
     // GET: PrsController/Edit/5
-    [Authorize(PermissionConstants.Prs.Edit)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Edit)]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         var response = await _prService.PrSelectById(id, cancellationToken);
@@ -127,7 +129,7 @@ public class PrsController : Controller
     // POST: PrsController/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Prs.Edit)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Edit)]
     public async Task<IActionResult> Edit([FromForm] PrVm collection)
     {
         try
@@ -153,7 +155,7 @@ public class PrsController : Controller
     }
 
     // GET: PrsController/Delete/5
-    [Authorize(PermissionConstants.Prs.Delete)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var response = await _prService.PrSelectById(id, cancellationToken);
@@ -165,7 +167,7 @@ public class PrsController : Controller
     // POST: PrsController/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Prs.Delete)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Delete)]
     public async Task<IActionResult> Delete(int id, [FromForm] PrVm prVm, CancellationToken cancellationToken)
     {
         try
@@ -382,7 +384,7 @@ public class PrsController : Controller
     }
     
     // GET: Prs/WorkflowButtons/5
-    [Authorize(PermissionConstants.Prs.Details)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Details)]
     public async Task<IActionResult> WorkflowButtons(int id, CancellationToken cancellationToken)
     {
         var response = await _prService.PrSelectById(id, cancellationToken);
@@ -391,7 +393,7 @@ public class PrsController : Controller
     }
 
     // GET: Prs/WorkflowHistory?refId=xxx&wfFormId=1
-    [Authorize(PermissionConstants.Prs.Details)]
+    [Authorize(PermissionConstants.PurchaseRequisitions.Details)]
     public async Task<IActionResult> WorkflowHistory(string refId, int wfFormId, CancellationToken cancellationToken)
     {
         var response = await _prService.GetWfHistory(refId, wfFormId, cancellationToken);

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -9,6 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Inventory Closing")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Finance.InventoryClosing)]
 public class InventLocksController : Controller
 {
     private readonly IInventLockService _inventLockService;
@@ -22,7 +24,7 @@ public class InventLocksController : Controller
     /// GET: InventLocks
     /// Displays the inventory closing management page.
     /// </summary>
-    [Authorize(PermissionConstants.InventLocks.Index)]
+    [Authorize(PermissionConstants.InventoryClosing.Index)]
     public ActionResult Index()
     {
         return View();
@@ -32,7 +34,7 @@ public class InventLocksController : Controller
     /// GET: InventLocks/List
     /// Returns the HTMX partial view with inventory lock records.
     /// </summary>
-    [Authorize(PermissionConstants.InventLocks.Index)]
+    [Authorize(PermissionConstants.InventoryClosing.Index)]
     public async Task<IActionResult> List([FromQuery] int? year, CancellationToken cancellationToken)
     {
         var selectedYear = year ?? DateTime.Now.Year;
@@ -42,8 +44,8 @@ public class InventLocksController : Controller
             return PartialView("_Partials/_InventLockListContainer", Enumerable.Empty<InventLockVm>());
         
         ViewBag.SelectedYear = selectedYear;
-        ViewBag.CanClose = User.HasClaim("permission", PermissionConstants.InventLocks.Close);
-        ViewBag.CanOpen = User.HasClaim("permission", PermissionConstants.InventLocks.Open);
+        ViewBag.CanClose = User.HasClaim("permission", PermissionConstants.InventoryClosing.Close);
+        ViewBag.CanOpen = User.HasClaim("permission", PermissionConstants.InventoryClosing.Open);
         return PartialView("_Partials/_InventLockListContainer", response.Data);
 
     }
@@ -54,7 +56,7 @@ public class InventLocksController : Controller
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.InventLocks.Close)]
+    [Authorize(PermissionConstants.InventoryClosing.Close)]
     public async Task<IActionResult> Close(CancellationToken cancellationToken)
     {
         var response = await _inventLockService.CloseAsync(cancellationToken);
@@ -77,7 +79,7 @@ public class InventLocksController : Controller
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.InventLocks.Open)]
+    [Authorize(PermissionConstants.InventoryClosing.Open)]
     public async Task<IActionResult> Open([FromForm] InventLockActionVm action, CancellationToken cancellationToken)
     {
         var response = await _inventLockService.OpenAsync(action, cancellationToken);
@@ -100,7 +102,7 @@ public class InventLocksController : Controller
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.InventLocks.Close)]
+    [Authorize(PermissionConstants.InventoryClosing.Close)]
     public async Task<IActionResult> RunClosing([FromForm] InventLockActionVm action, CancellationToken cancellationToken)
     {
         var response = await _inventLockService.RunClosingAsync(action, cancellationToken);

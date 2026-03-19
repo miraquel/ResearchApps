@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -10,6 +11,7 @@ using ResearchApps.Web.Services;
 namespace ResearchApps.Web.Controllers;
 
 [Authorize]
+[TenantFeature(TenantFeatureConstants.CustomerOrders)]
 public class CustomerOrdersController : Controller
 {
     private readonly ICustomerOrderService _customerOrderService;

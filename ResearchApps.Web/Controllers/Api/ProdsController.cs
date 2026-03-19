@@ -21,7 +21,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(PermissionConstants.Prods.Index)]
+    [Authorize(PermissionConstants.ProductionOrders.Index)]
     public async Task<IActionResult> SelectAsync([FromQuery] PagedListRequestVm request, CancellationToken ct)
     {
         var response = await _prodService.SelectAsync(request, ct);
@@ -29,7 +29,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpGet("{recId:int}")]
-    [Authorize(PermissionConstants.Prods.Details)]
+    [Authorize(PermissionConstants.ProductionOrders.Details)]
     public async Task<IActionResult> SelectByIdAsync(int recId, CancellationToken ct)
     {
         var response = await _prodService.SelectByIdAsync(recId, ct);
@@ -37,7 +37,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpGet("by-prodid/{prodId}")]
-    [Authorize(PermissionConstants.Prods.Details)]
+    [Authorize(PermissionConstants.ProductionOrders.Details)]
     public async Task<IActionResult> SelectByProdIdAsync(string prodId, CancellationToken ct)
     {
         var response = await _prodService.SelectByProdIdAsync(prodId, ct);
@@ -45,7 +45,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(PermissionConstants.Prods.Create)]
+    [Authorize(PermissionConstants.ProductionOrders.Create)]
     public async Task<IActionResult> InsertAsync([FromBody] ProdVm prodVm, CancellationToken ct)
     {
         var response = await _prodService.InsertAsync(prodVm, ct);
@@ -53,7 +53,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(PermissionConstants.Prods.Edit)]
+    [Authorize(PermissionConstants.ProductionOrders.Edit)]
     public async Task<IActionResult> UpdateAsync([FromBody] ProdVm prodVm, CancellationToken ct)
     {
         var response = await _prodService.UpdateAsync(prodVm, ct);
@@ -61,7 +61,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpDelete("{recId:int}")]
-    [Authorize(PermissionConstants.Prods.Delete)]
+    [Authorize(PermissionConstants.ProductionOrders.Delete)]
     public async Task<IActionResult> DeleteAsync(int recId, CancellationToken ct)
     {
         var response = await _prodService.DeleteAsync(recId, ct);
@@ -69,7 +69,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpGet("cbo")]
-    [Authorize(PermissionConstants.Prods.Index)]
+    [Authorize(PermissionConstants.ProductionOrders.Index)]
     public async Task<IActionResult> GetCboAsync([FromQuery] string? search, CancellationToken ct)
     {
         var request = new PagedListRequestVm
@@ -99,7 +99,7 @@ public class ProdsController : ControllerBase
     }
 
     [HttpGet("statuses/cbo")]
-    [Authorize(PermissionConstants.Prods.Index)]
+    [Authorize(PermissionConstants.ProductionOrders.Index)]
     public async Task<IActionResult> GetStatusesCboAsync(CancellationToken ct)
     {
         var response = await _prodService.ProdStatusCboAsync(ct);

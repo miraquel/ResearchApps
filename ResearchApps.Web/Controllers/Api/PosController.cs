@@ -22,7 +22,7 @@ public class PosController : ControllerBase
     #region CRUD Operations
 
     [HttpGet]
-    [Authorize(PermissionConstants.Pos.Index)]
+    [Authorize(PermissionConstants.PurchaseOrders.Index)]
     public async Task<IActionResult> Select([FromQuery] PagedListRequestVm request, CancellationToken ct)
     {
         var response = await _poService.PoSelect(request, ct);
@@ -30,7 +30,7 @@ public class PosController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    [Authorize(PermissionConstants.Pos.Details)]
+    [Authorize(PermissionConstants.PurchaseOrders.Details)]
     public async Task<IActionResult> SelectById(int id, CancellationToken ct)
     {
         var response = await _poService.PoSelectById(id, ct);
@@ -38,7 +38,7 @@ public class PosController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(PermissionConstants.Pos.Create)]
+    [Authorize(PermissionConstants.PurchaseOrders.Create)]
     public async Task<IActionResult> Insert([FromBody] PoHeaderVm poHeaderVm, CancellationToken ct)
     {
         var response = await _poService.PoInsert(poHeaderVm, ct);
@@ -46,7 +46,7 @@ public class PosController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(PermissionConstants.Pos.Edit)]
+    [Authorize(PermissionConstants.PurchaseOrders.Edit)]
     public async Task<IActionResult> Update([FromBody] PoHeaderVm poHeaderVm, CancellationToken ct)
     {
         var response = await _poService.PoUpdate(poHeaderVm, ct);
@@ -54,7 +54,7 @@ public class PosController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(PermissionConstants.Pos.Delete)]
+    [Authorize(PermissionConstants.PurchaseOrders.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
         var response = await _poService.PoDelete(id, ct);
@@ -66,7 +66,7 @@ public class PosController : ControllerBase
     #region Outstanding Operations
 
     [HttpGet("outstanding")]
-    [Authorize(PermissionConstants.Pos.Index)]
+    [Authorize(PermissionConstants.PurchaseOrders.Index)]
     public async Task<IActionResult> OsSelect([FromQuery] int supplierId, CancellationToken ct)
     {
         var response = await _poService.PoOsSelect(supplierId, ct);
@@ -74,7 +74,7 @@ public class PosController : ControllerBase
     }
 
     [HttpGet("outstanding/{id:int}")]
-    [Authorize(PermissionConstants.Pos.Details)]
+    [Authorize(PermissionConstants.PurchaseOrders.Details)]
     public async Task<IActionResult> OsSelectById(int id, CancellationToken ct)
     {
         var response = await _poService.PoOsSelectById(id, ct);

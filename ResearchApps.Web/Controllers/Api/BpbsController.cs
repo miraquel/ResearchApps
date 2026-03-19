@@ -21,7 +21,7 @@ public class BpbsController : ControllerBase
 
     // GET: api/Bpbs
     [HttpGet]
-    [Authorize(PermissionConstants.Bpbs.Index)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Index)]
     public async Task<ActionResult<ServiceResponse<PagedListVm<BpbHeaderVm>>>> GetBpbs(
         [FromQuery] PagedListRequestVm request,
         CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class BpbsController : ControllerBase
 
     // GET: api/Bpbs/5
     [HttpGet("{id}")]
-    [Authorize(PermissionConstants.Bpbs.Details)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Details)]
     public async Task<ActionResult<ServiceResponse<BpbVm>>> GetBpb(int id, CancellationToken cancellationToken)
     {
         var response = await _bpbService.GetBpb(id, cancellationToken);
@@ -45,7 +45,7 @@ public class BpbsController : ControllerBase
 
     // GET: api/Bpbs/by-prod/{prodId}
     [HttpGet("by-prod/{prodId}")]
-    [Authorize(PermissionConstants.Bpbs.Index)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Index)]
     public async Task<ActionResult<ServiceResponse<IEnumerable<BpbHeaderVm>>>> GetBpbsByProd(
         string prodId, CancellationToken cancellationToken)
     {
@@ -55,7 +55,7 @@ public class BpbsController : ControllerBase
 
     // POST: api/Bpbs
     [HttpPost]
-    [Authorize(PermissionConstants.Bpbs.Create)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Create)]
     public async Task<ActionResult<ServiceResponse<int>>> CreateBpb(
         [FromBody] BpbVm bpb, CancellationToken cancellationToken)
     {
@@ -69,7 +69,7 @@ public class BpbsController : ControllerBase
 
     // PUT: api/Bpbs/5
     [HttpPut("{id}")]
-    [Authorize(PermissionConstants.Bpbs.Edit)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<ActionResult<ServiceResponse>> UpdateBpb(
         int id, [FromForm] BpbHeaderVm bpbHeader, CancellationToken cancellationToken)
     {
@@ -88,7 +88,7 @@ public class BpbsController : ControllerBase
 
     // DELETE: api/Bpbs/5
     [HttpDelete("{id}")]
-    [Authorize(PermissionConstants.Bpbs.Delete)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Delete)]
     public async Task<ActionResult<ServiceResponse>> DeleteBpb(int id, CancellationToken cancellationToken)
     {
         var response = await _bpbService.BpbDelete(id, cancellationToken);
@@ -101,7 +101,7 @@ public class BpbsController : ControllerBase
 
     // GET: api/Bpbs/{id}/lines
     [HttpGet("{id}/lines")]
-    [Authorize(PermissionConstants.Bpbs.Details)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Details)]
     public async Task<ActionResult<ServiceResponse<IEnumerable<BpbLineVm>>>> GetBpbLines(
         int id, CancellationToken cancellationToken)
     {
@@ -111,7 +111,7 @@ public class BpbsController : ControllerBase
 
     // GET: api/Bpbs/line/{lineId}
     [HttpGet("line/{lineId}")]
-    [Authorize(PermissionConstants.Bpbs.Details)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Details)]
     public async Task<ActionResult<ServiceResponse<BpbLineVm>>> GetBpbLine(
         int lineId, CancellationToken cancellationToken)
     {
@@ -125,7 +125,7 @@ public class BpbsController : ControllerBase
 
     // POST: api/Bpbs/line
     [HttpPost("line")]
-    [Authorize(PermissionConstants.Bpbs.Edit)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<ActionResult<ServiceResponse<string>>> CreateBpbLine(
         [FromBody] BpbLineVm bpbLine, CancellationToken cancellationToken)
     {
@@ -139,7 +139,7 @@ public class BpbsController : ControllerBase
 
     // PUT: api/Bpbs/line/{lineId}
     [HttpPut("line/{lineId}")]
-    [Authorize(PermissionConstants.Bpbs.Edit)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<ActionResult<ServiceResponse<string>>> UpdateBpbLine(
         int lineId, [FromBody] BpbLineVm bpbLine, CancellationToken cancellationToken)
     {
@@ -158,7 +158,7 @@ public class BpbsController : ControllerBase
 
     // DELETE: api/Bpbs/line/{lineId}
     [HttpDelete("line/{lineId:int}")]
-    [Authorize(PermissionConstants.Bpbs.Edit)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<ActionResult<ServiceResponse<string>>> DeleteBpbLine(
         int lineId, CancellationToken cancellationToken)
     {
@@ -172,7 +172,7 @@ public class BpbsController : ControllerBase
 
     // GET: api/Bpbs/stock-check
     [HttpGet("stock-check")]
-    [Authorize(PermissionConstants.Bpbs.Create)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Create)]
     public async Task<ActionResult<ServiceResponse<StockCheckVm>>> CheckStock(
         [FromQuery] int itemId, [FromQuery] int whId, [FromQuery] decimal qty,
         CancellationToken cancellationToken)

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -9,6 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Production Orders")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Production.ProductionOrders)]
 public class ProdsController : Controller
 {
     private readonly IProdService _prodService;
@@ -19,14 +21,14 @@ public class ProdsController : Controller
     }
 
     // GET: ProdsController
-    [Authorize(PermissionConstants.Prods.Index)]
+    [Authorize(PermissionConstants.ProductionOrders.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: ProdsController/List (htmx partial)
-    [Authorize(PermissionConstants.Prods.Index)]
+    [Authorize(PermissionConstants.ProductionOrders.Index)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
@@ -66,7 +68,7 @@ public class ProdsController : Controller
     }
 
     // GET: ProdsController/Details/5 or ProdsController/Details?prodId=xxx
-    [Authorize(PermissionConstants.Prods.Details)]
+    [Authorize(PermissionConstants.ProductionOrders.Details)]
     public async Task<IActionResult> Details(int? id, string? prodId, CancellationToken ct)
     {
         ServiceResponse<ProdVm>? response;
@@ -91,7 +93,7 @@ public class ProdsController : Controller
     }
 
     // GET: ProdsController/Create
-    [Authorize(PermissionConstants.Prods.Create)]
+    [Authorize(PermissionConstants.ProductionOrders.Create)]
     public ActionResult Create()
     {
         return View();
@@ -100,7 +102,7 @@ public class ProdsController : Controller
     // POST: ProdsController/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Prods.Create)]
+    [Authorize(PermissionConstants.ProductionOrders.Create)]
     public async Task<ActionResult> Create([FromForm] ProdVm collection, CancellationToken ct)
     {
         try
@@ -122,7 +124,7 @@ public class ProdsController : Controller
     }
 
     // GET: ProdsController/Edit/5
-    [Authorize(PermissionConstants.Prods.Edit)]
+    [Authorize(PermissionConstants.ProductionOrders.Edit)]
     public async Task<IActionResult> Edit(int id, CancellationToken ct)
     {
         var response = await _prodService.SelectByIdAsync(id, ct) as ServiceResponse<ProdVm>;
@@ -134,7 +136,7 @@ public class ProdsController : Controller
     // POST: ProdsController/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Prods.Edit)]
+    [Authorize(PermissionConstants.ProductionOrders.Edit)]
     public async Task<ActionResult> Edit(int id, [FromForm] ProdVm collection, CancellationToken ct)
     {
         try
@@ -157,7 +159,7 @@ public class ProdsController : Controller
     }
 
     // GET: ProdsController/Delete/5
-    [Authorize(PermissionConstants.Prods.Delete)]
+    [Authorize(PermissionConstants.ProductionOrders.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
         var response = await _prodService.SelectByIdAsync(id, ct) as ServiceResponse<ProdVm>;
@@ -169,7 +171,7 @@ public class ProdsController : Controller
     // POST: ProdsController/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Prods.Delete)]
+    [Authorize(PermissionConstants.ProductionOrders.Delete)]
     public async Task<ActionResult> Delete(int id, [FromForm] ProdVm collection, CancellationToken ct)
     {
         try

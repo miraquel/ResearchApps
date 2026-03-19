@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
 using ResearchApps.Service.Vm;
 using ResearchApps.Service.Vm.Common;
@@ -9,6 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Bon Pengambilan Barang")]
 [Authorize]
+[TenantFeature(TenantFeatureConstants.Production.MaterialWithdrawals)]
 public class BpbsController : Controller
 {
     private readonly IBpbService _bpbService;
@@ -19,14 +21,14 @@ public class BpbsController : Controller
     }
 
     // GET: Bpbs
-    [Authorize(PermissionConstants.Bpbs.Index)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Index)]
     public ActionResult Index()
     {
         return View();
     }
 
     // GET: Bpbs/List (htmx partial)
-    [Authorize(PermissionConstants.Bpbs.Index)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Index)]
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
@@ -66,7 +68,7 @@ public class BpbsController : Controller
     }
 
     // GET: Bpbs/ListByProd (htmx partial for Production Details page)
-    [Authorize(PermissionConstants.Bpbs.Index)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Index)]
     public async Task<IActionResult> ListByProd(
         [FromQuery] string prodId,
         CancellationToken cancellationToken = default)
@@ -82,7 +84,7 @@ public class BpbsController : Controller
     }
 
     // GET: Bpbs/Details/5
-    [Authorize(PermissionConstants.Bpbs.Details)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Details)]
     public async Task<IActionResult> Details(int id, CancellationToken cancellationToken)
     {
         var response = await _bpbService.GetBpb(id, cancellationToken);
@@ -92,7 +94,7 @@ public class BpbsController : Controller
     }
 
     // GET: Bpbs/Create
-    [Authorize(PermissionConstants.Bpbs.Create)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Create)]
     public ActionResult Create(string? prodId = null)
     {
         var vm = new BpbHeaderVm
@@ -107,7 +109,7 @@ public class BpbsController : Controller
     // POST: Bpbs/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Bpbs.Create)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Create)]
     public async Task<IActionResult> Create([FromForm] BpbHeaderVm header, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -128,7 +130,7 @@ public class BpbsController : Controller
     }
 
     // GET: Bpbs/Edit/5
-    [Authorize(PermissionConstants.Bpbs.Edit)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<IActionResult> Edit(int id, CancellationToken cancellationToken)
     {
         var response = await _bpbService.GetBpb(id, cancellationToken);
@@ -141,7 +143,7 @@ public class BpbsController : Controller
     // POST: Bpbs/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Bpbs.Edit)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<IActionResult> Edit(int id, [FromForm] BpbHeaderVm collection, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -168,7 +170,7 @@ public class BpbsController : Controller
     }
 
     // GET: Bpbs/Delete/5
-    [Authorize(PermissionConstants.Bpbs.Delete)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Delete)]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var response = await _bpbService.GetBpb(id, cancellationToken);
@@ -186,7 +188,7 @@ public class BpbsController : Controller
     // POST: Bpbs/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    [Authorize(PermissionConstants.Bpbs.Delete)]
+    [Authorize(PermissionConstants.MaterialWithdrawals.Delete)]
     public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken cancellationToken)
     {
         var response = await _bpbService.BpbDelete(id, cancellationToken);
