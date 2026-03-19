@@ -7,11 +7,9 @@
 }
 
 @section styles {
-    <link href="/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
-    <link href="/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 }
 
-<div class="row">
+<div class="row" x-data="reportGenerate()">
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
@@ -38,7 +36,7 @@
                     </div>
                 }
 
-                <form asp-action="Generate" method="post" id="generateReportForm">
+                <form asp-action="Generate" method="post" id="generateReportForm" @@submit="validateForm($event)">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="ReportId" />
                     <input type="hidden" asp-for="ReportName" />
@@ -173,8 +171,13 @@
 
                     <div class="d-flex justify-content-end gap-2">
                         <a asp-action="Index" class="btn btn-light">Cancel</a>
-                        <button type="submit" class="btn btn-success" id="generateBtn">
-                            <i class="ri-play-fill align-bottom me-1"></i> Generate Report
+                        <button type="submit" class="btn btn-success" id="generateBtn" :disabled="generating">
+                            <template x-if="!generating">
+                                <span><i class="ri-play-fill align-bottom me-1"></i> Generate Report</span>
+                            </template>
+                            <template x-if="generating">
+                                <span><span class="spinner-border spinner-border-sm me-1"></span> Generating...</span>
+                            </template>
                         </button>
                     </div>
                 </form>
@@ -184,67 +187,55 @@
 </div>
 
 @section scripts {
-    <script src="/assets/libs/jquery/jquery.min.js"></script>
-    <script src="/assets/libs/flatpickr/flatpickr.min.js"></script>
-    <script src="/assets/libs/select2/js/select2.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Initialize date pickers
-            $('.date-picker').flatpickr({
-                dateFormat: 'Y-m-d',
-                allowInput: true
-            });
-            
-            // Initialize datetime pickers
-            $('.datetime-picker').flatpickr({
-                dateFormat: 'Y-m-d H:i',
-                enableTime: true,
-                allowInput: true
-            });
-            
-            // Initialize Select2 for dropdowns
-            $('.dropdown-param').each(function() {
-                const $select = $(this);
-                const lookupSource = $select.data('lookup');
-                
-                if (lookupSource) {
-                    // In a real implementation, this would fetch data from the server
-                    // For now, we'll just initialize Select2
-                    $select.select2({
-                        placeholder: '-- Select --',
-                        allowClear: true
+        function reportGenerate() {
+            return {
+                generating: false,
+
+                init() {
+                    this.$nextTick(() => {
+                        document.querySelectorAll('.date-picker').forEach(el => {
+                            initFlatpickr(el, { dateFormat: 'Y-m-d', allowInput: true });
+                        });
+                        document.querySelectorAll('.datetime-picker').forEach(el => {
+                            initFlatpickr(el, { dateFormat: 'Y-m-d H:i', enableTime: true, allowInput: true });
+                        });
+                        document.querySelectorAll('.dropdown-param').forEach(el => {
+                            const lookup = el.dataset.lookup;
+                            if (lookup) {
+                                initTomSelect(el, { placeholder: '-- Select --' });
+                            }
+                        });
                     });
-                }
-            });
-            
-            // Form validation
-            $('#generateReportForm').on('submit', function(e) {
-                const requiredFields = $(this).find('[required]');
-                let isValid = true;
-                
-                requiredFields.each(function() {
-                    if (!$(this).val()) {
-                        isValid = false;
-                        $(this).addClass('is-invalid');
-                    } else {
-                        $(this).removeClass('is-invalid');
+                },
+
+                validateForm(e) {
+                    const form = e.target;
+                    const required = form.querySelectorAll('[required]');
+                    let valid = true;
+                    required.forEach(field => {
+                        if (!field.value) {
+                            valid = false;
+                            field.classList.add('is-invalid');
+                        } else {
+                            field.classList.remove('is-invalid');
+                        }
+                    });
+                    if (!valid) {
+                        e.preventDefault();
+                        Alpine.store('toast').error('Please fill in all required fields.');
+                        return;
                     }
-                });
-                
-                if (!isValid) {
-                    e.preventDefault();
-                    alert('Please fill in all required fields.');
-                    return false;
+                    this.generating = true;
                 }
-                
-                // Show loading state
-                $('#generateBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Generating...');
-            });
-            
-            // Remove invalid class on input
-            $('input, select').on('change input', function() {
-                $(this).removeClass('is-invalid');
-            });
+            };
+        }
+
+        document.addEventListener('input', function(e) {
+            e.target.classList.remove('is-invalid');
+        });
+        document.addEventListener('change', function(e) {
+            e.target.classList.remove('is-invalid');
         });
     </script>
 }

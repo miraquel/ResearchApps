@@ -22,13 +22,13 @@
                     </li>
                 </ul>
                 <div class="position-absolute top-0 end-0">
-                    @if (User.HasClaim("permission", PermissionConstants.Tops.Edit))
+                    @if (User.HasClaim("permission", PermissionConstants.TermsOfPayment.Edit))
                     {
                         <a href="@Url.Action("Edit", "Tops", new { id = Model.TopId })" class="btn btn-sm btn-success me-2">
                             <i class="ri-edit-line"></i> Edit
                         </a>
                     }
-                    @if (User.HasClaim("permission", PermissionConstants.Tops.Delete))
+                    @if (User.HasClaim("permission", PermissionConstants.TermsOfPayment.Delete))
                     {
                         <a href="@Url.Action("Delete", "Tops", new { id = Model.TopId })" class="btn btn-sm btn-danger">
                             <i class="ri-delete-bin-line"></i> Delete

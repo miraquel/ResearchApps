@@ -5,8 +5,8 @@
     Layout = "_Layout";
     
     var currentYear = DateTime.Now.Year;
-    var canClose = User.HasClaim("permission", PermissionConstants.InventLocks.Close);
-    var canOpen = User.HasClaim("permission", PermissionConstants.InventLocks.Open);
+    var canClose = User.HasClaim("permission", PermissionConstants.InventoryClosing.Close);
+    var canOpen = User.HasClaim("permission", PermissionConstants.InventoryClosing.Open);
 }
 
 @Html.AntiForgeryToken()

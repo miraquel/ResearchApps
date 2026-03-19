@@ -1,4 +1,5 @@
 @using ResearchApps.Common.Constants
+@inject ResearchApps.Web.Services.ITenantFeatureService TenantFeatures
 <!-- ========== App Menu ========== -->
 <div class="app-menu navbar-menu">
     <!-- LOGO -->
@@ -43,11 +44,11 @@
 
                 <!-- Sales Management -->
                 @{
-                    var hasSalesAccess = User.HasClaim("permission", PermissionConstants.Customers.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.CustomerOrders.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.DeliveryOrders.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.SalesInvoices.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.SalesPrices.Index);
+                    var hasSalesAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.Customers) && User.HasClaim("permission", PermissionConstants.Customers.Index)) ||
+                                         (TenantFeatures.IsEnabled(TenantFeatureConstants.CustomerOrders) && User.HasClaim("permission", PermissionConstants.CustomerOrders.Index)) ||
+                                         (TenantFeatures.IsEnabled(TenantFeatureConstants.DeliveryOrders) && User.HasClaim("permission", PermissionConstants.DeliveryOrders.Index)) ||
+                                         (TenantFeatures.IsEnabled(TenantFeatureConstants.SalesInvoices) && User.HasClaim("permission", PermissionConstants.SalesInvoices.Index)) ||
+                                         (TenantFeatures.IsEnabled(TenantFeatureConstants.SalesPrices) && User.HasClaim("permission", PermissionConstants.SalesPrices.Index));
                 }
                 @if (hasSalesAccess)
                 {
@@ -57,6 +58,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarSales">
                             <ul class="nav nav-sm flex-column">
+                                <tenant-feature name="@TenantFeatureConstants.Customers">
                                 @if (User.HasClaim("permission", PermissionConstants.Customers.Index))
                                 {
                                     <li class="nav-item">
@@ -65,7 +67,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.CustomerOrders">
                                 @if (User.HasClaim("permission", PermissionConstants.CustomerOrders.Index))
                                 {
                                     <li class="nav-item">
@@ -74,7 +78,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.DeliveryOrders">
                                 @if (User.HasClaim("permission", PermissionConstants.DeliveryOrders.Index))
                                 {
                                     <li class="nav-item">
@@ -83,7 +89,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.SalesInvoices">
                                 @if (User.HasClaim("permission", PermissionConstants.SalesInvoices.Index))
                                 {
                                     <li class="nav-item">
@@ -92,7 +100,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.SalesPrices">
                                 @if (User.HasClaim("permission", PermissionConstants.SalesPrices.Index))
                                 {
                                     <li class="nav-item">
@@ -101,6 +111,7 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                             </ul>
                         </div>
                     </li>
@@ -108,11 +119,11 @@
 
                 <!-- Procurement -->
                 @{
-                    var hasProcurementAccess = User.HasClaim("permission", PermissionConstants.Budgets.Index) ||
-                                               User.HasClaim("permission", PermissionConstants.Prs.Index) ||
-                                               User.HasClaim("permission", PermissionConstants.Pos.Index) ||
-                                               User.HasClaim("permission", PermissionConstants.GoodsReceipts.Index) ||
-                                               User.HasClaim("permission", PermissionConstants.Suppliers.Index);
+                    var hasProcurementAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.Budgets) && User.HasClaim("permission", PermissionConstants.Budgets.Index)) ||
+                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.PurchaseRequisitions) && User.HasClaim("permission", PermissionConstants.Prs.Index)) ||
+                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.PurchaseOrders) && User.HasClaim("permission", PermissionConstants.Pos.Index)) ||
+                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.GoodsReceipts) && User.HasClaim("permission", PermissionConstants.GoodsReceipts.Index)) ||
+                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.Suppliers) && User.HasClaim("permission", PermissionConstants.Suppliers.Index));
                 }
                 @if (hasProcurementAccess)
                 {
@@ -122,6 +133,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarProcurement">
                             <ul class="nav nav-sm flex-column">
+                                <tenant-feature name="@TenantFeatureConstants.Budgets">
                                 @if (User.HasClaim("permission", PermissionConstants.Budgets.Index))
                                 {
                                     <li class="nav-item">
@@ -130,7 +142,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.Suppliers">
                                 @if (User.HasClaim("permission", PermissionConstants.Suppliers.Index))
                                 {
                                     <li class="nav-item">
@@ -139,7 +153,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.PurchaseRequisitions">
                                 @if (User.HasClaim("permission", PermissionConstants.Prs.Index))
                                 {
                                     <li class="nav-item">
@@ -148,7 +164,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.PurchaseOrders">
                                 @if (User.HasClaim("permission", PermissionConstants.Pos.Index))
                                 {
                                     <li class="nav-item">
@@ -157,7 +175,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.GoodsReceipts">
                                 @if (User.HasClaim("permission", PermissionConstants.GoodsReceipts.Index))
                                 {
                                     <li class="nav-item">
@@ -166,6 +186,7 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                             </ul>
                         </div>
                     </li>
@@ -173,15 +194,15 @@
 
                 <!-- Inventory Management -->
                 @{
-                    var hasInventoryAccess = User.HasClaim("permission", PermissionConstants.Items.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.ItemTypes.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.ItemDepts.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.ItemGroup01s.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.Warehouses.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.Units.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.Pss.Index) ||
-                                             User.HasClaim("permission", PermissionConstants.RepStock.Index);
+                    var hasInventoryAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.Items) && User.HasClaim("permission", PermissionConstants.Items.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.ItemTypes) && User.HasClaim("permission", PermissionConstants.ItemTypes.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.ItemDepts) && User.HasClaim("permission", PermissionConstants.ItemDepts.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.ItemGroup01s) && User.HasClaim("permission", PermissionConstants.ItemGroup01s.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.ItemGroup02s) && User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.Warehouses) && User.HasClaim("permission", PermissionConstants.Warehouses.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.Units) && User.HasClaim("permission", PermissionConstants.Units.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.StockAdjustments) && User.HasClaim("permission", PermissionConstants.Pss.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.StockReport) && User.HasClaim("permission", PermissionConstants.RepStock.Index));
                 }
                 @if (hasInventoryAccess)
                 {
@@ -191,6 +212,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarInventory">
                             <ul class="nav nav-sm flex-column">
+                                <tenant-feature name="@TenantFeatureConstants.Items">
                                 @if (User.HasClaim("permission", PermissionConstants.Items.Index))
                                 {
                                     <li class="nav-item">
@@ -199,7 +221,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.ItemTypes">
                                 @if (User.HasClaim("permission", PermissionConstants.ItemTypes.Index))
                                 {
                                     <li class="nav-item">
@@ -208,7 +232,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.ItemDepts">
                                 @if (User.HasClaim("permission", PermissionConstants.ItemDepts.Index))
                                 {
                                     <li class="nav-item">
@@ -217,7 +243,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.ItemGroup01s">
                                 @if (User.HasClaim("permission", PermissionConstants.ItemGroup01s.Index))
                                 {
                                     <li class="nav-item">
@@ -226,7 +254,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.ItemGroup02s">
                                 @if (User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index))
                                 {
                                     <li class="nav-item">
@@ -235,7 +265,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.Warehouses">
                                 @if (User.HasClaim("permission", PermissionConstants.Warehouses.Index))
                                 {
                                     <li class="nav-item">
@@ -244,7 +276,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.Units">
                                 @if (User.HasClaim("permission", PermissionConstants.Units.Index))
                                 {
                                     <li class="nav-item">
@@ -253,7 +287,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.StockAdjustments">
                                 @if (User.HasClaim("permission", PermissionConstants.Pss.Index))
                                 {
                                     <li class="nav-item">
@@ -262,7 +298,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.StockReport">
                                 @if (User.HasClaim("permission", PermissionConstants.RepStock.Index))
                                 {
                                     <li class="nav-item">
@@ -271,6 +309,7 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                             </ul>
                         </div>
                     </li>
@@ -278,11 +317,11 @@
 
                 <!-- Production -->
                 @{
-                    var hasProductionAccess = User.HasClaim("permission", PermissionConstants.Prods.Index) ||
-                                              User.HasClaim("permission", PermissionConstants.Bpbs.Index) || 
-                                              User.HasClaim("permission", PermissionConstants.MaterialCustomers.Index) ||
-                                              User.HasClaim("permission", PermissionConstants.Phps.Index) ||
-                                              User.HasClaim("permission", PermissionConstants.RepCustom.Index);
+                    var hasProductionAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.ProductionOrders) && User.HasClaim("permission", PermissionConstants.Prods.Index)) ||
+                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.MaterialWithdrawals) && User.HasClaim("permission", PermissionConstants.Bpbs.Index)) || 
+                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.MaterialCustomers) && User.HasClaim("permission", PermissionConstants.MaterialCustomers.Index)) ||
+                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.Phps) && User.HasClaim("permission", PermissionConstants.Phps.Index)) ||
+                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.ToolsReport) && User.HasClaim("permission", PermissionConstants.RepCustom.Index));
                 }
                 @if (hasProductionAccess)
                 {
@@ -292,6 +331,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarProduction">
                             <ul class="nav nav-sm flex-column">
+                                <tenant-feature name="@TenantFeatureConstants.ProductionOrders">
                                 @if (User.HasClaim("permission", PermissionConstants.Prods.Index))
                                 {
                                     <li class="nav-item">
@@ -300,7 +340,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.MaterialCustomers">
                                 @if (User.HasClaim("permission", PermissionConstants.MaterialCustomers.Index))
                                 {
                                     <li class="nav-item">
@@ -309,7 +351,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.MaterialWithdrawals">
                                 @if (User.HasClaim("permission", PermissionConstants.Bpbs.Index))
                                 {
                                     <li class="nav-item">
@@ -318,7 +362,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.Phps">
                                 @if (User.HasClaim("permission", PermissionConstants.Phps.Index))
                                 {
                                     <li class="nav-item">
@@ -327,7 +373,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.ToolsReport">
                                 @if (User.HasClaim("permission", PermissionConstants.RepCustom.Index))
                                 {
                                     <li class="nav-item">
@@ -336,6 +384,7 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                             </ul>
                         </div>
                     </li>
@@ -343,9 +392,9 @@
 
                 <!-- Finance -->
                 @{
-                    var hasFinanceAccess = User.HasClaim("permission", PermissionConstants.InventLocks.Index) ||
-                                          User.HasClaim("permission", PermissionConstants.Tops.Index) ||
-                                          User.HasClaim("permission", PermissionConstants.RepInventTrans.Index);
+                    var hasFinanceAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.InventoryClosing) && User.HasClaim("permission", PermissionConstants.InventLocks.Index)) ||
+                                          (TenantFeatures.IsEnabled(TenantFeatureConstants.TermsOfPayment) && User.HasClaim("permission", PermissionConstants.Tops.Index)) ||
+                                          (TenantFeatures.IsEnabled(TenantFeatureConstants.InventTransReport) && User.HasClaim("permission", PermissionConstants.RepInventTrans.Index));
                 }
                 @if (hasFinanceAccess)
                 {
@@ -355,6 +404,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarFinance">
                             <ul class="nav nav-sm flex-column">
+                                <tenant-feature name="@TenantFeatureConstants.TermsOfPayment">
                                 @if (User.HasClaim("permission", PermissionConstants.Tops.Index))
                                 {
                                     <li class="nav-item">
@@ -363,7 +413,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.InventoryClosing">
                                 @if (User.HasClaim("permission", PermissionConstants.InventLocks.Index))
                                 {
                                     <li class="nav-item">
@@ -372,7 +424,9 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                                 
+                                <tenant-feature name="@TenantFeatureConstants.InventTransReport">
                                 @if (User.HasClaim("permission", PermissionConstants.RepInventTrans.Index))
                                 {
                                     <li class="nav-item">
@@ -381,12 +435,14 @@
                                         </a>
                                     </li>
                                 }
+                                </tenant-feature>
                             </ul>
                         </div>
                     </li>
                 }
 
                 <!-- Reports -->
+                <tenant-feature name="@TenantFeatureConstants.Reports">
                 @if (User.HasClaim("permission", PermissionConstants.Reports.Index))
                 {
                     <li class="nav-item">
@@ -395,6 +451,7 @@
                         </a>
                     </li>
                 }
+                </tenant-feature>
 
                 <!-- Administration -->
                 @{
