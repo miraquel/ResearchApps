@@ -16,7 +16,10 @@
  * <button data-confirm-trigger="#myModal" data-confirm-form="#myForm">Submit</button>
  */
 
-export class ConfirmModalComponent {
+(function () {
+'use strict';
+
+class ConfirmModalComponent {
     static modalTemplate = `
         <div id="{id}" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -134,10 +137,10 @@ export class ConfirmModalComponent {
         // Validate form if required
         if (config.validate && config.formSelector) {
             const form = document.querySelector(config.formSelector);
-            if (form && typeof $.fn.validate === 'function') {
-                const $form = $(form);
-                $form.validate();
-                if (!$form.valid()) {
+            if (form && window.AlpineValidationEngine) {
+                const result = window.AlpineValidationEngine.validateAll(form);
+                window.AlpineValidationEngine.applyValidationClasses(form, result.errors);
+                if (!result.isValid) {
                     return;
                 }
             }
@@ -212,9 +215,14 @@ export class ConfirmModalComponent {
     }
 }
 
-// Export for non-module usage
-if (typeof window !== 'undefined') {
-    window.ConfirmModalComponent = ConfirmModalComponent;
+// Expose globally
+window.ConfirmModalComponent = ConfirmModalComponent;
+
+// Auto-initialize on DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => ConfirmModalComponent.autoInit());
+} else {
+    ConfirmModalComponent.autoInit();
 }
 
-export default ConfirmModalComponent;
+})();
