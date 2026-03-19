@@ -1,3 +1,4 @@
+@using ResearchApps.Common.Constants
 @using ResearchApps.Web.Areas.Admin.Controllers
 @model TenantsController.EditTenantVm
 
@@ -5,6 +6,7 @@
     ViewBag.Title = "Edit Tenant";
     ViewBag.pTitle = "Edit Tenant";
     Layout = "_Layout";
+    var sections = TenantFeatureConstants.GetAllBySection();
 }
 
 <div class="card">
@@ -13,7 +15,8 @@
         <small class="text-muted float-end">Tenant Update</small>
     </div>
     <div class="card-body">
-        <form id="edit-tenant-form" asp-area="Admin" asp-controller="Tenants" asp-action="Edit" method="post">
+        <form id="edit-tenant-form" asp-area="Admin" asp-controller="Tenants" asp-action="Edit" method="post"
+              x-data="tenantFeatures()" x-init="init()">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
@@ -54,6 +57,47 @@
                     <span asp-validation-for="LogoUrl" class="text-danger"></span>
                 </div>
             </div>
+
+            <!-- Features -->
+            <hr class="my-4" />
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="mb-0">Enabled Features</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" @@click="toggleAll()">
+                    <span x-text="allSelected ? 'Deselect All' : 'Select All'"></span>
+                </button>
+            </div>
+            <div class="row">
+                @foreach (var grp in sections)
+                {
+                    <div class="col-md-6 col-xl-4 mb-4">
+                        <div class="card border shadow-none mb-0">
+                            <div class="card-header bg-light d-flex align-items-center justify-content-between py-2">
+                                <h6 class="card-title mb-0 fs-13">@grp.Key</h6>
+                                <div class="form-check form-switch mb-0">
+                                    <input type="checkbox" class="form-check-input"
+                                           @@change="toggleSection('@grp.Key')"
+                                           :checked="isSectionFullySelected('@grp.Key')" />
+                                </div>
+                            </div>
+                            <div class="card-body py-2">
+                                @foreach (var feature in grp.Value)
+                                {
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="EnabledFeatures"
+                                               value="@feature.Key"
+                                               id="feature_@feature.Key"
+                                               :checked="features.includes('@feature.Key')"
+                                               @@change="toggleFeature('@feature.Key', $event)" />
+                                        <label class="form-check-label" for="feature_@feature.Key">@feature.DisplayName</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
             <div class="row justify-content-end">
                 <div class="col-sm-10">
                     <button type="button" class="btn btn-primary" id="update-tenant-btn">Update Tenant</button>
@@ -88,8 +132,40 @@
 </div>
 
 @section scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
+        function tenantFeatures() {
+            const sectionMap = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                sections.ToDictionary(s => s.Key, s => s.Value.Select(f => f.Key).ToList())));
+            const allKeys = Object.values(sectionMap).flat();
+            return {
+                features: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.EnabledFeatures)),
+                get allSelected() { return allKeys.every(k => this.features.includes(k)); },
+                init() {},
+                toggleFeature(key, e) {
+                    if (e.target.checked) {
+                        if (!this.features.includes(key)) this.features.push(key);
+                    } else {
+                        this.features = this.features.filter(k => k !== key);
+                    }
+                },
+                toggleSection(section) {
+                    const keys = sectionMap[section];
+                    const allOn = keys.every(k => this.features.includes(k));
+                    if (allOn) {
+                        this.features = this.features.filter(k => !keys.includes(k));
+                    } else {
+                        keys.forEach(k => { if (!this.features.includes(k)) this.features.push(k); });
+                    }
+                },
+                isSectionFullySelected(section) {
+                    return sectionMap[section].every(k => this.features.includes(k));
+                },
+                toggleAll() {
+                    if (this.allSelected) { this.features = []; } else { this.features = [...allKeys]; }
+                }
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('edit-tenant-form');
             const btn = document.getElementById('update-tenant-btn');
