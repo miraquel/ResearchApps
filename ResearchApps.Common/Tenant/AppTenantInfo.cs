@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Finbuckle.MultiTenant.Abstractions;
 
 namespace ResearchApps.Common.Tenant;
@@ -23,4 +24,31 @@ public class AppTenantInfo : ITenantInfo
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     public string? LogoUrl { get; set; }
+
+    /// <summary>
+    /// JSON-serialized set of enabled feature flag keys (see TenantFeatureConstants).
+    /// Example: ["PurchaseRequisitions","CustomerOrders","Budget"]
+    /// </summary>
+    public string? FeaturesJson { get; set; }
+
+    /// <summary>
+    /// Returns the set of enabled feature flag keys for this tenant.
+    /// Reads from FeaturesJson; returns empty set if not configured.
+    /// </summary>
+    public HashSet<string> GetFeatures()
+    {
+        if (string.IsNullOrWhiteSpace(FeaturesJson))
+            return [];
+
+        return JsonSerializer.Deserialize<HashSet<string>>(FeaturesJson)
+               ?? [];
+    }
+
+    /// <summary>
+    /// Saves the provided feature set back to FeaturesJson.
+    /// </summary>
+    public void SetFeatures(IEnumerable<string> features)
+    {
+        FeaturesJson = JsonSerializer.Serialize(new HashSet<string>(features));
+    }
 }

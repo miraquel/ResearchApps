@@ -148,6 +148,8 @@ builder.Services.AddSingleton<IWorkflowNotificationService, WorkflowNotification
 
 // Register tenant provisioning service
 builder.Services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
+// Register tenant feature flag service
+builder.Services.AddScoped<ITenantFeatureService, TenantFeatureService>();
 
 var app = builder.Build();
 

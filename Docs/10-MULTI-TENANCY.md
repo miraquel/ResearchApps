@@ -485,6 +485,75 @@ This means: when you add new permission constants to the codebase, the SuperAdmi
 
 ---
 
+## Tenant Feature Flags
+
+Feature flags let you enable or disable whole modules per tenant — useful for tiered plans, phased rollouts, or custom configurations.
+
+### Architecture
+
+```
+AppTenantInfo.FeaturesJson   →  JSON array of enabled feature keys
+ITenantFeatureService        →  Scoped service to check features
+TenantFeatureTagHelper       →  Razor tag helper <tenant-feature name="...">
+TenantFeatureConstants       →  Well-known key constants
+```
+
+Super-admins (no tenant context) always see **all** features as enabled.
+
+### Adding a New Feature
+
+1. Add a constant to `ResearchApps.Common/Constants/TenantFeatureConstants.cs`:
+   ```csharp
+   public const string MyNewModule = "MyNewModule";
+   ```
+
+2. Gate controllers with the injected service:
+   ```csharp
+   public class MyController(ITenantFeatureService features) : Controller
+   {
+       public IActionResult Index()
+       {
+           if (!features.IsEnabled(TenantFeatureConstants.MyNewModule))
+               return Forbid();
+           // ...
+       }
+   }
+   ```
+
+3. Gate sidebar menu items (Razor view):
+   ```cshtml
+   <tenant-feature name="@TenantFeatureConstants.MyNewModule">
+       <li class="nav-item">
+           <a asp-controller="MyModule" asp-action="Index">My Module</a>
+       </li>
+   </tenant-feature>
+   ```
+
+4. Show an upgrade prompt when feature is disabled:
+   ```cshtml
+   <tenant-feature name="@TenantFeatureConstants.AdvancedReports" negate="true">
+       <div class="alert alert-info">Advanced Reports require the Pro plan.</div>
+   </tenant-feature>
+   ```
+
+### Enabling Features for a Tenant (Admin UI)
+
+On the tenant **Edit** page, check the features to enable and save. The `FeaturesJson` column on the `Tenants` table stores the enabled set as JSON (e.g., `["PurchaseRequisitions","Budget"]`).
+
+### Enabling Features via Code (Provisioning / Seeding)
+
+```csharp
+var tenant = await _tenantStore.TryGetByIdentifierAsync("acme");
+tenant.SetFeatures([
+    TenantFeatureConstants.PurchaseRequisitions,
+    TenantFeatureConstants.CustomerOrders,
+    TenantFeatureConstants.Budget
+]);
+await _tenantStore.TryUpdateAsync(tenant);
+```
+
+---
+
 ## Troubleshooting
 
 ### "You are not authorized for this tenant" on login
