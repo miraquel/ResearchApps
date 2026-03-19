@@ -13,13 +13,13 @@
                 <h4 class="card-title mb-0">Production Details</h4>
             </div>
             <div class="col-auto">
-                @if (User.HasClaim("permission", PermissionConstants.Prods.Edit))
+                @if (User.HasClaim("permission", PermissionConstants.ProductionOrders.Edit))
                 {
                     <a href="@Url.Action("Edit", "Prods", new { id = Model.RecId })" class="btn btn-sm btn-success me-2">
                         <i class="ri-edit-line"></i> Edit
                     </a>
                 }
-                @if (User.HasClaim("permission", PermissionConstants.Prods.Delete))
+                @if (User.HasClaim("permission", PermissionConstants.ProductionOrders.Delete))
                 {
                     <a href="@Url.Action("Delete", "Prods", new { id = Model.RecId })" class="btn btn-sm btn-danger">
                         <i class="ri-delete-bin-line"></i> Delete
@@ -36,7 +36,7 @@
                     <li class="nav-item" role="presentation">
                         <a class="nav-link" data-bs-toggle="tab" href="#results">Results</a>
                     </li>
-                    @if (User.HasClaim("permission", PermissionConstants.Bpbs.Index))
+                    @if (User.HasClaim("permission", PermissionConstants.MaterialWithdrawals.Index))
                     {
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" data-bs-toggle="tab" href="#bpb">Material Withdrawals (BPB)</a>
@@ -99,12 +99,12 @@
                     <div class="col-9">@Model.CostPrice.ToString("N0")</div>
                 </div>
             </div>
-            @if (User.HasClaim("permission", PermissionConstants.Bpbs.Index))
+            @if (User.HasClaim("permission", PermissionConstants.MaterialWithdrawals.Index))
             {
                 <div class="tab-pane" id="bpb" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="mb-0">Material Withdrawals (BPB) for this Production Order</h6>
-                        @if (User.HasClaim("permission", PermissionConstants.Bpbs.Create))
+                        @if (User.HasClaim("permission", PermissionConstants.MaterialWithdrawals.Create))
                         {
                             <a href="/Bpbs/Create?prodId=@Model.ProdId" class="btn btn-sm btn-success">
                                 <i class="ri-add-line me-1"></i> New BPB

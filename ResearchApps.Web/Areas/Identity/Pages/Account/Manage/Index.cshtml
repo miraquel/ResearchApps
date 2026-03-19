@@ -67,20 +67,22 @@
 </div>
 
 @section scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            var form = $('#profile-form');
-            
-            $('#update-profile-button').on('click', function() {
-                form.validate();
-                if (form.valid()) {
-                    var modal = new bootstrap.Modal(document.getElementById('updateProfileModal'));
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('profile-form');
+            const btn = document.getElementById('update-profile-button');
+            const confirmBtn = document.getElementById('confirm-update-profile');
+
+            btn.addEventListener('click', function () {
+                if (form.checkValidity()) {
+                    const modal = new bootstrap.Modal(document.getElementById('updateProfileModal'));
                     modal.show();
+                } else {
+                    form.reportValidity();
                 }
             });
-            
-            $('#confirm-update-profile').on('click', function() {
+
+            confirmBtn.addEventListener('click', function () {
                 form.submit();
             });
         });
