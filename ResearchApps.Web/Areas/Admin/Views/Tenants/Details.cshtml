@@ -6,6 +6,7 @@
     ViewBag.Title = "Tenant Details";
     ViewBag.pTitle = "Tenant Details";
     Layout = "_Layout";
+    var sections = TenantFeatureConstants.GetAllBySection();
 }
 
 <div class="card">
@@ -37,6 +38,34 @@
             <dt class="col-sm-3 mb-3 fw-medium">Logo URL</dt>
             <dd class="col-sm-9 mb-3">@(Model.LogoUrl ?? "—")</dd>
         </dl>
+
+        <!-- Enabled Features -->
+        <hr class="my-3" />
+        <h6 class="mb-3">Enabled Features</h6>
+        @if (Model.EnabledFeatures.Count == 0)
+        {
+            <p class="text-muted">No features enabled.</p>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var grp in sections)
+                {
+                    var enabled = grp.Value.Where(f => Model.EnabledFeatures.Contains(f.Key)).ToList();
+                    if (enabled.Count == 0) continue;
+                    <div class="col-md-6 col-xl-4 mb-3">
+                        <h6 class="fs-13 text-muted mb-2">@grp.Key</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var feature in enabled)
+                            {
+                                <span class="badge bg-info-subtle text-info">@feature.DisplayName</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
         <div class="mt-4">
             <a asp-area="Admin" asp-controller="Tenants" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">Edit</a>
             @if (User.HasClaim("permission", PermissionConstants.Tenants.Provision))

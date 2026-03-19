@@ -108,7 +108,8 @@ public class TenantsController : Controller
             ConnectionString = tenant.ConnectionString ?? string.Empty,
             IsActive = tenant.IsActive,
             CreatedDate = tenant.CreatedDate,
-            LogoUrl = tenant.LogoUrl
+            LogoUrl = tenant.LogoUrl,
+            EnabledFeatures = tenant.GetFeatures()
         };
 
         return View(model);
@@ -148,6 +149,7 @@ public class TenantsController : Controller
             CreatedDate = DateTime.UtcNow,
             LogoUrl = model.LogoUrl
         };
+        tenant.SetFeatures(model.EnabledFeatures ?? []);
 
         _tenantDb.TenantInfo.Add(tenant);
         await _tenantDb.SaveChangesAsync(cancellationToken);
@@ -174,7 +176,8 @@ public class TenantsController : Controller
             Name = tenant.Name ?? string.Empty,
             ConnectionString = tenant.ConnectionString ?? string.Empty,
             IsActive = tenant.IsActive,
-            LogoUrl = tenant.LogoUrl
+            LogoUrl = tenant.LogoUrl,
+            EnabledFeatures = tenant.GetFeatures().ToList()
         };
 
         return View(model);
@@ -204,6 +207,7 @@ public class TenantsController : Controller
         tenant.ConnectionString = model.ConnectionString;
         tenant.IsActive = model.IsActive;
         tenant.LogoUrl = model.LogoUrl;
+        tenant.SetFeatures(model.EnabledFeatures ?? []);
 
         await _tenantDb.SaveChangesAsync(cancellationToken);
 
@@ -286,6 +290,7 @@ public class TenantsController : Controller
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public string? LogoUrl { get; set; }
+        public HashSet<string> EnabledFeatures { get; set; } = [];
     }
 
     public class CreateTenantVm
@@ -312,6 +317,8 @@ public class TenantsController : Controller
         [StringLength(512)]
         [Display(Name = "Logo URL")]
         public string? LogoUrl { get; set; }
+
+        public List<string> EnabledFeatures { get; set; } = [];
     }
 
     public class EditTenantVm
@@ -340,6 +347,8 @@ public class TenantsController : Controller
         [StringLength(512)]
         [Display(Name = "Logo URL")]
         public string? LogoUrl { get; set; }
+
+        public List<string> EnabledFeatures { get; set; } = [];
     }
 
     #endregion
