@@ -18,7 +18,7 @@ IF @CustomerId = 0
 		, b.Qty as QtyDo
 		, ISNULL(c.QtySi,0) as QtySi
 		, b.Qty - ISNULL(c.QtySi,0) as QtyOs
-	    , b.price
+	    , b.Price
 	FROM Do a 
 	JOIN DoLine b ON b.DoId = a.DoId
 	JOIN Item i ON i.ItemId = b.ItemId
@@ -51,7 +51,7 @@ ELSE
 		, b.Qty as QtyDo
 		, ISNULL(c.QtySi,0) as QtySi
 		, b.Qty - ISNULL(c.QtySi,0) as QtyOs
-	    , b.price
+	    , b.Price
 	FROM Do a 
 	JOIN DoLine b ON b.DoId = a.DoId
 	JOIN Item i ON i.ItemId = b.ItemId
