@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Finbuckle.MultiTenant.EntityFrameworkCore.Extensions;
 using Finbuckle.MultiTenant.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -115,23 +117,32 @@ builder.Services.AddScoped(serviceProvider =>
     var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
     var username = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value ?? "";
     _ = Guid.TryParse(httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var userId);
-    var tenantId = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "TenantId")?.Value ?? "";
-    var tenantIdentifier = httpContextAccessor.HttpContext?.GetMultiTenantContext<AppTenantInfo>()?.TenantInfo?.Identifier ?? "";
+
+    // Derive tenant info from Finbuckle context (not user claims)
+    var tenantInfo = httpContextAccessor.HttpContext?.GetMultiTenantContext<AppTenantInfo>()?.TenantInfo;
     var userClaimDto = new UserClaimDto
     {
         UserId = userId,
         Username = username,
-        TenantId = tenantId,
-        TenantIdentifier = tenantIdentifier
+        TenantId = tenantInfo?.Id ?? "",
+        TenantIdentifier = tenantInfo?.Identifier ?? ""
     };
 
     return userClaimDto;
 });
 
-// Register multi-tenant services
+// Register multi-tenant services with per-tenant authentication
 builder.Services.AddMultiTenant<AppTenantInfo>()
     .WithHostStrategy("__tenant__.*")
-    .WithEFCoreStore<TenantStoreDbContext, AppTenantInfo>();
+    .WithEFCoreStore<TenantStoreDbContext, AppTenantInfo>()
+    .WithPerTenantAuthentication();
+
+// Per-tenant cookie names: each tenant gets its own cookie so sessions don't collide
+builder.Services.ConfigurePerTenant<CookieAuthenticationOptions, AppTenantInfo>(
+    IdentityConstants.ApplicationScheme, (options, tenantInfo) =>
+    {
+        options.Cookie.Name = $".AspNetCore.Identity.App.{tenantInfo.Identifier}";
+    });
 
 // Register custom services
 builder.Services.AddRepositories();
@@ -148,6 +159,8 @@ builder.Services.AddSingleton<IWorkflowNotificationService, WorkflowNotification
 
 // Register tenant provisioning service
 builder.Services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
+// Register tenant user management service
+builder.Services.AddScoped<ITenantUserManagementService, TenantUserManagementService>();
 // Register tenant feature flag service
 builder.Services.AddScoped<ITenantFeatureService, TenantFeatureService>();
 
@@ -156,7 +169,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -173,9 +185,8 @@ app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication();
 app.UseMultiTenant();
-app.UseTenantAuthorization();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
