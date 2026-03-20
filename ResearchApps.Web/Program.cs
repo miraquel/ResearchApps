@@ -70,145 +70,145 @@ try
             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] [Tenant:{TenantIdentifier}] {Message:lj}{NewLine}{Exception}"));
 
     // Add services to the container.
-builder.Services.AddProblemDetails(configure =>
-{
-    configure.CustomizeProblemDetails = options =>
+    builder.Services.AddProblemDetails(configure =>
     {
-        options.ProblemDetails.Extensions.TryAdd("traceId", options.HttpContext.TraceIdentifier);
-    };
-});
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+        configure.CustomizeProblemDetails = options =>
+        {
+            options.ProblemDetails.Extensions.TryAdd("traceId", options.HttpContext.TraceIdentifier);
+        };
+    });
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-builder.Services.AddDbContext<ResearchAppsDbContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDbContext<TenantStoreDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    builder.Services.AddDbContext<ResearchAppsDbContext>(options => 
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDbContext<TenantStoreDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<AppIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<AppIdentityRole>()
-    .AddEntityFrameworkStores<ResearchAppsDbContext>()
-    .AddApiEndpoints();
+    builder.Services.AddDefaultIdentity<AppIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        .AddRoles<AppIdentityRole>()
+        .AddEntityFrameworkStores<ResearchAppsDbContext>()
+        .AddApiEndpoints();
 
-builder.Services.AddAuthentication()
-    .AddBearerToken(IdentityConstants.BearerScheme);
+    builder.Services.AddAuthentication()
+        .AddBearerToken(IdentityConstants.BearerScheme);
 
-builder.Services.AddAuthorization(options =>
-{
-    var permissions = PermissionConstants.GetAllPermissions();
-
-    if (permissions.Count == 0) return;
-    
-    foreach (var permission in permissions)
+    builder.Services.AddAuthorization(options =>
     {
-        options.AddPolicy(permission, policy => policy.RequireClaim("permission", permission));
-    }
-});
+        var permissions = PermissionConstants.GetAllPermissions();
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-
-builder.Services.AddScoped(serviceProvider =>
-{
-    var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-    var username = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value ?? "";
-    _ = Guid.TryParse(httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var userId);
-
-    // Derive tenant info from Finbuckle context (not user claims)
-    var tenantInfo = httpContextAccessor.HttpContext?.GetMultiTenantContext<AppTenantInfo>()?.TenantInfo;
-    var userClaimDto = new UserClaimDto
-    {
-        UserId = userId,
-        Username = username,
-        TenantId = tenantInfo?.Id ?? "",
-        TenantIdentifier = tenantInfo?.Identifier ?? ""
-    };
-
-    return userClaimDto;
-});
-
-// Register multi-tenant services with per-tenant authentication
-builder.Services.AddMultiTenant<AppTenantInfo>()
-    .WithHostStrategy("__tenant__.*")
-    .WithEFCoreStore<TenantStoreDbContext, AppTenantInfo>()
-    .WithPerTenantAuthentication();
-
-// Per-tenant cookie names: each tenant gets its own cookie so sessions don't collide
-builder.Services.ConfigurePerTenant<CookieAuthenticationOptions, AppTenantInfo>(
-    IdentityConstants.ApplicationScheme, (options, tenantInfo) =>
-    {
-        options.Cookie.Name = $".AspNetCore.Identity.App.{tenantInfo.Identifier}";
+        if (permissions.Count == 0) return;
+        
+        foreach (var permission in permissions)
+        {
+            options.AddPolicy(permission, policy => policy.RequireClaim("permission", permission));
+        }
     });
 
-// Register custom services
-builder.Services.AddRepositories();
-builder.Services.AddServices();
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddHttpContextAccessor();
 
-// Register report generator service
-builder.Services.AddScoped<IReportGeneratorService, ReportGeneratorService>();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
-// Register SignalR
-builder.Services.AddSignalR();
+    builder.Services.AddScoped(serviceProvider =>
+    {
+        var httpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+        var username = httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value ?? "";
+        _ = Guid.TryParse(httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var userId);
 
-// Register unified workflow notification service as Singleton (stateless, IHubContext<T> is Singleton)
-builder.Services.AddSingleton<IWorkflowNotificationService, WorkflowNotificationService>();
+        // Derive tenant info from Finbuckle context (not user claims)
+        var tenantInfo = httpContextAccessor.HttpContext?.GetMultiTenantContext<AppTenantInfo>()?.TenantInfo;
+        var userClaimDto = new UserClaimDto
+        {
+            UserId = userId,
+            Username = username,
+            TenantId = tenantInfo?.Id ?? "",
+            TenantIdentifier = tenantInfo?.Identifier ?? ""
+        };
 
-// Register tenant provisioning service
-builder.Services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
-// Register tenant user management service
-builder.Services.AddScoped<ITenantUserManagementService, TenantUserManagementService>();
-// Register tenant feature flag service
-builder.Services.AddScoped<ITenantFeatureService, TenantFeatureService>();
+        return userClaimDto;
+    });
 
-var app = builder.Build();
+    // Register multi-tenant services with per-tenant authentication
+    builder.Services.AddMultiTenant<AppTenantInfo>()
+        .WithHostStrategy("__tenant__.*")
+        .WithEFCoreStore<TenantStoreDbContext, AppTenantInfo>()
+        .WithPerTenantAuthentication();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+    // Per-tenant cookie names: each tenant gets its own cookie so sessions don't collide
+    builder.Services.ConfigurePerTenant<CookieAuthenticationOptions, AppTenantInfo>(
+        IdentityConstants.ApplicationScheme, (options, tenantInfo) =>
+        {
+            options.Cookie.Name = $".AspNetCore.Identity.App.{tenantInfo.Identifier}";
+        });
 
-app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
+    // Register custom services
+    builder.Services.AddRepositories();
+    builder.Services.AddServices();
 
-app.UseHttpsRedirection();
-app.UseRouting();
+    // Register report generator service
+    builder.Services.AddScoped<IReportGeneratorService, ReportGeneratorService>();
 
-app.UseMultiTenant();
-app.UseAuthentication();
-app.UseAuthorization();
+    // Register SignalR
+    builder.Services.AddSignalR();
 
-app.MapStaticAssets();
+    // Register unified workflow notification service as Singleton (stateless, IHubContext<T> is Singleton)
+    builder.Services.AddSingleton<IWorkflowNotificationService, WorkflowNotificationService>();
 
-app.MapAreaControllerRoute(
-    name: "Admin",
-    areaName: "Admin",
-    pattern: "Admin/{controller=Home}/{action=Index}/{id?}");
+    // Register tenant provisioning service
+    builder.Services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
+    // Register tenant user management service
+    builder.Services.AddScoped<ITenantUserManagementService, TenantUserManagementService>();
+    // Register tenant feature flag service
+    builder.Services.AddScoped<ITenantFeatureService, TenantFeatureService>();
 
-app.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    var app = builder.Build();
 
-app.MapRazorPages()
-    .WithStaticAssets();
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Home/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
 
-// Map SignalR hub with stateful reconnect for reliability during brief disconnections
-app.MapHub<WorkflowHub>("/hubs/workflow", options =>
-{
-    options.AllowStatefulReconnects = true;
-});
+    app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
+
+    app.UseHttpsRedirection();
+    app.UseRouting();
+
+    app.UseMultiTenant();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapStaticAssets();
+
+    app.MapAreaControllerRoute(
+        name: "Admin",
+        areaName: "Admin",
+        pattern: "Admin/{controller=Home}/{action=Index}/{id?}");
+
+    app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}")
+        .WithStaticAssets();
+
+    app.MapRazorPages()
+        .WithStaticAssets();
+
+    // Map SignalR hub with stateful reconnect for reliability during brief disconnections
+    app.MapHub<WorkflowHub>("/hubs/workflow", options =>
+    {
+        options.AllowStatefulReconnects = true;
+    });
 
     // Seed super-admin role and user on startup
     await SuperAdminSeeder.SeedAsync(app.Services);
