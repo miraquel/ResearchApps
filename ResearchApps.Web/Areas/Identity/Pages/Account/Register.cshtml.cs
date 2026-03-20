@@ -5,7 +5,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ResearchApps.Domain;
@@ -15,23 +14,11 @@ namespace ResearchApps.Web.Areas.Identity.Pages.Account
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<AppIdentityUser> _signInManager;
-        private readonly UserManager<AppIdentityUser> _userManager;
-        private readonly IUserStore<AppIdentityUser> _userStore;
-        private readonly IUserEmailStore<AppIdentityUser> _emailStore;
-        private readonly ILogger<RegisterModel> _logger;
 
         public RegisterModel(
-            UserManager<AppIdentityUser> userManager,
-            IUserStore<AppIdentityUser> userStore,
-            SignInManager<AppIdentityUser> signInManager,
-            ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            SignInManager<AppIdentityUser> signInManager)
         {
-            _userManager = userManager;
-            _userStore = userStore;
-            _emailStore = GetEmailStore();
             _signInManager = signInManager;
-            _logger = logger;
         }
 
         /// <summary>
@@ -103,72 +90,15 @@ namespace ResearchApps.Web.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            // Self-registration is disabled. Users are created by admins (invite-only).
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            if (!ModelState.IsValid) return Page();
-            
-            var user = CreateUser();
-
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-            user.FirstName = Input.FirstName;
-            user.LastName = Input.LastName;
-            user.EmailConfirmed = true;
-            
-            if (!string.IsNullOrEmpty(Input.PhoneNumber))
-            {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (setPhoneResult.Succeeded)
-                {
-                    user.PhoneNumberConfirmed = true;
-                }
-            }
-            
-            var result = await _userManager.CreateAsync(user, Input.Password);
-
-            if (result.Succeeded)
-            {
-                _logger.LogInformation("User created a new account with password.");
-
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return LocalRedirect(returnUrl);
-            }
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-
-            // If we got this far, something failed, redisplay form
-            return Page();
-        }
-
-        private AppIdentityUser CreateUser()
-        {
-            try
-            {
-                return Activator.CreateInstance<AppIdentityUser>();
-            }
-            catch
-            {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(AppIdentityUser)}'. " +
-                    $"Ensure that '{nameof(AppIdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
-            }
-        }
-
-        private IUserEmailStore<AppIdentityUser> GetEmailStore()
-        {
-            if (!_userManager.SupportsUserEmail)
-            {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
-            }
-            return (IUserEmailStore<AppIdentityUser>)_userStore;
+            // Self-registration is disabled. Redirect to login.
+            return Task.FromResult<IActionResult>(RedirectToPage("./Login"));
         }
     }
 }

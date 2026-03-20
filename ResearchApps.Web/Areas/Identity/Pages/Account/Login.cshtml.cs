@@ -3,13 +3,10 @@
 #nullable disable
 
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using Finbuckle.MultiTenant.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ResearchApps.Common.Tenant;
 using ResearchApps.Domain;
 
 namespace ResearchApps.Web.Areas.Identity.Pages.Account
@@ -17,13 +14,11 @@ namespace ResearchApps.Web.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<AppIdentityUser> _signInManager;
-        private readonly UserManager<AppIdentityUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<AppIdentityUser> signInManager, UserManager<AppIdentityUser> userManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<AppIdentityUser> signInManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
-            _userManager = userManager;
             _logger = logger;
         }
 
@@ -107,38 +102,13 @@ namespace ResearchApps.Web.Areas.Identity.Pages.Account
 
             if (!ModelState.IsValid) return Page();
 
-            // Pre-check tenant fit BEFORE signing in, so we never issue+revoke a cookie in the same response.
-            var tenantInfo = HttpContext.GetMultiTenantContext<AppTenantInfo>()?.TenantInfo;
-            var candidate = await _userManager.FindByNameAsync(Input.UserName);
-            if (candidate != null && !string.IsNullOrEmpty(candidate.TenantId))
-            {
-                // Tenant user trying to log in on the main site or the wrong subdomain — reject.
-                if (tenantInfo is null || tenantInfo.Id != candidate.TenantId)
-                {
-                    ErrorMessage = "Invalid login attempt.";
-                    return RedirectToPage();
-                }
-            }
-
+            // With per-tenant auth, each tenant DB has only its own users.
+            // UserManager naturally queries the correct DB (main site or tenant).
+            // Finbuckle's WithPerTenantAuthentication() handles cookie tenant claims automatically.
             var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                if (candidate != null && !string.IsNullOrEmpty(candidate.TenantId))
-                {
-                    // Ensure TenantId claim is persisted on the user record
-                    var existingClaims = await _userManager.GetClaimsAsync(candidate);
-                    var tenantClaim = existingClaims.FirstOrDefault(c => c.Type == "TenantId");
-                    if (tenantClaim is null)
-                        await _userManager.AddClaimAsync(candidate, new Claim("TenantId", candidate.TenantId));
-                    else if (tenantClaim.Value != candidate.TenantId)
-                        await _userManager.ReplaceClaimAsync(candidate, tenantClaim, new Claim("TenantId", candidate.TenantId));
-
-                    // Re-sign in so the cookie includes the TenantId claim
-                    await _signInManager.SignOutAsync();
-                    await _signInManager.SignInAsync(candidate, Input.RememberMe);
-                }
-
                 _logger.LogInformation("User logged in.");
                 return LocalRedirect(returnUrl);
             }
