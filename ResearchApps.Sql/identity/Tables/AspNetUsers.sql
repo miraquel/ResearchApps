@@ -29,11 +29,6 @@ CREATE NONCLUSTERED INDEX [EmailIndex]
     ON [identity].[AspNetUsers]([NormalizedEmail] ASC);
 GO
 
-ALTER TABLE [identity].[AspNetUsers]
-    ADD CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED ([Id] ASC);
-GO
-
-
 CREATE NONCLUSTERED INDEX [IX_AspNetUsers_TenantId]
     ON [identity].[AspNetUsers]([TenantId] ASC);
 GO

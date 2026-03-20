@@ -19,7 +19,7 @@ BEGIN
 
 	SET @No = 1
 
-	DECLARE db_cursor CURSOR FOR  
+	DECLARE db_cursor CURSOR FOR 
 	SELECT a.ItemId
 		, a.ItemName
 		, i.UnitName
@@ -57,11 +57,11 @@ BEGIN
 	WHERE a.ItemId = @ItemId AND YEAR(t.TransDate) >= @Year AND MONTH(t.TransDate) >= @Month
 	ORDER BY t.TransDate desc, t.RecId desc
 
-	OPEN db_cursor  
+	OPEN db_cursor 
 	FETCH NEXT FROM db_cursor INTO @ItemId, @ItemName, @UnitName, @OnHand, @TransDate, @Qty, @CostPrice, @RefType, @RefNo, @Descr
 
-	WHILE @@FETCH_STATUS = 0  
-	BEGIN  
+	WHILE @@FETCH_STATUS = 0 
+	BEGIN 
 		--* Initialisasi *--
 		IF @RefType = 'Goods Receipt' OR @RefType = 'Hasil Produksi' OR @RefType = 'Penyesuaian Stock' OR @RefType = 'Material Customer' 
 		BEGIN
@@ -88,7 +88,7 @@ BEGIN
 		ELSE
 			SET @QtySaldo = @QtySaldoBefore + @QtyStockOutBefore - @QtyStockInBefore
 
-		--* Hasil  *--
+		--* Hasil *--
 		INSERT INTO @Result
 		([No], ItemId, ItemName, UnitName
 			,RefType, RefNo
@@ -99,19 +99,19 @@ BEGIN
 
 		SET @No += 1
 
-		--* Before, utk kperluan perhitungan QtySaldo  *--		
+		--* Before, utk kperluan perhitungan QtySaldo *--		
 		SET @QtyStockInBefore = @QtyStockIn
 		SET @QtyStockOutBefore = @QtyStockOut
 		SET @QtySaldoBefore = @QtySaldo
 
 		FETCH NEXT FROM db_cursor INTO @ItemId, @ItemName, @UnitName, @OnHand, @TransDate, @Qty, @CostPrice, @RefType, @RefNo, @Descr
-	END  
+	END 
 
-	CLOSE db_cursor  
+	CLOSE db_cursor 
 	DEALLOCATE db_cursor 
 	
 	-- Untuk transaksi bulan kedua setelah golive	
-	IF  @RefNo <> 'Saldo Awal'
+	IF @RefNo <> 'Saldo Awal'
 	BEGIN
 		SET @QtySaldo = @QtySaldoBefore + @QtyStockOutBefore - @QtyStockInBefore
 
