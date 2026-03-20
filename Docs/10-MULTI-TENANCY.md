@@ -16,9 +16,17 @@ Request: acme.researchapps.com/Items
   └────────────────────────────────────────┘
          │
          ▼
-  ┌─ TenantAuthorizationMiddleware ────────┐
-  │   Validates user belongs to tenant     │
-  │   Super-admins (no TenantId) pass all  │
+  ┌─ Per-Tenant Authentication ────────────┐
+  │   Cookie name: .AspNetCore.Identity.App.acme │
+  │   Cookie validated against tenant DB   │
+  │   WithPerTenantAuthentication()        │
+  └────────────────────────────────────────┘
+         │
+         ▼
+  ┌─ Dynamic Identity DbContext ───────────┐
+  │   OnConfiguring switches connection    │
+  │   string to tenant's ConnectionString  │
+  │   (UserManager/RoleManager use tenant DB) │
   └────────────────────────────────────────┘
          │
          ▼
@@ -40,7 +48,9 @@ Request: acme.researchapps.com/Items
 |----------|-----------|
 | **Database-per-tenant** | Zero changes to 538+ stored procedures and 61 domain entities. Complete data isolation. |
 | **Subdomain resolution** | `acme.researchapps.com`, `globex.researchapps.com` — clean tenant separation in URLs |
-| **Shared Admin DB** | Identity tables (users, roles, claims) + tenant catalog live in the shared DefaultConnection database |
+| **Per-tenant Identity DB** | Each tenant has its own Identity tables (users, roles, claims) in its own database. No shared Identity DB. |
+| **Per-tenant authentication** | Separate cookies per tenant via `WithPerTenantAuthentication()`. Cookie name includes tenant identifier. |
+| **Dynamic DbContext** | `ResearchAppsDbContext.OnConfiguring` switches connection string based on resolved tenant. |
 | **Dapper passthrough** | Repositories and services are completely unaware of tenancy — the `IDbConnection` factory handles everything |
 
 ### Database Layout
@@ -50,10 +60,10 @@ Request: acme.researchapps.com/Items
 │         Admin DB (shared)            │
 │  ┌─────────────────────────────────┐ │
 │  │  dbo.Tenants (catalog)          │ │
-│  │  dbo.AspNetUsers (Identity)     │ │
-│  │  dbo.AspNetRoles (Identity)     │ │
-│  │  dbo.AspNetRoleClaims           │ │
-│  │  dbo.AspNetUserClaims           │ │
+│  │  identity.AspNetUsers (admins)  │ │
+│  │  identity.AspNetRoles           │ │
+│  │  identity.AspNetRoleClaims      │ │
+│  │  identity.AspNetUserClaims      │ │
 │  └─────────────────────────────────┘ │
 └──────────────────────────────────────┘
 
@@ -65,6 +75,9 @@ Request: acme.researchapps.com/Items
 │  │ PRs     │    │  │  │ PRs     │    │  │  │ PRs     │    │
 │  │ COs     │    │  │  │ COs     │    │  │  │ COs     │    │
 │  │ ...SPs  │    │  │  │ ...SPs  │    │  │  │ ...SPs  │    │
+│  │ Identity │   │  │  │ Identity │   │  │  │ Identity │   │
+│  │ (tenant │    │  │  │ (tenant │    │  │  │ (tenant │    │
+│  │  users) │    │  │  │  users) │    │  │  │  users) │    │
 │  └─────────┘    │  │  └─────────┘    │  │  └─────────┘    │
 └─────────────────┘  └─────────────────┘  └─────────────────┘
 ```
@@ -99,20 +112,27 @@ The pattern `__tenant__.*` means: extract the first subdomain segment as the ten
 The order of middleware is critical for multi-tenancy to work:
 
 ```csharp
-app.UseAuthentication();        // 1. Authenticate user
-app.UseMultiTenant();           // 2. Resolve tenant from subdomain
-app.UseTenantAuthorization();   // 3. Validate user belongs to tenant
-app.UseAuthorization();         // 4. Standard authorization
+app.UseMultiTenant();           // 1. Resolve tenant from subdomain
+app.UseAuthentication();        // 2. Authenticate user (per-tenant cookies)
+app.UseAuthorization();         // 3. Standard authorization
 ```
 
-### TenantAuthorizationMiddleware
+### Per-Tenant Authentication
 
-Prevents cross-tenant access:
+Cookie isolation is handled by Finbuckle's `WithPerTenantAuthentication()`:
 
-- If **no tenant resolved** (admin panel, no subdomain): pass through
-- If **user is super-admin** (no `TenantId` claim): pass through to any tenant
-- If **user's TenantId matches** resolved tenant: pass through
-- If **user's TenantId differs** from resolved tenant: **403 Forbidden**
+- Each tenant gets a unique cookie name: `.AspNetCore.Identity.App.{identifier}`
+- The auth cookie is validated against the tenant's own Identity database
+- No custom middleware needed — Finbuckle handles tenant/cookie validation automatically
+- On the main site (no tenant resolved), the default `IdentityConstants.ApplicationScheme` cookie is used
+
+### Dynamic Identity DbContext
+
+`ResearchAppsDbContext.OnConfiguring` switches the connection string based on the resolved tenant:
+
+- If tenant is resolved and has a `ConnectionString` → uses tenant DB
+- Otherwise → uses `DefaultConnection` (main site / super-admin DB)
+- `UserManager`, `RoleManager`, and `SignInManager` automatically use the correct DB
 
 ---
 
@@ -120,22 +140,32 @@ Prevents cross-tenant access:
 
 ### Tenant Users
 
-Regular users assigned to a specific tenant:
+Regular users who belong to a specific tenant's database:
 
-- Have a `TenantId` set on their `AppIdentityUser` record
-- Have a `TenantId` claim persisted on login
-- Can only access their assigned tenant's subdomain
-- See only their tenant's data
+- Exist only in the tenant's Identity database
+- Authenticate via the tenant's subdomain (per-tenant cookie)
+- Can only access their own tenant's subdomain and data
+- Managed by tenant admins via **Administration → Users** on the tenant site
+- Self-registration is disabled (invite-only model)
+
+### Tenant Admin Users
+
+Created automatically during tenant provisioning (DACPAC deploy):
+
+- Username: `admin@{identifier}` (e.g., `admin@acme`)
+- Temporary password: `Tenant@{identifier}!2026`
+- Assigned the **TenantAdmin** role with all tenant-level permissions
+- Should change password immediately after first login
 
 ### Super-Admin Users
 
-Platform administrators with no tenant restriction:
+Platform administrators on the main site (no subdomain):
 
-- `TenantId` is `null` on their `AppIdentityUser` record
-- No `TenantId` claim in their auth cookie
-- Can access **any** tenant's subdomain
-- Can access the admin panel without a tenant context
-- Have all permissions via the `SuperAdmin` role
+- Exist in the main site's Identity database (`DefaultConnection`)
+- Access the admin panel without a tenant context
+- Can manage tenants, provision databases, deploy schemas
+- Can manage tenant users from **Tenants → Details → Manage Users**
+- Cannot log into tenant subdomains (separate Identity DBs)
 
 **Default super-admin** (seeded on startup):
 - Username: `superadmin`
@@ -160,6 +190,7 @@ The admin panel provides full CRUD:
 | View details | `Tenants.Details` | Full tenant information |
 | Delete tenant | `Tenants.Delete` | Remove tenant from catalog |
 | Provision DB | `Tenants.Provision` | Create the tenant's SQL Server database |
+| Deploy Schema | `Tenants.DeploySchema` | Deploy tables, SPs, and seed tenant admin user |
 
 ### Creating a New Tenant
 
@@ -182,22 +213,30 @@ Server=myserver.database.windows.net;Database=ResearchApps_Acme;User Id=app_user
 After creating a tenant record, you need to provision the actual database:
 
 1. Go to the tenant's **Details** page
-2. Click **Provision Database**
-3. The system will:
-   - Extract the database name from the tenant's connection string
-   - Connect to the SQL Server using the admin connection (master DB)
-   - Create the database if it doesn't exist
-4. **After provisioning**, deploy the schema using DACPAC or SQL scripts from `ResearchApps.AzureSql`
+2. Click **Provision Database** — creates the empty SQL Server database
+3. Click **Deploy Schema** — deploys all tables, stored procedures, and Identity tables from the DACPAC
+4. The system will also **seed a TenantAdmin user** with:
+   - All tenant-level permissions (excludes Tenants management)
+   - Credentials displayed after deployment (username + temp password)
 
-> **Note**: Provisioning only creates the empty database. You must deploy tables, stored procedures, and seed data separately (e.g., via `sqlpackage` or CI/CD pipeline using the `ResearchApps.AzureSql` project).
+### Managing Tenant Users (Super-Admin)
 
-### Assigning Users to Tenants
+From the main site, super-admins can manage users in any tenant's database:
 
-1. Go to **Administration → Users**
-2. **Create** or **Edit** a user
-3. Select a tenant from the **Tenant** dropdown:
-   - Choose a specific tenant to bind the user to that tenant
-   - Leave as **"— Super Admin (No Tenant) —"** for platform-wide access
+1. Go to **Administration → Tenants → Details** for the tenant
+2. Click **Manage Users**
+3. From here you can:
+   - View all users in the tenant's database
+   - Create new users
+   - Reset passwords
+
+### Managing Users (Tenant Admin)
+
+On the tenant site, tenant admins use the standard **Administration → Users** and **Roles** pages:
+
+- These pages are context-aware — they operate against the tenant's own Identity database
+- The **Tenants** menu item is hidden on tenant sites
+- Role permissions exclude tenant-management permissions (shown only on main site)
 4. Save the user
 
 The user list shows a **Tenant** column with badges:
@@ -594,7 +633,8 @@ The user's `TenantId` doesn't match the subdomain's resolved tenant. Either:
 |-----------|----------|
 | Tenant model | `ResearchApps.Common/Tenant/AppTenantInfo.cs` |
 | Tenant store (EF) | `ResearchApps.Web/Context/TenantStoreDbContext.cs` |
-| Tenant authorization middleware | `ResearchApps.Web/Middlewares/TenantAuthorizationMiddleware.cs` |
+| Tenant provisioning + admin seeding | `ResearchApps.Web/Services/TenantProvisioningService.cs` |
+| Tenant user management (super-admin) | `ResearchApps.Web/Services/TenantUserManagementService.cs` |
 | Tenant-aware IDbConnection | `ResearchApps.Repo/ServiceCollectionExtensions.cs` |
 | Tenant admin controller | `ResearchApps.Web/Areas/Admin/Controllers/TenantsController.cs` |
 | Tenant admin views | `ResearchApps.Web/Areas/Admin/Views/Tenants/` |
