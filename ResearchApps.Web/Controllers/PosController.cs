@@ -13,7 +13,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Purchase Orders")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Procurement.PurchaseOrders)]
+[TenantFeature(TenantFeatureConstants.PurchaseOrders)]
 public class PosController : Controller
 {
     private readonly IPoService _poService;

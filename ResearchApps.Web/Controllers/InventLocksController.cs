@@ -10,7 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Inventory Closing")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Finance.InventoryClosing)]
+[TenantFeature(TenantFeatureConstants.InventoryClosing)]
 public class InventLocksController : Controller
 {
     private readonly IInventLockService _inventLockService;

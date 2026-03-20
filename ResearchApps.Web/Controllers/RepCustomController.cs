@@ -8,7 +8,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Custom Report")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Production.ToolsReport)]
+[TenantFeature(TenantFeatureConstants.ToolsReport)]
 public class RepCustomController : Controller
 {
     private readonly IRepCustomService _repCustomService;

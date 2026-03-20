@@ -12,7 +12,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Purchase Requisitions")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Procurement.PurchaseRequisitions)]
+[TenantFeature(TenantFeatureConstants.PurchaseRequisitions)]
 public class PrsController : Controller
 {
     private readonly IPrService _prService;

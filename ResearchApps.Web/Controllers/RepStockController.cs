@@ -8,7 +8,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Stock Report")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Inventory.StockReport)]
+[TenantFeature(TenantFeatureConstants.StockReport)]
 public class RepStockController : Controller
 {
     private readonly IRepStockService _repStockService;

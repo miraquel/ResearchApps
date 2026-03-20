@@ -10,7 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Bon Pengambilan Barang")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Production.MaterialWithdrawals)]
+[TenantFeature(TenantFeatureConstants.MaterialWithdrawals)]
 public class BpbsController : Controller
 {
     private readonly IBpbService _bpbService;

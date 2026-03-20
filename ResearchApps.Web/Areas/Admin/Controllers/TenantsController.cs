@@ -15,12 +15,18 @@ public class TenantsController : Controller
 {
     private readonly TenantStoreDbContext _tenantDb;
     private readonly ITenantProvisioningService _provisioningService;
+    private readonly ITenantUserManagementService _tenantUserService;
     private readonly ILogger<TenantsController> _logger;
 
-    public TenantsController(TenantStoreDbContext tenantDb, ITenantProvisioningService provisioningService, ILogger<TenantsController> logger)
+    public TenantsController(
+        TenantStoreDbContext tenantDb,
+        ITenantProvisioningService provisioningService,
+        ITenantUserManagementService tenantUserService,
+        ILogger<TenantsController> logger)
     {
         _tenantDb = tenantDb;
         _provisioningService = provisioningService;
+        _tenantUserService = tenantUserService;
         _logger = logger;
     }
 
@@ -236,7 +242,16 @@ public class TenantsController : Controller
     public async Task<IActionResult> DeploySchema(string id, CancellationToken cancellationToken)
     {
         var result = await _provisioningService.DeploySchemaAsync(id, cancellationToken);
-        TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
+
+        if (result.Success && result.AdminUsername is not null)
+        {
+            TempData["SuccessMessage"] = $"{result.Message} Tenant admin created — Username: {result.AdminUsername}, Temp Password: {result.AdminTempPassword}";
+        }
+        else
+        {
+            TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
+        }
+
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -258,6 +273,78 @@ public class TenantsController : Controller
         TempData["SuccessMessage"] = "Tenant deleted successfully.";
         return RedirectToAction(nameof(Index));
     }
+
+    #region Tenant User Management
+
+    // GET: Admin/Tenants/{id}/Users
+    [Authorize(PermissionConstants.Tenants.Details)]
+    public async Task<IActionResult> TenantUsers(string id, CancellationToken cancellationToken)
+    {
+        var tenant = await _tenantDb.TenantInfo.AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        if (tenant is null || string.IsNullOrEmpty(tenant.ConnectionString))
+            return NotFound();
+
+        var users = await _tenantUserService.ListUsersAsync(tenant.ConnectionString, cancellationToken);
+
+        ViewBag.TenantId = id;
+        ViewBag.TenantName = tenant.Name ?? tenant.Identifier ?? "—";
+        return View(users);
+    }
+
+    // GET: Admin/Tenants/{id}/Users/Create
+    [Authorize(PermissionConstants.Tenants.Details)]
+    public async Task<IActionResult> CreateTenantUser(string id, CancellationToken cancellationToken)
+    {
+        var tenant = await _tenantDb.TenantInfo.AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        if (tenant is null) return NotFound();
+
+        ViewBag.TenantId = id;
+        ViewBag.TenantName = tenant.Name ?? tenant.Identifier ?? "—";
+        return View(new TenantUserCreate());
+    }
+
+    // POST: Admin/Tenants/{id}/Users/Create
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(PermissionConstants.Tenants.Details)]
+    public async Task<IActionResult> CreateTenantUser(string id, [FromForm] TenantUserCreate model, CancellationToken cancellationToken)
+    {
+        var tenant = await _tenantDb.TenantInfo.AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        if (tenant is null || string.IsNullOrEmpty(tenant.ConnectionString))
+            return NotFound();
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.TenantId = id;
+            ViewBag.TenantName = tenant.Name ?? tenant.Identifier ?? "—";
+            return View(model);
+        }
+
+        var (success, message) = await _tenantUserService.CreateUserAsync(tenant.ConnectionString, model, cancellationToken);
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] = message;
+        return RedirectToAction(nameof(TenantUsers), new { id });
+    }
+
+    // POST: Admin/Tenants/{id}/Users/ResetPassword
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(PermissionConstants.Tenants.Details)]
+    public async Task<IActionResult> ResetTenantUserPassword(string id, [FromForm] string userId, [FromForm] string newPassword, CancellationToken cancellationToken)
+    {
+        var tenant = await _tenantDb.TenantInfo.AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        if (tenant is null || string.IsNullOrEmpty(tenant.ConnectionString))
+            return NotFound();
+
+        var (success, message) = await _tenantUserService.ResetPasswordAsync(tenant.ConnectionString, userId, newPassword, cancellationToken);
+        TempData[success ? "SuccessMessage" : "ErrorMessage"] = message;
+        return RedirectToAction(nameof(TenantUsers), new { id });
+    }
+
+    #endregion
 
     #region View Models
 

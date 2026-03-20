@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ResearchApps.Common.Constants;
+using ResearchApps.Common.Tenant;
 using ResearchApps.Domain;
 using ResearchApps.Web.Context;
 
@@ -18,18 +20,23 @@ public class UsersController : Controller
     private readonly RoleManager<AppIdentityRole> _roleManager;
     private readonly TenantStoreDbContext _tenantDb;
     private readonly ILogger<UsersController> _logger;
+    private readonly AppTenantInfo? _tenantInfo;
 
     public UsersController(
         UserManager<AppIdentityUser> userManager,
         RoleManager<AppIdentityRole> roleManager,
         TenantStoreDbContext tenantDb,
-        ILogger<UsersController> logger)
+        ILogger<UsersController> logger,
+        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _tenantDb = tenantDb;
         _logger = logger;
+        _tenantInfo = multiTenantContextAccessor.MultiTenantContext?.TenantInfo;
     }
+
+    private bool IsTenantSite => _tenantInfo != null;
 
     // GET: Admin/Users
     [Authorize(PermissionConstants.Users.Index)]
@@ -82,13 +89,17 @@ public class UsersController : Controller
             .Take(pageSize)
             .ToList();
 
-        var tenantIds = users.Where(u => !string.IsNullOrEmpty(u.TenantId))
-            .Select(u => u.TenantId!).Distinct().ToList();
-        var tenantNames = tenantIds.Count > 0
-            ? await _tenantDb.TenantInfo.AsNoTracking()
-                .Where(t => tenantIds.Contains(t.Id!))
-                .ToDictionaryAsync(t => t.Id!, t => t.Name ?? t.Identifier ?? "—")
-            : new Dictionary<string, string>();
+        var tenantNames = new Dictionary<string, string>();
+        if (!IsTenantSite)
+        {
+            var tenantIds = users.Where(u => !string.IsNullOrEmpty(u.TenantId))
+                .Select(u => u.TenantId!).Distinct().ToList();
+            tenantNames = tenantIds.Count > 0
+                ? await _tenantDb.TenantInfo.AsNoTracking()
+                    .Where(t => tenantIds.Contains(t.Id!))
+                    .ToDictionaryAsync(t => t.Id!, t => t.Name ?? t.Identifier ?? "—")
+                : new Dictionary<string, string>();
+        }
 
         var userVms = new List<UserListItemVm>();
         foreach (var u in users)
@@ -118,6 +129,7 @@ public class UsersController : Controller
         ViewBag.SortBy = sortBy;
         ViewBag.SortAsc = sortAsc;
         ViewBag.Filters = filters;
+        ViewBag.IsTenantSite = IsTenantSite;
 
         return PartialView("_Partials/_UserListContainer", model);
     }
@@ -132,7 +144,7 @@ public class UsersController : Controller
         var roles = await _userManager.GetRolesAsync(user);
 
         string? tenantName = null;
-        if (!string.IsNullOrEmpty(user.TenantId))
+        if (!IsTenantSite && !string.IsNullOrEmpty(user.TenantId))
         {
             var tenant = await _tenantDb.TenantInfo.AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == user.TenantId);
@@ -152,6 +164,7 @@ public class UsersController : Controller
             TenantName = tenantName
         };
 
+        ViewBag.IsTenantSite = IsTenantSite;
         return View(model);
     }
 
@@ -159,7 +172,8 @@ public class UsersController : Controller
     [Authorize(PermissionConstants.Users.Create)]
     public async Task<IActionResult> Create()
     {
-        await PopulateTenantListAsync();
+        if (!IsTenantSite) await PopulateTenantListAsync();
+        ViewBag.IsTenantSite = IsTenantSite;
         return View(new CreateUserVm());
     }
 
@@ -171,7 +185,8 @@ public class UsersController : Controller
     {
         if (!ModelState.IsValid)
         {
-            await PopulateTenantListAsync();
+            if (!IsTenantSite) await PopulateTenantListAsync();
+            ViewBag.IsTenantSite = IsTenantSite;
             return View(model);
         }
 
@@ -182,7 +197,7 @@ public class UsersController : Controller
             FirstName = model.FirstName,
             LastName = model.LastName ?? string.Empty,
             PhoneNumber = model.PhoneNumber,
-            TenantId = model.TenantId,
+            TenantId = IsTenantSite ? null : model.TenantId,
             EmailConfirmed = true,
             PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(model.PhoneNumber)
         };
@@ -196,7 +211,8 @@ public class UsersController : Controller
         foreach (var error in result.Errors)
             ModelState.AddModelError(string.Empty, error.Description);
 
-        await PopulateTenantListAsync();
+        if (!IsTenantSite) await PopulateTenantListAsync();
+        ViewBag.IsTenantSite = IsTenantSite;
         return View(model);
     }
 
@@ -218,7 +234,8 @@ public class UsersController : Controller
             TenantId = user.TenantId
         };
 
-        await PopulateTenantListAsync();
+        if (!IsTenantSite) await PopulateTenantListAsync();
+        ViewBag.IsTenantSite = IsTenantSite;
         return View(model);
     }
 
@@ -230,7 +247,8 @@ public class UsersController : Controller
     {
         if (!ModelState.IsValid)
         {
-            await PopulateTenantListAsync();
+            if (!IsTenantSite) await PopulateTenantListAsync();
+            ViewBag.IsTenantSite = IsTenantSite;
             return View(model);
         }
         var user = await _userManager.FindByIdAsync(id);
@@ -241,7 +259,7 @@ public class UsersController : Controller
         user.FirstName = model.FirstName;
         user.LastName = model.LastName;
         user.PhoneNumber = model.PhoneNumber;
-        user.TenantId = model.TenantId;
+        if (!IsTenantSite) user.TenantId = model.TenantId;
         user.PhoneNumberConfirmed = !string.IsNullOrWhiteSpace(model.PhoneNumber);
 
         var result = await _userManager.UpdateAsync(user);
@@ -254,7 +272,8 @@ public class UsersController : Controller
         foreach (var error in result.Errors)
             ModelState.AddModelError(string.Empty, error.Description);
 
-        await PopulateTenantListAsync();
+        if (!IsTenantSite) await PopulateTenantListAsync();
+        ViewBag.IsTenantSite = IsTenantSite;
         return View(model);
     }
 

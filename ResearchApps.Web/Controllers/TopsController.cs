@@ -10,7 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Terms of Payment")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Finance.TermsOfPayment)]
+[TenantFeature(TenantFeatureConstants.TermsOfPayment)]
 public class TopsController : Controller
 {
     private readonly ITopService _topService;
