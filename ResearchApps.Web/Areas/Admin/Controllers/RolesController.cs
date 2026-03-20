@@ -2,10 +2,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Finbuckle.MultiTenant.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ResearchApps.Common.Constants;
+using ResearchApps.Common.Tenant;
 using ResearchApps.Domain;
 
 namespace ResearchApps.Web.Areas.Admin.Controllers;
@@ -17,16 +19,21 @@ public partial class RolesController : Controller
     private readonly RoleManager<AppIdentityRole> _roleManager;
     private readonly UserManager<AppIdentityUser> _userManager;
     private readonly ILogger<RolesController> _logger;
+    private readonly AppTenantInfo? _tenantInfo;
 
     public RolesController(
         RoleManager<AppIdentityRole> roleManager,
         UserManager<AppIdentityUser> userManager,
-        ILogger<RolesController> logger)
+        ILogger<RolesController> logger,
+        IMultiTenantContextAccessor<AppTenantInfo> multiTenantContextAccessor)
     {
         _roleManager = roleManager;
         _userManager = userManager;
         _logger = logger;
+        _tenantInfo = multiTenantContextAccessor.MultiTenantContext?.TenantInfo;
     }
+
+    private bool IsTenantSite => _tenantInfo != null;
 
     // GET: Admin/Roles
     [Authorize(PermissionConstants.Roles.Index)]
@@ -139,7 +146,12 @@ public partial class RolesController : Controller
         var role = await _roleManager.FindByIdAsync(id);
         if (role == null) return NotFound();
 
-        var groupedPermissions = PermissionConstants.GetGroupedPermissions();
+        var groupedPermissions = IsTenantSite
+            ? PermissionConstants.GetGroupedTenantPermissions()
+            : PermissionConstants.GetGroupedPermissions();
+        var moduleGroupedPermissions = IsTenantSite
+            ? PermissionConstants.GetModuleGroupedTenantPermissions()
+            : PermissionConstants.GetModuleGroupedPermissions();
         var claims = await _roleManager.GetClaimsAsync(role);
         var selectedPermissions = claims
             .Where(c => c.Type == "permission")
@@ -149,7 +161,9 @@ public partial class RolesController : Controller
         var model = new RolePermissionsVm
         {
             RoleId = id,
+            RoleName = role.Name ?? string.Empty,
             GroupedPermissions = groupedPermissions,
+            ModuleGroupedPermissions = moduleGroupedPermissions,
             SelectedPermissions = selectedPermissions
         };
 
@@ -264,7 +278,9 @@ public partial class RolesController : Controller
     public class RolePermissionsVm
     {
         public string RoleId { get; set; } = string.Empty;
+        public string RoleName { get; set; } = string.Empty;
         public Dictionary<string, List<string>> GroupedPermissions { get; set; } = new();
+        public Dictionary<string, Dictionary<string, List<string>>> ModuleGroupedPermissions { get; set; } = new();
         public List<string> SelectedPermissions { get; set; } = [];
     }
 

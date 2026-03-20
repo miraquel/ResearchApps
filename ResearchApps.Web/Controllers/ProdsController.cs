@@ -10,7 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Production Orders")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Production.ProductionOrders)]
+[TenantFeature(TenantFeatureConstants.ProductionOrders)]
 public class ProdsController : Controller
 {
     private readonly IProdService _prodService;

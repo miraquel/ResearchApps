@@ -68,6 +68,9 @@
 
         <div class="mt-4">
             <a asp-area="Admin" asp-controller="Tenants" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">Edit</a>
+            <a asp-area="Admin" asp-controller="Tenants" asp-action="TenantUsers" asp-route-id="@Model.Id" class="btn btn-primary ms-2">
+                <i class="ri-user-line me-1"></i> Manage Users
+            </a>
             @if (User.HasClaim("permission", PermissionConstants.Tenants.Provision))
             {
                 <form asp-area="Admin" asp-controller="Tenants" asp-action="Provision" asp-route-id="@Model.Id" method="post" class="d-inline">

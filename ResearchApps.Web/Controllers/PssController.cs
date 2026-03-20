@@ -10,7 +10,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Penyesuaian Stock")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Inventory.StockAdjustments)]
+[TenantFeature(TenantFeatureConstants.StockAdjustments)]
 public class PssController : Controller
 {
     private readonly IPsService _psService;

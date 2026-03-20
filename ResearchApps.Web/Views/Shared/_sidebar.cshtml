@@ -1,5 +1,9 @@
 @using ResearchApps.Common.Constants
 @inject ResearchApps.Web.Services.ITenantFeatureService TenantFeatures
+@inject Finbuckle.MultiTenant.Abstractions.IMultiTenantContextAccessor<ResearchApps.Common.Tenant.AppTenantInfo> TenantContextAccessor
+@{
+    var isTenantSite = TenantContextAccessor.MultiTenantContext?.TenantInfo != null;
+}
 <!-- ========== App Menu ========== -->
 <div class="app-menu navbar-menu">
     <!-- LOGO -->
@@ -120,8 +124,8 @@
                 <!-- Procurement -->
                 @{
                     var hasProcurementAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.Budgets) && User.HasClaim("permission", PermissionConstants.Budgets.Index)) ||
-                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.PurchaseRequisitions) && User.HasClaim("permission", PermissionConstants.Prs.Index)) ||
-                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.PurchaseOrders) && User.HasClaim("permission", PermissionConstants.Pos.Index)) ||
+                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.PurchaseRequisitions) && User.HasClaim("permission", PermissionConstants.PurchaseRequisitions.Index)) ||
+                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.PurchaseOrders) && User.HasClaim("permission", PermissionConstants.PurchaseOrders.Index)) ||
                                                (TenantFeatures.IsEnabled(TenantFeatureConstants.GoodsReceipts) && User.HasClaim("permission", PermissionConstants.GoodsReceipts.Index)) ||
                                                (TenantFeatures.IsEnabled(TenantFeatureConstants.Suppliers) && User.HasClaim("permission", PermissionConstants.Suppliers.Index));
                 }
@@ -156,7 +160,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.PurchaseRequisitions">
-                                @if (User.HasClaim("permission", PermissionConstants.Prs.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.PurchaseRequisitions.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Prs", new { Area = "" })" class="nav-link" data-key="t-prs">
@@ -167,7 +171,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.PurchaseOrders">
-                                @if (User.HasClaim("permission", PermissionConstants.Pos.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.PurchaseOrders.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Pos", new { Area = "" })" class="nav-link" data-key="t-pos">
@@ -201,8 +205,8 @@
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.ItemGroup02s) && User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index)) ||
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.Warehouses) && User.HasClaim("permission", PermissionConstants.Warehouses.Index)) ||
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.Units) && User.HasClaim("permission", PermissionConstants.Units.Index)) ||
-                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.StockAdjustments) && User.HasClaim("permission", PermissionConstants.Pss.Index)) ||
-                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.StockReport) && User.HasClaim("permission", PermissionConstants.RepStock.Index));
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.StockAdjustments) && User.HasClaim("permission", PermissionConstants.StockAdjustments.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.StockReport) && User.HasClaim("permission", PermissionConstants.StockReport.Index));
                 }
                 @if (hasInventoryAccess)
                 {
@@ -290,7 +294,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.StockAdjustments">
-                                @if (User.HasClaim("permission", PermissionConstants.Pss.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.StockAdjustments.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Pss", new { Area = "" })" class="nav-link" data-key="t-penyesuaian-stock">
@@ -301,7 +305,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.StockReport">
-                                @if (User.HasClaim("permission", PermissionConstants.RepStock.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.StockReport.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "RepStock", new { Area = "" })" class="nav-link" data-key="t-rep-stock">
@@ -317,11 +321,11 @@
 
                 <!-- Production -->
                 @{
-                    var hasProductionAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.ProductionOrders) && User.HasClaim("permission", PermissionConstants.Prods.Index)) ||
-                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.MaterialWithdrawals) && User.HasClaim("permission", PermissionConstants.Bpbs.Index)) || 
+                    var hasProductionAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.ProductionOrders) && User.HasClaim("permission", PermissionConstants.ProductionOrders.Index)) ||
+                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.MaterialWithdrawals) && User.HasClaim("permission", PermissionConstants.MaterialWithdrawals.Index)) || 
                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.MaterialCustomers) && User.HasClaim("permission", PermissionConstants.MaterialCustomers.Index)) ||
                                               (TenantFeatures.IsEnabled(TenantFeatureConstants.Phps) && User.HasClaim("permission", PermissionConstants.Phps.Index)) ||
-                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.ToolsReport) && User.HasClaim("permission", PermissionConstants.RepCustom.Index));
+                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.ToolsReport) && User.HasClaim("permission", PermissionConstants.ToolsReport.Index));
                 }
                 @if (hasProductionAccess)
                 {
@@ -332,7 +336,7 @@
                         <div class="collapse menu-dropdown" id="sidebarProduction">
                             <ul class="nav nav-sm flex-column">
                                 <tenant-feature name="@TenantFeatureConstants.ProductionOrders">
-                                @if (User.HasClaim("permission", PermissionConstants.Prods.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.ProductionOrders.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Prods", new { Area = "" })" class="nav-link" data-key="t-prods">
@@ -354,7 +358,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.MaterialWithdrawals">
-                                @if (User.HasClaim("permission", PermissionConstants.Bpbs.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.MaterialWithdrawals.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Bpbs", new { Area = "" })" class="nav-link" data-key="t-bpbs">
@@ -376,7 +380,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.ToolsReport">
-                                @if (User.HasClaim("permission", PermissionConstants.RepCustom.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.ToolsReport.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "RepCustom", new { Area = "" })" class="nav-link" data-key="t-rep-custom">
@@ -392,9 +396,9 @@
 
                 <!-- Finance -->
                 @{
-                    var hasFinanceAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.InventoryClosing) && User.HasClaim("permission", PermissionConstants.InventLocks.Index)) ||
-                                          (TenantFeatures.IsEnabled(TenantFeatureConstants.TermsOfPayment) && User.HasClaim("permission", PermissionConstants.Tops.Index)) ||
-                                          (TenantFeatures.IsEnabled(TenantFeatureConstants.InventTransReport) && User.HasClaim("permission", PermissionConstants.RepInventTrans.Index));
+                    var hasFinanceAccess = (TenantFeatures.IsEnabled(TenantFeatureConstants.InventoryClosing) && User.HasClaim("permission", PermissionConstants.InventoryClosing.Index)) ||
+                                          (TenantFeatures.IsEnabled(TenantFeatureConstants.TermsOfPayment) && User.HasClaim("permission", PermissionConstants.TermsOfPayment.Index)) ||
+                                          (TenantFeatures.IsEnabled(TenantFeatureConstants.InventTransReport) && User.HasClaim("permission", PermissionConstants.InventTransReport.Index));
                 }
                 @if (hasFinanceAccess)
                 {
@@ -405,7 +409,7 @@
                         <div class="collapse menu-dropdown" id="sidebarFinance">
                             <ul class="nav nav-sm flex-column">
                                 <tenant-feature name="@TenantFeatureConstants.TermsOfPayment">
-                                @if (User.HasClaim("permission", PermissionConstants.Tops.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.TermsOfPayment.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Tops", new { Area = "" })" class="nav-link" data-key="t-tops">
@@ -416,7 +420,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.InventoryClosing">
-                                @if (User.HasClaim("permission", PermissionConstants.InventLocks.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.InventoryClosing.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "InventLocks", new { Area = "" })" class="nav-link" data-key="t-inventory-closing">
@@ -427,7 +431,7 @@
                                 </tenant-feature>
                                 
                                 <tenant-feature name="@TenantFeatureConstants.InventTransReport">
-                                @if (User.HasClaim("permission", PermissionConstants.RepInventTrans.Index))
+                                @if (User.HasClaim("permission", PermissionConstants.InventTransReport.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "RepInventTrans", new { Area = "" })" class="nav-link" data-key="t-rep-inventtrans">
@@ -458,7 +462,7 @@
                     var hasAdminAccess = User.HasClaim("permission", PermissionConstants.Users.Index) ||
                                          User.HasClaim("permission", PermissionConstants.Roles.Index) ||
                                          User.HasClaim("permission", PermissionConstants.Workflows.Index) ||
-                                         User.HasClaim("permission", PermissionConstants.Tenants.Index);
+                                         (!isTenantSite && User.HasClaim("permission", PermissionConstants.Tenants.Index));
                 }
                 @if (hasAdminAccess)
                 {
@@ -495,7 +499,7 @@
                                     </li>
                                 }
                                 
-                                @if (User.HasClaim("permission", PermissionConstants.Tenants.Index))
+                                @if (!isTenantSite && User.HasClaim("permission", PermissionConstants.Tenants.Index))
                                 {
                                     <li class="nav-item">
                                         <a href="@Url.Action("Index", "Tenants", new { Area = "Admin" })" class="nav-link" data-key="t-tenants">

@@ -8,7 +8,7 @@ namespace ResearchApps.Web.Controllers;
 
 [BreadcrumbLabel("Inventory Transaction Report")]
 [Authorize]
-[TenantFeature(TenantFeatureConstants.Finance.InventTransReport)]
+[TenantFeature(TenantFeatureConstants.InventTransReport)]
 public class RepInventTransController : Controller
 {
     private readonly IRepInventTransService _repInventTransService;

@@ -48,6 +48,59 @@ public static class TenantFeatureConstants
     // ── Reports ────────────────────────────────────────────────────────────────
     public const string Reports = "Reports";
 
+    // ── Section aliases (nested classes for section-qualified access) ──────────
+    public static class Sales
+    {
+        public const string Customers = "Customers";
+        public const string CustomerOrders = "CustomerOrders";
+        public const string DeliveryOrders = "DeliveryOrders";
+        public const string SalesInvoices = "SalesInvoices";
+        public const string SalesPrices = "SalesPrices";
+    }
+
+    public static class Procurement
+    {
+        public const string Budgets = "Budgets";
+        public const string Suppliers = "Suppliers";
+        public const string PurchaseRequisitions = "PurchaseRequisitions";
+        public const string PurchaseOrders = "PurchaseOrders";
+        public const string GoodsReceipts = "GoodsReceipts";
+    }
+
+    public static class Inventory
+    {
+        public const string Items = "Items";
+        public const string ItemTypes = "ItemTypes";
+        public const string ItemDepts = "ItemDepts";
+        public const string ItemGroup01s = "ItemGroup01s";
+        public const string ItemGroup02s = "ItemGroup02s";
+        public const string Warehouses = "Warehouses";
+        public const string Units = "Units";
+        public const string StockAdjustments = "StockAdjustments";
+        public const string StockReport = "StockReport";
+    }
+
+    public static class Production
+    {
+        public const string ProductionOrders = "ProductionOrders";
+        public const string MaterialCustomers = "MaterialCustomers";
+        public const string MaterialWithdrawals = "MaterialWithdrawals";
+        public const string Phps = "Phps";
+        public const string ToolsReport = "ToolsReport";
+    }
+
+    public static class Finance
+    {
+        public const string TermsOfPayment = "TermsOfPayment";
+        public const string InventoryClosing = "InventoryClosing";
+        public const string InventTransReport = "InventTransReport";
+    }
+
+    public static class ReportsSection
+    {
+        public const string Reports = "Reports";
+    }
+
     /// <summary>
     /// Returns all feature keys grouped by section for admin UI rendering.
     /// </summary>

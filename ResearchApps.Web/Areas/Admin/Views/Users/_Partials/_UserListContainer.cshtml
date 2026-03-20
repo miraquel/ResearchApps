@@ -24,7 +24,10 @@
             </div>
         </th>
         <th style="min-width: 120px;">Role</th>
+        @if (ViewBag.IsTenantSite != true)
+        {
         <th style="min-width: 120px;">Tenant</th>
+        }
         <th style="width: 100px;">Status</th>
         <th class="text-center" style="width: 160px;">Actions</th>
     </tr>
@@ -43,7 +46,10 @@
                    x-model="filters.Email" @@input.debounce.500ms="fetchList()">
         </td>
         <td></td>
+        @if (ViewBag.IsTenantSite != true)
+        {
         <td></td>
+        }
         <td></td>
         <td class="text-center">
             <button type="button" class="btn btn-sm btn-outline-secondary"

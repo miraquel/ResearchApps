@@ -94,7 +94,7 @@ public static class PermissionConstants
         public const string Index = "Status.Index";
     }
     
-    public class Prs
+    public static class PurchaseRequisitions
     {
         public const string Index = "Prs.Index";
         public const string Create = "Prs.Create";
@@ -107,7 +107,7 @@ public static class PermissionConstants
         public const string Recall = "Prs.Recall";
     }
     
-    public class PrLines
+    public static class PurchaseRequisitionLines
     {
         public const string Index = "PrLines.Index";
         public const string Create = "PrLines.Create";
@@ -167,7 +167,7 @@ public static class PermissionConstants
         public const string Details = "SalesInvoices.Details";
     }
     
-    public class Pos
+    public static class PurchaseOrders
     {
         public const string Index = "Pos.Index";
         public const string Create = "Pos.Create";
@@ -181,7 +181,7 @@ public static class PermissionConstants
         public const string Close = "Pos.Close";
     }
     
-    public class PoLines
+    public static class PurchaseOrderLines
     {
         public const string Index = "PoLines.Index";
         public const string Create = "PoLines.Create";
@@ -208,7 +208,7 @@ public static class PermissionConstants
         public const string Details = "GoodsReceipts.Details";
     }
     
-    public class Prods
+    public static class ProductionOrders
     {
         public const string Index = "Prods.Index";
         public const string Create = "Prods.Create";
@@ -217,7 +217,7 @@ public static class PermissionConstants
         public const string Details = "Prods.Details";
     }
     
-    public class Bpbs
+    public static class MaterialWithdrawals
     {
         public const string Index = "Bpbs.Index";
         public const string Create = "Bpbs.Create";
@@ -244,7 +244,7 @@ public static class PermissionConstants
         public const string Details = "Phps.Details";
     }
     
-    public class Pss
+    public static class StockAdjustments
     {
         public const string Index = "Pss.Index";
         public const string Create = "Pss.Create";
@@ -253,7 +253,7 @@ public static class PermissionConstants
         public const string Details = "Pss.Details";
     }
     
-    public static class InventLocks
+    public static class InventoryClosing
     {
         public const string Index = "InventLocks.Index";
         public const string Close = "InventLocks.Close";
@@ -298,7 +298,7 @@ public static class PermissionConstants
         public const string Details = "SalesPrices.Details";
     }
     
-    public static class Tops
+    public static class TermsOfPayment
     {
         public const string Index = "Tops.Index";
         public const string Create = "Tops.Create";
@@ -307,17 +307,17 @@ public static class PermissionConstants
         public const string Details = "Tops.Details";
     }
     
-    public static class RepInventTrans
+    public static class InventTransReport
     {
         public const string Index = "RepInventTrans.Index";
     }
     
-    public static class RepStock
+    public static class StockReport
     {
         public const string Index = "RepStock.Index";
     }
     
-    public static class RepCustom
+    public static class ToolsReport
     {
         public const string Index = "RepCustom.Index";
     }
@@ -330,6 +330,27 @@ public static class PermissionConstants
         var fieldInfos = new List<FieldInfo>();
         foreach (var member in members)
         {
+            fieldInfos.AddRange(member.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy));
+        }
+
+        return fieldInfos
+            .Where(f => f is { IsLiteral: true, IsInitOnly: false } && f.FieldType == typeof(string))
+            .Select(f => f.GetValue(null)?.ToString() ?? string.Empty)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Gets permissions relevant to tenant users (excludes main-site-only groups like Tenants).
+    /// </summary>
+    private static readonly HashSet<string> MainSiteOnlyGroups = [nameof(Tenants)];
+
+    public static List<string> GetTenantPermissions()
+    {
+        var permissionType = typeof(PermissionConstants);
+        var fieldInfos = new List<FieldInfo>();
+        foreach (var member in permissionType.GetNestedTypes())
+        {
+            if (MainSiteOnlyGroups.Contains(member.Name)) continue;
             fieldInfos.AddRange(member.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy));
         }
 
@@ -356,5 +377,93 @@ public static class PermissionConstants
         }
         
         return permissions;
+    }
+
+    /// <summary>
+    /// Gets grouped permissions excluding main-site-only groups (e.g. Tenants).
+    /// Used for tenant-scoped role permission assignment.
+    /// </summary>
+    public static Dictionary<string, List<string>> GetGroupedTenantPermissions()
+    {
+        var permissions = new Dictionary<string, List<string>>();
+        var permissionType = typeof(PermissionConstants);
+        foreach (var nestedType in permissionType.GetNestedTypes(BindingFlags.Public | BindingFlags.Static))
+        {
+            if (MainSiteOnlyGroups.Contains(nestedType.Name)) continue;
+            var groupName = nestedType.Name;
+            var fields =
+                nestedType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            var permissionList = fields
+                .Where(f => f.FieldType == typeof(string))
+                .Select(f => f.GetValue(null) as string ?? string.Empty)
+                .ToList();
+            permissions[groupName] = permissionList;
+        }
+        
+        return permissions;
+    }
+
+    private static readonly string[] SystemAdministrationGroups =
+    [
+        nameof(Users), nameof(Roles), nameof(Workflows), nameof(Status), nameof(Tenants)
+    ];
+
+    public static Dictionary<string, Dictionary<string, List<string>>> GetModuleGroupedPermissions()
+    {
+        return BuildModuleGroupedPermissions(GetGroupedPermissions());
+    }
+
+    public static Dictionary<string, Dictionary<string, List<string>>> GetModuleGroupedTenantPermissions()
+    {
+        return BuildModuleGroupedPermissions(GetGroupedTenantPermissions());
+    }
+
+    private static Dictionary<string, Dictionary<string, List<string>>> BuildModuleGroupedPermissions(
+        Dictionary<string, List<string>> groupedPermissions)
+    {
+        var modulePermissions = new Dictionary<string, Dictionary<string, List<string>>>(StringComparer.OrdinalIgnoreCase);
+        var remainingGroups = new HashSet<string>(groupedPermissions.Keys, StringComparer.OrdinalIgnoreCase);
+
+        var systemAdministration = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var groupName in SystemAdministrationGroups)
+        {
+            if (!groupedPermissions.TryGetValue(groupName, out var permissions))
+                continue;
+
+            systemAdministration[groupName] = permissions;
+            remainingGroups.Remove(groupName);
+        }
+
+        if (systemAdministration.Count > 0)
+            modulePermissions["System Administration"] = systemAdministration;
+
+        foreach (var section in TenantFeatureConstants.GetAllBySection())
+        {
+            var sectionGroups = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var feature in section.Value)
+            {
+                if (!groupedPermissions.TryGetValue(feature.Key, out var permissions))
+                    continue;
+
+                sectionGroups[feature.Key] = permissions;
+                remainingGroups.Remove(feature.Key);
+            }
+
+            if (sectionGroups.Count > 0)
+                modulePermissions[section.Key] = sectionGroups;
+        }
+
+        if (remainingGroups.Count > 0)
+        {
+            var otherGroups = remainingGroups
+                .OrderBy(x => x)
+                .ToDictionary(
+                    group => group,
+                    group => groupedPermissions[group],
+                    StringComparer.OrdinalIgnoreCase);
+            modulePermissions["Other"] = otherGroups;
+        }
+
+        return modulePermissions;
     }
 }
