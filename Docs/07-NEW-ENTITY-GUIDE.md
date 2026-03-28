@@ -4,7 +4,9 @@ This guide walks through adding a complete new entity with CRUD operations.
 
 ## 1. Create Stored Procedures
 
-Location: `ResearchApps.Web/Context/Data/StoredProcedures/`
+Locations (keep both in sync):
+- `ResearchApps.Sql/dbo/StoredProcedures/`
+- `ResearchApps.AzureSql/dbo/StoredProcedures/`
 
 Create these files:
 - `{Entity}Insert.sql`

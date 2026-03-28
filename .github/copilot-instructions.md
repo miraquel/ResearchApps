@@ -1,170 +1,66 @@
-# ResearchApps - AI Coding Agent Instructions
+# ResearchApps - Copilot Instructions
 
-## Quick Reference
+## Scope
+Keep changes minimal, accurate, and aligned with existing patterns.
 
-| Docs | Path |
-|------|------|
-| Full documentation | `Docs/README.md` |
-| **Module generation quick start** | **`Docs/08-MODULE-GENERATION-QUICK-START.md`** |
-| **Coding style guide** | **`Docs/09-STYLING-GUIDE.md`** |
-| Architecture | `Docs/01-ARCHITECTURE.md` |
-| Service patterns | `Docs/02-SERVICE-PATTERNS.md` |
-| Database/stored procs | `Docs/03-DATABASE.md` |
-| Workflow system | `Docs/04-WORKFLOW.md` |
-| SignalR notifications | `Docs/05-SIGNALR.md` |
-| Testing | `Docs/06-TESTING.md` |
-| Adding new entities | `Docs/07-NEW-ENTITY-GUIDE.md` |
-| **Multi-tenancy** | **`Docs/10-MULTI-TENANCY.md`** |
+## Architecture
+Web (MVC + API Controllers) -> Service -> Repo (Dapper) -> SQL Server stored procedures
 
-## Architecture (Clean Architecture + Dapper)
+## Non-Negotiable Rules
+1. Stored procedures are the source of truth.
+    - If app code and proc differ, update app code to match the proc.
+    - Do not modify stored procedures unless explicitly requested.
+2. Data access:
+    - Use Dapper repositories for business data access.
+    - Do not add new EF query logic (EF usage is limited to Identity and tenant store).
+3. Service contracts:
+    - Use `ServiceResponse<T>` for methods that return data.
+    - Use non-generic `ServiceResponse` only for no-data operations.
+4. Transactions:
+    - After successful mutations, call `_dbTransaction.Commit()`.
+5. Logging:
+    - Services should be `partial` and use `LoggerMessage` source-generated logging.
+6. Mapping:
+    - Use Mapperly via direct instantiation (`new MapperlyMapper()`), not DI.
+7. Workflow authorization:
+    - For workflow actions, check `CurrentApprover` against current user.
+    - Do not replace workflow checks with permission-claim checks.
+8. Frontend stack:
+    - Alpine.js, HTMX, TomSelect, Flatpickr, Bootstrap 5.
+    - Never introduce Select2.
 
-```
-Web (MVC+API) → Service → Repo → SQL Server Stored Procedures
-```
+## Repo Facts (Validated)
+- Target framework: `net10.0`
+- Stored procedure paths:
+  - `ResearchApps.Sql/dbo/StoredProcedures/`
+  - `ResearchApps.AzureSql/dbo/StoredProcedures/`
+- Workflow hub route: `/hubs/workflow`
 
-- **No EF queries** - All DB via Dapper + stored procs in `Web/Context/Data/StoredProcedures/`
-- **Dual controllers** - `Controllers/` (MVC) + `Controllers/Api/` (REST)
-- **Mapperly** - Compile-time mapper, instantiate as `new MapperlyMapper()` in services
+## Multi-Tenancy
+- Uses Finbuckle.MultiTenant with database-per-tenant isolation.
+- Do not hardcode tenant context.
+- Use current tenant context and `UserClaimDto` tenant fields.
 
-## Critical Patterns
-
-### **IMPORTANT: Stored Procedure Priority**
-When fixing discrepancies between stored procedures and application code:
-- **ALWAYS adjust the app to match the stored procedure** (unless explicitly asked otherwise)
-- Stored procedures are the source of truth for database operations
-- Never modify stored procedures without explicit user request
-
-### ServiceResponse<T> (Always Generic for Data)
-```csharp
-// ✅ Data operations - use generic
-Task<ServiceResponse<ItemVm>> SelectById(int id, CancellationToken ct);
-
-// ✅ No-data operations - non-generic OK
-Task<ServiceResponse> Delete(int id, CancellationToken ct);
-```
-
-### Transaction Commit (Required After Mutations)
-```csharp
-await _repo.InsertAsync(entity, ct);
-_dbTransaction.Commit();  // ✅ Must commit - transaction is scoped/injected
-```
-
-### Logging (Use Source Generators)
-```csharp
-public partial class MyService : IMyService
-{
-    [LoggerMessage(LogLevel.Information, "Creating {Name} by {User}")]
-    partial void LogCreating(string name, string user);
-    
-    // Usage: LogCreating(item.Name, _userClaimDto.Username);
-}
+## Common Commands
+```bash
+dotnet build
+dotnet test
+dotnet test ResearchApps.Service.Tests/ResearchApps.Service.Tests.csproj
+dotnet run --project ResearchApps.Web
 ```
 
-### Workflow Authorization (User-Based, Not Permission-Based)
-```csharp
-// ✅ Workflow buttons - check CurrentApprover
-@if (Model.PrStatusId == 4 && Model.CurrentApprover == User.Identity.Name)
+## Testing Conventions
+- Framework: xUnit + Moq.
+- Mutation tests should verify `_dbTransaction.Commit()` is called once.
+- Naming pattern: `MethodName_Scenario_ExpectedResult`.
 
-// ❌ Wrong for workflow
-@if (User.HasClaim("permission", PermissionConstants.Prs.Approve))
-```
-
-## Status IDs
-
-| PR Status | ID | CO Status | ID |
-|-----------|----|-----------|----|
-| Draft | 0 | Draft | 0 |
-| Pending | 4 | Active | 1 |
-| Approved | 5 | In Review | 4 |
-| Rejected | 6 | Rejected | 5 |
-
-## Commands
-
-```powershell
-dotnet build                    # Build
-dotnet test                     # Run tests
-cd ResearchApps.Web; dotnet run # Run app
-```
-
-## Service Constructor Pattern
-```csharp
-public partial class ItemService : IItemService
-{
-    private readonly IItemRepo _itemRepo;
-    private readonly IDbTransaction _dbTransaction;
-    private readonly UserClaimDto _userClaimDto;
-    private readonly ILogger<ItemService> _logger;
-    private readonly MapperlyMapper _mapper = new();  // Not DI
-
-    public ItemService(IItemRepo repo, IDbTransaction tx, UserClaimDto user, ILogger<ItemService> log)
-    {
-        _itemRepo = repo; _dbTransaction = tx; _userClaimDto = user; _logger = log;
-    }
-}
-```
-
-## SignalR Hub
-- Workflow: `/hubs/workflow` → `WorkflowHub` (unified for all entities)
-
-## Frontend Stack (Alpine.js + HTMX + TomSelect)
-
-- **Alpine.js** - Reactive state management for UI components
-- **HTMX** - Server-side partial rendering for dynamic content
-- **TomSelect** - Dropdown/select with AJAX search (NOT Select2)
-- **Flatpickr** - Date picker library
-- **Bootstrap 5** - UI framework with custom theme
-
-**Dropdown Pattern:**
-```cshtml
-<select id="CustomerId" 
-        name="CustomerId"
-        x-ref="customerSelect"
-        data-tomselect
-        data-url="/api/Customers/cbo"
-        required>
-    <option value="">Select Customer</option>
-</select>
-```
-
-**JavaScript Initialization:**
-```javascript
-this.customerSelect = initTomSelect('#CustomerId', {
-    url: '/api/Customers/cbo',
-    placeholder: 'Select Customer',
-    maxOptions: 50
-});
-```
-
-**❌ NEVER use Select2** - Legacy library being phased out  
-**✅ ALWAYS use TomSelect** - Current standard for dropdowns
-
-## Project-Specific Conventions
-
-- **No EF Navigation Properties** - Domain entities are flat, joins handled in stored procs
-- **Dapper for Everything** - All database access via Dapper + stored procedures
-- **Dual Controllers** - MVC (`Controllers/{Entity}Controller`) + API (`Controllers/Api/{Entity}Controller`)
-- **UserClaimDto Injection** - Current user injected as scoped service (`Username`, `UserId`)
-- **PagedListVm<T>** - Pagination with `Items`, `TotalCount`, `PageNumber`, `PageSize`, `TotalPages`
-- **Async + CancellationToken** - All repository/service methods must accept `CancellationToken`
-
-## Testing (xUnit + Moq)
-
-```csharp
-[Fact]
-public async Task MethodName_Scenario_ExpectedResult()
-{
-    // Arrange
-    _repoMock.Setup(x => x.Method(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-        .ReturnsAsync(expectedData);
-    
-    // Act
-    var result = await _sut.Method(1, CancellationToken.None);
-    
-    // Assert
-    Assert.True(result.IsSuccess);
-    Assert.NotNull(result.Data);  // Access .Data for ServiceResponse<T>
-    _dbTransactionMock.Verify(x => x.Commit(), Times.Once);  // Verify commit for mutations
-}
-```
-
-See `Docs/06-TESTING.md` for complete testing patterns.
+## Detailed Docs
+- `Docs/README.md`
+- `Docs/01-ARCHITECTURE.md`
+- `Docs/02-SERVICE-PATTERNS.md`
+- `Docs/03-DATABASE.md`
+- `Docs/04-WORKFLOW.md`
+- `Docs/06-TESTING.md`
+- `Docs/08-MODULE-GENERATION-QUICK-START.md`
+- `Docs/09-STYLING-GUIDE.md`
+- `Docs/10-MULTI-TENANCY.md`

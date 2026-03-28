@@ -13,7 +13,7 @@
 6. Service Interface   → ResearchApps.Service.Interface/I{Entity}Service.cs
 7. Service Impl       → ResearchApps.Service/{Entity}Service.cs + Register
 8. API Controller     → ResearchApps.Web/Controllers/Api/{Entity}Controller.cs
-9. Stored Procedures  → ResearchApps.Web/Context/Data/StoredProcedures/
+9. Stored Procedures  → ResearchApps.Sql/dbo/StoredProcedures/ and ResearchApps.AzureSql/dbo/StoredProcedures/
 10. Tests             → ResearchApps.Service.Tests/{Entity}ServiceTests.cs
 11. Constants         → ResearchApps.Common/Constants/PermissionConstants.cs
 ```
@@ -540,7 +540,10 @@ public class ProductsController : ControllerBase
 
 ### Step 9: Stored Procedures
 
-See [03-DATABASE.md](./03-DATABASE.md) for complete templates. Create these 6 files in `ResearchApps.Web/Context/Data/StoredProcedures/`:
+See [03-DATABASE.md](./03-DATABASE.md) for complete templates. Create these 6 files in both locations:
+
+- `ResearchApps.Sql/dbo/StoredProcedures/`
+- `ResearchApps.AzureSql/dbo/StoredProcedures/`
 
 - `Product_Insert.sql`
 - `Product_Select.sql`
