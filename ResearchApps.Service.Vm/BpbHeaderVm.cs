@@ -21,9 +21,6 @@ public class BpbHeaderVm
     [StringLength(50, ErrorMessage = "Description cannot exceed 50 characters")]
     public string? Descr { get; set; }
 
-    [Display(Name = "Reference Type")]
-    public string? RefType { get; set; }
-
     [Display(Name = "Production ID")]
     [Required(ErrorMessage = "Production ID is required")]
     public string? RefId { get; set; }

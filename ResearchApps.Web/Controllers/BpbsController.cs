@@ -100,7 +100,6 @@ public class BpbsController : Controller
         var vm = new BpbHeaderVm
         {
             BpbDate = DateTime.Today,
-            RefType = "Production",
             RefId = prodId ?? string.Empty
         };
         return View(vm);
@@ -117,8 +116,7 @@ public class BpbsController : Controller
             return View(header);
         }
 
-        var collection = new BpbVm { Header = header };
-        var response = await _bpbService.BpbInsert(collection, cancellationToken);
+        var response = await _bpbService.BpbInsert(header, cancellationToken);
         if (response.IsSuccess)
         {
             TempData["SuccessMessage"] = response.Message;
@@ -126,7 +124,7 @@ public class BpbsController : Controller
         }
 
         if (response.Message != null) ModelState.AddModelError(string.Empty, response.Message);
-        return View(collection);
+        return View(header);
     }
 
     // GET: Bpbs/Edit/5

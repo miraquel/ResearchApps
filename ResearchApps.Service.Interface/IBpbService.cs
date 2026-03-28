@@ -17,8 +17,8 @@ public interface IBpbService
     // Get BPBs by Production ID
     Task<ServiceResponse<IEnumerable<BpbHeaderVm>>> BpbSelectByProd(string prodId, CancellationToken cancellationToken);
     
-    // Bpb_Insert - Create new BPB (returns RecId)
-    Task<ServiceResponse<int>> BpbInsert(BpbVm bpb, CancellationToken cancellationToken);
+    // Bpb_Insert - Create new BPB header (returns RecId)
+    Task<ServiceResponse<int>> BpbInsert(BpbHeaderVm bpbHeader, CancellationToken cancellationToken);
     
     // Bpb_Update - Update existing BPB header
     Task<ServiceResponse> BpbUpdate(BpbHeaderVm bpbHeader, CancellationToken cancellationToken);
@@ -33,13 +33,13 @@ public interface IBpbService
     Task<ServiceResponse<BpbLineVm>> BpbLineSelectById(int bpbLineId, CancellationToken cancellationToken);
     
     // BpbLine_Insert - Insert BPB line
-    Task<ServiceResponse<string>> BpbLineInsert(BpbLineVm bpbLine, CancellationToken cancellationToken);
+    Task<ServiceResponse<int>> BpbLineInsert(BpbLineVm bpbLine, CancellationToken cancellationToken);
     
     // BpbLine_Update - Update BPB line
-    Task<ServiceResponse<string>> BpbLineUpdate(BpbLineVm bpbLine, CancellationToken cancellationToken);
+    Task<ServiceResponse<int>> BpbLineUpdate(BpbLineVm bpbLine, CancellationToken cancellationToken);
     
     // BpbLine_Delete - Delete BPB line
-    Task<ServiceResponse<string>> BpbLineDelete(int bpbLineId, CancellationToken cancellationToken);
+    Task<ServiceResponse<int>> BpbLineDelete(int bpbLineId, CancellationToken cancellationToken);
     
     // Check stock availability
     Task<ServiceResponse<StockCheckVm>> CheckStock(int itemId, int whId, decimal requestedQty, CancellationToken cancellationToken);

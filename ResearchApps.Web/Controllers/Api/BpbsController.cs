@@ -46,8 +46,7 @@ public class BpbsController : ControllerBase
     // GET: api/Bpbs/by-prod/{prodId}
     [HttpGet("by-prod/{prodId}")]
     [Authorize(PermissionConstants.MaterialWithdrawals.Index)]
-    public async Task<ActionResult<ServiceResponse<IEnumerable<BpbHeaderVm>>>> GetBpbsByProd(
-        string prodId, CancellationToken cancellationToken)
+    public async Task<ActionResult<ServiceResponse<IEnumerable<BpbHeaderVm>>>> GetBpbsByProd(string prodId, CancellationToken cancellationToken)
     {
         var response = await _bpbService.BpbSelectByProd(prodId, cancellationToken);
         return Ok(response);
@@ -56,10 +55,9 @@ public class BpbsController : ControllerBase
     // POST: api/Bpbs
     [HttpPost]
     [Authorize(PermissionConstants.MaterialWithdrawals.Create)]
-    public async Task<ActionResult<ServiceResponse<int>>> CreateBpb(
-        [FromBody] BpbVm bpb, CancellationToken cancellationToken)
+    public async Task<ActionResult<ServiceResponse<int>>> CreateBpb([FromBody] BpbHeaderVm bpbHeader, CancellationToken cancellationToken)
     {
-        var response = await _bpbService.BpbInsert(bpb, cancellationToken);
+        var response = await _bpbService.BpbInsert(bpbHeader, cancellationToken);
         if (!response.IsSuccess)
         {
             return BadRequest(response);
@@ -71,7 +69,7 @@ public class BpbsController : ControllerBase
     [HttpPut("{id}")]
     [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
     public async Task<ActionResult<ServiceResponse>> UpdateBpb(
-        int id, [FromForm] BpbHeaderVm bpbHeader, CancellationToken cancellationToken)
+        int id, [FromBody] BpbHeaderVm bpbHeader, CancellationToken cancellationToken)
     {
         if (id != bpbHeader.RecId)
         {
@@ -126,34 +124,23 @@ public class BpbsController : ControllerBase
     // POST: api/Bpbs/line
     [HttpPost("line")]
     [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
-    public async Task<ActionResult<ServiceResponse<string>>> CreateBpbLine(
-        [FromBody] BpbLineVm bpbLine, CancellationToken cancellationToken)
+    public async Task<ActionResult<ServiceResponse>> CreateBpbLine([FromBody] BpbLineVm bpbLine, CancellationToken cancellationToken)
     {
         var response = await _bpbService.BpbLineInsert(bpbLine, cancellationToken);
-        if (!response.IsSuccess)
-        {
-            return BadRequest(response);
-        }
-        return CreatedAtAction(nameof(GetBpbLine), new { lineId = 0 }, response);
+        return StatusCode(response.StatusCode, response);
     }
 
     // PUT: api/Bpbs/line/{lineId}
     [HttpPut("line/{lineId}")]
     [Authorize(PermissionConstants.MaterialWithdrawals.Edit)]
-    public async Task<ActionResult<ServiceResponse<string>>> UpdateBpbLine(
-        int lineId, [FromBody] BpbLineVm bpbLine, CancellationToken cancellationToken)
+    public async Task<ActionResult<ServiceResponse<string>>> UpdateBpbLine(int lineId, [FromBody] BpbLineVm bpbLine, CancellationToken cancellationToken)
     {
         if (lineId != bpbLine.BpbLineId)
         {
             return BadRequest(ServiceResponse.Failure("ID mismatch."));
         }
-
         var response = await _bpbService.BpbLineUpdate(bpbLine, cancellationToken);
-        if (!response.IsSuccess)
-        {
-            return BadRequest(response);
-        }
-        return Ok(response);
+        return StatusCode(response.StatusCode, response);
     }
 
     // DELETE: api/Bpbs/line/{lineId}

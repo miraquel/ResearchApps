@@ -6,144 +6,131 @@
     Layout = "_Layout";
 }
 
-<div class="row">
-    <div class="col-lg-12">
-        <!-- Header Card -->
-        <div class="card">
-            <div class="card-header">
+@Html.AntiForgeryToken()
+
+<div id="bpbDetails" class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-end">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#lines">Lines</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 align-self-center">
+                    <a asp-action="Index" class="btn btn-sm btn-soft-secondary">
+                        <i class="ri-arrow-left-line"></i> Back
+                    </a>
+                    @if (Model.CanEdit)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Header.RecId" class="btn btn-sm btn-success">
+                            <i class="ri-edit-line"></i> Edit
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Header.RefId))
+                    {
+                        <a asp-controller="Prods" asp-action="Details" asp-route-prodId="@Model.Header.RefId" class="btn btn-sm btn-info">
+                            <i class="ri-external-link-line"></i> View Production
+                        </a>
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                        <i class="ri-printer-line"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
                 <div class="row">
-                    <div class="col d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            @Model.Header.BpbId
-                            @Html.Raw(Model.Header.BpbStatusName)
-                        </h5>
-                        <div class="d-flex gap-2">
-                            <a href="/Bpbs" class="btn btn-secondary btn-sm">
-                                <i class="ri-arrow-left-line me-1"></i> Back to List
-                            </a>
-                            <a href="/Bpbs/Edit/@Model.Header.RecId" class="btn btn-primary btn-sm">
-                                <i class="ri-pencil-line me-1"></i> Edit
-                            </a>
-                            @if (!string.IsNullOrEmpty(Model.Header.RefId))
-                            {
-                                <a href="/Prods/Details?prodId=@Model.Header.RefId" class="btn btn-info btn-sm">
-                                    <i class="ri-external-link-line me-1"></i> View Production
-                                </a>
-                            }
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-                                <i class="ri-printer-line me-1"></i> Print
-                            </button>
+                    <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>BPB No</strong></div>
+                            <div class="col-8">@Model.Header.BpbId</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>BPB Date</strong></div>
+                            <div class="col-8">@Model.Header.BpbDateStr</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Production ID</strong></div>
+                            <div class="col-8">
+                                @if (!string.IsNullOrEmpty(Model.Header.RefId))
+                                {
+                                    <a asp-controller="Prods" asp-action="Details" asp-route-prodId="@Model.Header.RefId">@Model.Header.RefId</a>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Description</strong></div>
+                            <div class="col-8">@(string.IsNullOrEmpty(Model.Header.Descr) ? "-" : Model.Header.Descr)</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Notes</strong></div>
+                            <div class="col-8">@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Status</strong></div>
+                            <div class="col-8">@Html.Raw(Model.Header.BpbStatusName)</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Total Amount</strong></div>
+                            <div class="col-8 fw-semibold text-primary">@Model.Header.Amount.ToString("N0")</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <label class="form-label text-muted small">BPB No</label>
-                        <p class="fw-semibold">@Model.Header.BpbId</p>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label text-muted small">BPB Date</label>
-                        <p>@Model.Header.BpbDateStr</p>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label text-muted small">Production ID</label>
-                        <p>
-                            @if (!string.IsNullOrEmpty(Model.Header.RefId))
-                            {
-                                <a href="/Prods/Details?prodId=@Model.Header.RefId" class="text-info">
-                                    @Model.Header.RefId
-                                </a>
-                            }
-                            else
-                            {
-                                <span class="text-muted">-</span>
-                            }
-                        </p>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small">Description</label>
-                        <p>@(string.IsNullOrEmpty(Model.Header.Descr) ? "-" : Model.Header.Descr)</p>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small">Notes</label>
-                        <p>@(string.IsNullOrEmpty(Model.Header.Notes) ? "-" : Model.Header.Notes)</p>
-                    </div>
-                </div>
-                <hr />
-                <div class="row">
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small">Created By</label>
-                        <p>@Model.Header.CreatedBy</p>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small">Created Date</label>
-                        <p>@Model.Header.CreatedDate.ToString("dd MMM yyyy HH:mm")</p>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small">Modified By</label>
-                        <p>@Model.Header.ModifiedBy</p>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-muted small">Modified Date</label>
-                        <p>@Model.Header.ModifiedDate.ToString("dd MMM yyyy HH:mm")</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Lines Card -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    Line Items
-                    <span class="badge bg-secondary">@Model.Lines.Count() items</span>
-                </h5>
-            </div>
-            <div class="card-body">
+            <div class="tab-pane" id="lines" role="tabpanel">
                 <div class="table-responsive">
-                    <table class="table table-sm table-hover align-middle">
+                    <table class="table table-bordered table-striped align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 40px;">#</th>
+                                <th class="text-center" style="width: 50px;">#</th>
                                 <th>Item</th>
                                 <th style="width: 150px;">Warehouse</th>
                                 <th class="text-end" style="width: 100px;">Qty</th>
                                 <th style="width: 80px;">Unit</th>
                                 <th class="text-end" style="width: 120px;">Price</th>
                                 <th class="text-end" style="width: 130px;">Amount</th>
-                                <th>Notes</th>
+                                <th style="width: 150px;">Notes</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @{
-                                var lineIndex = 0;
-                                decimal total = 0;
-                            }
-                            @foreach (var line in Model.Lines)
+                            @if (Model.Lines.Any())
                             {
-                                lineIndex++;
-                                var lineAmount = line.Qty * line.Price;
-                                total += lineAmount;
-                                <tr>
-                                    <td>@lineIndex</td>
-                                    <td>@line.ItemName</td>
-                                    <td>@line.WhName</td>
-                                    <td class="text-end">@line.Qty.ToString("N2")</td>
-                                    <td>@line.UnitName</td>
-                                    <td class="text-end">@line.Price.ToString("N0")</td>
-                                    <td class="text-end">@lineAmount.ToString("N0")</td>
-                                    <td>@(string.IsNullOrEmpty(line.Notes) ? "-" : line.Notes)</td>
-                                </tr>
+                                var lineNo = 1;
+                                foreach (var line in Model.Lines)
+                                {
+                                    <tr>
+                                        <td class="text-center">@lineNo</td>
+                                        <td>@line.ItemName</td>
+                                        <td>@line.WhName</td>
+                                        <td class="text-end">@line.Qty.ToString("N2")</td>
+                                        <td>@line.UnitName</td>
+                                        <td class="text-end">@line.Price.ToString("N0")</td>
+                                        <td class="text-end">@line.Amount.ToString("N0")</td>
+                                        <td>@(string.IsNullOrEmpty(line.Notes) ? "-" : line.Notes)</td>
+                                    </tr>
+                                    lineNo++;
+                                }
                             }
-                            @if (!Model.Lines.Any())
+                            else
                             {
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
-                                        <i class="ri-inbox-line fs-3 d-block mb-2"></i>
-                                        No line items.
-                                    </td>
+                                    <td colspan="8" class="text-center text-muted py-4">No line items.</td>
                                 </tr>
                             }
                         </tbody>
@@ -152,12 +139,36 @@
                             <tfoot class="table-light">
                                 <tr>
                                     <th colspan="6" class="text-end">Total:</th>
-                                    <th class="text-end">@total.ToString("N0")</th>
+                                    <th class="text-end">@Model.Lines.Sum(l => l.Amount).ToString("N0")</th>
                                     <th></th>
                                 </tr>
                             </tfoot>
                         }
                     </table>
+                </div>
+            </div>
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Created By</strong></div>
+                            <div class="col-8">@Model.Header.CreatedBy</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Created Date</strong></div>
+                            <div class="col-8">@Model.Header.CreatedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Modified By</strong></div>
+                            <div class="col-8">@Model.Header.ModifiedBy</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Modified Date</strong></div>
+                            <div class="col-8">@Model.Header.ModifiedDate.ToString("dd MMM yyyy HH:mm:ss")</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

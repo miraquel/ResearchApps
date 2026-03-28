@@ -38,11 +38,7 @@ public partial class BpbService : IBpbService
     {
         LogRetrievingBpbById(id);
         var bpb = await _bpbRepo.BpbSelectById(id, cancellationToken);
-        if (bpb == null)
-        {
-            return ServiceResponse<BpbHeaderVm>.Failure("BPB not found.", StatusCodes.Status404NotFound);
-        }
-        return ServiceResponse<BpbHeaderVm>.Success(_mapper.MapToVm(bpb), "BPB retrieved successfully.");
+        return bpb == null ? ServiceResponse<BpbHeaderVm>.Failure("BPB not found.", StatusCodes.Status404NotFound) : ServiceResponse<BpbHeaderVm>.Success(_mapper.MapToVm(bpb), "BPB retrieved successfully.");
     }
 
     public async Task<ServiceResponse<BpbVm>> GetBpb(int recId, CancellationToken cancellationToken)
@@ -72,45 +68,18 @@ public partial class BpbService : IBpbService
         return ServiceResponse<IEnumerable<BpbHeaderVm>>.Success(_mapper.MapToVm(bpbs), "BPBs retrieved successfully.");
     }
 
-    public async Task<ServiceResponse<int>> BpbInsert(BpbVm bpb, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<int>> BpbInsert(BpbHeaderVm bpbHeader, CancellationToken cancellationToken)
     {
         LogCreatingNewBpbByUser(_userClaimDto.Username);
+
+        var entity = _mapper.MapToEntity(bpbHeader);
+        entity.CreatedBy = _userClaimDto.Username;
         
-        try
-        {
-            var entity = _mapper.MapToEntity(bpb);
-            entity.Header.CreatedBy = _userClaimDto.Username;
-            entity.Header.RefType = "Production";
-            
-            var (recId, bpbId) = await _bpbRepo.BpbInsert(entity.Header, cancellationToken);
+        var recId = await _bpbRepo.BpbInsert(entity, cancellationToken);
 
-            foreach (var line in entity.Lines)
-            {
-                line.BpbRecId = recId; // Set header RecId
-                line.BpbId = bpbId;
-                line.ProdId = bpb.Header.RefId; // Set ProdId from header
-                line.CreatedBy = _userClaimDto.Username;
-                
-                var result = await _bpbRepo.BpbLineInsert(line, cancellationToken);
-                
-                // Check for stock errors
-                if (result.StartsWith("-1:::"))
-                {
-                    var errorMessage = result.Replace("-1:::", "");
-                    // Don't commit - will rollback
-                    return ServiceResponse<int>.Failure(errorMessage, StatusCodes.Status400BadRequest);
-                }
-            }
-
-            _dbTransaction.Commit();
-            LogBpbCreatedSuccessfully(recId, bpbId);
-            return ServiceResponse<int>.Success(recId, $"BPB {bpbId} created successfully.", StatusCodes.Status201Created);
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Inventory lock error
-            return ServiceResponse<int>.Failure(ex.Message, StatusCodes.Status400BadRequest);
-        }
+        _dbTransaction.Commit();
+        LogBpbCreatedSuccessfully(recId);
+        return ServiceResponse<int>.Success(recId, $"BPB with RecId {recId} created successfully.", StatusCodes.Status201Created);
     }
 
     public async Task<ServiceResponse> BpbUpdate(BpbHeaderVm bpbHeader, CancellationToken cancellationToken)
@@ -142,78 +111,40 @@ public partial class BpbService : IBpbService
     public async Task<ServiceResponse<BpbLineVm>> BpbLineSelectById(int bpbLineId, CancellationToken cancellationToken)
     {
         var line = await _bpbRepo.BpbLineSelectById(bpbLineId, cancellationToken);
-        if (line == null)
-        {
-            return ServiceResponse<BpbLineVm>.Failure("BPB line not found.", StatusCodes.Status404NotFound);
-        }
-        return ServiceResponse<BpbLineVm>.Success(_mapper.MapToVm(line), "BPB line retrieved successfully.");
+        return line == null ? ServiceResponse<BpbLineVm>.Failure("BPB line not found.", StatusCodes.Status404NotFound) : ServiceResponse<BpbLineVm>.Success(_mapper.MapToVm(line), "BPB line retrieved successfully.");
     }
 
-    public async Task<ServiceResponse<string>> BpbLineInsert(BpbLineVm bpbLine, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<int>> BpbLineInsert(BpbLineVm bpbLine, CancellationToken cancellationToken)
     {
         LogInsertingBpbLineByUser(bpbLine.BpbRecId, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(bpbLine);
         entity.CreatedBy = _userClaimDto.Username;
         
-        var result = await _bpbRepo.BpbLineInsert(entity, cancellationToken);
-        
-        // Parse result: "1:::BPB24-0001" or "-1:::error message"
-        var parts = result.Split(":::");
-        var code = parts[0];
-        var message = parts.Length > 1 ? parts[1] : result;
-        
-        if (code == "-1")
-        {
-            // Check if it's a warning (success with warning) or error
-            if (message.Contains("Transaksi Berhasil"))
-            {
-                // It's a success with buffer stock warning
-                _dbTransaction.Commit();
-                LogBpbLineInsertedWithWarning(message);
-                return ServiceResponse<string>.Success(message, message, StatusCodes.Status201Created);
-            }
-            
-            // It's an error
-            return ServiceResponse<string>.Failure(message, StatusCodes.Status400BadRequest);
-        }
+        var id = await _bpbRepo.BpbLineInsert(entity, cancellationToken);
         
         _dbTransaction.Commit();
-        LogBpbLineInsertedSuccessfully(message);
-        return ServiceResponse<string>.Success(message, "BPB line created successfully.", StatusCodes.Status201Created);
+        LogBpbLineInsertedSuccessfully(id);
+        return ServiceResponse<int>.Success(id, "BPB line inserted successfully.", StatusCodes.Status201Created);
     }
 
-    public async Task<ServiceResponse<string>> BpbLineUpdate(BpbLineVm bpbLine, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<int>> BpbLineUpdate(BpbLineVm bpbLine, CancellationToken cancellationToken)
     {
         LogUpdatingBpbLineByUser(bpbLine.BpbLineId, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(bpbLine);
         entity.ModifiedBy = _userClaimDto.Username;
-        
-        var result = await _bpbRepo.BpbLineUpdate(entity, cancellationToken);
-        
+        await _bpbRepo.BpbLineUpdate(entity, cancellationToken);
         _dbTransaction.Commit();
         LogBpbLineUpdatedSuccessfully(bpbLine.BpbLineId);
-        return ServiceResponse<string>.Success(result, "BPB line updated successfully.");
+        return ServiceResponse<int>.Success(bpbLine.BpbLineId, "BPB line updated successfully.");
     }
 
-    public async Task<ServiceResponse<string>> BpbLineDelete(int bpbLineId, CancellationToken cancellationToken)
+    public async Task<ServiceResponse<int>> BpbLineDelete(int bpbLineId, CancellationToken cancellationToken)
     {
         LogDeletingBpbLineByUser(bpbLineId, _userClaimDto.Username);
-        
-        var result = await _bpbRepo.BpbLineDelete(bpbLineId, _userClaimDto.Username, cancellationToken);
-        
-        // Parse result: "1:::BPB24-0001" or "-1:::error message"
-        var parts = result.Split(":::");
-        var code = parts[0];
-        var message = parts.Length > 1 ? parts[1] : result;
-        
-        if (code == "-1")
-        {
-            return ServiceResponse<string>.Failure(message, StatusCodes.Status400BadRequest);
-        }
-        
+        await _bpbRepo.BpbLineDelete(bpbLineId, _userClaimDto.Username, cancellationToken);
         _dbTransaction.Commit();
         LogBpbLineDeletedSuccessfully(bpbLineId);
-        return ServiceResponse<string>.Success(message, "BPB line deleted successfully.");
+        return ServiceResponse<int>.Success(bpbLineId, "BPB line deleted successfully.");
     }
 
     public async Task<ServiceResponse<StockCheckVm>> CheckStock(int itemId, int whId, decimal requestedQty, CancellationToken cancellationToken)
@@ -232,7 +163,7 @@ public partial class BpbService : IBpbService
         if (!result.IsAvailable)
         {
             result.Message = $"Insufficient stock. Available: {onHand:N2}, Requested: {requestedQty:N2}";
-            return ServiceResponse<StockCheckVm>.Failure(result.Message, StatusCodes.Status400BadRequest);
+            return ServiceResponse<StockCheckVm>.Failure(result.Message);
         }
 
         if (result.WillBeBelowBuffer)
@@ -263,8 +194,8 @@ public partial class BpbService : IBpbService
     [LoggerMessage(LogLevel.Information, "Creating new BPB by user {Username}")]
     partial void LogCreatingNewBpbByUser(string username);
 
-    [LoggerMessage(LogLevel.Information, "BPB {RecId} ({BpbId}) created successfully")]
-    partial void LogBpbCreatedSuccessfully(int recId, string bpbId);
+    [LoggerMessage(LogLevel.Information, "BPB {RecId} created successfully")]
+    partial void LogBpbCreatedSuccessfully(int recId);
 
     [LoggerMessage(LogLevel.Information, "Updating BPB {RecId} ({BpbId}) by user {Username}")]
     partial void LogUpdatingBpbByUser(int recId, string bpbId, string username);
@@ -282,10 +213,7 @@ public partial class BpbService : IBpbService
     partial void LogInsertingBpbLineByUser(int recId, string username);
 
     [LoggerMessage(LogLevel.Information, "BPB line inserted successfully: {BpbId}")]
-    partial void LogBpbLineInsertedSuccessfully(string bpbId);
-
-    [LoggerMessage(LogLevel.Warning, "BPB line inserted with warning: {Message}")]
-    partial void LogBpbLineInsertedWithWarning(string message);
+    partial void LogBpbLineInsertedSuccessfully(int bpbId);
 
     [LoggerMessage(LogLevel.Information, "Updating BPB line {LineId} by user {Username}")]
     partial void LogUpdatingBpbLineByUser(int lineId, string username);

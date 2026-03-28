@@ -18,7 +18,7 @@ public interface IBpbRepo
     Task<IEnumerable<BpbHeader>> BpbSelectByProd(string prodId, CancellationToken cancellationToken);
     
     // Bpb_Insert - Create new BPB (returns RecId and BpbId)
-    Task<(int RecId, string BpbId)> BpbInsert(BpbHeader bpb, CancellationToken cancellationToken);
+    Task<int> BpbInsert(BpbHeader bpb, CancellationToken cancellationToken);
     
     // Bpb_Update - Update existing BPB
     Task BpbUpdate(BpbHeader bpb, CancellationToken cancellationToken);
@@ -33,13 +33,13 @@ public interface IBpbRepo
     Task<BpbLine?> BpbLineSelectById(int bpbLineId, CancellationToken cancellationToken);
     
     // BpbLine_Insert - Insert BPB line (returns result message)
-    Task<string> BpbLineInsert(BpbLine bpbLine, CancellationToken cancellationToken);
+    Task<int> BpbLineInsert(BpbLine bpbLine, CancellationToken cancellationToken);
     
     // BpbLine_Update - Update BPB line
-    Task<string> BpbLineUpdate(BpbLine bpbLine, CancellationToken cancellationToken);
+    Task BpbLineUpdate(BpbLine bpbLine, CancellationToken cancellationToken);
     
     // BpbLine_Delete - Delete BPB line (returns result message)
-    Task<string> BpbLineDelete(int bpbLineId, string modifiedBy, CancellationToken cancellationToken);
+    Task BpbLineDelete(int bpbLineId, string modifiedBy, CancellationToken cancellationToken);
     
     // Stock check for item/warehouse
     Task<(decimal OnHand, decimal BufferStock)> GetStockInfo(int itemId, int whId, CancellationToken cancellationToken);
