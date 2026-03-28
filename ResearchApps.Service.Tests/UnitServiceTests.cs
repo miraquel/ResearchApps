@@ -5,29 +5,28 @@ public class UnitServiceTests
     private readonly Mock<IUnitRepo> _unitRepoMock;
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
-    private readonly Mock<ILogger<UnitService>> _loggerMock;
     private readonly UnitService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public UnitServiceTests()
     {
         _unitRepoMock = new Mock<IUnitRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         _userClaimDto = new UserClaimDto { Username = "testuser" };
-        _loggerMock = new Mock<ILogger<UnitService>>();
+        var loggerMock = new Mock<ILogger<UnitService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
 
         _sut = new UnitService(
             _unitRepoMock.Object,
             _dbTransactionMock.Object,
             _userClaimDto,
-            _loggerMock.Object);
+            loggerMock.Object);
     }
 
     [Fact]
     public async Task SelectAsync_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var cancellationToken = CancellationToken.None;
         var units = new PagedList<Unit>(
             new List<Unit>
             {
@@ -40,13 +39,11 @@ public class UnitServiceTests
         );
 
         _unitRepoMock
-            .Setup(x => x.UnitSelectAsync(It.IsAny<PagedListRequest>(), cancellationToken))
+            .Setup(x => x.UnitSelectAsync(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(units);
 
-        // Act
-        var result = await _sut.SelectAsync(request, cancellationToken);
+        var result = await _sut.SelectAsync(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Units retrieved successfully.", result.Message);
     }
@@ -54,19 +51,15 @@ public class UnitServiceTests
     [Fact]
     public async Task SelectByIdAsync_WithValidId_ReturnsUnit()
     {
-        // Arrange
         var unitId = 1;
-        var cancellationToken = CancellationToken.None;
         var unit = new Unit { UnitId = unitId, UnitName = "PCS" };
 
         _unitRepoMock
-            .Setup(x => x.UnitSelectByIdAsync(unitId, cancellationToken))
+            .Setup(x => x.UnitSelectByIdAsync(unitId, _ct))
             .ReturnsAsync(unit);
 
-        // Act
-        var result = await _sut.SelectByIdAsync(unitId, cancellationToken);
+        var result = await _sut.SelectByIdAsync(unitId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Unit retrieved successfully.", result.Message);
     }
@@ -74,19 +67,15 @@ public class UnitServiceTests
     [Fact]
     public async Task InsertAsync_WithValidUnit_ReturnsInsertedUnit()
     {
-        // Arrange
         var unitVm = new UnitVm { UnitName = "BOX" };
-        var cancellationToken = CancellationToken.None;
         var insertedUnit = new Unit { UnitId = 3, UnitName = "BOX" };
 
         _unitRepoMock
-            .Setup(x => x.UnitInsertAsync(It.IsAny<Unit>(), cancellationToken))
+            .Setup(x => x.UnitInsertAsync(It.IsAny<Unit>(), _ct))
             .ReturnsAsync(insertedUnit);
 
-        // Act
-        var result = await _sut.InsertAsync(unitVm, cancellationToken);
+        var result = await _sut.InsertAsync(unitVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Unit inserted successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
@@ -96,20 +85,16 @@ public class UnitServiceTests
     [Fact]
     public async Task InsertAsync_SetsCreatedByFromUserClaim()
     {
-        // Arrange
         var unitVm = new UnitVm { UnitName = "BOX" };
-        var cancellationToken = CancellationToken.None;
         Unit? capturedUnit = null;
 
         _unitRepoMock
-            .Setup(x => x.UnitInsertAsync(It.IsAny<Unit>(), cancellationToken))
+            .Setup(x => x.UnitInsertAsync(It.IsAny<Unit>(), _ct))
             .Callback<Unit, CancellationToken>((u, _) => capturedUnit = u)
             .ReturnsAsync(new Unit { UnitId = 1 });
 
-        // Act
-        await _sut.InsertAsync(unitVm, cancellationToken);
+        await _sut.InsertAsync(unitVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedUnit);
         Assert.Equal(_userClaimDto.Username, capturedUnit.CreatedBy);
     }
@@ -117,19 +102,15 @@ public class UnitServiceTests
     [Fact]
     public async Task UpdateAsync_WithValidUnit_ReturnsUpdatedUnit()
     {
-        // Arrange
         var unitVm = new UnitVm { UnitId = 1, UnitName = "PIECE" };
-        var cancellationToken = CancellationToken.None;
         var updatedUnit = new Unit { UnitId = 1, UnitName = "PIECE" };
 
         _unitRepoMock
-            .Setup(x => x.UnitUpdateAsync(It.IsAny<Unit>(), cancellationToken))
+            .Setup(x => x.UnitUpdateAsync(It.IsAny<Unit>(), _ct))
             .ReturnsAsync(updatedUnit);
 
-        // Act
-        var result = await _sut.UpdateAsync(unitVm, cancellationToken);
+        var result = await _sut.UpdateAsync(unitVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Unit updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -138,20 +119,16 @@ public class UnitServiceTests
     [Fact]
     public async Task UpdateAsync_SetsModifiedByFromUserClaim()
     {
-        // Arrange
         var unitVm = new UnitVm { UnitId = 1, UnitName = "PIECE" };
-        var cancellationToken = CancellationToken.None;
         Unit? capturedUnit = null;
 
         _unitRepoMock
-            .Setup(x => x.UnitUpdateAsync(It.IsAny<Unit>(), cancellationToken))
+            .Setup(x => x.UnitUpdateAsync(It.IsAny<Unit>(), _ct))
             .Callback<Unit, CancellationToken>((u, _) => capturedUnit = u)
             .ReturnsAsync(new Unit { UnitId = 1 });
 
-        // Act
-        await _sut.UpdateAsync(unitVm, cancellationToken);
+        await _sut.UpdateAsync(unitVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedUnit);
         Assert.Equal(_userClaimDto.Username, capturedUnit.ModifiedBy);
     }
@@ -159,18 +136,14 @@ public class UnitServiceTests
     [Fact]
     public async Task DeleteAsync_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var unitId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _unitRepoMock
-            .Setup(x => x.UnitDeleteAsync(unitId, cancellationToken))
+            .Setup(x => x.UnitDeleteAsync(unitId, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DeleteAsync(unitId, cancellationToken);
+        var result = await _sut.DeleteAsync(unitId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Unit deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -179,9 +152,7 @@ public class UnitServiceTests
     [Fact]
     public async Task CboAsync_WithValidRequest_ReturnsUnitList()
     {
-        // Arrange
         var request = new CboRequestVm { Term = "P" };
-        var cancellationToken = CancellationToken.None;
         var units = new List<Unit>
         {
             new() { UnitId = 1, UnitName = "PCS" },
@@ -189,37 +160,26 @@ public class UnitServiceTests
         };
 
         _unitRepoMock
-            .Setup(x => x.UnitCboAsync(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.UnitCboAsync(It.IsAny<CboRequest>(), _ct))
             .ReturnsAsync(units);
 
-        // Act
-        var result = await _sut.CboAsync(request, cancellationToken);
+        var result = await _sut.CboAsync(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
     }
 
     [Fact]
     public async Task InsertAsync_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
         var unitVm = new UnitVm { UnitName = "BOX" };
-        var cancellationToken = CancellationToken.None;
 
         _unitRepoMock
-            .Setup(x => x.UnitInsertAsync(It.IsAny<Unit>(), cancellationToken))
+            .Setup(x => x.UnitInsertAsync(It.IsAny<Unit>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.InsertAsync(unitVm, cancellationToken));
+            await _sut.InsertAsync(unitVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
 }
-
-
-
-
-
-

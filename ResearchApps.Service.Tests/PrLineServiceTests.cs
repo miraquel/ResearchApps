@@ -5,29 +5,28 @@ public class PrLineServiceTests
     private readonly Mock<IPrLineRepo> _prLineRepoMock;
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
-    private readonly Mock<ILogger<PrLineService>> _loggerMock;
     private readonly PrLineService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public PrLineServiceTests()
     {
         _prLineRepoMock = new Mock<IPrLineRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         _userClaimDto = new UserClaimDto { Username = "testuser" };
-        _loggerMock = new Mock<ILogger<PrLineService>>();
+        var loggerMock = new Mock<ILogger<PrLineService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
 
         _sut = new PrLineService(
             _prLineRepoMock.Object,
             _dbTransactionMock.Object,
             _userClaimDto,
-            _loggerMock.Object);
+            loggerMock.Object);
     }
 
     [Fact]
     public async Task PrLineSelectByPr_WithValidPrId_ReturnsPrLines()
     {
-        // Arrange
         var prId = "PR001";
-        var cancellationToken = CancellationToken.None;
         var prLines = new List<PrLine>
         {
             new() { PrLineId = 1, PrId = prId, ItemId = 1 },
@@ -35,13 +34,11 @@ public class PrLineServiceTests
         };
 
         _prLineRepoMock
-            .Setup(x => x.PrLineSelectByPr(prId, cancellationToken))
+            .Setup(x => x.PrLineSelectByPr(prId, _ct))
             .ReturnsAsync(prLines);
 
-        // Act
-        var result = await _sut.PrLineSelectByPr(prId, cancellationToken);
+        var result = await _sut.PrLineSelectByPr(prId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("PrLines retrieved successfully.", result.Message);
         Assert.NotNull(result.Data);
@@ -51,19 +48,15 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineSelectById_WithValidId_ReturnsPrLine()
     {
-        // Arrange
         var prLineId = 1;
-        var cancellationToken = CancellationToken.None;
         var prLine = new PrLine { PrLineId = prLineId, PrId = "PR001", ItemId = 1 };
 
         _prLineRepoMock
-            .Setup(x => x.PrLineSelectById(prLineId, cancellationToken))
+            .Setup(x => x.PrLineSelectById(prLineId, _ct))
             .ReturnsAsync(prLine);
 
-        // Act
-        var result = await _sut.PrLineSelectById(prLineId, cancellationToken);
+        var result = await _sut.PrLineSelectById(prLineId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("PrLine retrieved successfully.", result.Message);
         var data = result.Data;
@@ -74,19 +67,15 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineInsert_WithValidPrLine_ReturnsSuccessWithResult()
     {
-        // Arrange
         var prLineVm = new PrLineVm { PrId = "PR001", ItemId = 1, Qty = 10 };
-        var cancellationToken = CancellationToken.None;
         var insertResult = "PR001-1";
 
         _prLineRepoMock
-            .Setup(x => x.PrLineInsert(It.IsAny<PrLine>(), cancellationToken))
+            .Setup(x => x.PrLineInsert(It.IsAny<PrLine>(), _ct))
             .ReturnsAsync(insertResult);
 
-        // Act
-        var result = await _sut.PrLineInsert(prLineVm, cancellationToken);
+        var result = await _sut.PrLineInsert(prLineVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("PrLine inserted successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
@@ -97,20 +86,16 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineInsert_SetsCreatedByFromUserClaim()
     {
-        // Arrange
         var prLineVm = new PrLineVm { PrId = "PR001", ItemId = 1 };
-        var cancellationToken = CancellationToken.None;
         PrLine? capturedPrLine = null;
 
         _prLineRepoMock
-            .Setup(x => x.PrLineInsert(It.IsAny<PrLine>(), cancellationToken))
+            .Setup(x => x.PrLineInsert(It.IsAny<PrLine>(), _ct))
             .Callback<PrLine, CancellationToken>((pl, _) => capturedPrLine = pl)
             .ReturnsAsync("PR001-1");
 
-        // Act
-        await _sut.PrLineInsert(prLineVm, cancellationToken);
+        await _sut.PrLineInsert(prLineVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedPrLine);
         Assert.Equal(_userClaimDto.Username, capturedPrLine.CreatedBy);
     }
@@ -118,19 +103,15 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineUpdate_WithValidPrLine_ReturnsSuccessWithResult()
     {
-        // Arrange
         var prLineVm = new PrLineVm { PrLineId = 1, PrId = "PR001", ItemId = 1, Qty = 20 };
-        var cancellationToken = CancellationToken.None;
         var updateResult = "PR001-1";
 
         _prLineRepoMock
-            .Setup(x => x.PrLineUpdate(It.IsAny<PrLine>(), cancellationToken))
+            .Setup(x => x.PrLineUpdate(It.IsAny<PrLine>(), _ct))
             .ReturnsAsync(updateResult);
 
-        // Act
-        var result = await _sut.PrLineUpdate(prLineVm, cancellationToken);
+        var result = await _sut.PrLineUpdate(prLineVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("PrLine updated successfully.", result.Message);
         Assert.Equal(updateResult, result.Data);
@@ -140,20 +121,16 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineUpdate_SetsModifiedByFromUserClaim()
     {
-        // Arrange
         var prLineVm = new PrLineVm { PrLineId = 1, PrId = "PR001", ItemId = 1 };
-        var cancellationToken = CancellationToken.None;
         PrLine? capturedPrLine = null;
 
         _prLineRepoMock
-            .Setup(x => x.PrLineUpdate(It.IsAny<PrLine>(), cancellationToken))
+            .Setup(x => x.PrLineUpdate(It.IsAny<PrLine>(), _ct))
             .Callback<PrLine, CancellationToken>((pl, _) => capturedPrLine = pl)
             .ReturnsAsync("PR001-1");
 
-        // Act
-        await _sut.PrLineUpdate(prLineVm, cancellationToken);
+        await _sut.PrLineUpdate(prLineVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedPrLine);
         Assert.Equal(_userClaimDto.Username, capturedPrLine.ModifiedBy);
     }
@@ -161,19 +138,15 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineDelete_WithValidId_ReturnsSuccessWithResult()
     {
-        // Arrange
         var prLineId = 1;
-        var cancellationToken = CancellationToken.None;
         var deleteResult = "Deleted successfully";
 
         _prLineRepoMock
-            .Setup(x => x.PrLineDelete(prLineId, cancellationToken))
+            .Setup(x => x.PrLineDelete(prLineId, _ct))
             .ReturnsAsync(deleteResult);
 
-        // Act
-        var result = await _sut.PrLineDelete(prLineId, cancellationToken);
+        var result = await _sut.PrLineDelete(prLineId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("PrLine deleted successfully.", result.Message);
         Assert.Equal(deleteResult, result.Data);
@@ -183,17 +156,14 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineInsert_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
         var prLineVm = new PrLineVm { PrId = "PR001", ItemId = 1 };
-        var cancellationToken = CancellationToken.None;
 
         _prLineRepoMock
-            .Setup(x => x.PrLineInsert(It.IsAny<PrLine>(), cancellationToken))
+            .Setup(x => x.PrLineInsert(It.IsAny<PrLine>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.PrLineInsert(prLineVm, cancellationToken));
+            await _sut.PrLineInsert(prLineVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
@@ -201,23 +171,38 @@ public class PrLineServiceTests
     [Fact]
     public async Task PrLineSelectByPr_WithEmptyResults_ReturnsEmptyCollection()
     {
-        // Arrange
         var prId = "PR999";
-        var cancellationToken = CancellationToken.None;
 
         _prLineRepoMock
-            .Setup(x => x.PrLineSelectByPr(prId, cancellationToken))
+            .Setup(x => x.PrLineSelectByPr(prId, _ct))
             .ReturnsAsync(new List<PrLine>());
 
-        // Act
-        var result = await _sut.PrLineSelectByPr(prId, cancellationToken);
+        var result = await _sut.PrLineSelectByPr(prId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
     }
+
+    [Fact]
+    public async Task PrLineSelectForPo_WithValidParams_ReturnsAvailableLines()
+    {
+        const int poRecId = 1;
+        var lines = new List<PrLine>
+        {
+            new() { PrLineId = 1, PrId = "PR001", ItemId = 10 },
+            new() { PrLineId = 2, PrId = "PR001", ItemId = 20 }
+        };
+
+        _prLineRepoMock
+            .Setup(x => x.PrLineSelectForPo(poRecId, 1, 10, null, null, null, _ct))
+            .ReturnsAsync(lines);
+
+        var result = await _sut.PrLineSelectForPo(poRecId, 1, 10, null, null, null, _ct);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Available PR Lines fetched successfully.", result.Message);
+        Assert.NotNull(result.Data);
+        Assert.Equal(2, result.Data.Count());
+    }
 }
-
-
-

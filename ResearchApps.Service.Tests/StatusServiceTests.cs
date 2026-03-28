@@ -3,22 +3,21 @@ namespace ResearchApps.Service.Tests;
 public class StatusServiceTests
 {
     private readonly Mock<IStatusRepo> _statusRepoMock;
-    private readonly Mock<ILogger<StatusService>> _loggerMock;
     private readonly StatusService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public StatusServiceTests()
     {
         _statusRepoMock = new Mock<IStatusRepo>();
-        _loggerMock = new Mock<ILogger<StatusService>>();
-        _sut = new StatusService(_statusRepoMock.Object, _loggerMock.Object);
+        var loggerMock = new Mock<ILogger<StatusService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+        _sut = new StatusService(_statusRepoMock.Object, loggerMock.Object);
     }
 
     [Fact]
     public async Task StatusCboAsync_WithValidRequest_ReturnsSuccessResponse()
     {
-        // Arrange
         var cboRequest = new CboRequestVm { Term = "Active" };
-        var cancellationToken = CancellationToken.None;
         var statuses = new List<Status>
         {
             new() { StatusId = 1, StatusName = "Active" },
@@ -26,33 +25,27 @@ public class StatusServiceTests
         };
 
         _statusRepoMock
-            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct))
             .ReturnsAsync(statuses);
 
-        // Act
-        var result = await _sut.StatusCboAsync(cboRequest, cancellationToken);
+        var result = await _sut.StatusCboAsync(cboRequest, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Statuses retrieved successfully.", result.Message);
-        _statusRepoMock.Verify(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken), Times.Once);
+        _statusRepoMock.Verify(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct), Times.Once);
     }
 
     [Fact]
     public async Task StatusCboAsync_WithEmptyResults_ReturnsSuccessWithEmptyCollection()
     {
-        // Arrange
         var cboRequest = new CboRequestVm { Term = "NonExistent" };
-        var cancellationToken = CancellationToken.None;
 
         _statusRepoMock
-            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct))
             .ReturnsAsync([]);
 
-        // Act
-        var result = await _sut.StatusCboAsync(cboRequest, cancellationToken);
+        var result = await _sut.StatusCboAsync(cboRequest, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         var typed = Assert.IsType<ServiceResponse<IEnumerable<StatusVm>>>(result);
         var data = Assert.IsType<IEnumerable<StatusVm>>(typed.Data, exactMatch: false);
@@ -64,42 +57,34 @@ public class StatusServiceTests
     [Fact]
     public async Task StatusCboAsync_WhenRepoThrowsException_PropagatesException()
     {
-        // Arrange
         var cboRequest = new CboRequestVm { Term = "Status" };
-        var cancellationToken = CancellationToken.None;
 
         _statusRepoMock
-            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.StatusCboAsync(cboRequest, cancellationToken));
+            await _sut.StatusCboAsync(cboRequest, _ct));
     }
 
     [Fact]
     public async Task StatusCboAsync_WithNullTerm_StillCallsRepo()
     {
-        // Arrange
         var cboRequest = new CboRequestVm { Term = null };
-        var cancellationToken = CancellationToken.None;
 
         _statusRepoMock
-            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct))
             .ReturnsAsync([]);
 
-        // Act
-        var result = await _sut.StatusCboAsync(cboRequest, cancellationToken);
+        var result = await _sut.StatusCboAsync(cboRequest, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
-        _statusRepoMock.Verify(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken), Times.Once);
+        _statusRepoMock.Verify(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct), Times.Once);
     }
 
     [Fact]
     public async Task StatusCboAsync_PassesCancellationTokenToRepo()
     {
-        // Arrange
         var cboRequest = new CboRequestVm { Term = "Status" };
         var cancellationToken = new CancellationTokenSource().Token;
 
@@ -107,32 +92,26 @@ public class StatusServiceTests
             .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken))
             .ReturnsAsync([]);
 
-        // Act
         await _sut.StatusCboAsync(cboRequest, cancellationToken);
 
-        // Assert
         _statusRepoMock.Verify(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken), Times.Once);
     }
 
     [Fact]
     public async Task StatusCboAsync_MapsEntityToVmCorrectly()
     {
-        // Arrange
         var cboRequest = new CboRequestVm { Term = "Test" };
-        var cancellationToken = CancellationToken.None;
         var statuses = new List<Status>
         {
             new() { StatusId = 1, StatusName = "Test Status" }
         };
 
         _statusRepoMock
-            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.StatusCboAsync(It.IsAny<CboRequest>(), _ct))
             .ReturnsAsync(statuses);
 
-        // Act
-        var result = await _sut.StatusCboAsync(cboRequest, cancellationToken);
+        var result = await _sut.StatusCboAsync(cboRequest, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         var typed = Assert.IsType<ServiceResponse<IEnumerable<StatusVm>>>(result);
         var data = Assert.IsType<IEnumerable<StatusVm>>(typed.Data, exactMatch: false);
@@ -142,7 +121,3 @@ public class StatusServiceTests
         Assert.Equal("Test Status", statusVm.StatusName);
     }
 }
-
-
-
-

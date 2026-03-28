@@ -1,13 +1,3 @@
-using System.Data;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
-using ResearchApps.Domain;
-using ResearchApps.Domain.Common;
-using ResearchApps.Repo.Interface;
-using ResearchApps.Service.Vm;
-using ResearchApps.Service.Vm.Common;
-
 namespace ResearchApps.Service.Tests;
 
 public class PoServiceTests
@@ -15,29 +5,27 @@ public class PoServiceTests
     private readonly Mock<IPoRepo> _poRepoMock;
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
-    private readonly Mock<ILogger<PoService>> _loggerMock;
     private readonly PoService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public PoServiceTests()
     {
         _poRepoMock = new Mock<IPoRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         _userClaimDto = new UserClaimDto { Username = "testuser" };
-        _loggerMock = new Mock<ILogger<PoService>>();
+        var loggerMock = new Mock<ILogger<PoService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
 
         _sut = new PoService(
             _poRepoMock.Object,
             _dbTransactionMock.Object,
             _userClaimDto,
-            _loggerMock.Object);
+            loggerMock.Object);
     }
-
-    #region CRUD Operations Tests
 
     [Fact]
     public async Task PoSelect_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
         var poList = new List<Po>
         {
@@ -46,13 +34,11 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoSelect(It.IsAny<PagedListRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoSelect(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(new PagedList<Po>(poList, 1, 10, 2));
 
-        // Act
-        var result = await _sut.PoSelect(request, CancellationToken.None);
+        var result = await _sut.PoSelect(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Items.Count());
@@ -61,18 +47,15 @@ public class PoServiceTests
     [Fact]
     public async Task PoSelectById_WithExistingId_ReturnsPo()
     {
-        // Arrange
         var recId = 1;
         var po = new Po { RecId = recId, PoId = "PO001", SupplierName = "Test Supplier" };
 
         _poRepoMock
-            .Setup(x => x.PoSelectById(recId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoSelectById(recId, _ct))
             .ReturnsAsync(po);
 
-        // Act
-        var result = await _sut.PoSelectById(recId, CancellationToken.None);
+        var result = await _sut.PoSelectById(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal("PO001", result.Data.Header.PoId);
@@ -81,17 +64,14 @@ public class PoServiceTests
     [Fact]
     public async Task PoSelectById_WithNonExistingId_ReturnsNotFound()
     {
-        // Arrange
         var recId = 999;
 
         _poRepoMock
-            .Setup(x => x.PoSelectById(recId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoSelectById(recId, _ct))
             .ReturnsAsync((Po?)null);
 
-        // Act
-        var result = await _sut.PoSelectById(recId, CancellationToken.None);
+        var result = await _sut.PoSelectById(recId, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }
@@ -99,7 +79,6 @@ public class PoServiceTests
     [Fact]
     public async Task PoInsert_WithValidData_ReturnsCreatedAndCommits()
     {
-        // Arrange
         var poVm = new PoHeaderVm
         {
             PoDate = DateTime.Now,
@@ -115,13 +94,11 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoInsert(It.IsAny<Po>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoInsert(It.IsAny<Po>(), _ct))
             .ReturnsAsync(insertedPo);
 
-        // Act
-        var result = await _sut.PoInsert(poVm, CancellationToken.None);
+        var result = await _sut.PoInsert(poVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         Assert.NotNull(result.Data);
@@ -132,7 +109,6 @@ public class PoServiceTests
     [Fact]
     public async Task PoUpdate_WithValidData_ReturnsUpdatedAndCommits()
     {
-        // Arrange
         var poVm = new PoHeaderVm
         {
             RecId = 1,
@@ -150,13 +126,11 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoUpdate(It.IsAny<Po>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoUpdate(It.IsAny<Po>(), _ct))
             .ReturnsAsync(updatedPo);
 
-        // Act
-        var result = await _sut.PoUpdate(poVm, CancellationToken.None);
+        var result = await _sut.PoUpdate(poVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal("Updated Supplier", result.Data.Header.SupplierName);
@@ -166,29 +140,21 @@ public class PoServiceTests
     [Fact]
     public async Task PoDelete_WithValidId_ReturnsSuccessAndCommits()
     {
-        // Arrange
         var recId = 1;
 
         _poRepoMock
-            .Setup(x => x.PoDelete(recId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoDelete(recId, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.PoDelete(recId, CancellationToken.None);
+        var result = await _sut.PoDelete(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region Workflow Operations Tests
-
     [Fact]
     public async Task PoSubmitById_WithValidId_ReturnsSuccess()
     {
-        // Arrange
         var recId = 1;
         var submittedPo = new Po
         {
@@ -199,17 +165,15 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoSubmitById(recId, _userClaimDto.Username, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoSubmitById(recId, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
         _poRepoMock
-            .Setup(x => x.PoSelectById(recId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoSelectById(recId, _ct))
             .ReturnsAsync(submittedPo);
 
-        // Act
-        var result = await _sut.PoSubmitById(recId, CancellationToken.None);
+        var result = await _sut.PoSubmitById(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
@@ -217,17 +181,14 @@ public class PoServiceTests
     [Fact]
     public async Task PoRecallById_WithValidId_ReturnsSuccessAndCommits()
     {
-        // Arrange
         var recId = 1;
 
         _poRepoMock
-            .Setup(x => x.PoRecallById(recId, _userClaimDto.Username, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoRecallById(recId, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.PoRecallById(recId, CancellationToken.None);
+        var result = await _sut.PoRecallById(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
@@ -235,17 +196,14 @@ public class PoServiceTests
     [Fact]
     public async Task PoApproveById_WithValidAction_ReturnsSuccessAndCommits()
     {
-        // Arrange
         var action = new PoWorkflowActionVm { RecId = 1, Notes = "Approved" };
 
         _poRepoMock
-            .Setup(x => x.PoApproveById(action.RecId, action.Notes, _userClaimDto.Username, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoApproveById(action.RecId, action.Notes, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.PoApproveById(action, CancellationToken.None);
+        var result = await _sut.PoApproveById(action, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
@@ -253,17 +211,14 @@ public class PoServiceTests
     [Fact]
     public async Task PoRejectById_WithValidAction_ReturnsSuccessAndCommits()
     {
-        // Arrange
         var action = new PoWorkflowActionVm { RecId = 1, Notes = "Rejected - insufficient budget" };
 
         _poRepoMock
-            .Setup(x => x.PoRejectById(action.RecId, action.Notes, _userClaimDto.Username, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoRejectById(action.RecId, action.Notes, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.PoRejectById(action, CancellationToken.None);
+        var result = await _sut.PoRejectById(action, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
@@ -271,29 +226,21 @@ public class PoServiceTests
     [Fact]
     public async Task PoCloseById_WithValidId_ReturnsSuccessAndCommits()
     {
-        // Arrange
         var recId = 1;
 
         _poRepoMock
-            .Setup(x => x.PoCloseById(recId, _userClaimDto.Username, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoCloseById(recId, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.PoCloseById(recId, CancellationToken.None);
+        var result = await _sut.PoCloseById(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region Outstanding Operations Tests
-
     [Fact]
     public async Task PoOsSelect_WithValidSupplierId_ReturnsOutstandingHeaders()
     {
-        // Arrange
         var supplierId = 1;
         var osHeaders = new List<PoHeaderOutstanding>
         {
@@ -302,13 +249,11 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoOsSelect(supplierId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoOsSelect(supplierId, _ct))
             .ReturnsAsync(osHeaders);
 
-        // Act
-        var result = await _sut.PoOsSelect(supplierId, CancellationToken.None);
+        var result = await _sut.PoOsSelect(supplierId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Count());
@@ -317,7 +262,6 @@ public class PoServiceTests
     [Fact]
     public async Task PoOsSelectById_WithValidPoLineId_ReturnsOutstandingLines()
     {
-        // Arrange
         var poLineId = 1;
         var osLines = new List<PoLineOutstanding>
         {
@@ -326,17 +270,116 @@ public class PoServiceTests
         };
 
         _poRepoMock
-            .Setup(x => x.PoOsSelectById(poLineId, It.IsAny<CancellationToken>()))
+            .Setup(x => x.PoOsSelectById(poLineId, _ct))
             .ReturnsAsync(osLines);
 
-        // Act
-        var result = await _sut.PoOsSelectById(poLineId, CancellationToken.None);
+        var result = await _sut.PoOsSelectById(poLineId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(2, result.Data.Count());
     }
 
-    #endregion
+    [Fact]
+    public async Task PoSubmitById_WhenRepoThrowsRepoException_ReturnsFailure()
+    {
+        var recId = 1;
+
+        _poRepoMock
+            .Setup(x => x.PoSubmitById(recId, _userClaimDto.Username, _ct))
+            .ThrowsAsync(new ResearchApps.Common.Exceptions.RepoException("No workflow configured"));
+
+        var result = await _sut.PoSubmitById(recId, _ct);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task PoRecallById_WhenRepoThrowsRepoException_ReturnsFailure()
+    {
+        var recId = 1;
+
+        _poRepoMock
+            .Setup(x => x.PoRecallById(recId, _userClaimDto.Username, _ct))
+            .ThrowsAsync(new ResearchApps.Common.Exceptions.RepoException("Cannot recall at this stage"));
+
+        var result = await _sut.PoRecallById(recId, _ct);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task PoApproveById_WhenRepoThrowsRepoException_ReturnsFailure()
+    {
+        var action = new PoWorkflowActionVm { RecId = 1, Notes = "Approved" };
+
+        _poRepoMock
+            .Setup(x => x.PoApproveById(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), _ct))
+            .ThrowsAsync(new ResearchApps.Common.Exceptions.RepoException("Approval not allowed"));
+
+        var result = await _sut.PoApproveById(action, _ct);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task PoRejectById_WhenRepoThrowsRepoException_ReturnsFailure()
+    {
+        var action = new PoWorkflowActionVm { RecId = 1, Notes = "Rejected" };
+
+        _poRepoMock
+            .Setup(x => x.PoRejectById(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), _ct))
+            .ThrowsAsync(new ResearchApps.Common.Exceptions.RepoException("Cannot reject at this stage"));
+
+        var result = await _sut.PoRejectById(action, _ct);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task PoCloseById_WhenRepoThrowsRepoException_ReturnsFailure()
+    {
+        var recId = 1;
+
+        _poRepoMock
+            .Setup(x => x.PoCloseById(recId, _userClaimDto.Username, _ct))
+            .ThrowsAsync(new ResearchApps.Common.Exceptions.RepoException("Cannot close at this stage"));
+
+        var result = await _sut.PoCloseById(recId, _ct);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetWfHistory_WithValidRefId_ReturnsHistory()
+    {
+        var refId = "PO001";
+        var wfFormId = 2;
+        var historyItems = new List<WfTransHistory>
+        {
+            new() { WfTransId = 1, RefId = refId, ActionDate = DateTime.Now, Notes = "Submitted" },
+            new() { WfTransId = 2, RefId = refId, ActionDate = DateTime.Now, Notes = "Approved" }
+        };
+
+        _poRepoMock
+            .Setup(x => x.WfTransSelectByRefId(refId, wfFormId, _ct))
+            .ReturnsAsync(historyItems);
+
+        var result = await _sut.GetWfHistory(refId, wfFormId, _ct);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Workflow history retrieved successfully.", result.Message);
+        Assert.NotNull(result.Data);
+        Assert.Equal(2, result.Data.Count());
+    }
 }

@@ -6,12 +6,14 @@ public class BpbServiceTests
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
     private readonly BpbService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public BpbServiceTests()
     {
         _bpbRepoMock = new Mock<IBpbRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         var loggerMock = new Mock<ILogger<BpbService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
         _userClaimDto = new UserClaimDto { Username = "testuser" };
 
         _sut = new BpbService(
@@ -21,14 +23,10 @@ public class BpbServiceTests
             loggerMock.Object);
     }
 
-    #region BPB Header CRUD Tests
-
     [Fact]
     public async Task BpbSelect_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var ct = CancellationToken.None;
         var bpbs = new PagedList<BpbHeader>(
             new List<BpbHeader>
             {
@@ -37,13 +35,11 @@ public class BpbServiceTests
             }, 1, 10, 2);
 
         _bpbRepoMock
-            .Setup(x => x.BpbSelect(It.IsAny<PagedListRequest>(), ct))
+            .Setup(x => x.BpbSelect(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(bpbs);
 
-        // Act
-        var result = await _sut.BpbSelect(request, ct);
+        var result = await _sut.BpbSelect(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPBs retrieved successfully.", result.Message);
     }
@@ -51,18 +47,14 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbSelectById_WithExistingId_ReturnsBpb()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var bpb = new BpbHeader { RecId = 1, BpbId = "BPB2501" };
 
         _bpbRepoMock
-            .Setup(x => x.BpbSelectById(1, ct))
+            .Setup(x => x.BpbSelectById(1, _ct))
             .ReturnsAsync(bpb);
 
-        // Act
-        var result = await _sut.BpbSelectById(1, ct);
+        var result = await _sut.BpbSelectById(1, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPB retrieved successfully.", result.Message);
         Assert.NotNull(result.Data);
@@ -72,17 +64,12 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbSelectById_WithNonExistentId_ReturnsNotFound()
     {
-        // Arrange
-        var ct = CancellationToken.None;
-
         _bpbRepoMock
-            .Setup(x => x.BpbSelectById(999, ct))
+            .Setup(x => x.BpbSelectById(999, _ct))
             .ReturnsAsync((BpbHeader?)null);
 
-        // Act
-        var result = await _sut.BpbSelectById(999, ct);
+        var result = await _sut.BpbSelectById(999, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }
@@ -90,21 +77,17 @@ public class BpbServiceTests
     [Fact]
     public async Task GetBpb_WithExistingId_ReturnsHeaderAndLines()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var header = new BpbHeader { RecId = 1, BpbId = "BPB2501" };
         var lines = new List<BpbLine>
         {
             new() { BpbLineId = 1, BpbRecId = 1, ItemId = 10, Qty = 5 }
         };
 
-        _bpbRepoMock.Setup(x => x.BpbSelectById(1, ct)).ReturnsAsync(header);
-        _bpbRepoMock.Setup(x => x.BpbLineSelectByBpb(1, ct)).ReturnsAsync(lines);
+        _bpbRepoMock.Setup(x => x.BpbSelectById(1, _ct)).ReturnsAsync(header);
+        _bpbRepoMock.Setup(x => x.BpbLineSelectByBpb(1, _ct)).ReturnsAsync(lines);
 
-        // Act
-        var result = await _sut.GetBpb(1, ct);
+        var result = await _sut.GetBpb(1, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.NotNull(result.Data.Header);
@@ -114,15 +97,10 @@ public class BpbServiceTests
     [Fact]
     public async Task GetBpb_WithNonExistentId_ReturnsNotFound()
     {
-        // Arrange
-        var ct = CancellationToken.None;
+        _bpbRepoMock.Setup(x => x.BpbSelectById(999, _ct)).ReturnsAsync((BpbHeader?)null);
 
-        _bpbRepoMock.Setup(x => x.BpbSelectById(999, ct)).ReturnsAsync((BpbHeader?)null);
+        var result = await _sut.GetBpb(999, _ct);
 
-        // Act
-        var result = await _sut.GetBpb(999, ct);
-
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }
@@ -130,19 +108,15 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbSelectByProd_WithValidProdId_ReturnsBpbs()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var bpbs = new List<BpbHeader>
         {
             new() { RecId = 1, BpbId = "BPB2501", RefId = "PROD001" }
         };
 
-        _bpbRepoMock.Setup(x => x.BpbSelectByProd("PROD001", ct)).ReturnsAsync(bpbs);
+        _bpbRepoMock.Setup(x => x.BpbSelectByProd("PROD001", _ct)).ReturnsAsync(bpbs);
 
-        // Act
-        var result = await _sut.BpbSelectByProd("PROD001", ct);
+        var result = await _sut.BpbSelectByProd("PROD001", _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPBs retrieved successfully.", result.Message);
     }
@@ -150,18 +124,14 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbInsert_WithValidData_ReturnsCreatedAndCommits()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var headerVm = new BpbHeaderVm { BpbDate = DateTime.Now, RefId = "PROD001", Descr = "Test" };
 
         _bpbRepoMock
-            .Setup(x => x.BpbInsert(It.IsAny<BpbHeader>(), ct))
+            .Setup(x => x.BpbInsert(It.IsAny<BpbHeader>(), _ct))
             .ReturnsAsync(42);
 
-        // Act
-        var result = await _sut.BpbInsert(headerVm, ct);
+        var result = await _sut.BpbInsert(headerVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         Assert.Equal(42, result.Data);
@@ -171,20 +141,16 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbInsert_SetsCreatedByFromUserClaim()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var headerVm = new BpbHeaderVm { BpbDate = DateTime.Now, RefId = "PROD001" };
         BpbHeader? captured = null;
 
         _bpbRepoMock
-            .Setup(x => x.BpbInsert(It.IsAny<BpbHeader>(), ct))
+            .Setup(x => x.BpbInsert(It.IsAny<BpbHeader>(), _ct))
             .Callback<BpbHeader, CancellationToken>((h, _) => captured = h)
             .ReturnsAsync(1);
 
-        // Act
-        await _sut.BpbInsert(headerVm, ct);
+        await _sut.BpbInsert(headerVm, _ct);
 
-        // Assert
         Assert.NotNull(captured);
         Assert.Equal(_userClaimDto.Username, captured.CreatedBy);
     }
@@ -192,18 +158,14 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbUpdate_WithValidData_CommitsTransaction()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var headerVm = new BpbHeaderVm { RecId = 1, BpbId = "BPB2501", BpbDate = DateTime.Now };
 
         _bpbRepoMock
-            .Setup(x => x.BpbUpdate(It.IsAny<BpbHeader>(), ct))
+            .Setup(x => x.BpbUpdate(It.IsAny<BpbHeader>(), _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.BpbUpdate(headerVm, ct);
+        var result = await _sut.BpbUpdate(headerVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPB updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -212,20 +174,16 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbUpdate_SetsModifiedByFromUserClaim()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var headerVm = new BpbHeaderVm { RecId = 1, BpbId = "BPB2501" };
         BpbHeader? captured = null;
 
         _bpbRepoMock
-            .Setup(x => x.BpbUpdate(It.IsAny<BpbHeader>(), ct))
+            .Setup(x => x.BpbUpdate(It.IsAny<BpbHeader>(), _ct))
             .Callback<BpbHeader, CancellationToken>((h, _) => captured = h)
             .Returns(Task.CompletedTask);
 
-        // Act
-        await _sut.BpbUpdate(headerVm, ct);
+        await _sut.BpbUpdate(headerVm, _ct);
 
-        // Assert
         Assert.NotNull(captured);
         Assert.Equal(_userClaimDto.Username, captured.ModifiedBy);
     }
@@ -233,43 +191,30 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbDelete_WithValidId_CommitsTransaction()
     {
-        // Arrange
-        var ct = CancellationToken.None;
-
         _bpbRepoMock
-            .Setup(x => x.BpbDelete(1, _userClaimDto.Username, ct))
+            .Setup(x => x.BpbDelete(1, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.BpbDelete(1, ct);
+        var result = await _sut.BpbDelete(1, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPB deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region BPB Line CRUD Tests
-
     [Fact]
     public async Task BpbLineSelectByBpb_ReturnsLines()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var lines = new List<BpbLine>
         {
             new() { BpbLineId = 1, BpbRecId = 1, ItemId = 10 },
             new() { BpbLineId = 2, BpbRecId = 1, ItemId = 20 }
         };
 
-        _bpbRepoMock.Setup(x => x.BpbLineSelectByBpb(1, ct)).ReturnsAsync(lines);
+        _bpbRepoMock.Setup(x => x.BpbLineSelectByBpb(1, _ct)).ReturnsAsync(lines);
 
-        // Act
-        var result = await _sut.BpbLineSelectByBpb(1, ct);
+        var result = await _sut.BpbLineSelectByBpb(1, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPB lines retrieved successfully.", result.Message);
     }
@@ -277,16 +222,12 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineSelectById_WithExistingId_ReturnsLine()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var line = new BpbLine { BpbLineId = 1, BpbRecId = 1, ItemId = 10, Qty = 5 };
 
-        _bpbRepoMock.Setup(x => x.BpbLineSelectById(1, ct)).ReturnsAsync(line);
+        _bpbRepoMock.Setup(x => x.BpbLineSelectById(1, _ct)).ReturnsAsync(line);
 
-        // Act
-        var result = await _sut.BpbLineSelectById(1, ct);
+        var result = await _sut.BpbLineSelectById(1, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Equal(1, result.Data.BpbLineId);
@@ -295,15 +236,10 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineSelectById_WithNonExistentId_ReturnsNotFound()
     {
-        // Arrange
-        var ct = CancellationToken.None;
+        _bpbRepoMock.Setup(x => x.BpbLineSelectById(999, _ct)).ReturnsAsync((BpbLine?)null);
 
-        _bpbRepoMock.Setup(x => x.BpbLineSelectById(999, ct)).ReturnsAsync((BpbLine?)null);
+        var result = await _sut.BpbLineSelectById(999, _ct);
 
-        // Act
-        var result = await _sut.BpbLineSelectById(999, ct);
-
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }
@@ -311,18 +247,14 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineInsert_WithValidData_ReturnsCreatedAndCommits()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var lineVm = new BpbLineVm { BpbRecId = 1, ItemId = 10, Qty = 5 };
 
         _bpbRepoMock
-            .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), ct))
+            .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), _ct))
             .ReturnsAsync(100);
 
-        // Act
-        var result = await _sut.BpbLineInsert(lineVm, ct);
+        var result = await _sut.BpbLineInsert(lineVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         Assert.Equal(100, result.Data);
@@ -332,20 +264,16 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineInsert_SetsCreatedByFromUserClaim()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var lineVm = new BpbLineVm { BpbRecId = 1, ItemId = 10, Qty = 5 };
         BpbLine? captured = null;
 
         _bpbRepoMock
-            .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), ct))
+            .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), _ct))
             .Callback<BpbLine, CancellationToken>((l, _) => captured = l)
             .ReturnsAsync(1);
 
-        // Act
-        await _sut.BpbLineInsert(lineVm, ct);
+        await _sut.BpbLineInsert(lineVm, _ct);
 
-        // Assert
         Assert.NotNull(captured);
         Assert.Equal(_userClaimDto.Username, captured.CreatedBy);
     }
@@ -353,18 +281,14 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineUpdate_WithValidData_CommitsTransaction()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var lineVm = new BpbLineVm { BpbLineId = 1, BpbRecId = 1, ItemId = 10, Qty = 10 };
 
         _bpbRepoMock
-            .Setup(x => x.BpbLineUpdate(It.IsAny<BpbLine>(), ct))
+            .Setup(x => x.BpbLineUpdate(It.IsAny<BpbLine>(), _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.BpbLineUpdate(lineVm, ct);
+        var result = await _sut.BpbLineUpdate(lineVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPB line updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -373,40 +297,26 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineDelete_WithValidId_CommitsTransaction()
     {
-        // Arrange
-        var ct = CancellationToken.None;
-
         _bpbRepoMock
-            .Setup(x => x.BpbLineDelete(1, _userClaimDto.Username, ct))
+            .Setup(x => x.BpbLineDelete(1, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.BpbLineDelete(1, ct);
+        var result = await _sut.BpbLineDelete(1, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("BPB line deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region Stock Check Tests
-
     [Fact]
     public async Task CheckStock_WithSufficientStock_ReturnsSuccess()
     {
-        // Arrange
-        var ct = CancellationToken.None;
-
         _bpbRepoMock
-            .Setup(x => x.GetStockInfo(10, 1, ct))
+            .Setup(x => x.GetStockInfo(10, 1, _ct))
             .ReturnsAsync((100m, 20m));
 
-        // Act
-        var result = await _sut.CheckStock(10, 1, 50, ct);
+        var result = await _sut.CheckStock(10, 1, 50, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.True(result.Data.IsAvailable);
@@ -416,17 +326,12 @@ public class BpbServiceTests
     [Fact]
     public async Task CheckStock_WithInsufficientStock_ReturnsFailure()
     {
-        // Arrange
-        var ct = CancellationToken.None;
-
         _bpbRepoMock
-            .Setup(x => x.GetStockInfo(10, 1, ct))
+            .Setup(x => x.GetStockInfo(10, 1, _ct))
             .ReturnsAsync((30m, 20m));
 
-        // Act
-        var result = await _sut.CheckStock(10, 1, 50, ct);
+        var result = await _sut.CheckStock(10, 1, 50, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors!, e => e.Contains("Insufficient stock"));
     }
@@ -434,17 +339,12 @@ public class BpbServiceTests
     [Fact]
     public async Task CheckStock_WhenStockWillBeBelowBuffer_ReturnsWarning()
     {
-        // Arrange
-        var ct = CancellationToken.None;
-
         _bpbRepoMock
-            .Setup(x => x.GetStockInfo(10, 1, ct))
+            .Setup(x => x.GetStockInfo(10, 1, _ct))
             .ReturnsAsync((50m, 30m));
 
-        // Act
-        var result = await _sut.CheckStock(10, 1, 25, ct);
+        var result = await _sut.CheckStock(10, 1, 25, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.True(result.Data.IsAvailable);
@@ -452,24 +352,17 @@ public class BpbServiceTests
         Assert.Contains("below buffer", result.Data.Message);
     }
 
-    #endregion
-
-    #region Error Handling Tests
-
     [Fact]
     public async Task BpbInsert_WhenRepoThrows_DoesNotCommitTransaction()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var headerVm = new BpbHeaderVm { BpbDate = DateTime.Now, RefId = "PROD001" };
 
         _bpbRepoMock
-            .Setup(x => x.BpbInsert(It.IsAny<BpbHeader>(), ct))
+            .Setup(x => x.BpbInsert(It.IsAny<BpbHeader>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _sut.BpbInsert(headerVm, ct));
+            () => _sut.BpbInsert(headerVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
@@ -477,20 +370,15 @@ public class BpbServiceTests
     [Fact]
     public async Task BpbLineInsert_WhenRepoThrows_DoesNotCommitTransaction()
     {
-        // Arrange
-        var ct = CancellationToken.None;
         var lineVm = new BpbLineVm { BpbRecId = 1, ItemId = 10, Qty = 5 };
 
         _bpbRepoMock
-            .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), ct))
+            .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _sut.BpbLineInsert(lineVm, ct));
+            () => _sut.BpbLineInsert(lineVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
-
-    #endregion
 }
