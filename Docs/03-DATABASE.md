@@ -6,7 +6,9 @@
 
 - **Database**: SQL Server
 - **ORM**: Dapper (no Entity Framework for queries)
-- **All CRUD via stored procedures** in `ResearchApps.Web/Context/Data/StoredProcedures/`
+- **All CRUD via stored procedures** in:
+    - `ResearchApps.Sql/dbo/StoredProcedures/`
+    - `ResearchApps.AzureSql/dbo/StoredProcedures/` (mirror of `ResearchApps.Sql`)
 
 ## Stored Procedure Naming Convention
 
@@ -24,7 +26,7 @@
 ## Stored Procedure Location
 
 ```
-ResearchApps.Web/Context/Data/StoredProcedures/
+ResearchApps.Sql/dbo/StoredProcedures/
 ├── ItemInsert.sql
 ├── ItemSelect.sql
 ├── ItemSelectById.sql
@@ -38,7 +40,10 @@ ResearchApps.Web/Context/Data/StoredProcedures/
 ├── Co_SubmitById.sql
 ├── Pr_ApproveById.sql
 ├── Notification_Insert.sql
-└── ... (150+ stored procedures)
+└── ... (all stored procedures)
+
+ResearchApps.AzureSql/dbo/StoredProcedures/
+└── (same stored procedure files as ResearchApps.Sql)
 ```
 
 ## Repository Pattern with Dapper

@@ -69,11 +69,14 @@ ResearchApps/
 │   ├── Controllers/           # MVC controllers
 │   │   └── Api/              # REST API controllers
 │   ├── Areas/Admin/          # Admin area pages
-│   ├── Context/Data/         # Database scripts
-│   │   └── StoredProcedures/ # All SQL stored procs
+│   ├── Context/Data/         # EF contexts and migrations
 │   ├── Hubs/                 # SignalR hubs
 │   ├── Services/             # Notification services
 │   └── Views/                # Razor views
+├── ResearchApps.Sql/         # SQL Server database project
+│   └── dbo/StoredProcedures/ # Stored procedures (source of truth)
+├── ResearchApps.AzureSql/    # Azure SQL database project
+│   └── dbo/StoredProcedures/ # Stored procedures (keep mirrored)
 ├── ResearchApps.Service/     # Business logic implementations
 ├── ResearchApps.Service.Interface/
 ├── ResearchApps.Repo/        # Repository implementations  
@@ -166,14 +169,23 @@ ResearchApps.Service/
   └── ServiceCollectionExtensions.cs       # Register: AddScoped<IProductService, ProductService>()
 
 ResearchApps.Web/
-  ├── Controllers/Api/ProductsController.cs   # REST API endpoints
-  └── Context/Data/StoredProcedures/
-      ├── ProductInsert.sql
-      ├── ProductSelect.sql
-      ├── ProductSelectById.sql
-      ├── ProductUpdate.sql
-      ├── ProductDelete.sql
-      └── ProductCbo.sql                   # Optional: for dropdowns
+  └── Controllers/Api/ProductsController.cs   # REST API endpoints
+
+ResearchApps.Sql/dbo/StoredProcedures/
+  ├── ProductInsert.sql
+  ├── ProductSelect.sql
+  ├── ProductSelectById.sql
+  ├── ProductUpdate.sql
+  ├── ProductDelete.sql
+  └── ProductCbo.sql                      # Optional: for dropdowns
+
+ResearchApps.AzureSql/dbo/StoredProcedures/
+  ├── ProductInsert.sql
+  ├── ProductSelect.sql
+  ├── ProductSelectById.sql
+  ├── ProductUpdate.sql
+  ├── ProductDelete.sql
+  └── ProductCbo.sql                      # Keep in sync with ResearchApps.Sql
 
 ResearchApps.Common/Constants/
   └── PermissionConstants.cs               # Add Products class
