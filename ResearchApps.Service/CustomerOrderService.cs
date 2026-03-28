@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using ResearchApps.Common.Exceptions;
 using ResearchApps.Domain;
 using ResearchApps.Domain.Common;
 using ResearchApps.Mapper;
@@ -86,28 +87,52 @@ public partial class CustomerOrderService : ICustomerOrderService
     public async Task<ServiceResponse> CoSubmitById(CustomerOrderWorkflowActionVm action, CancellationToken cancellationToken)
     {
         LogSubmittingCoByUser(action.RecId, _userClaimDto.Username);
-        await _customerOrderRepo.CoSubmitById(action.RecId, _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogCoSubmittedSuccessfully(action.RecId);
-        return ServiceResponse.Success("Customer Order submitted successfully.");
+        try
+        {
+            await _customerOrderRepo.CoSubmitById(action.RecId, _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogCoSubmittedSuccessfully(action.RecId);
+            return ServiceResponse.Success("Customer Order submitted successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogCoWorkflowFailed(action.RecId, "submit", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> CoRecallById(CustomerOrderWorkflowActionVm action, CancellationToken cancellationToken)
     {
         LogRecallingCoByUser(action.RecId, _userClaimDto.Username);
-        await _customerOrderRepo.CoRecallById(action.RecId, _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogCoRecalledSuccessfully(action.RecId);
-        return ServiceResponse.Success("Customer Order recalled successfully.");
+        try
+        {
+            await _customerOrderRepo.CoRecallById(action.RecId, _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogCoRecalledSuccessfully(action.RecId);
+            return ServiceResponse.Success("Customer Order recalled successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogCoWorkflowFailed(action.RecId, "recall", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> CoRejectById(CustomerOrderWorkflowActionVm action, CancellationToken cancellationToken)
     {
         LogRejectingCoByUser(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty);
-        await _customerOrderRepo.CoRejectById(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty, cancellationToken);
-        _dbTransaction.Commit();
-        LogCoRejectedSuccessfully(action.RecId);
-        return ServiceResponse.Success("Customer Order rejected successfully.");
+        try
+        {
+            await _customerOrderRepo.CoRejectById(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty, cancellationToken);
+            _dbTransaction.Commit();
+            LogCoRejectedSuccessfully(action.RecId);
+            return ServiceResponse.Success("Customer Order rejected successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogCoWorkflowFailed(action.RecId, "reject", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> CoCloseByNo(CustomerOrderWorkflowActionVm action,
@@ -130,11 +155,22 @@ public partial class CustomerOrderService : ICustomerOrderService
     public async Task<ServiceResponse> CoApproveById(CustomerOrderWorkflowActionVm action, CancellationToken cancellationToken)
     {
         LogApprovingCoRecIdByUserUsername(action.RecId, _userClaimDto.Username);
-        await _customerOrderRepo.CoApproveById(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty, cancellationToken);
-        _dbTransaction.Commit();
-        LogCoRecIdApprovedSuccessfully(action.RecId);
-        return ServiceResponse.Success("Customer Order approved successfully.");
+        try
+        {
+            await _customerOrderRepo.CoApproveById(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty, cancellationToken);
+            _dbTransaction.Commit();
+            LogCoRecIdApprovedSuccessfully(action.RecId);
+            return ServiceResponse.Success("Customer Order approved successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogCoWorkflowFailed(action.RecId, "approve", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
+
+    [LoggerMessage(LogLevel.Warning, "Customer Order workflow action '{Action}' failed for RecId {RecId}: {Reason}")]
+    partial void LogCoWorkflowFailed(int recId, string action, string reason);
 
     public async Task<ServiceResponse<IEnumerable<CustomerOrderHeaderOutstandingVm>>> CoHdOsSelect(int customerId, CancellationToken cancellationToken)
     {

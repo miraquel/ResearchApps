@@ -166,11 +166,22 @@ public partial class DeliveryOrderService : IDeliveryOrderService
     public async Task<ServiceResponse> DoLineDelete(int doLineId, CancellationToken cancellationToken)
     {
         LogDeletingDoLine(doLineId, _userClaimDto.Username);
-        await _deliveryOrderRepo.DoLineDelete(doLineId, _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogDoLineDeletedSuccessfully(doLineId);
-        return ServiceResponse.Success("DO line deleted successfully.");
+        try
+        {
+            await _deliveryOrderRepo.DoLineDelete(doLineId, _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogDoLineDeletedSuccessfully(doLineId);
+            return ServiceResponse.Success("DO line deleted successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogDoLineDeleteFailed(doLineId, ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
+
+    [LoggerMessage(LogLevel.Warning, "Failed to delete DO line {LineId}: {Reason}")]
+    partial void LogDoLineDeleteFailed(int lineId, string reason);
 
     public async Task<ServiceResponse<DeliveryOrderVm>> GetDeliveryOrderViewModel(int recId, CancellationToken cancellationToken)
     {

@@ -30,8 +30,8 @@ public partial class RepStockService : IRepStockService
     [LoggerMessage(LogLevel.Information, "Generating StockCard report for ItemId={ItemId}, Year={Year}, Month={Month}")]
     partial void LogGeneratingStockCard(int itemId, int year, int month);
 
-    [LoggerMessage(LogLevel.Error, "Error generating Stock report: {Message}")]
-    partial void LogError(string message);
+    [LoggerMessage(LogLevel.Error, "Error generating stock report ({ReportType}) for ItemId={ItemId}")]
+    partial void LogError(Exception exception, string reportType, int itemId);
 
     public async Task<ServiceResponse<IEnumerable<RepInventTransByItemVm>>> RepInventTransByItem(int itemId, DateTime? startDate, DateTime? endDate, CancellationToken ct)
     {
@@ -44,8 +44,10 @@ public partial class RepStockService : IRepStockService
         }
         catch (Exception ex)
         {
-            LogError(ex.Message);
-            return ServiceResponse<IEnumerable<RepInventTransByItemVm>>.Failure(ex.Message, 500);
+            LogError(ex, "InventTrans", itemId);
+            return ServiceResponse<IEnumerable<RepInventTransByItemVm>>.Failure(
+                "An internal error occurred while generating the inventory transaction report.",
+                500);
         }
     }
 
@@ -60,8 +62,10 @@ public partial class RepStockService : IRepStockService
         }
         catch (Exception ex)
         {
-            LogError(ex.Message);
-            return ServiceResponse<IEnumerable<RepStockCardMonthlyVm>>.Failure(ex.Message, 500);
+            LogError(ex, "StockCardMonthly", itemId);
+            return ServiceResponse<IEnumerable<RepStockCardMonthlyVm>>.Failure(
+                "An internal error occurred while generating the stock card report.",
+                500);
         }
     }
 }

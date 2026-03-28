@@ -22,8 +22,8 @@ public partial class RepInventTransService : IRepInventTransService
     [LoggerMessage(LogLevel.Information, "Generating InventTrans report for ItemId={ItemId}")]
     partial void LogGenerating(int itemId);
 
-    [LoggerMessage(LogLevel.Error, "Error generating InventTrans report: {Message}")]
-    partial void LogError(string message);
+    [LoggerMessage(LogLevel.Error, "Error generating InventTrans report for ItemId={ItemId}")]
+    partial void LogError(Exception exception, int itemId);
 
     public async Task<ServiceResponse<IEnumerable<RepInventTransByItemVm>>> RepInventTransByItem(int itemId, DateTime? startDate, DateTime? endDate, CancellationToken ct)
     {
@@ -36,8 +36,10 @@ public partial class RepInventTransService : IRepInventTransService
         }
         catch (Exception ex)
         {
-            LogError(ex.Message);
-            return ServiceResponse<IEnumerable<RepInventTransByItemVm>>.Failure(ex.Message, 500);
+            LogError(ex, itemId);
+            return ServiceResponse<IEnumerable<RepInventTransByItemVm>>.Failure(
+                "An internal error occurred while generating the inventory transaction report.",
+                500);
         }
     }
 }

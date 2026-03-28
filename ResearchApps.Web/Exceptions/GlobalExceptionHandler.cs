@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using ResearchApps.Common.Constants;
 using ResearchApps.Common.Exceptions;
 
@@ -24,6 +25,8 @@ public class GlobalExceptionHandler : IExceptionHandler
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, LogLevel.Warning),
             KeyNotFoundException => (StatusCodes.Status404NotFound, LogLevel.Warning),
             RepoException => (StatusCodes.Status400BadRequest, LogLevel.Error),
+            SqlException { Number: >= 50000 } => (StatusCodes.Status400BadRequest, LogLevel.Warning),
+            SqlException => (StatusCodes.Status500InternalServerError, LogLevel.Error),
             _ => (StatusCodes.Status500InternalServerError, LogLevel.Error)
         };
         
@@ -52,8 +55,9 @@ public class GlobalExceptionHandler : IExceptionHandler
                 Status = statusCode,
                 Type = exception.GetType().Name,
                 Title = GetTitle(exception),
-                Detail = httpContext.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment() 
-                    ? exception.Message 
+                Detail = exception is SqlException { Number: >= 50000 }
+                        || httpContext.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment()
+                    ? exception.Message
                     : "An error occurred processing your request.",
                 Instance = httpContext.Request.Path
             }
@@ -66,6 +70,8 @@ public class GlobalExceptionHandler : IExceptionHandler
         UnauthorizedAccessException => "Unauthorized",
         KeyNotFoundException => "Resource Not Found",
         RepoException => "Database Operation Failed",
+        SqlException { Number: >= 50000 } => "Business Rule Violation",
+        SqlException => "Database Error",
         _ => MessageConstants.UnhandledException
     };
 }

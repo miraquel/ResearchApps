@@ -1,6 +1,7 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using ResearchApps.Common.Exceptions;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
 using ResearchApps.Service.Interface;
@@ -93,37 +94,69 @@ public partial class PrService : IPrService
     public async Task<ServiceResponse> PrSubmitById(int id, CancellationToken cancellationToken)
     {
         LogSubmittingPrRecIdForApprovalByUserUsername(id, _userClaimDto.Username);
-        await _prRepo.PrSubmitById(id, _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogPrRecIdSubmittedSuccessfullyCurrentApproverApprover(id);
-        return ServiceResponse.Success("PR submitted for approval successfully.");
+        try
+        {
+            await _prRepo.PrSubmitById(id, _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogPrRecIdSubmittedSuccessfullyCurrentApproverApprover(id);
+            return ServiceResponse.Success("PR submitted for approval successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPrWorkflowFailed(id, "submit", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PrApproveById(PrWorkflowActionVm action, CancellationToken cancellationToken)
     {
         LogApprovingPrRecIdByUserUsernameNotesNotes(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty);
-        await _prRepo.PrApproveById(action.RecId, action.Notes ?? "", _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogPrRecIdApprovedSuccessfullyByUsername(action.RecId, _userClaimDto.Username);
-        return ServiceResponse.Success("PR approved successfully.");
+        try
+        {
+            await _prRepo.PrApproveById(action.RecId, action.Notes ?? "", _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogPrRecIdApprovedSuccessfullyByUsername(action.RecId, _userClaimDto.Username);
+            return ServiceResponse.Success("PR approved successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPrWorkflowFailed(action.RecId, "approve", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PrRejectById(PrWorkflowActionVm action, CancellationToken cancellationToken)
     {
         LogRejectingPrRecIdByUserUsernameReasonNotes(action.RecId, _userClaimDto.Username, action.Notes ?? string.Empty);
-        await _prRepo.PrRejectById(action.RecId, action.Notes ?? "", _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogPrRecIdRejectedByUsername(action.RecId, _userClaimDto.Username);
-        return ServiceResponse.Success("PR rejected successfully.");
+        try
+        {
+            await _prRepo.PrRejectById(action.RecId, action.Notes ?? "", _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogPrRecIdRejectedByUsername(action.RecId, _userClaimDto.Username);
+            return ServiceResponse.Success("PR rejected successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPrWorkflowFailed(action.RecId, "reject", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PrRecallById(int id, CancellationToken cancellationToken)
     {
         LogRecallingPrRecIdByUserUsername(id, _userClaimDto.Username);
-        await _prRepo.PrRecallById(id, _userClaimDto.Username, cancellationToken);
-        _dbTransaction.Commit();
-        LogPrRecIdRecalledSuccessfullyByUsername(id, _userClaimDto.Username);
-        return ServiceResponse.Success("PR recalled successfully.");
+        try
+        {
+            await _prRepo.PrRecallById(id, _userClaimDto.Username, cancellationToken);
+            _dbTransaction.Commit();
+            LogPrRecIdRecalledSuccessfullyByUsername(id, _userClaimDto.Username);
+            return ServiceResponse.Success("PR recalled successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPrWorkflowFailed(id, "recall", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     [LoggerMessage(LogLevel.Information, "Deleting PR with RecId: {recId} by user: {username}")]
@@ -182,6 +215,9 @@ public partial class PrService : IPrService
 
     [LoggerMessage(LogLevel.Information, "PR {recId} recalled successfully by {username}")]
     partial void LogPrRecIdRecalledSuccessfullyByUsername(int recId, string username);
+
+    [LoggerMessage(LogLevel.Warning, "PR workflow action '{Action}' failed for RecId {RecId}: {Reason}")]
+    partial void LogPrWorkflowFailed(int recId, string action, string reason);
 
     public async Task<ServiceResponse<IEnumerable<WfTransHistoryVm>>> GetWfHistory(string refId, int wfFormId, CancellationToken cancellationToken)
     {
