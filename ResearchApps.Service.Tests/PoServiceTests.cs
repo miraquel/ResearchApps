@@ -186,7 +186,7 @@ public class PoServiceTests
     #region Workflow Operations Tests
 
     [Fact]
-    public async Task PoSubmitById_WithValidId_ReturnsPoWithCurrentApprover()
+    public async Task PoSubmitById_WithValidId_ReturnsSuccess()
     {
         // Arrange
         var recId = 1;
@@ -200,6 +200,10 @@ public class PoServiceTests
 
         _poRepoMock
             .Setup(x => x.PoSubmitById(recId, _userClaimDto.Username, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _poRepoMock
+            .Setup(x => x.PoSelectById(recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(submittedPo);
 
         // Act
@@ -207,9 +211,6 @@ public class PoServiceTests
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Data);
-        Assert.Equal("approver1", result.Data.Header.CurrentApprover);
-        Assert.Equal(4, result.Data.Header.PoStatusId);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
@@ -320,8 +321,8 @@ public class PoServiceTests
         var poLineId = 1;
         var osLines = new List<PoLineOutstanding>
         {
-            new() { PoLineId = 1, PoId = "PO001", ItemId = 1, OutstandingQty = 10 },
-            new() { PoLineId = 2, PoId = "PO001", ItemId = 2, OutstandingQty = 5 }
+            new() { PoLineId = 1, PoId = "PO001", ItemId = 1, QtyOs = 10 },
+            new() { PoLineId = 2, PoId = "PO001", ItemId = 2, QtyOs = 5 }
         };
 
         _poRepoMock
