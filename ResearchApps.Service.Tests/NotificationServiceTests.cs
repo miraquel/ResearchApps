@@ -6,12 +6,14 @@ public class NotificationServiceTests
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
     private readonly NotificationService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public NotificationServiceTests()
     {
         _notificationRepoMock = new Mock<INotificationRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         var loggerMock = new Mock<ILogger<NotificationService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
         _userClaimDto = new UserClaimDto { Username = "testuser" };
 
         _sut = new NotificationService(
@@ -24,23 +26,19 @@ public class NotificationServiceTests
     [Fact]
     public async Task CreateNotification_WithValidData_ReturnsSuccessWithNotificationId()
     {
-        // Arrange
         var userId = "user123";
         var title = "Test Notification";
         var message = "Test Message";
         var notificationType = "Info";
         var notificationId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _notificationRepoMock
-            .Setup(x => x.NotificationInsert(It.IsAny<Notification>(), cancellationToken))
+            .Setup(x => x.NotificationInsert(It.IsAny<Notification>(), _ct))
             .ReturnsAsync(notificationId);
 
-        // Act
-        var result = await _sut.CreateNotification(userId, title, message, notificationType, 
-            null, null, null, cancellationToken);
+        var result = await _sut.CreateNotification(userId, title, message, notificationType,
+            null, null, null, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(notificationId, result.Data);
         Assert.Equal("Notification created successfully.", result.Message);
@@ -50,7 +48,6 @@ public class NotificationServiceTests
     [Fact]
     public async Task CreateNotification_SetsIsReadToFalseByDefault()
     {
-        // Arrange
         var userId = "user123";
         var title = "Test";
         var message = "Test Message";
@@ -62,10 +59,8 @@ public class NotificationServiceTests
             .Callback<Notification, CancellationToken>((n, _) => capturedNotification = n)
             .ReturnsAsync(1);
 
-        // Act
         await _sut.CreateNotification(userId, title, message, notificationType);
 
-        // Assert
         Assert.NotNull(capturedNotification);
         Assert.False(capturedNotification.IsRead);
     }
@@ -73,7 +68,6 @@ public class NotificationServiceTests
     [Fact]
     public async Task CreateNotification_WithOptionalParameters_SetsAllFields()
     {
-        // Arrange
         var userId = "user123";
         var title = "Test";
         var message = "Test Message";
@@ -88,10 +82,8 @@ public class NotificationServiceTests
             .Callback<Notification, CancellationToken>((n, _) => capturedNotification = n)
             .ReturnsAsync(1);
 
-        // Act
         await _sut.CreateNotification(userId, title, message, notificationType, url, refId, refRecId);
 
-        // Assert
         Assert.NotNull(capturedNotification);
         Assert.Equal(url, capturedNotification.Url);
         Assert.Equal(refId, capturedNotification.RefId);
@@ -101,8 +93,6 @@ public class NotificationServiceTests
     [Fact]
     public async Task GetNotifications_WithDefaultTake_ReturnsNotifications()
     {
-        // Arrange
-        var cancellationToken = CancellationToken.None;
         var notifications = new List<Notification>
         {
             new() { NotificationId = 1, UserId = _userClaimDto.Username, Title = "Notification 1" },
@@ -110,13 +100,11 @@ public class NotificationServiceTests
         };
 
         _notificationRepoMock
-            .Setup(x => x.NotificationSelectByUserId(_userClaimDto.Username, 20, cancellationToken))
+            .Setup(x => x.NotificationSelectByUserId(_userClaimDto.Username, 20, _ct))
             .ReturnsAsync(notifications);
 
-        // Act
-        var result = await _sut.GetNotifications(20, cancellationToken);
+        var result = await _sut.GetNotifications(20, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Notifications retrieved successfully.", result.Message);
         Assert.NotNull(result.Data);
@@ -126,21 +114,17 @@ public class NotificationServiceTests
     [Fact]
     public async Task GetUnreadNotifications_ReturnsOnlyUnreadNotifications()
     {
-        // Arrange
-        var cancellationToken = CancellationToken.None;
         var unreadNotifications = new List<Notification>
         {
             new() { NotificationId = 1, UserId = _userClaimDto.Username, Title = "Unread 1", IsRead = false }
         };
 
         _notificationRepoMock
-            .Setup(x => x.NotificationSelectUnreadByUserId(_userClaimDto.Username, cancellationToken))
+            .Setup(x => x.NotificationSelectUnreadByUserId(_userClaimDto.Username, _ct))
             .ReturnsAsync(unreadNotifications);
 
-        // Act
-        var result = await _sut.GetUnreadNotifications(cancellationToken);
+        var result = await _sut.GetUnreadNotifications(_ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Unread notifications retrieved successfully.", result.Message);
     }
@@ -148,18 +132,14 @@ public class NotificationServiceTests
     [Fact]
     public async Task MarkAsRead_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var notificationId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _notificationRepoMock
-            .Setup(x => x.NotificationMarkAsRead(notificationId, _userClaimDto.Username, cancellationToken))
+            .Setup(x => x.NotificationMarkAsRead(notificationId, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.MarkAsRead(notificationId, cancellationToken);
+        var result = await _sut.MarkAsRead(notificationId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Notification marked as read.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -168,17 +148,12 @@ public class NotificationServiceTests
     [Fact]
     public async Task MarkAllAsRead_CommitsTransaction()
     {
-        // Arrange
-        var cancellationToken = CancellationToken.None;
-
         _notificationRepoMock
-            .Setup(x => x.NotificationMarkAllAsRead(_userClaimDto.Username, cancellationToken))
+            .Setup(x => x.NotificationMarkAllAsRead(_userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.MarkAllAsRead(cancellationToken);
+        var result = await _sut.MarkAllAsRead(_ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("All notifications marked as read.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -187,19 +162,15 @@ public class NotificationServiceTests
     [Fact]
     public async Task GetNotificationCount_ReturnsCorrectCounts()
     {
-        // Arrange
-        var cancellationToken = CancellationToken.None;
         var totalCount = 10;
         var unreadCount = 3;
 
         _notificationRepoMock
-            .Setup(x => x.NotificationGetCount(_userClaimDto.Username, cancellationToken))
+            .Setup(x => x.NotificationGetCount(_userClaimDto.Username, _ct))
             .ReturnsAsync((totalCount, unreadCount));
 
-        // Act
-        var result = await _sut.GetNotificationCount(cancellationToken);
+        var result = await _sut.GetNotificationCount(_ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         var data = result.Data;
         Assert.NotNull(data);
@@ -210,18 +181,14 @@ public class NotificationServiceTests
     [Fact]
     public async Task DeleteNotification_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var notificationId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _notificationRepoMock
-            .Setup(x => x.NotificationDelete(notificationId, _userClaimDto.Username, cancellationToken))
+            .Setup(x => x.NotificationDelete(notificationId, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DeleteNotification(notificationId, cancellationToken);
+        var result = await _sut.DeleteNotification(notificationId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Notification deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -230,7 +197,6 @@ public class NotificationServiceTests
     [Fact]
     public async Task CreateNotification_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
         var userId = "user123";
         var title = "Test";
         var message = "Test Message";
@@ -240,7 +206,6 @@ public class NotificationServiceTests
             .Setup(x => x.NotificationInsert(It.IsAny<Notification>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await _sut.CreateNotification(userId, title, message, notificationType));
 
@@ -250,22 +215,14 @@ public class NotificationServiceTests
     [Fact]
     public async Task GetNotifications_WithEmptyResults_ReturnsEmptyCollection()
     {
-        // Arrange
-        var cancellationToken = CancellationToken.None;
-
         _notificationRepoMock
-            .Setup(x => x.NotificationSelectByUserId(_userClaimDto.Username, 20, cancellationToken))
+            .Setup(x => x.NotificationSelectByUserId(_userClaimDto.Username, 20, _ct))
             .ReturnsAsync(new List<Notification>());
 
-        // Act
-        var result = await _sut.GetNotifications(20, cancellationToken);
+        var result = await _sut.GetNotifications(20, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data);
     }
 }
-
-
-

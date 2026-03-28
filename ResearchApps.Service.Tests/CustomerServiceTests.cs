@@ -6,14 +6,16 @@ public class CustomerServiceTests
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
     private readonly CustomerService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public CustomerServiceTests()
     {
         _customerRepoMock = new Mock<ICustomerRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         var loggerMock = new Mock<ILogger<CustomerService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
         _userClaimDto = new UserClaimDto { Username = "testuser" };
-        
+
         _sut = new CustomerService(
             _customerRepoMock.Object,
             _dbTransactionMock.Object,
@@ -24,40 +26,32 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerSelect_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var cancellationToken = CancellationToken.None;
         var customers = new PagedList<Customer>( new List<Customer> { new() { CustomerId = 1, CustomerName = "Customer 1" }, new() { CustomerId = 2, CustomerName = "Customer 2" } }, 1, 10, 2 );
 
         _customerRepoMock
-            .Setup(x => x.CustomerSelect(It.IsAny<PagedListRequest>(), cancellationToken))
+            .Setup(x => x.CustomerSelect(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(customers);
 
-        // Act
-        var result = await _sut.CustomerSelect(request, cancellationToken);
+        var result = await _sut.CustomerSelect(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Customers retrieved successfully.", result.Message);
-        _customerRepoMock.Verify(x => x.CustomerSelect(It.IsAny<PagedListRequest>(), cancellationToken), Times.Once);
+        _customerRepoMock.Verify(x => x.CustomerSelect(It.IsAny<PagedListRequest>(), _ct), Times.Once);
     }
 
     [Fact]
     public async Task CustomerSelectById_WithValidId_ReturnsCustomer()
     {
-        // Arrange
         var customerId = 1;
-        var cancellationToken = CancellationToken.None;
         var customer = new Customer { CustomerId = customerId, CustomerName = "Test Customer" };
 
         _customerRepoMock
-            .Setup(x => x.CustomerSelectById(customerId, cancellationToken))
+            .Setup(x => x.CustomerSelectById(customerId, _ct))
             .ReturnsAsync(customer);
 
-        // Act
-        var result = await _sut.CustomerSelectById(customerId, cancellationToken);
+        var result = await _sut.CustomerSelectById(customerId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Customer retrieved successfully.", result.Message);
         var data = result.Data;
@@ -68,19 +62,15 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerInsert_WithValidCustomer_ReturnsInsertedId()
     {
-        // Arrange
         var customerVm = new CustomerVm { CustomerName = "New Customer", Npwp = "123456789" };
-        var cancellationToken = CancellationToken.None;
         var insertedId = 10;
 
         _customerRepoMock
-            .Setup(x => x.CustomerInsert(It.IsAny<Customer>(), cancellationToken))
+            .Setup(x => x.CustomerInsert(It.IsAny<Customer>(), _ct))
             .ReturnsAsync(insertedId);
 
-        // Act
-        var result = await _sut.CustomerInsert(customerVm, cancellationToken);
+        var result = await _sut.CustomerInsert(customerVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Customer created successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
@@ -91,20 +81,16 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerInsert_SetsCreatedByFromUserClaim()
     {
-        // Arrange
         var customerVm = new CustomerVm { CustomerName = "New Customer" };
-        var cancellationToken = CancellationToken.None;
         Customer? capturedCustomer = null;
 
         _customerRepoMock
-            .Setup(x => x.CustomerInsert(It.IsAny<Customer>(), cancellationToken))
+            .Setup(x => x.CustomerInsert(It.IsAny<Customer>(), _ct))
             .Callback<Customer, CancellationToken>((c, _) => capturedCustomer = c)
             .ReturnsAsync(1);
 
-        // Act
-        await _sut.CustomerInsert(customerVm, cancellationToken);
+        await _sut.CustomerInsert(customerVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedCustomer);
         Assert.Equal(_userClaimDto.Username, capturedCustomer.CreatedBy);
     }
@@ -112,18 +98,14 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerUpdate_WithValidCustomer_CommitsTransaction()
     {
-        // Arrange
         var customerVm = new CustomerVm { CustomerId = 1, CustomerName = "Updated Customer" };
-        var cancellationToken = CancellationToken.None;
 
         _customerRepoMock
-            .Setup(x => x.CustomerUpdate(It.IsAny<Customer>(), cancellationToken))
+            .Setup(x => x.CustomerUpdate(It.IsAny<Customer>(), _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.CustomerUpdate(customerVm, cancellationToken);
+        var result = await _sut.CustomerUpdate(customerVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Customer updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -132,20 +114,16 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerUpdate_SetsModifiedByFromUserClaim()
     {
-        // Arrange
         var customerVm = new CustomerVm { CustomerId = 1, CustomerName = "Updated Customer" };
-        var cancellationToken = CancellationToken.None;
         Customer? capturedCustomer = null;
 
         _customerRepoMock
-            .Setup(x => x.CustomerUpdate(It.IsAny<Customer>(), cancellationToken))
+            .Setup(x => x.CustomerUpdate(It.IsAny<Customer>(), _ct))
             .Callback<Customer, CancellationToken>((c, _) => capturedCustomer = c)
             .Returns(Task.CompletedTask);
 
-        // Act
-        await _sut.CustomerUpdate(customerVm, cancellationToken);
+        await _sut.CustomerUpdate(customerVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedCustomer);
         Assert.Equal(_userClaimDto.Username, capturedCustomer.ModifiedBy);
     }
@@ -153,18 +131,14 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerDelete_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var customerId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _customerRepoMock
-            .Setup(x => x.CustomerDelete(customerId, cancellationToken))
+            .Setup(x => x.CustomerDelete(customerId, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.CustomerDelete(customerId, cancellationToken);
+        var result = await _sut.CustomerDelete(customerId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Customer deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -173,9 +147,7 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerCbo_WithValidRequest_ReturnsCustomerList()
     {
-        // Arrange
         var request = new CboRequestVm { Term = "Test" };
-        var cancellationToken = CancellationToken.None;
         var customers = new List<Customer>
         {
             new() { CustomerId = 1, CustomerName = "Test Customer 1" },
@@ -183,13 +155,11 @@ public class CustomerServiceTests
         };
 
         _customerRepoMock
-            .Setup(x => x.CustomerCbo(It.IsAny<CboRequest>(), cancellationToken))
+            .Setup(x => x.CustomerCbo(It.IsAny<CboRequest>(), _ct))
             .ReturnsAsync(customers);
 
-        // Act
-        var result = await _sut.CustomerCbo(request, cancellationToken);
+        var result = await _sut.CustomerCbo(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Customers retrieved successfully.", result.Message);
     }
@@ -197,27 +167,22 @@ public class CustomerServiceTests
     [Fact]
     public async Task CustomerInsert_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
         var customerVm = new CustomerVm { CustomerName = "New Customer" };
-        var cancellationToken = CancellationToken.None;
 
         _customerRepoMock
-            .Setup(x => x.CustomerInsert(It.IsAny<Customer>(), cancellationToken))
+            .Setup(x => x.CustomerInsert(It.IsAny<Customer>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.CustomerInsert(customerVm, cancellationToken));
-        
+            await _sut.CustomerInsert(customerVm, _ct));
+
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
 
     [Fact]
     public async Task CustomerSelect_WithEmptyResults_ReturnsSuccessWithEmptyList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var cancellationToken = CancellationToken.None;
         var customers = new PagedList<Customer>(
             new List<Customer>(),
             1,
@@ -226,20 +191,14 @@ public class CustomerServiceTests
         );
 
         _customerRepoMock
-            .Setup(x => x.CustomerSelect(It.IsAny<PagedListRequest>(), cancellationToken))
+            .Setup(x => x.CustomerSelect(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(customers);
 
-        // Act
-        var result = await _sut.CustomerSelect(request, cancellationToken);
+        var result = await _sut.CustomerSelect(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Data);
         Assert.Empty(result.Data.Items);
         Assert.Equal(0, result.Data.TotalCount);
     }
 }
-
-
-
-

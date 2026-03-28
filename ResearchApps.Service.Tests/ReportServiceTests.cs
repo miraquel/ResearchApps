@@ -1,16 +1,13 @@
 namespace ResearchApps.Service.Tests;
 
-/// <summary>
-/// Unit tests for ReportService covering report management and generation
-/// </summary>
 public class ReportServiceTests
 {
     private readonly Mock<IReportRepo> _reportRepoMock;
     private readonly Mock<IReportParameterRepo> _reportParameterRepoMock;
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
-    private readonly Mock<ILogger<ReportService>> _loggerMock;
     private readonly ReportService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public ReportServiceTests()
     {
@@ -18,24 +15,21 @@ public class ReportServiceTests
         _reportParameterRepoMock = new Mock<IReportParameterRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         _userClaimDto = new UserClaimDto { Username = "testuser" };
-        _loggerMock = new Mock<ILogger<ReportService>>();
+        var loggerMock = new Mock<ILogger<ReportService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
 
         _sut = new ReportService(
             _reportRepoMock.Object,
             _reportParameterRepoMock.Object,
             _dbTransactionMock.Object,
             _userClaimDto,
-            _loggerMock.Object);
+            loggerMock.Object);
     }
-
-    #region CRUD Tests
 
     [Fact]
     public async Task SelectAsync_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var cancellationToken = CancellationToken.None;
         var reports = new PagedList<Report>(
             new List<Report>
             {
@@ -48,13 +42,11 @@ public class ReportServiceTests
         );
 
         _reportRepoMock
-            .Setup(x => x.SelectAsync(It.IsAny<PagedListRequest>(), cancellationToken))
+            .Setup(x => x.SelectAsync(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(reports);
 
-        // Act
-        var result = await _sut.SelectAsync(request, cancellationToken);
+        var result = await _sut.SelectAsync(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Reports retrieved successfully.", result.Message);
     }
@@ -62,9 +54,7 @@ public class ReportServiceTests
     [Fact]
     public async Task SelectByIdAsync_WithValidId_ReturnsReportWithParameters()
     {
-        // Arrange
         var reportId = 1;
-        var cancellationToken = CancellationToken.None;
         var report = new Report { ReportId = reportId, ReportName = "Test Report" };
         var parameters = new List<ReportParameter>
         {
@@ -72,16 +62,14 @@ public class ReportServiceTests
         };
 
         _reportRepoMock
-            .Setup(x => x.SelectByIdAsync(reportId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(reportId, _ct))
             .ReturnsAsync(report);
         _reportParameterRepoMock
-            .Setup(x => x.SelectByReportIdAsync(reportId, cancellationToken))
+            .Setup(x => x.SelectByReportIdAsync(reportId, _ct))
             .ReturnsAsync(parameters);
 
-        // Act
-        var result = await _sut.SelectByIdAsync(reportId, cancellationToken);
+        var result = await _sut.SelectByIdAsync(reportId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Report retrieved successfully.", result.Message);
         var typed = Assert.IsType<ServiceResponse<ReportVm>>(result);
@@ -93,18 +81,14 @@ public class ReportServiceTests
     [Fact]
     public async Task SelectByIdAsync_WithNonExistentId_ReturnsFailure()
     {
-        // Arrange
         var reportId = 999;
-        var cancellationToken = CancellationToken.None;
 
         _reportRepoMock
-            .Setup(x => x.SelectByIdAsync(reportId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(reportId, _ct))
             .ReturnsAsync((Report?)null);
 
-        // Act
-        var result = await _sut.SelectByIdAsync(reportId, cancellationToken);
+        var result = await _sut.SelectByIdAsync(reportId, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains("Report not found.", result.Errors!);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
@@ -113,31 +97,27 @@ public class ReportServiceTests
     [Fact]
     public async Task InsertAsync_WithValidReport_InsertsReportAndParameters()
     {
-        // Arrange
         var reportVm = new ReportVm
         {
             ReportName = "New Report",
             Parameters = [new() { ParameterName = "StartDate", IsRequired = true }]
         };
-        var cancellationToken = CancellationToken.None;
         var insertedReport = new Report { ReportId = 10, ReportName = "New Report" };
 
         _reportRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<Report>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<Report>(), _ct))
             .ReturnsAsync(insertedReport);
         _reportParameterRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<ReportParameter>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<ReportParameter>(), _ct))
             .ReturnsAsync(new ReportParameter());
 
-        // Act
-        var result = await _sut.InsertAsync(reportVm, cancellationToken);
+        var result = await _sut.InsertAsync(reportVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Report inserted successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
         _reportParameterRepoMock.Verify(
-            x => x.InsertAsync(It.IsAny<ReportParameter>(), cancellationToken),
+            x => x.InsertAsync(It.IsAny<ReportParameter>(), _ct),
             Times.Once);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
@@ -145,20 +125,16 @@ public class ReportServiceTests
     [Fact]
     public async Task InsertAsync_SetsCreatedByFromUserClaim()
     {
-        // Arrange
         var reportVm = new ReportVm { ReportName = "New Report", Parameters = [] };
-        var cancellationToken = CancellationToken.None;
         Report? capturedReport = null;
 
         _reportRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<Report>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<Report>(), _ct))
             .Callback<Report, CancellationToken>((r, _) => capturedReport = r)
             .ReturnsAsync(new Report { ReportId = 1 });
 
-        // Act
-        await _sut.InsertAsync(reportVm, cancellationToken);
+        await _sut.InsertAsync(reportVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedReport);
         Assert.Equal(_userClaimDto.Username, capturedReport.CreatedBy);
     }
@@ -166,37 +142,33 @@ public class ReportServiceTests
     [Fact]
     public async Task UpdateAsync_WithValidReport_UpdatesReportAndParameters()
     {
-        // Arrange
         var reportVm = new ReportVm
         {
             ReportId = 1,
             ReportName = "Updated Report",
             Parameters = [new() { ParameterName = "EndDate", IsRequired = true }]
         };
-        var cancellationToken = CancellationToken.None;
         var updatedReport = new Report { ReportId = 1, ReportName = "Updated Report" };
 
         _reportRepoMock
-            .Setup(x => x.UpdateAsync(It.IsAny<Report>(), cancellationToken))
+            .Setup(x => x.UpdateAsync(It.IsAny<Report>(), _ct))
             .ReturnsAsync(updatedReport);
         _reportParameterRepoMock
-            .Setup(x => x.DeleteByReportIdAsync(reportVm.ReportId, cancellationToken))
+            .Setup(x => x.DeleteByReportIdAsync(reportVm.ReportId, _ct))
             .Returns(Task.CompletedTask);
         _reportParameterRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<ReportParameter>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<ReportParameter>(), _ct))
             .ReturnsAsync(new ReportParameter());
 
-        // Act
-        var result = await _sut.UpdateAsync(reportVm, cancellationToken);
+        var result = await _sut.UpdateAsync(reportVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Report updated successfully.", result.Message);
         _reportParameterRepoMock.Verify(
-            x => x.DeleteByReportIdAsync(reportVm.ReportId, cancellationToken),
+            x => x.DeleteByReportIdAsync(reportVm.ReportId, _ct),
             Times.Once);
         _reportParameterRepoMock.Verify(
-            x => x.InsertAsync(It.IsAny<ReportParameter>(), cancellationToken),
+            x => x.InsertAsync(It.IsAny<ReportParameter>(), _ct),
             Times.Once);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
@@ -204,28 +176,24 @@ public class ReportServiceTests
     [Fact]
     public async Task UpdateAsync_SetsModifiedByFromUserClaim()
     {
-        // Arrange
         var reportVm = new ReportVm
         {
             ReportId = 1,
             ReportName = "Updated Report",
             Parameters = []
         };
-        var cancellationToken = CancellationToken.None;
         Report? capturedReport = null;
 
         _reportRepoMock
-            .Setup(x => x.UpdateAsync(It.IsAny<Report>(), cancellationToken))
+            .Setup(x => x.UpdateAsync(It.IsAny<Report>(), _ct))
             .Callback<Report, CancellationToken>((r, _) => capturedReport = r)
             .ReturnsAsync(new Report { ReportId = 1 });
         _reportParameterRepoMock
-            .Setup(x => x.DeleteByReportIdAsync(It.IsAny<int>(), cancellationToken))
+            .Setup(x => x.DeleteByReportIdAsync(It.IsAny<int>(), _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        await _sut.UpdateAsync(reportVm, cancellationToken);
+        await _sut.UpdateAsync(reportVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedReport);
         Assert.Equal(_userClaimDto.Username, capturedReport.ModifiedBy);
     }
@@ -233,41 +201,32 @@ public class ReportServiceTests
     [Fact]
     public async Task DeleteAsync_WithValidId_DeletesReportAndParameters()
     {
-        // Arrange
         var reportId = 1;
         var modifiedBy = "admin";
-        var cancellationToken = CancellationToken.None;
 
         _reportParameterRepoMock
-            .Setup(x => x.DeleteByReportIdAsync(reportId, cancellationToken))
+            .Setup(x => x.DeleteByReportIdAsync(reportId, _ct))
             .Returns(Task.CompletedTask);
         _reportRepoMock
-            .Setup(x => x.DeleteAsync(reportId, modifiedBy, cancellationToken))
+            .Setup(x => x.DeleteAsync(reportId, modifiedBy, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DeleteAsync(reportId, modifiedBy, cancellationToken);
+        var result = await _sut.DeleteAsync(reportId, modifiedBy, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Report deleted successfully.", result.Message);
         _reportParameterRepoMock.Verify(
-            x => x.DeleteByReportIdAsync(reportId, cancellationToken),
+            x => x.DeleteByReportIdAsync(reportId, _ct),
             Times.Once);
         _reportRepoMock.Verify(
-            x => x.DeleteAsync(reportId, modifiedBy, cancellationToken),
+            x => x.DeleteAsync(reportId, modifiedBy, _ct),
             Times.Once);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region ComboBox Tests
-
     [Fact]
     public async Task CboAsync_ReturnsReportList()
     {
-        // Arrange
         var reports = new List<Report>
         {
             new() { ReportId = 1, ReportName = "Report 1" },
@@ -278,24 +237,16 @@ public class ReportServiceTests
             .Setup(x => x.CboAsync())
             .ReturnsAsync(reports);
 
-        // Act
         var result = await _sut.CboAsync();
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Reports for combo box retrieved successfully.", result.Message);
     }
 
-    #endregion
-
-    #region Parameter Tests
-
     [Fact]
     public async Task GetParametersAsync_WithValidReportId_ReturnsParameters()
     {
-        // Arrange
         var reportId = 1;
-        var cancellationToken = CancellationToken.None;
         var parameters = new List<ReportParameter>
         {
             new() { ParameterId = 1, ReportId = reportId, ParameterName = "StartDate" },
@@ -303,13 +254,11 @@ public class ReportServiceTests
         };
 
         _reportParameterRepoMock
-            .Setup(x => x.SelectByReportIdAsync(reportId, cancellationToken))
+            .Setup(x => x.SelectByReportIdAsync(reportId, _ct))
             .ReturnsAsync(parameters);
 
-        // Act
-        var result = await _sut.GetParametersAsync(reportId, cancellationToken);
+        var result = await _sut.GetParametersAsync(reportId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Report parameters retrieved successfully.", result.Message);
         var typed = Assert.IsType<ServiceResponse<IEnumerable<ReportParameterVm>>>(result);
@@ -318,14 +267,9 @@ public class ReportServiceTests
         Assert.Equal(2, data.Count);
     }
 
-    #endregion
-
-    #region Report Generation Tests
-
     [Fact]
     public async Task GenerateReportAsync_WithValidParameters_ReturnsSuccess()
     {
-        // Arrange
         var generateVm = new ReportGenerateVm
         {
             ReportId = 1,
@@ -336,7 +280,6 @@ public class ReportServiceTests
             },
             OutputFormat = ReportOutputFormat.Pdf
         };
-        var cancellationToken = CancellationToken.None;
         var report = new Report { ReportId = 1, ReportName = "Test Report" };
         var parameters = new List<ReportParameter>
         {
@@ -345,16 +288,14 @@ public class ReportServiceTests
         };
 
         _reportRepoMock
-            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync(report);
         _reportParameterRepoMock
-            .Setup(x => x.SelectByReportIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByReportIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync(parameters);
 
-        // Act
-        var result = await _sut.GenerateReportAsync(generateVm, cancellationToken);
+        var result = await _sut.GenerateReportAsync(generateVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Report generation prepared successfully.", result.Message);
     }
@@ -362,18 +303,14 @@ public class ReportServiceTests
     [Fact]
     public async Task GenerateReportAsync_WithNonExistentReport_ReturnsFailure()
     {
-        // Arrange
         var generateVm = new ReportGenerateVm { ReportId = 999 };
-        var cancellationToken = CancellationToken.None;
 
         _reportRepoMock
-            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync((Report?)null);
 
-        // Act
-        var result = await _sut.GenerateReportAsync(generateVm, cancellationToken);
+        var result = await _sut.GenerateReportAsync(generateVm, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains("Report not found.", result.Errors!);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
@@ -382,13 +319,11 @@ public class ReportServiceTests
     [Fact]
     public async Task GenerateReportAsync_WithMissingRequiredParameter_ReturnsFailure()
     {
-        // Arrange
         var generateVm = new ReportGenerateVm
         {
             ReportId = 1,
             ParameterValues = new Dictionary<string, string>()
         };
-        var cancellationToken = CancellationToken.None;
         var report = new Report { ReportId = 1, ReportName = "Test Report" };
         var parameters = new List<ReportParameter>
         {
@@ -396,16 +331,14 @@ public class ReportServiceTests
         };
 
         _reportRepoMock
-            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync(report);
         _reportParameterRepoMock
-            .Setup(x => x.SelectByReportIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByReportIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync(parameters);
 
-        // Act
-        var result = await _sut.GenerateReportAsync(generateVm, cancellationToken);
+        var result = await _sut.GenerateReportAsync(generateVm, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors!, e => e.Contains("Start Date") && e.Contains("required"));
     }
@@ -413,7 +346,6 @@ public class ReportServiceTests
     [Fact]
     public async Task GenerateReportAsync_WithEmptyRequiredParameter_ReturnsFailure()
     {
-        // Arrange
         var generateVm = new ReportGenerateVm
         {
             ReportId = 1,
@@ -422,7 +354,6 @@ public class ReportServiceTests
                 { "StartDate", "" }
             }
         };
-        var cancellationToken = CancellationToken.None;
         var report = new Report { ReportId = 1, ReportName = "Test Report" };
         var parameters = new List<ReportParameter>
         {
@@ -430,46 +361,30 @@ public class ReportServiceTests
         };
 
         _reportRepoMock
-            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync(report);
         _reportParameterRepoMock
-            .Setup(x => x.SelectByReportIdAsync(generateVm.ReportId, cancellationToken))
+            .Setup(x => x.SelectByReportIdAsync(generateVm.ReportId, _ct))
             .ReturnsAsync(parameters);
 
-        // Act
-        var result = await _sut.GenerateReportAsync(generateVm, cancellationToken);
+        var result = await _sut.GenerateReportAsync(generateVm, _ct);
 
-        // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors!, e => e.Contains("Start Date"));
     }
 
-    #endregion
-
-    #region Error Handling Tests
-
     [Fact]
     public async Task InsertAsync_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
         var reportVm = new ReportVm { ReportName = "New Report", Parameters = [] };
-        var cancellationToken = CancellationToken.None;
 
         _reportRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<Report>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<Report>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.InsertAsync(reportVm, cancellationToken));
+            await _sut.InsertAsync(reportVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
-
-    #endregion
 }
-
-
-
-
-

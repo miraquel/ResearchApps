@@ -1,8 +1,5 @@
 namespace ResearchApps.Service.Tests;
 
-/// <summary>
-/// Unit tests for DoService covering Delivery Order operations
-/// </summary>
 public class DeliveryOrderServiceTests
 {
     private readonly Mock<IDeliveryOrderRepo> _doRepoMock;
@@ -10,6 +7,7 @@ public class DeliveryOrderServiceTests
     private readonly Mock<IItemRepo> _itemRepoMock;
     private readonly UserClaimDto _userClaimDto;
     private readonly DeliveryOrderService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public DeliveryOrderServiceTests()
     {
@@ -17,6 +15,7 @@ public class DeliveryOrderServiceTests
         _dbTransactionMock = new Mock<IDbTransaction>();
         _itemRepoMock = new Mock<IItemRepo>();
         var loggerMock = new Mock<ILogger<DeliveryOrderService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
         _userClaimDto = new UserClaimDto { Username = "testuser" };
 
         _sut = new DeliveryOrderService(
@@ -27,14 +26,10 @@ public class DeliveryOrderServiceTests
             _itemRepoMock.Object);
     }
 
-    #region DO Header Tests
-
     [Fact]
     public async Task DoSelect_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var cancellationToken = CancellationToken.None;
         var dos = new PagedList<DeliveryOrderHeader>(
             new List<DeliveryOrderHeader>
             {
@@ -47,13 +42,11 @@ public class DeliveryOrderServiceTests
         );
 
         _doRepoMock
-            .Setup(x => x.DoSelect(It.IsAny<PagedListRequest>(), cancellationToken))
+            .Setup(x => x.DoSelect(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(dos);
 
-        // Act
-        var result = await _sut.DoSelect(request, cancellationToken);
+        var result = await _sut.DoSelect(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Delivery Orders retrieved successfully.", result.Message);
     }
@@ -61,19 +54,15 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoSelectById_WithValidId_ReturnsDo()
     {
-        // Arrange
         var recId = 1;
-        var cancellationToken = CancellationToken.None;
         var deliveryOrder = new DeliveryOrderHeader { RecId = recId, DoId = "DO001", CustomerId = 1 };
 
         _doRepoMock
-            .Setup(x => x.DoSelectById(recId, cancellationToken))
+            .Setup(x => x.DoSelectById(recId, _ct))
             .ReturnsAsync(deliveryOrder);
 
-        // Act
-        var result = await _sut.DoSelectById(recId, cancellationToken);
+        var result = await _sut.DoSelectById(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Delivery Order retrieved successfully.", result.Message);
     }
@@ -81,22 +70,18 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoInsert_WithValidDo_ReturnsInsertedIdAndDoId()
     {
-        // Arrange
-        var doVm = new DeliveryOrderVm 
-        { 
-            Header = new DeliveryOrderHeaderVm { CustomerId = 1, DoDate = DateTime.Now } 
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1, DoDate = DateTime.Now }
         };
-        var cancellationToken = CancellationToken.None;
         var insertResult = (RecId: 10, DoId: "DO010");
 
         _doRepoMock
-            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), cancellationToken))
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
             .ReturnsAsync(insertResult);
 
-        // Act
-        var result = await _sut.DoInsert(doVm, cancellationToken);
+        var result = await _sut.DoInsert(doVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Delivery Order created successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
@@ -107,23 +92,19 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoInsert_SetsCreatedByFromUserClaim()
     {
-        // Arrange
-        var doVm = new DeliveryOrderVm 
-        { 
-            Header = new DeliveryOrderHeaderVm { CustomerId = 1 } 
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1 }
         };
-        var cancellationToken = CancellationToken.None;
         DeliveryOrderHeader? capturedDo = null;
 
         _doRepoMock
-            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), cancellationToken))
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
             .Callback<DeliveryOrderHeader, CancellationToken>((d, _) => capturedDo = d)
             .ReturnsAsync((1, "DO001"));
 
-        // Act
-        await _sut.DoInsert(doVm, cancellationToken);
+        await _sut.DoInsert(doVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedDo);
         Assert.Equal(_userClaimDto.Username, capturedDo.CreatedBy);
     }
@@ -131,18 +112,14 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoUpdate_WithValidDo_CommitsTransaction()
     {
-        // Arrange
         var doVm = new DeliveryOrderHeaderVm { RecId = 1, DoId = "DO001", CustomerId = 1 };
-        var cancellationToken = CancellationToken.None;
 
         _doRepoMock
-            .Setup(x => x.DoUpdate(It.IsAny<DeliveryOrderHeader>(), cancellationToken))
+            .Setup(x => x.DoUpdate(It.IsAny<DeliveryOrderHeader>(), _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DoUpdate(doVm, cancellationToken);
+        var result = await _sut.DoUpdate(doVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Delivery Order updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -151,20 +128,16 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoUpdate_SetsModifiedByFromUserClaim()
     {
-        // Arrange
         var doVm = new DeliveryOrderHeaderVm { RecId = 1, DoId = "DO001", CustomerId = 1 };
-        var cancellationToken = CancellationToken.None;
         DeliveryOrderHeader? capturedDo = null;
 
         _doRepoMock
-            .Setup(x => x.DoUpdate(It.IsAny<DeliveryOrderHeader>(), cancellationToken))
+            .Setup(x => x.DoUpdate(It.IsAny<DeliveryOrderHeader>(), _ct))
             .Callback<DeliveryOrderHeader, CancellationToken>((d, _) => capturedDo = d)
             .Returns(Task.CompletedTask);
 
-        // Act
-        await _sut.DoUpdate(doVm, cancellationToken);
+        await _sut.DoUpdate(doVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedDo);
         Assert.Equal(_userClaimDto.Username, capturedDo.ModifiedBy);
     }
@@ -172,33 +145,23 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoDelete_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var recId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _doRepoMock
-            .Setup(x => x.DoDelete(recId, cancellationToken))
+            .Setup(x => x.DoDelete(recId, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DoDelete(recId, cancellationToken);
+        var result = await _sut.DoDelete(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Delivery Order deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region DO Line Tests
-
     [Fact]
     public async Task DoLineSelectByDo_WithValidDoRecId_ReturnsDoLines()
     {
-        // Arrange
         var doRecId = 1;
-        var cancellationToken = CancellationToken.None;
         var doLines = new List<DeliveryOrderLine>
         {
             new() { DoLineId = 1, DoRecId = doRecId, ItemId = 1 },
@@ -206,13 +169,11 @@ public class DeliveryOrderServiceTests
         };
 
         _doRepoMock
-            .Setup(x => x.DoLineSelectByDo(doRecId, cancellationToken))
+            .Setup(x => x.DoLineSelectByDo(doRecId, _ct))
             .ReturnsAsync(doLines);
 
-        // Act
-        var result = await _sut.DoLineSelectByDo(doRecId, cancellationToken);
+        var result = await _sut.DoLineSelectByDo(doRecId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("DO lines retrieved successfully.", result.Message);
     }
@@ -220,19 +181,15 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoLineSelectById_WithValidId_ReturnsDoLine()
     {
-        // Arrange
         var doLineId = 1;
-        var cancellationToken = CancellationToken.None;
         var doLine = new DeliveryOrderLine { DoLineId = doLineId, DoRecId = 1, ItemId = 1 };
 
         _doRepoMock
-            .Setup(x => x.DoLineSelectById(doLineId, cancellationToken))
+            .Setup(x => x.DoLineSelectById(doLineId, _ct))
             .ReturnsAsync(doLine);
 
-        // Act
-        var result = await _sut.DoLineSelectById(doLineId, cancellationToken);
+        var result = await _sut.DoLineSelectById(doLineId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("DO line retrieved successfully.", result.Message);
     }
@@ -240,19 +197,15 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoLineInsert_WithValidDoLine_ReturnsInsertedId()
     {
-        // Arrange
         var doLineVm = new DeliveryOrderLineVm { DoRecId = 1, ItemId = 1, Qty = 10 };
-        var cancellationToken = CancellationToken.None;
         var insertedLineNo = "5";
 
         _doRepoMock
-            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), cancellationToken))
+            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct))
             .ReturnsAsync(insertedLineNo);
 
-        // Act
-        var result = await _sut.DoLineInsert(doLineVm, cancellationToken);
+        var result = await _sut.DoLineInsert(doLineVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("DO line inserted successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
@@ -262,20 +215,16 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoLineInsert_SetsCreatedByFromUserClaim()
     {
-        // Arrange
         var doLineVm = new DeliveryOrderLineVm { DoRecId = 1, ItemId = 1, Qty = 10 };
-        var cancellationToken = CancellationToken.None;
         DeliveryOrderLine? capturedDoLine = null;
 
         _doRepoMock
-            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), cancellationToken))
+            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct))
             .Callback<DeliveryOrderLine, CancellationToken>((dl, _) => capturedDoLine = dl)
             .ReturnsAsync("1");
 
-        // Act
-        await _sut.DoLineInsert(doLineVm, cancellationToken);
+        await _sut.DoLineInsert(doLineVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedDoLine);
         Assert.Equal(_userClaimDto.Username, capturedDoLine.CreatedBy);
     }
@@ -283,18 +232,14 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoLineUpdate_WithValidDoLine_CommitsTransaction()
     {
-        // Arrange
         var doLineVm = new DeliveryOrderLineVm { DoLineId = 1, DoRecId = 1, ItemId = 1, Qty = 20 };
-        var cancellationToken = CancellationToken.None;
 
         _doRepoMock
-            .Setup(x => x.DoLineUpdate(It.IsAny<DeliveryOrderLine>(), cancellationToken))
+            .Setup(x => x.DoLineUpdate(It.IsAny<DeliveryOrderLine>(), _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DoLineUpdate(doLineVm, cancellationToken);
+        var result = await _sut.DoLineUpdate(doLineVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("DO line updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -303,46 +248,34 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoLineDelete_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var doLineId = 1;
-        var cancellationToken = CancellationToken.None;
 
         _doRepoMock
-            .Setup(x => x.DoLineDelete(doLineId, _userClaimDto.Username, cancellationToken))
+            .Setup(x => x.DoLineDelete(doLineId, _userClaimDto.Username, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DoLineDelete(doLineId, cancellationToken);
+        var result = await _sut.DoLineDelete(doLineId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("DO line deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
     }
 
-    #endregion
-
-    #region Outstanding Tests
-
     [Fact]
     public async Task DoHdOsSelect_WithValidCustomerId_ReturnsOutstandingHeaders()
     {
-        // Arrange
         var customerId = 1;
-        var cancellationToken = CancellationToken.None;
         var headers = new List<DeliveryOrderHeaderOutstanding>
         {
             new() { DoRecId = 1, DoId = "DO001", CustomerId = customerId }
         };
 
         _doRepoMock
-            .Setup(x => x.DoHdOsSelect(customerId, cancellationToken))
+            .Setup(x => x.DoHdOsSelect(customerId, _ct))
             .ReturnsAsync(headers);
 
-        // Act
-        var result = await _sut.DoHdOsSelect(customerId, cancellationToken);
+        var result = await _sut.DoHdOsSelect(customerId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Outstanding DO headers retrieved successfully.", result.Message);
     }
@@ -350,36 +283,26 @@ public class DeliveryOrderServiceTests
     [Fact]
     public async Task DoOsSelect_WithValidCustomerId_ReturnsOutstandingLines()
     {
-        // Arrange
         var customerId = 1;
-        var cancellationToken = CancellationToken.None;
         var lines = new List<DeliveryOrderLineOutstanding>
         {
             new() { DoLineId = 1, DoId = "DO001", ItemId = 1, QtyDo = 10 }
         };
 
         _doRepoMock
-            .Setup(x => x.DoOsSelect(customerId, cancellationToken))
+            .Setup(x => x.DoOsSelect(customerId, _ct))
             .ReturnsAsync(lines);
 
-        // Act
-        var result = await _sut.DoOsSelect(customerId, cancellationToken);
+        var result = await _sut.DoOsSelect(customerId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Outstanding DO lines retrieved successfully.", result.Message);
     }
 
-    #endregion
-
-    #region ViewModel Tests
-
     [Fact]
     public async Task GetDeliveryOrderViewModel_WithValidRecId_ReturnsCompleteViewModel()
     {
-        // Arrange
         const int recId = 1;
-        var cancellationToken = CancellationToken.None;
         var composite = new DeliveryOrder
         {
             Header = new DeliveryOrderHeader { RecId = recId, DoId = "DO001", CustomerId = 1 },
@@ -393,13 +316,11 @@ public class DeliveryOrderServiceTests
             }
         };
 
-        _doRepoMock.Setup(x => x.DoSelectCompositeById(recId, cancellationToken))
+        _doRepoMock.Setup(x => x.DoSelectCompositeById(recId, _ct))
             .ReturnsAsync(composite);
 
-        // Act
-        var result = await _sut.GetDeliveryOrderViewModel(recId, cancellationToken);
+        var result = await _sut.GetDeliveryOrderViewModel(recId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Delivery Order ViewModel retrieved successfully.", result.Message);
         var data = result.Data;
@@ -409,35 +330,199 @@ public class DeliveryOrderServiceTests
         Assert.NotNull(data.Outstanding);
     }
 
-    #endregion
-
-    #region Error Handling Tests
-
     [Fact]
     public async Task DoInsert_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
-        var doVm = new DeliveryOrderVm 
-        { 
-            Header = new DeliveryOrderHeaderVm { CustomerId = 1 } 
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1 }
         };
-        var cancellationToken = CancellationToken.None;
 
         _doRepoMock
-            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), cancellationToken))
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.DoInsert(doVm, cancellationToken));
+            await _sut.DoInsert(doVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
 
-    #endregion
+    [Fact]
+    public async Task DoInsert_WithLines_InsertsEachLineAndCommits()
+    {
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1, CoId = "CO001" },
+            Lines =
+            [
+                new DeliveryOrderLineVm { ItemId = 10, Qty = 5, ItemName = "Item A" },
+                new DeliveryOrderLineVm { ItemId = 20, Qty = 3 }
+            ]
+        };
+
+        _doRepoMock
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
+            .ReturnsAsync((RecId: 1, DoId: "DO001"));
+        _doRepoMock
+            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct))
+            .ReturnsAsync("DO001-1");
+
+        var result = await _sut.DoInsert(doVm, _ct);
+
+        Assert.True(result.IsSuccess);
+        _doRepoMock.Verify(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct), Times.Exactly(2));
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
+    }
+
+    [Fact]
+    public async Task DoInsert_WithLines_WhenCoIdIsSet_KeepsExistingCoId()
+    {
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1, CoId = "CO-HEADER" },
+            Lines =
+            [
+                new DeliveryOrderLineVm { ItemId = 10, Qty = 1, CoId = "CO-LINE-EXISTING" }
+            ]
+        };
+
+        _doRepoMock
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
+            .ReturnsAsync((RecId: 1, DoId: "DO001"));
+
+        DeliveryOrderLine? captured = null;
+        _doRepoMock
+            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct))
+            .Callback<DeliveryOrderLine, CancellationToken>((l, _) => captured = l)
+            .ReturnsAsync("DO001-1");
+
+        await _sut.DoInsert(doVm, _ct);
+
+        Assert.NotNull(captured);
+        Assert.Equal("CO-LINE-EXISTING", captured.CoId);
+    }
+
+    [Fact]
+    public async Task DoInsert_WhenDoLineInsertThrowsSqlException_WrapsInRepoException()
+    {
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1 },
+            Lines = [new DeliveryOrderLineVm { ItemId = 10, Qty = 1, ItemName = "Widget" }]
+        };
+        var sqlEx = (SqlException)System.Runtime.CompilerServices.RuntimeHelpers
+            .GetUninitializedObject(typeof(SqlException));
+
+        _doRepoMock
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
+            .ReturnsAsync((RecId: 1, DoId: "DO001"));
+        _doRepoMock
+            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct))
+            .ThrowsAsync(sqlEx);
+
+        var ex = await Assert.ThrowsAsync<RepoException>(async () =>
+            await _sut.DoInsert(doVm, _ct));
+
+        Assert.Contains("Widget", ex.Message);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task DoInsert_WhenDoLineInsertThrowsSqlException_UsesItemIdWhenNameEmpty()
+    {
+        var doVm = new DeliveryOrderVm
+        {
+            Header = new DeliveryOrderHeaderVm { CustomerId = 1 },
+            Lines = [new DeliveryOrderLineVm { ItemId = 42, Qty = 1, ItemName = null }]
+        };
+        var sqlEx = (SqlException)System.Runtime.CompilerServices.RuntimeHelpers
+            .GetUninitializedObject(typeof(SqlException));
+
+        _doRepoMock
+            .Setup(x => x.DoInsert(It.IsAny<DeliveryOrderHeader>(), _ct))
+            .ReturnsAsync((RecId: 1, DoId: "DO001"));
+        _doRepoMock
+            .Setup(x => x.DoLineInsert(It.IsAny<DeliveryOrderLine>(), _ct))
+            .ThrowsAsync(sqlEx);
+
+        var ex = await Assert.ThrowsAsync<RepoException>(async () =>
+            await _sut.DoInsert(doVm, _ct));
+
+        Assert.Contains("ItemId 42", ex.Message);
+    }
+
+    [Fact]
+    public async Task DoOsByDoLineId_WithValidId_ReturnsOutstandingLine()
+    {
+        var doLineId = 3;
+        var line = new DeliveryOrderLineOutstanding { DoLineId = doLineId, DoId = "DO001", ItemId = 10 };
+
+        _doRepoMock
+            .Setup(x => x.DoOsByDoLineId(doLineId, _ct))
+            .ReturnsAsync(line);
+
+        var result = await _sut.DoOsByDoLineId(doLineId, _ct);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Outstanding DO line retrieved successfully.", result.Message);
+    }
+
+    [Fact]
+    public async Task DoLineDelete_WhenRepoThrowsRepoException_ReturnsFailure()
+    {
+        var doLineId = 1;
+
+        _doRepoMock
+            .Setup(x => x.DoLineDelete(doLineId, _userClaimDto.Username, _ct))
+            .ThrowsAsync(new RepoException("Line cannot be deleted"));
+
+        var result = await _sut.DoLineDelete(doLineId, _ct);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetDoExportData_ReturnsHeaders()
+    {
+        var request = new PagedListRequestVm { PageNumber = 1, PageSize = 100 };
+        var headers = new List<DeliveryOrderHeader>
+        {
+            new() { RecId = 1, DoId = "DO001" },
+            new() { RecId = 2, DoId = "DO002" }
+        };
+
+        _doRepoMock
+            .Setup(x => x.DoSelectForExport(It.IsAny<PagedListRequest>(), _ct))
+            .ReturnsAsync(headers);
+
+        var result = await _sut.GetDoExportData(request, _ct);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count());
+    }
+
+    [Fact]
+    public async Task GetWfHistory_WithValidRefId_ReturnsHistory()
+    {
+        var refId = "DO001";
+        var wfFormId = 4;
+        var historyItems = new List<WfTransHistory>
+        {
+            new() { WfTransId = 1, RefId = refId, ActionDate = DateTime.Now, Notes = "Created" }
+        };
+
+        _doRepoMock
+            .Setup(x => x.WfTransSelectByRefId(refId, wfFormId, _ct))
+            .ReturnsAsync(historyItems);
+
+        var result = await _sut.GetWfHistory(refId, wfFormId, _ct);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Workflow history retrieved successfully.", result.Message);
+        Assert.NotNull(result.Data);
+        Assert.Single(result.Data);
+    }
 }
-
-
-
-
-

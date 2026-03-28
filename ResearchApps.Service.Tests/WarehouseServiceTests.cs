@@ -5,29 +5,28 @@ public class WarehouseServiceTests
     private readonly Mock<IWarehouseRepo> _warehouseRepoMock;
     private readonly Mock<IDbTransaction> _dbTransactionMock;
     private readonly UserClaimDto _userClaimDto;
-    private readonly Mock<ILogger<WarehouseService>> _loggerMock;
     private readonly WarehouseService _sut;
+    private readonly CancellationToken _ct = CancellationToken.None;
 
     public WarehouseServiceTests()
     {
         _warehouseRepoMock = new Mock<IWarehouseRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
         _userClaimDto = new UserClaimDto { Username = "testuser" };
-        _loggerMock = new Mock<ILogger<WarehouseService>>();
+        var loggerMock = new Mock<ILogger<WarehouseService>>();
+        loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
 
         _sut = new WarehouseService(
             _warehouseRepoMock.Object,
             _dbTransactionMock.Object,
             _userClaimDto,
-            _loggerMock.Object);
+            loggerMock.Object);
     }
 
     [Fact]
     public async Task SelectAsync_WithValidRequest_ReturnsPagedList()
     {
-        // Arrange
         var request = new PagedListRequestVm { PageNumber = 1, PageSize = 10 };
-        var cancellationToken = CancellationToken.None;
         var warehouses = new PagedList<Warehouse>(
             new List<Warehouse>
             {
@@ -40,13 +39,11 @@ public class WarehouseServiceTests
         );
 
         _warehouseRepoMock
-            .Setup(x => x.SelectAsync(It.IsAny<PagedListRequest>(), cancellationToken))
+            .Setup(x => x.SelectAsync(It.IsAny<PagedListRequest>(), _ct))
             .ReturnsAsync(warehouses);
 
-        // Act
-        var result = await _sut.SelectAsync(request, cancellationToken);
+        var result = await _sut.SelectAsync(request, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Warehouses retrieved successfully.", result.Message);
     }
@@ -54,19 +51,15 @@ public class WarehouseServiceTests
     [Fact]
     public async Task SelectByIdAsync_WithValidId_ReturnsWarehouse()
     {
-        // Arrange
         var whId = 1;
-        var cancellationToken = CancellationToken.None;
         var warehouse = new Warehouse { WhId = whId, WhName = "Main Warehouse" };
 
         _warehouseRepoMock
-            .Setup(x => x.SelectByIdAsync(whId, cancellationToken))
+            .Setup(x => x.SelectByIdAsync(whId, _ct))
             .ReturnsAsync(warehouse);
 
-        // Act
-        var result = await _sut.SelectByIdAsync(whId, cancellationToken);
+        var result = await _sut.SelectByIdAsync(whId, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Warehouse retrieved successfully.", result.Message);
     }
@@ -74,19 +67,15 @@ public class WarehouseServiceTests
     [Fact]
     public async Task InsertAsync_WithValidWarehouse_ReturnsInsertedWarehouse()
     {
-        // Arrange
         var warehouseVm = new WarehouseVm { WhName = "New Warehouse" };
-        var cancellationToken = CancellationToken.None;
         var insertedWarehouse = new Warehouse { WhId = 3, WhName = "New Warehouse" };
 
         _warehouseRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<Warehouse>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<Warehouse>(), _ct))
             .ReturnsAsync(insertedWarehouse);
 
-        // Act
-        var result = await _sut.InsertAsync(warehouseVm, cancellationToken);
+        var result = await _sut.InsertAsync(warehouseVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Warehouse inserted successfully.", result.Message);
         Assert.Equal(StatusCodes.Status201Created, result.StatusCode);
@@ -96,20 +85,16 @@ public class WarehouseServiceTests
     [Fact]
     public async Task InsertAsync_SetsCreatedByFromUserClaim()
     {
-        // Arrange
         var warehouseVm = new WarehouseVm { WhName = "New Warehouse" };
-        var cancellationToken = CancellationToken.None;
         Warehouse? capturedWarehouse = null;
 
         _warehouseRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<Warehouse>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<Warehouse>(), _ct))
             .Callback<Warehouse, CancellationToken>((w, _) => capturedWarehouse = w)
             .ReturnsAsync(new Warehouse { WhId = 1 });
 
-        // Act
-        await _sut.InsertAsync(warehouseVm, cancellationToken);
+        await _sut.InsertAsync(warehouseVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedWarehouse);
         Assert.Equal(_userClaimDto.Username, capturedWarehouse.CreatedBy);
     }
@@ -117,19 +102,15 @@ public class WarehouseServiceTests
     [Fact]
     public async Task UpdateAsync_WithValidWarehouse_ReturnsUpdatedWarehouse()
     {
-        // Arrange
         var warehouseVm = new WarehouseVm { WhId = 1, WhName = "Updated Warehouse" };
-        var cancellationToken = CancellationToken.None;
         var updatedWarehouse = new Warehouse { WhId = 1, WhName = "Updated Warehouse" };
 
         _warehouseRepoMock
-            .Setup(x => x.UpdateAsync(It.IsAny<Warehouse>(), cancellationToken))
+            .Setup(x => x.UpdateAsync(It.IsAny<Warehouse>(), _ct))
             .ReturnsAsync(updatedWarehouse);
 
-        // Act
-        var result = await _sut.UpdateAsync(warehouseVm, cancellationToken);
+        var result = await _sut.UpdateAsync(warehouseVm, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Warehouse updated successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -138,20 +119,16 @@ public class WarehouseServiceTests
     [Fact]
     public async Task UpdateAsync_SetsModifiedByFromUserClaim()
     {
-        // Arrange
         var warehouseVm = new WarehouseVm { WhId = 1, WhName = "Updated Warehouse" };
-        var cancellationToken = CancellationToken.None;
         Warehouse? capturedWarehouse = null;
 
         _warehouseRepoMock
-            .Setup(x => x.UpdateAsync(It.IsAny<Warehouse>(), cancellationToken))
+            .Setup(x => x.UpdateAsync(It.IsAny<Warehouse>(), _ct))
             .Callback<Warehouse, CancellationToken>((w, _) => capturedWarehouse = w)
             .ReturnsAsync(new Warehouse { WhId = 1 });
 
-        // Act
-        await _sut.UpdateAsync(warehouseVm, cancellationToken);
+        await _sut.UpdateAsync(warehouseVm, _ct);
 
-        // Assert
         Assert.NotNull(capturedWarehouse);
         Assert.Equal(_userClaimDto.Username, capturedWarehouse.ModifiedBy);
     }
@@ -159,19 +136,15 @@ public class WarehouseServiceTests
     [Fact]
     public async Task DeleteAsync_WithValidId_CommitsTransaction()
     {
-        // Arrange
         var whId = 1;
         var modifiedBy = "admin";
-        var cancellationToken = CancellationToken.None;
 
         _warehouseRepoMock
-            .Setup(x => x.DeleteAsync(whId, modifiedBy, cancellationToken))
+            .Setup(x => x.DeleteAsync(whId, modifiedBy, _ct))
             .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _sut.DeleteAsync(whId, modifiedBy, cancellationToken);
+        var result = await _sut.DeleteAsync(whId, modifiedBy, _ct);
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("Warehouse deleted successfully.", result.Message);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Once);
@@ -180,7 +153,6 @@ public class WarehouseServiceTests
     [Fact]
     public async Task CboAsync_ReturnsWarehouseList()
     {
-        // Arrange
         var warehouses = new List<Warehouse>
         {
             new() { WhId = 1, WhName = "Warehouse 1" },
@@ -191,10 +163,8 @@ public class WarehouseServiceTests
             .Setup(x => x.CboAsync())
             .ReturnsAsync(warehouses);
 
-        // Act
         var result = await _sut.CboAsync();
 
-        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal("ItemTypes for combo box retrieved successfully.", result.Message);
     }
@@ -202,23 +172,15 @@ public class WarehouseServiceTests
     [Fact]
     public async Task InsertAsync_WhenRepoThrowsException_DoesNotCommitTransaction()
     {
-        // Arrange
         var warehouseVm = new WarehouseVm { WhName = "New Warehouse" };
-        var cancellationToken = CancellationToken.None;
 
         _warehouseRepoMock
-            .Setup(x => x.InsertAsync(It.IsAny<Warehouse>(), cancellationToken))
+            .Setup(x => x.InsertAsync(It.IsAny<Warehouse>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _sut.InsertAsync(warehouseVm, cancellationToken));
+            await _sut.InsertAsync(warehouseVm, _ct));
 
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
 }
-
-
-
-
-
