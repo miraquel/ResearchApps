@@ -51,6 +51,7 @@
                 </div>
                 <div class="card-body">
                     <form id="mcForm" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.Header.RecId" />
                         <input type="hidden" name="McId" value="@Model.Header.McId" />
                         <input type="hidden" name="McStatusId" value="@Model.Header.McStatusId" />

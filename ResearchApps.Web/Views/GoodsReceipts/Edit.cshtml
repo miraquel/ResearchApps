@@ -66,6 +66,7 @@
                 </div>
                 <div class="card-body">
                     <form id="grForm" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.Header.RecId" />
                         <input type="hidden" name="GrId" value="@Model.Header.GrId" />
                         <input type="hidden" name="GrStatusId" value="@Model.Header.GrStatusId" />
@@ -447,7 +448,7 @@
                 <div class="modal-body">
                     <!-- Filters -->
                     <div class="row g-3 mb-3">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label small">PO Number</label>
                             <input type="text" 
                                    class="form-control form-control-sm" 
@@ -455,7 +456,7 @@
                                    @@keyup.enter="searchPoLines()"
                                    placeholder="Enter PO number" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <label class="form-label small">Item Name</label>
                             <input type="text" 
                                    class="form-control form-control-sm" 
@@ -463,7 +464,7 @@
                                    @@keyup.enter="searchPoLines()"
                                    placeholder="Enter item name" />
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label small">&nbsp;</label>
                             <button type="button" 
                                     class="btn btn-primary btn-sm w-100" 
@@ -561,7 +562,7 @@
     </div>
 </div>
 
-@@section scripts {
+@section scripts {
     <script src="~/js/goods-receipts/gr-edit.js"></script>
 }
 

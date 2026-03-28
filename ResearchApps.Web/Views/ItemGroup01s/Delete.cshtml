@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Delete Item Group 01";
+    ViewBag.pTitle = "Delete Item Group 01";
     Layout = "_Layout";
 }
 
@@ -38,6 +39,7 @@
     </div>
     <div class="card-body">
         <form asp-action="Delete" method="post" id="delete-itemgroup01-form">
+            @Html.AntiForgeryToken()
             <input type="hidden" asp-for="ItemGroup01Id" />
         </form>
 

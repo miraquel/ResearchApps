@@ -136,9 +136,9 @@
                             </div>
                         </div>
 
-                        @* Pricing and status section *@
+                        @* Pricing section *@
                         <div class="col-md-6">
-                            <h5 class="mb-3">Pricing & Status</h5>
+                            <h5 class="mb-3">Pricing</h5>
 
                             <div class="row">
                                 <div class="col-md-6">
@@ -175,14 +175,7 @@
                                 <span asp-validation-for="Notes" class="text-danger"></span>
                             </div>
 
-                            <div class="mb-3">
-                                <label asp-for="StatusId" class="form-label"></label>
-                                <select asp-for="StatusId" class="form-select">
-                                    <option value="1" selected>Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                                <span asp-validation-for="StatusId" class="text-danger"></span>
-                            </div>
+                            <input type="hidden" asp-for="StatusId" value="1" />
                         </div>
                     </div>
 

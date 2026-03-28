@@ -8,14 +8,6 @@
 
 @* Alpine.js component for item department creation form *@
 <div x-data="itemdeptCreate()">
-    @* Page header with title and back button *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Create Item Department</h2>
-        <a asp-action="Index" class="btn btn-soft-secondary">
-            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
-        </a>
-    </div>
-
     @* Form card *@
     <div class="card">
         <div class="card-body">
@@ -31,13 +23,7 @@
                             <span asp-validation-for="ItemDeptName" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="StatusId" class="form-label"></label>
-                            <select asp-for="StatusId" id="statusSelect" class="form-control">
-                                <option value="">-- Select Status --</option>
-                            </select>
-                            <span asp-validation-for="StatusId" class="text-danger"></span>
-                        </div>
+                        <input type="hidden" asp-for="StatusId" value="1" />
                     </div>
                 </div>
 

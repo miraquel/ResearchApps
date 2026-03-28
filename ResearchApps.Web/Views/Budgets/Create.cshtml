@@ -1,7 +1,6 @@
 @model ResearchApps.Service.Vm.BudgetVm
 
 @{
-    ViewData["Title"] = "Create Budget";
     ViewBag.Title = "Create Budget";
     ViewBag.pTitle = "Create Budget";
     Layout = "_Layout";
@@ -9,18 +8,10 @@
 
 @* Alpine.js component for budget creation form *@
 <div x-data="budgetCreate()">
-    @* Page header with title and back button *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Create Budget</h2>
-        <a asp-action="Index" class="btn btn-soft-secondary">
-            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
-        </a>
-    </div>
-
-    @* Form card *@
     <div class="card">
         <div class="card-body">
-            <form asp-action="Create" method="post">
+            <form id="budget-form" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                 <div class="row">
@@ -35,14 +26,14 @@
 
                         <div class="mb-3">
                             <label asp-for="StartDate" class="form-label"></label>
-                            <input asp-for="StartDate" type="text" class="form-control" x-ref="startDate"
+                            <input asp-for="StartDate" asp-format="{0:yyyy-MM-dd}" type="text" class="form-control" x-ref="startDate"
                                    data-flatpickr placeholder="Select start date" required readonly />
                             <span asp-validation-for="StartDate" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="EndDate" class="form-label"></label>
-                            <input asp-for="EndDate" type="text" class="form-control" x-ref="endDate"
+                            <input asp-for="EndDate" asp-format="{0:yyyy-MM-dd}" type="text" class="form-control" x-ref="endDate"
                                    data-flatpickr placeholder="Select end date" required readonly />
                             <span asp-validation-for="EndDate" class="text-danger"></span>
                         </div>
@@ -65,16 +56,15 @@
                     </div>
                 </div>
 
-                <hr class="my-4">
+                <hr class="my-4" />
 
-                @* Form action buttons *@
-                <div class="d-flex justify-content-end gap-2">
-                    <a asp-action="Index" class="btn btn-soft-secondary">
-                        <i class="ri-close-line align-bottom me-1"></i> Cancel
-                    </a>
+                <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">
                         <i class="ri-save-line align-bottom me-1"></i> Create Budget
                     </button>
+                    <a asp-action="Index" class="btn btn-soft-secondary">
+                        <i class="ri-close-line align-bottom me-1"></i> Cancel
+                    </a>
                 </div>
             </form>
         </div>

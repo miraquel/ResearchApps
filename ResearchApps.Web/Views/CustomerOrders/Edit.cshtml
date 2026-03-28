@@ -61,6 +61,7 @@
                 </div>
                 <div class="card-body">
                     <form id="coForm" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.Header.RecId" />
                         <input type="hidden" name="CoId" value="@Model.Header.CoId" />
                         <input type="hidden" name="CoStatusId" value="@Model.Header.CoStatusId" />

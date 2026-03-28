@@ -8,14 +8,6 @@
 
 @* Alpine.js component for customer edit form *@
 <div x-data="customerEdit(@Model.TopId)">
-    @* Page header with title and back button *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Edit Customer</h2>
-        <a asp-action="Details" asp-route-id="@Model.CustomerId" class="btn btn-soft-secondary">
-            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to Details
-        </a>
-    </div>
-
     @* Form card *@
     <div class="card">
         <div class="card-body">

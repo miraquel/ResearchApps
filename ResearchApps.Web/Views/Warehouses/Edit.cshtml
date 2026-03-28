@@ -6,14 +6,7 @@
     Layout = "_Layout";
 }
 
-@* Page header with title and back button *@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Edit Warehouse</h2>
-    <a asp-action="Index" class="btn btn-soft-secondary">
-        <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
-    </a>
-</div>
-
+<div x-data="warehouseEdit(@Model.StatusId)">
 @* Form card *@
 <div class="card">
     <div class="card-body">
@@ -28,6 +21,12 @@
                         <label asp-for="WhName" class="form-label"></label>
                         <input asp-for="WhName" class="form-control" placeholder="Enter warehouse name" required />
                         <span asp-validation-for="WhName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="StatusId" class="form-label"></label>
+                        <select asp-for="StatusId" class="form-select"></select>
+                        <span asp-validation-for="StatusId" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -49,3 +48,8 @@
         </form>
     </div>
 </div>
+</div>
+
+@section scripts {
+    <script src="~/js/warehouses/warehouse-edit.js"></script>
+}

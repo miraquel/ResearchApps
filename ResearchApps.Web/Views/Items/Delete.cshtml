@@ -38,6 +38,7 @@
     </div>
     <div class="card-body">
         <form asp-action="Delete" method="post" id="delete-item-form">
+            @Html.AntiForgeryToken()
             <input type="hidden" asp-for="ItemId" />
         </form>
         

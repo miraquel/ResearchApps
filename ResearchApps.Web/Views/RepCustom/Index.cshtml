@@ -32,12 +32,12 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="ToolsYear" class="form-label">Year <span class="text-danger">*</span></label>
                             <input type="number" id="ToolsYear" class="form-control" x-model.number="toolsYear"
                                    min="2020" max="2030" placeholder="Year">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="ToolsMonth" class="form-label">Month <span class="text-danger">*</span></label>
                             <select id="ToolsMonth" class="form-select" x-model.number="toolsMonth">
                                 <option value="">Select Month</option>
@@ -55,7 +55,7 @@
                                 <option value="12">December</option>
                             </select>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
+                        <div class="col-md-4 d-flex align-items-end">
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-primary"
                                         @@click="generateTools()" :disabled="isLoadingTools || !toolsYear || !toolsMonth">
@@ -114,12 +114,12 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="AnalysisYear" class="form-label">Year <span class="text-danger">*</span></label>
                             <input type="number" id="AnalysisYear" class="form-control" x-model.number="analysisYear"
                                    min="2020" max="2030" placeholder="Year">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label for="AnalysisMonth" class="form-label">Month <span class="text-danger">*</span></label>
                             <select id="AnalysisMonth" class="form-select" x-model.number="analysisMonth">
                                 <option value="">Select Month</option>
@@ -137,7 +137,7 @@
                                 <option value="12">December</option>
                             </select>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
+                        <div class="col-md-4 d-flex align-items-end">
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-primary"
                                         @@click="generateAnalysis()" :disabled="isLoadingAnalysis || !analysisYear || !analysisMonth">

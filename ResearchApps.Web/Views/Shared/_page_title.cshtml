@@ -1,24 +1,27 @@
 @{
     var controller = (ViewContext.RouteData.Values["controller"] ?? string.Empty).ToString();
     var action = (ViewContext.RouteData.Values["action"] ?? string.Empty).ToString();
-    var hidePageTitle = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+    var explicitPageTitle = (ViewBag.pTitle as string) ?? (ViewBag.ptitle as string);
+    var pageTitle = !string.IsNullOrWhiteSpace(explicitPageTitle)
+        ? explicitPageTitle
+        : ((ViewBag.Title as string) ?? (ViewData["Title"] as string));
+    var hideDefaultHomePageTitle = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
+                                   && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase)
+                                   && string.IsNullOrWhiteSpace(explicitPageTitle);
 }
 
-@if (!hidePageTitle)
+@if (!hideDefaultHomePageTitle && !string.IsNullOrWhiteSpace(pageTitle))
 {
     <!-- start page title -->
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between mb-0">
-                <h4 class="mb-sm-0">@ViewBag.ptitle</h4>
-
+                <h4 class="mb-sm-0">@pageTitle</h4>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0" breadcrumb></ol>
+                </div>
             </div>
-
         </div>
     </div>
-</div>
-<!-- end page title -->
+    <!-- end page title -->
 }
