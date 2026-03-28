@@ -3,42 +3,67 @@
 
 @{
     ViewBag.Title = "Report Details";
-    ViewBag.pTitle = "Report Details";
+    ViewBag.pTitle = $"Report Details: {Model.ReportName}";
     Layout = "_Layout";
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex align-items-center">
-                <h5 class="card-title mb-0 flex-grow-1">Report Details</h5>
-                <div class="flex-shrink-0">
-                    <a asp-action="Generate" asp-route-id="@Model.ReportId" class="btn btn-success btn-sm">
-                        <i class="ri-play-fill align-bottom me-1"></i> Generate Report
+@Html.AntiForgeryToken()
+
+<div id="reportDetails" class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col d-flex justify-content-between align-items-end">
+                <ul class="nav nav-tabs-custom rounded card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#parameters">Parameters</a>
+                    </li>
+                    @if (Model.ReportType == 2)
+                    {
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" data-bs-toggle="tab" href="#coordinates">Field Coordinates</a>
+                        </li>
+                    }
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#log">Log</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 align-self-center">
+                    <a asp-action="Generate" asp-route-id="@Model.ReportId" class="btn btn-sm btn-success">
+                        <i class="ri-play-fill"></i> Generate
                     </a>
-                    <a asp-action="Edit" asp-route-id="@Model.ReportId" class="btn btn-primary btn-sm">
-                        <i class="ri-pencil-fill align-bottom me-1"></i> Edit
+                    <a asp-action="Edit" asp-route-id="@Model.ReportId" class="btn btn-sm btn-primary">
+                        <i class="ri-edit-line"></i> Edit
                     </a>
-                    <a asp-action="Index" class="btn btn-secondary btn-sm">
-                        <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
+                    <a asp-action="Index" class="btn btn-sm btn-soft-secondary">
+                        <i class="ri-arrow-left-line"></i> Back
                     </a>
                 </div>
             </div>
-            <div class="card-body">
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="overview" role="tabpanel">
                 <div class="row">
                     <div class="col-md-6">
-                        <dl class="row">
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ReportId)</dt>
-                            <dd class="col-sm-8">@Model.ReportId</dd>
-                            
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ReportName)</dt>
-                            <dd class="col-sm-8">@Model.ReportName</dd>
-                            
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Description)</dt>
-                            <dd class="col-sm-8">@(Model.Description ?? "-")</dd>
-                            
-                            <dt class="col-sm-4">Report Type</dt>
-                            <dd class="col-sm-8">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.ReportId)</strong></div>
+                            <div class="col-8">@Model.ReportId</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.ReportName)</strong></div>
+                            <div class="col-8">@Model.ReportName</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.Description)</strong></div>
+                            <div class="col-8">@(Model.Description ?? "-")</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Report Type</strong></div>
+                            <div class="col-8">
                                 @if (Model.ReportType == 1)
                                 {
                                     <span class="badge bg-primary">Fully Generated</span>
@@ -49,19 +74,21 @@
                                     <span class="badge bg-info">Partially Generated</span>
                                     <small class="text-muted d-block">Generates only main information for pre-printed continuous paper.</small>
                                 }
-                            </dd>
-                        </dl>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <dl class="row">
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.PageSize)</dt>
-                            <dd class="col-sm-8">@Model.PageSize</dd>
-                            
-                            <dt class="col-sm-4">Orientation</dt>
-                            <dd class="col-sm-8">@Model.OrientationName</dd>
-                            
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.StatusName)</dt>
-                            <dd class="col-sm-8">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.PageSize)</strong></div>
+                            <div class="col-8">@Model.PageSize</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>Orientation</strong></div>
+                            <div class="col-8">@Model.OrientationName</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.StatusName)</strong></div>
+                            <div class="col-8">
                                 @if (Model.StatusId == 1)
                                 {
                                     <span class="badge bg-success">@Model.StatusName</span>
@@ -70,32 +97,26 @@
                                 {
                                     <span class="badge bg-secondary">@Model.StatusName</span>
                                 }
-                            </dd>
-                            
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CreatedDate)</dt>
-                            <dd class="col-sm-8">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm") by @Model.CreatedBy</dd>
-                            
-                            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ModifiedDate)</dt>
-                            <dd class="col-sm-8">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm") by @Model.ModifiedBy</dd>
-                        </dl>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.SqlQuery))
                 {
-                    <div class="row mt-3">
+                    <div class="row mt-2">
                         <div class="col-12">
                             <h6 class="text-muted">SQL Query / Stored Procedure</h6>
-                            <pre class="bg-light p-3 rounded"><code>@Model.SqlQuery</code></pre>
+                            <pre class="bg-light p-3 rounded mb-0"><code>@Model.SqlQuery</code></pre>
                         </div>
                     </div>
                 }
 
                 @if (Model.ReportType == 1 && Model.HasTemplateFile)
                 {
-                    <div class="row mt-3">
+                    <div class="row mt-4">
                         <div class="col-12">
-                            <div class="card border-primary">
+                            <div class="card border-primary mb-0">
                                 <div class="card-header bg-primary bg-opacity-10">
                                     <h6 class="mb-0"><i class="ri-file-upload-line me-2"></i>Template File</h6>
                                 </div>
@@ -104,7 +125,8 @@
                                         <i class="ri-file-line fs-2 me-3 text-primary"></i>
                                         <div class="flex-grow-1">
                                             <strong>@Model.TemplateFileName</strong>
-                                            <br /><small class="text-muted">@Model.TemplateContentType</small>
+                                            <br />
+                                            <small class="text-muted">@Model.TemplateContentType</small>
                                         </div>
                                         <a href="/@Model.TemplatePath" class="btn btn-outline-primary btn-sm" target="_blank">
                                             <i class="ri-download-line me-1"></i> Download
@@ -117,7 +139,7 @@
                 }
                 else if (Model.ReportType == 1)
                 {
-                    <div class="row mt-3">
+                    <div class="row mt-4">
                         <div class="col-12">
                             <div class="alert alert-warning mb-0">
                                 <i class="ri-alert-line me-2"></i>
@@ -127,25 +149,19 @@
                     </div>
                 }
             </div>
-        </div>
 
-        <!-- Parameters Section -->
-        <div class="card mt-3">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Report Parameters (@Model.Parameters.Count)</h5>
-            </div>
-            <div class="card-body">
+            <div class="tab-pane" id="parameters" role="tabpanel">
                 @if (Model.Parameters.Count > 0)
                 {
                     <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
+                        <table class="table table-bordered table-striped align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 50px;">#</th>
+                                    <th class="text-center" style="width: 50px;">#</th>
                                     <th>Parameter Name</th>
                                     <th>Display Label</th>
                                     <th>Data Type</th>
-                                    <th>Required</th>
+                                    <th class="text-center">Required</th>
                                     <th>Default Value</th>
                                     <th>Placeholder</th>
                                 </tr>
@@ -180,34 +196,28 @@
                 {
                     <div class="text-center text-muted py-4">
                         <i class="ri-file-list-3-line fs-1"></i>
-                        <p class="mt-2">No parameters defined for this report.</p>
+                        <p class="mt-2 mb-0">No parameters defined for this report.</p>
                     </div>
                 }
             </div>
-        </div>
 
-        <!-- Field Coordinates Section (for Partially Generated Reports) -->
-        @if (Model.ReportType == 2)
-        {
-            <div class="card mt-3">
-                <div class="card-header bg-success bg-opacity-10">
-                    <h5 class="card-title mb-0"><i class="ri-focus-3-line me-2"></i>Field Coordinates (@Model.FieldCoordinates.Count)</h5>
-                </div>
-                <div class="card-body">
+            @if (Model.ReportType == 2)
+            {
+                <div class="tab-pane" id="coordinates" role="tabpanel">
                     @if (Model.FieldCoordinates.Count > 0)
                     {
                         <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
+                            <table class="table table-bordered table-striped align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width: 50px;">#</th>
+                                        <th class="text-center" style="width: 50px;">#</th>
                                         <th>Field Name</th>
                                         <th>Display Label</th>
                                         <th>Position (X, Y)</th>
                                         <th>Size (W × H)</th>
                                         <th>Font</th>
                                         <th>Alignment</th>
-                                        <th>Repeating</th>
+                                        <th class="text-center">Repeating</th>
                                         <th>Data Binding</th>
                                     </tr>
                                 </thead>
@@ -219,23 +229,17 @@
                                             <td><code>@coord.FieldName</code></td>
                                             <td>@coord.DisplayLabel</td>
                                             <td>
-                                                <span class="badge bg-light text-dark">
-                                                    X: @coord.XPosition mm, Y: @coord.YPosition mm
-                                                </span>
+                                                <span class="badge bg-light text-dark">X: @coord.XPosition mm, Y: @coord.YPosition mm</span>
                                             </td>
                                             <td>
-                                                <span class="badge bg-light text-dark">
-                                                    @coord.Width × @coord.Height mm
-                                                </span>
+                                                <span class="badge bg-light text-dark">@coord.Width × @coord.Height mm</span>
                                             </td>
                                             <td>
                                                 <span style="font-family: @coord.FontFamily; font-weight: @(coord.IsBold ? "bold" : "normal"); font-style: @(coord.IsItalic ? "italic" : "normal");">
                                                     @coord.FontFamily @coord.FontSize pt
                                                 </span>
                                             </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-secondary">@coord.AlignmentName</span>
-                                            </td>
+                                            <td class="text-center"><span class="badge bg-secondary">@coord.AlignmentName</span></td>
                                             <td class="text-center">
                                                 @if (coord.IsRepeating)
                                                 {
@@ -258,12 +262,37 @@
                     {
                         <div class="text-center text-muted py-4">
                             <i class="ri-focus-3-line fs-1"></i>
-                            <p class="mt-2">No field coordinates defined for this report.</p>
+                            <p class="mt-2 mb-0">No field coordinates defined for this report.</p>
                         </div>
                     }
                 </div>
+            }
+
+            <div class="tab-pane" id="log" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.CreatedDate)</strong></div>
+                            <div class="col-8">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.CreatedBy)</strong></div>
+                            <div class="col-8">@Model.CreatedBy</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.ModifiedDate)</strong></div>
+                            <div class="col-8">@Model.ModifiedDate.ToString("dd MMM yyyy HH:mm")</div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-4"><strong>@Html.DisplayNameFor(m => m.ModifiedBy)</strong></div>
+                            <div class="col-8">@Model.ModifiedBy</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        }
+        </div>
     </div>
 </div>
 

@@ -6,14 +6,13 @@
     Layout = "_Layout";
 }
 
-<div class="card">
+<div x-data="itemTypeEdit(@Model.StatusId)" class="card">
     <div class="card-body">
         <form id="itemtype-form" asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <input type="hidden" asp-for="ItemTypeId" />
-            <input type="hidden" asp-for="StatusId" />
             <input type="hidden" asp-for="CreatedDate" />
             <input type="hidden" asp-for="CreatedBy" />
 
@@ -25,6 +24,12 @@
                         <label asp-for="ItemTypeName" class="form-label"></label>
                         <input asp-for="ItemTypeName" class="form-control" required />
                         <span asp-validation-for="ItemTypeName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="StatusId" class="form-label"></label>
+                        <select asp-for="StatusId" class="form-select"></select>
+                        <span asp-validation-for="StatusId" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -41,3 +46,6 @@
     </div>
 </div>
 
+@section scripts {
+    <script src="~/js/item-types/item-type-form.js"></script>
+}

@@ -29,6 +29,7 @@
                 </div>
                 <div class="card-body">
                     <form id="prod-form" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.RecId" />
                         <input type="hidden" name="ProdId" value="@Model.ProdId" />
                         

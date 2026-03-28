@@ -41,6 +41,7 @@
                 </div>
                 <div class="card-body">
                     <form id="prForm" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.RecId" />
                         <input type="hidden" name="PrId" value="@Model.PrId" />
                         <input type="hidden" name="PrStatusId" value="@Model.PrStatusId" />

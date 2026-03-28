@@ -1,23 +1,18 @@
 @model ResearchApps.Service.Vm.SupplierVm
 
 @{
-    ViewData["Title"] = "Create Supplier";
+    ViewBag.Title = "Create Supplier";
+    ViewBag.pTitle = "Create Supplier";
+    Layout = "_Layout";
 }
 
 @* Alpine.js component for supplier creation form *@
 <div x-data="supplierCreate()">
-    @* Page header with title and back button *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Create Supplier</h2>
-        <a asp-action="Index" class="btn btn-soft-secondary">
-            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
-        </a>
-    </div>
-
     @* Form card *@
     <div class="card">
         <div class="card-body">
             <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                 <div class="row">
@@ -69,7 +64,6 @@
                         <div class="mb-3">
                             <label asp-for="TopId" class="form-label"></label>
                             <select asp-for="TopId" id="topSelect" class="form-control" required>
-                                <option value="">-- Select TOP --</option>
                             </select>
                             <span asp-validation-for="TopId" class="text-danger"></span>
                         </div>

@@ -8,19 +8,12 @@
 
 @* Alpine.js component for unit creation form *@
 <div x-data="unitCreate()">
-    @* Page header with title and back button *@
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Create Unit</h2>
-        <a asp-action="Index" class="btn btn-soft-secondary">
-            <i class="ri-arrow-left-line align-bottom me-1"></i> Back to List
-        </a>
-    </div>
-
     @* Form card *@
     <div class="card">
         <div class="card-body">
             <form id="unit-form" asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="StatusId" value="1" />
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                 <div class="row">

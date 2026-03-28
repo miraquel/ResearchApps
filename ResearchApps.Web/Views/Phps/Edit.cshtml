@@ -63,6 +63,7 @@
                 </div>
                 <div class="card-body">
                     <form id="phpForm" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.Header.RecId" />
                         <input type="hidden" name="PhpId" value="@Model.Header.PhpId" />
                         <input type="hidden" name="PhpStatusId" value="@Model.Header.PhpStatusId" />
