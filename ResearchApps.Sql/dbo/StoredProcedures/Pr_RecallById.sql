@@ -3,25 +3,36 @@ CREATE PROCEDURE [dbo].[Pr_RecallById]
 	@RecId int,
 	@ModifiedBy nvarchar(20)
 AS
-DECLARE @RefId nvarchar(20)
-DECLARE @PrStatusId int
-
 BEGIN	
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
-	DECLARE @WfTransId int
+	DECLARE @WfTransId int;
 
-	IF EXISTS (SELECT WfTransId FROM Pr WHERE RecId = @RecId AND PrStatusId = 4)
-	BEGIN
-		SELECT @WfTransId = WfTransId FROM Pr WHERE RecId = @RecId AND PrStatusId = 4
+    BEGIN TRY
+	    IF NOT EXISTS (SELECT 1 FROM Pr WHERE RecId = @RecId)
+	    BEGIN
+	        THROW 50001, 'PR not found.', 1;
+	    END;
+
+	    IF NOT EXISTS (SELECT 1 FROM Pr WHERE RecId = @RecId AND PrStatusId = 4)
+	    BEGIN
+	        THROW 50002, 'Only submitted PR can be recalled.', 1;
+	    END;
+
+		SELECT @WfTransId = WfTransId FROM Pr WHERE RecId = @RecId AND PrStatusId = 4;
 
 		UPDATE [WfTrans]
 		SET [WfStatusActionId] = 3
-		WHERE [WfTransId] = @WfTransId
+		WHERE [WfTransId] = @WfTransId;
 
 		UPDATE Pr
 		SET PrStatusId = 0
-		WHERE RecId = @RecId
-	END	
+		WHERE RecId = @RecId;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH;
 END
 
 GO

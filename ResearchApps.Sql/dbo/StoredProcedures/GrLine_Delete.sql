@@ -3,53 +3,60 @@ CREATE PROCEDURE [dbo].[GrLine_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @IsPpn bit, @GrId nvarchar(20), @ItemName nvarchar(100), @UnitId int
-	DECLARE @SubTotal numeric(32,16), @Ppn numeric(32,16), @Total numeric(32,16)
-	DECLARE @Qty numeric(32,16), @Onhand numeric(32,16), @ItemId int, @WhId int
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	--* Init *--
-	SELECT @GrId = GrId 
-		, @Qty = Qty
-		, @ItemId = ItemId
-		, @WhId = WhId 	
-	FROM GrLine WHERE GrLineId = @GrLineId
+	DECLARE @IsPpn bit, @GrId nvarchar(20), @ItemName nvarchar(100), @UnitId int;
+	DECLARE @SubTotal numeric(32,16), @Ppn numeric(32,16), @Total numeric(32,16);
+	DECLARE @Qty numeric(32,16), @Onhand numeric(32,16), @ItemId int, @WhId int;
 
-	--* cek  stock *--
-	IF @Qty > 0 
-	BEGIN
-		SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId
-		IF @Onhand < @Qty
+	BEGIN TRY
+
+		--* Init *--
+		SELECT @GrId = GrId
+			, @Qty = Qty
+			, @ItemId = ItemId
+			, @WhId = WhId
+		FROM GrLine WHERE GrLineId = @GrLineId;
+
+		--* cek  stock *--
+		IF @Qty > 0
 		BEGIN
-			SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar)
-			RETURN
+			SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
+			IF @Onhand < @Qty
+			BEGIN
+				SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar);
+				RETURN;
+			END
 		END
-	END
 
-	--* Gr Line *--
-	DELETE FROM [GrLine]
-	WHERE GrLineId = @GrLineId
+		--* Gr Line *--
+		DELETE FROM [GrLine]
+		WHERE GrLineId = @GrLineId;
 
+		--* Gr Header *--
+		SELECT @SubTotal = SUM(Qty * Price)
+			, @Ppn = SUM(Qty * Ppn)
+			, @Total = SUM(Qty * (Price+Ppn))
+		FROM GrLine
+		WHERE GrId = @GrId;
 
-	--* Gr Header *--
-	SELECT @SubTotal = SUM(Qty * Price)
-		, @Ppn = SUM(Qty * Ppn)
-		, @Total = SUM(Qty * (Price+Ppn))
-	FROM GrLine
-	WHERE GrId = @GrId
+		UPDATE [Gr]
+		SET SubTotal = isnull(@SubTotal,0)
+			,Ppn = isnull(@Ppn,0)
+			,Total = isnull(@Total,0)
+		WHERE GrId = @GrId;
 
-	UPDATE [Gr]
-	SET SubTotal = isnull(@SubTotal,0)
-		,Ppn = isnull(@Ppn,0)
-		,Total = isnull(@Total,0)
-	WHERE GrId = @GrId
+		--* InventTrans *--
+		DELETE FROM [InventTrans]
+		WHERE [RefType] = 'Goods Receipt' AND [RefId] = cast(@GrLineId as nvarchar);
 
-	--* InventTrans *--
-	DELETE FROM [InventTrans]
-	WHERE [RefType] = 'Goods Receipt' AND [RefId] = cast(@GrLineId as nvarchar)
+		SELECT @GrId;
 
-
-	SELECT @GrId
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
 
 GO
-

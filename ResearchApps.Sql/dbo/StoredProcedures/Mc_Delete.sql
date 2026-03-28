@@ -3,38 +3,48 @@ CREATE PROCEDURE [dbo].[Mc_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @McId nvarchar(20), @McLineId int
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @McId = McId FROM Mc WHERE RecId = @RecId
+	DECLARE @McId nvarchar(20), @McLineId int;
 
-	--* Mc Line *--
-	DECLARE x_cursor CURSOR FOR   
-	SELECT McLineId  
-	FROM [McLine]  
-	WHERE McId = @McId  
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Mc WHERE RecId = @RecId)
+		BEGIN
+			THROW 50001, 'Material Customer not found.', 1;
+		END;
 
-	OPEN x_cursor  
+		SELECT @McId = McId FROM Mc WHERE RecId = @RecId;
 
-	FETCH NEXT FROM x_cursor   
-	INTO @McLineId  
+		--* Mc Line *--
+		DECLARE x_cursor CURSOR FOR
+		SELECT McLineId
+		FROM [McLine]
+		WHERE McId = @McId;
 
-	WHILE @@FETCH_STATUS = 0  
-	BEGIN  
-		EXEC [McLine_Delete] @McLineId
-		
-		-- Get the next vendor.  
-		FETCH NEXT FROM x_cursor   
-		INTO @McLineId  
-	END   
-	CLOSE x_cursor;  
-	DEALLOCATE x_cursor;
+		OPEN x_cursor;
 
+		FETCH NEXT FROM x_cursor
+		INTO @McLineId;
 
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			EXEC [McLine_Delete] @McLineId;
 
-	--* Mc Header *--
-	DELETE FROM [Mc]
-	WHERE RecId = @RecId
+			-- Get the next vendor.
+			FETCH NEXT FROM x_cursor
+			INTO @McLineId;
+		END;
+		CLOSE x_cursor;
+		DEALLOCATE x_cursor;
+
+		--* Mc Header *--
+		DELETE FROM [Mc]
+		WHERE RecId = @RecId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
 
 GO
-

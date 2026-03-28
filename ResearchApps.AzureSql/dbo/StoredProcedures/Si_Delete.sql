@@ -3,15 +3,28 @@ CREATE PROCEDURE [dbo].[Si_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @SiId nvarchar(20)
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @SiId = SiId FROM Si WHERE RecId = @RecId
+	DECLARE @SiId nvarchar(20);
 
-	--* Si Line *--
-	DELETE FROM [SiLine] WHERE SiId = @SiId
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Si WHERE RecId = @RecId)
+		BEGIN
+			THROW 50001, 'Sales Invoice not found.', 1;
+		END;
 
-	--* Si Header *--
-	DELETE FROM [Si] WHERE RecId = @RecId
+		SELECT @SiId = SiId FROM Si WHERE RecId = @RecId;
+
+		--* Si Line *--
+		DELETE FROM [SiLine] WHERE SiId = @SiId;
+
+		--* Si Header *--
+		DELETE FROM [Si] WHERE RecId = @RecId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
-GO
 
+GO

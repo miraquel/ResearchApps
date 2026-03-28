@@ -3,17 +3,35 @@ CREATE PROCEDURE [dbo].[Pr_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @PrId nvarchar(20)
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @PrId = PrId FROM Pr WHERE RecId = @RecId
+	DECLARE @PrId nvarchar(20);
 
-	--* Pr Line *--
-	DELETE FROM [PrLine]
-	WHERE PrId = @PrId
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Pr WHERE RecId = @RecId)
+		BEGIN
+			THROW 50001, 'Purchase Request not found.', 1;
+		END;
 
-	--* Pr Header *--
-	DELETE FROM [Pr]
-	WHERE RecId = @RecId
+		IF (SELECT PrStatusId FROM Pr WHERE RecId = @RecId) <> 0
+		BEGIN
+			THROW 50002, 'Only Draft Purchase Requests can be deleted.', 1;
+		END;
+
+		SELECT @PrId = PrId FROM Pr WHERE RecId = @RecId;
+
+		--* Pr Line *--
+		DELETE FROM [PrLine]
+		WHERE PrId = @PrId;
+
+		--* Pr Header *--
+		DELETE FROM [Pr]
+		WHERE RecId = @RecId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
-GO
 
+GO

@@ -1,38 +1,44 @@
 CREATE PROCEDURE [dbo].[PsLine_Update]
-@PsLineId int, 
-@ItemId int, 
+@PsLineId int,
+@ItemId int,
 @WhId int,
-@Qty numeric(32,16), 
-@Notes nvarchar(100), 
+@Qty numeric(32,16),
+@Notes nvarchar(100),
 @ModifiedBy nvarchar(20)
 AS
 BEGIN
-	DECLARE @PsId nvarchar(20)
-	DECLARE @Price numeric(32,16) 
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @PsId = PsId FROM PsLine WHERE PsLineId = @PsLineId
-	SELECT @Price = Price FROM [PsLine] WHERE PsLineId = @PsLineId
+	DECLARE @PsId nvarchar(20);
+	DECLARE @Price numeric(32,16);
 
-	--* Ps Line *--
-	UPDATE [PsLine]
-	SET [ItemId] = @ItemId
-		, [WhId] = @WhId
-		, [Qty] = @Qty
-		, [Price] = @Price
-		, [Notes] = @Notes
-		, [ModifiedDate] = GETDATE()
-		, [ModifiedBy] = @ModifiedBy
-	WHERE PsLineId = @PsLineId
+	BEGIN TRY
+		SELECT @PsId = PsId FROM PsLine WHERE PsLineId = @PsLineId;
+		SELECT @Price = Price FROM [PsLine] WHERE PsLineId = @PsLineId;
 
-	--* InventTrans *--
-	UPDATE [InventTrans]
-	SET Qty = -1*@Qty
-		, Value = -1*@Qty * @Price
-		, WhId = @WhId
-	WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar)
+		--* Ps Line *--
+		UPDATE [PsLine]
+		SET [ItemId] = @ItemId
+			, [WhId] = @WhId
+			, [Qty] = @Qty
+			, [Price] = @Price
+			, [Notes] = @Notes
+			, [ModifiedDate] = GETDATE()
+			, [ModifiedBy] = @ModifiedBy
+		WHERE PsLineId = @PsLineId;
 
-	SELECT @PsId
+		--* InventTrans *--
+		UPDATE [InventTrans]
+		SET Qty = -1*@Qty
+			, Value = -1*@Qty * @Price
+			, WhId = @WhId
+		WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar);
+
+		SELECT @PsId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
-
 GO
-

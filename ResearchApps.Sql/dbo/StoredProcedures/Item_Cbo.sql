@@ -1,6 +1,7 @@
 CREATE PROCEDURE [dbo].[Item_Cbo]
     @Id INT = NULL,
-    @Term NVARCHAR(MAX) = NULL
+    @Term NVARCHAR(MAX) = NULL,
+	@ItemType INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,6 +19,11 @@ BEGIN
         1 = CASE
                 WHEN @Term IS NULL THEN 1
                 WHEN ItemName LIKE @Term THEN 1
+                ELSE 0
+            END AND
+        1 = CASE
+                WHEN @ItemType IS NULL THEN 1
+                WHEN [ItemTypeId] = @ItemType THEN 1
                 ELSE 0
             END
     ORDER BY [ItemName]
