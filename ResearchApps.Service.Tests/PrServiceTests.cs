@@ -11,11 +11,13 @@ public class PrServiceTests
     {
         _prRepoMock = new Mock<IPrRepo>();
         _dbTransactionMock = new Mock<IDbTransaction>();
+        var prLineRepoMock = new Mock<IPrLineRepo>();
         var loggerMock = new Mock<ILogger<PrService>>();
         _userClaimDto = new UserClaimDto { Username = "testuser" };
 
         _sut = new PrService(
             _prRepoMock.Object,
+            prLineRepoMock.Object,
             _dbTransactionMock.Object,
             _userClaimDto,
             loggerMock.Object);
@@ -179,22 +181,15 @@ public class PrServiceTests
     }
 
     [Fact]
-    public async Task PrSubmitById_WithValidId_ReturnsSubmittedPr()
+    public async Task PrSubmitById_WithValidId_ReturnsSuccess()
     {
         // Arrange
         var prRecId = 1;
         var cancellationToken = CancellationToken.None;
-        var submittedPr = new Pr 
-        { 
-            RecId = prRecId, 
-            PrId = "PR001", 
-            PrName = "Test PR",
-            CurrentApprover = "approver1"
-        };
 
         _prRepoMock
             .Setup(x => x.PrSubmitById(prRecId, _userClaimDto.Username, cancellationToken))
-            .ReturnsAsync(submittedPr);
+            .Returns(Task.CompletedTask);
 
         // Act
         var result = await _sut.PrSubmitById(prRecId, cancellationToken);
@@ -314,7 +309,7 @@ public class PrServiceTests
         _prRepoMock
             .Setup(x => x.PrSubmitById(It.IsAny<int>(), It.IsAny<string>(), cancellationToken))
             .Callback<int, string, CancellationToken>((_, username, _) => capturedUsername = username)
-            .ReturnsAsync(new Pr { RecId = prRecId });
+            .Returns(Task.CompletedTask);
 
         // Act
         await _sut.PrSubmitById(prRecId, cancellationToken);

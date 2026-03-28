@@ -106,7 +106,7 @@ public class ReportServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Equal("Report not found.", result.Message);
+        Assert.Contains("Report not found.", result.Errors!);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }
 
@@ -313,7 +313,7 @@ public class ReportServiceTests
         Assert.True(result.IsSuccess);
         Assert.Equal("Report parameters retrieved successfully.", result.Message);
         var typed = Assert.IsType<ServiceResponse<IEnumerable<ReportParameterVm>>>(result);
-        var data = Assert.IsType<List<ReportParameterVm>>(typed.Data);
+        var data = typed.Data!.ToList();
         Assert.NotNull(data);
         Assert.Equal(2, data.Count);
     }
@@ -375,7 +375,7 @@ public class ReportServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Equal("Report not found.", result.Message);
+        Assert.Contains("Report not found.", result.Errors!);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }
 
@@ -407,8 +407,7 @@ public class ReportServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Contains("Start Date", result.Message);
-        Assert.Contains("required", result.Message);
+        Assert.Contains(result.Errors!, e => e.Contains("Start Date") && e.Contains("required"));
     }
 
     [Fact]
@@ -442,7 +441,7 @@ public class ReportServiceTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Contains("Start Date", result.Message);
+        Assert.Contains(result.Errors!, e => e.Contains("Start Date"));
     }
 
     #endregion

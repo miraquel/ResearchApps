@@ -380,22 +380,21 @@ public class DeliveryOrderServiceTests
         // Arrange
         const int recId = 1;
         var cancellationToken = CancellationToken.None;
-        var header = new DeliveryOrderHeader { RecId = recId, DoId = "DO001", CustomerId = 1 };
-        var lines = new List<DeliveryOrderLine>
+        var composite = new DeliveryOrder
         {
-            new() { DoLineId = 1, DoRecId = recId, ItemId = 1 }
-        };
-        var outstanding = new List<DeliveryOrderLineOutstanding>
-        {
-            new() { DoLineId = 2, DoId = "DO002", ItemId = 2 }
+            Header = new DeliveryOrderHeader { RecId = recId, DoId = "DO001", CustomerId = 1 },
+            Lines = new List<DeliveryOrderLine>
+            {
+                new() { DoLineId = 1, DoRecId = recId, ItemId = 1 }
+            },
+            Outstanding = new List<DeliveryOrderLineOutstanding>
+            {
+                new() { DoLineId = 2, DoId = "DO002", ItemId = 2 }
+            }
         };
 
-        _doRepoMock.Setup(x => x.DoSelectById(recId, cancellationToken))
-            .ReturnsAsync(header);
-        _doRepoMock.Setup(x => x.DoLineSelectByDo(recId, cancellationToken))
-            .ReturnsAsync(lines);
-        _doRepoMock.Setup(x => x.DoOsSelect(header.CustomerId, cancellationToken))
-            .ReturnsAsync(outstanding);
+        _doRepoMock.Setup(x => x.DoSelectCompositeById(recId, cancellationToken))
+            .ReturnsAsync(composite);
 
         // Act
         var result = await _sut.GetDeliveryOrderViewModel(recId, cancellationToken);
