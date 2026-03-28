@@ -26,7 +26,20 @@
       "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Domain -name *.cs -path */Properties/*)",
       "Bash(grep -rn \"AssemblyCompany\\\\|AssemblyTitle\\\\|AssemblyVersion\" C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Domain/ --include=*.cs)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dotnet test:*)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -name *.cs -type f)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -type f -name *.cs)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps -type f -name *.cs)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(ls:*)",
+      "Bash(find . -maxdepth 3 -name *.csproj)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps -maxdepth 3 -name *.csproj)",
+      "Bash(sort -t% -k1 -n)",
+      "Bash(grep -v \"//\")",
+      "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Service/obj -name *.g.cs)",
+      "Bash(head -5 find C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Mapper/obj -name *.g.cs)",
+      "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps -path */obj/* -name *.cs)"
     ]
   }
 }
