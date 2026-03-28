@@ -174,7 +174,8 @@ public class ItemDeptsController : Controller
         }
         catch
         {
-            return View();
+            TempData["ErrorMessage"] = "An error occurred while deleting the item department.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

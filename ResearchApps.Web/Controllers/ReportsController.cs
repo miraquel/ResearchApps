@@ -17,11 +17,16 @@ public class ReportsController : Controller
 {
     private readonly IReportService _reportService;
     private readonly IReportGeneratorService _reportGeneratorService;
+    private readonly ILogger<ReportsController> _logger;
 
-    public ReportsController(IReportService reportService, IReportGeneratorService reportGeneratorService)
+    public ReportsController(
+        IReportService reportService,
+        IReportGeneratorService reportGeneratorService,
+        ILogger<ReportsController> logger)
     {
         _reportService = reportService;
         _reportGeneratorService = reportGeneratorService;
+        _logger = logger;
     }
 
     // GET: ReportsController
@@ -85,7 +90,8 @@ public class ReportsController : Controller
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            _logger.LogError(ex, "Failed to create report");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while creating the report.");
             return View(collection);
         }
     }
@@ -137,7 +143,8 @@ public class ReportsController : Controller
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            _logger.LogError(ex, "Failed to edit report {ReportId}", collection.ReportId);
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the report.");
             return View(collection);
         }
     }
@@ -174,7 +181,8 @@ public class ReportsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            _logger.LogError(ex, "Failed to delete report {ReportId}", id);
+            TempData["ErrorMessage"] = "An unexpected error occurred while deleting the report.";
             return RedirectToAction(nameof(Index));
         }
     }
@@ -236,7 +244,8 @@ public class ReportsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            _logger.LogError(ex, "Failed to generate report {ReportId}", generateVm.ReportId);
+            TempData["ErrorMessage"] = "An unexpected error occurred while generating the report.";
             return View(generateVm);
         }
     }
@@ -313,7 +322,8 @@ public class ReportsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"Error generating report: {ex.Message}";
+            _logger.LogError(ex, "Failed to download report {ReportId}", id);
+            TempData["ErrorMessage"] = "An unexpected error occurred while generating report output.";
             return RedirectToAction(nameof(Generate), new { id });
         }
     }

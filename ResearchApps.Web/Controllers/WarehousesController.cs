@@ -173,7 +173,8 @@ public class WarehousesController : Controller
         }
         catch
         {
-            return View();
+            TempData["ErrorMessage"] = "An error occurred while deleting the warehouse.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

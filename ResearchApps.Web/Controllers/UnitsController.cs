@@ -172,7 +172,8 @@ public class UnitsController : Controller
         }
         catch
         {
-            return View();
+            TempData["ErrorMessage"] = "An error occurred while deleting the unit.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -14,11 +14,16 @@ public class DeliveryOrdersController : Controller
 {
     private readonly IDeliveryOrderService _deliveryOrderService;
     private readonly ICustomerOrderService _customerOrderService;
+    private readonly ILogger<DeliveryOrdersController> _logger;
 
-    public DeliveryOrdersController(IDeliveryOrderService deliveryOrderService, ICustomerOrderService customerOrderService)
+    public DeliveryOrdersController(
+        IDeliveryOrderService deliveryOrderService,
+        ICustomerOrderService customerOrderService,
+        ILogger<DeliveryOrdersController> logger)
     {
         _deliveryOrderService = deliveryOrderService;
         _customerOrderService = customerOrderService;
+        _logger = logger;
     }
 
     // GET: DeliveryOrders
@@ -121,7 +126,8 @@ public class DeliveryOrdersController : Controller
         }
         catch (Exception e)
         {
-            ModelState.AddModelError(string.Empty, $"An error occurred: {e.Message}");
+            _logger.LogError(e, "Failed to create delivery order");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while creating the delivery order.");
             return View(vm);
         }
     }

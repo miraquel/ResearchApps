@@ -17,11 +17,16 @@ public class PrsController : Controller
 {
     private readonly IPrService _prService;
     private readonly IWorkflowNotificationService _notificationService;
+    private readonly ILogger<PrsController> _logger;
 
-    public PrsController(IPrService prService, IWorkflowNotificationService notificationService)
+    public PrsController(
+        IPrService prService,
+        IWorkflowNotificationService notificationService,
+        ILogger<PrsController> logger)
     {
         _prService = prService;
         _notificationService = notificationService;
+        _logger = logger;
     }
 
     // GET: PrsController
@@ -110,9 +115,11 @@ public class PrsController : Controller
 
             return RedirectToAction(nameof(Index));
         }
-        catch
+        catch (Exception ex)
         {
-            return View();
+            _logger.LogError(ex, "Failed to create PR");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while creating the PR.");
+            return View(collection);
         }
     }
 
@@ -148,8 +155,10 @@ public class PrsController : Controller
             // return to Edit view with the current model state
             return View(collection);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to update PR {RecId}", collection.RecId);
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the PR.");
             return View(collection);
         }
     }
@@ -185,9 +194,11 @@ public class PrsController : Controller
 
             return RedirectToAction(nameof(Index));
         }
-        catch
+        catch (Exception ex)
         {
-            return View();
+            _logger.LogError(ex, "Failed to delete PR {RecId}", id);
+            TempData["ErrorMessage"] = "An unexpected error occurred while deleting the PR.";
+            return RedirectToAction(nameof(Index));
         }
     }
 
@@ -233,7 +244,8 @@ public class PrsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"Error submitting PR: {ex.Message}";
+            _logger.LogError(ex, "Failed to submit PR {RecId}", recId);
+            TempData["ErrorMessage"] = "An unexpected error occurred while submitting the PR.";
             return RedirectToAction(nameof(Details), new { id = recId });
         }
     }
@@ -286,7 +298,8 @@ public class PrsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"Error approving PR: {ex.Message}";
+            _logger.LogError(ex, "Failed to approve PR {RecId}", action.RecId);
+            TempData["ErrorMessage"] = "An unexpected error occurred while approving the PR.";
             return RedirectToAction(nameof(Details), new { id = action.RecId });
         }
     }
@@ -333,7 +346,8 @@ public class PrsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"Error rejecting PR: {ex.Message}";
+            _logger.LogError(ex, "Failed to reject PR {RecId}", action.RecId);
+            TempData["ErrorMessage"] = "An unexpected error occurred while rejecting the PR.";
             return RedirectToAction(nameof(Details), new { id = action.RecId });
         }
     }
@@ -378,7 +392,8 @@ public class PrsController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = $"Error recalling PR: {ex.Message}";
+            _logger.LogError(ex, "Failed to recall PR {RecId}", action.RecId);
+            TempData["ErrorMessage"] = "An unexpected error occurred while recalling the PR.";
             return RedirectToAction(nameof(Details), new { id = action.RecId });
         }
     }

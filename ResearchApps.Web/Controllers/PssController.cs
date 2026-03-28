@@ -14,10 +14,12 @@ namespace ResearchApps.Web.Controllers;
 public class PssController : Controller
 {
     private readonly IPsService _psService;
+    private readonly ILogger<PssController> _logger;
 
-    public PssController(IPsService psService)
+    public PssController(IPsService psService, ILogger<PssController> logger)
     {
         _psService = psService;
+        _logger = logger;
     }
 
     // GET: Pss
@@ -109,7 +111,8 @@ public class PssController : Controller
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            _logger.LogError(ex, "Failed to create stock adjustment");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while creating the stock adjustment.");
             return View(collection);
         }
     }
@@ -152,8 +155,10 @@ public class PssController : Controller
             var viewModel = await _psService.GetPs(collection.RecId, cancellationToken);
             return View(viewModel.Data);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to update stock adjustment {RecId}", collection.RecId);
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the stock adjustment.");
             var viewModel = await _psService.GetPs(collection.RecId, cancellationToken);
             return View(viewModel.Data);
         }

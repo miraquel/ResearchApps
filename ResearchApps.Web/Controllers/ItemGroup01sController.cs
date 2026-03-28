@@ -165,7 +165,8 @@ public class ItemGroup01sController : Controller
         }
         catch
         {
-            return View();
+            TempData["ErrorMessage"] = "An error occurred while deleting the item group 01.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
