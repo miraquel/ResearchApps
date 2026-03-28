@@ -60,6 +60,9 @@ try
         .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
         .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
         .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+        // Finbuckle logs expected "No tenant found in authentication properties" warnings for main-site
+        // (non-tenant) accounts on every authenticated request — suppress to Error only.
+        .MinimumLevel.Override("Finbuckle", Serilog.Events.LogEventLevel.Error)
         .Enrich.FromLogContext()
         .Enrich.WithTenantInfo(services)
         .WriteTo.Console()
@@ -79,10 +82,14 @@ try
     });
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-    builder.Services.AddDbContext<ResearchAppsDbContext>(options => 
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDbContext<ResearchAppsDbContext>(options =>
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            sqlOptions => sqlOptions.EnableRetryOnFailure()));
     builder.Services.AddDbContext<TenantStoreDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            sqlOptions => sqlOptions.EnableRetryOnFailure()));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
     builder.Services.AddDefaultIdentity<AppIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -175,7 +182,7 @@ try
     }
     else
     {
-        app.UseExceptionHandler("/Home/Error");
+        app.UseExceptionHandler();
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
