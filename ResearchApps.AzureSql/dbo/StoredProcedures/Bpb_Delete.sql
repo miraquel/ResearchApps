@@ -3,37 +3,48 @@ CREATE PROCEDURE [dbo].[Bpb_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @BpbId nvarchar(20), @BpbLineId int
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @BpbId = BpbId FROM Bpb WHERE RecId = @RecId
+	DECLARE @BpbId nvarchar(20), @BpbLineId int;
 
-	--* Bpb Line *--
-	DECLARE x_cursor CURSOR FOR 
-	SELECT BpbLineId 
-	FROM [BpbLine] 
-	WHERE BpbId = @BpbId 
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Bpb WHERE RecId = @RecId)
+		BEGIN
+			THROW 50001, 'BPB not found.', 1;
+		END;
 
-	OPEN x_cursor 
+		SELECT @BpbId = BpbId FROM Bpb WHERE RecId = @RecId;
 
-	FETCH NEXT FROM x_cursor 
-	INTO @BpbLineId 
+		--* Bpb Line *--
+		DECLARE x_cursor CURSOR FOR
+		SELECT BpbLineId
+		FROM [BpbLine]
+		WHERE BpbId = @BpbId;
 
-	WHILE @@FETCH_STATUS = 0 
-	BEGIN 
-		EXEC [BpbLine_Delete] @BpbLineId
-		
-		-- Get the next vendor. 
-		FETCH NEXT FROM x_cursor 
-		INTO @BpbLineId 
-	END 
-	CLOSE x_cursor; 
-	DEALLOCATE x_cursor;
+		OPEN x_cursor;
 
+		FETCH NEXT FROM x_cursor
+		INTO @BpbLineId;
 
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			EXEC [BpbLine_Delete] @BpbLineId;
 
-	--* Bpb Header *--
-	DELETE FROM [Bpb]
-	WHERE RecId = @RecId
+			-- Get the next vendor.
+			FETCH NEXT FROM x_cursor
+			INTO @BpbLineId;
+		END;
+		CLOSE x_cursor;
+		DEALLOCATE x_cursor;
+
+		--* Bpb Header *--
+		DELETE FROM [Bpb]
+		WHERE RecId = @RecId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
-GO
 
+GO

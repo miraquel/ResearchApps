@@ -13,7 +13,6 @@ public class BpbHeader
     public DateTime BpbDate { get; set; }
     public string? BpbDateStr { get; set; }
     public string? Descr { get; set; }
-    public string? RefType { get; set; }  // e.g., "Production"
     public string? RefId { get; set; }    // e.g., ProdId
     public decimal Amount { get; set; }
     public string? Notes { get; set; }

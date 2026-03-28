@@ -2,7 +2,7 @@
 
 @{
     ViewBag.Title = "Create BPB";
-    ViewBag.pTitle = "Create Bon Pengambilan Barang";
+    ViewBag.pTitle = "Create Material Withdrawal (BPB)";
     Layout = "_Layout";
 }
 
@@ -16,7 +16,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">BPB Header</h5>
+                            <h5 class="card-title mb-0">Material Withdrawal (BPB) Header</h5>
                             <a href="/Bpbs" class="btn btn-secondary btn-sm">
                                 <i class="ri-arrow-left-line me-1"></i> Back to List
                             </a>
@@ -28,7 +28,7 @@
                         @Html.AntiForgeryToken()
                         
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="BpbDate" class="form-label">BPB Date <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="text" 
@@ -41,21 +41,7 @@
                                     <span class="input-group-text"><i class="ri-calendar-line"></i></span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <label for="RefType" class="form-label">Reference Type <span class="text-danger">*</span></label>
-                                <select class="form-select"
-                                        id="RefType" 
-                                        name="RefType"
-                                        x-model="refType"
-                                        required>
-                                    <option value="">Select Type</option>
-                                    <option value="Production" selected>Production</option>
-                                    <option value="Sales">Sales</option>
-                                    <option value="Inventory">Inventory</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="RefId" class="form-label">Reference ID <span class="text-danger">*</span></label>
                                 <input type="hidden" 
                                        id="RefIdHidden"
@@ -78,7 +64,7 @@
                                 </div>
                                 <small class="text-muted" x-show="selectedProdName" x-text="selectedProdName"></small>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="Descr" class="form-label">Description</label>
                                 <input type="text" 
                                        id="Descr" 
@@ -90,7 +76,7 @@
                         </div>
                         
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-12">
                                 <label for="Notes" class="form-label">Notes</label>
                                 <input type="text" 
                                        id="Notes" 
@@ -129,7 +115,7 @@
         <div class="col-lg-12">
             <div class="alert alert-info">
                 <i class="ri-information-line me-2"></i>
-                <strong>Note:</strong> Create the BPB header first, then add line items in the Edit page.
+                <strong>Note:</strong> Create the Material Withdrawal (BPB) header first, then add line items in the Edit page.
                 Line items will withdraw materials from inventory and update production costs.
             </div>
         </div>

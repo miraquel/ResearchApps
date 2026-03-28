@@ -1,8 +1,8 @@
 @model ResearchApps.Service.Vm.BpbVm
 
 @{
-    ViewBag.Title = "Edit BPB";
-    ViewBag.pTitle = $"Edit BPB {Model.Header.BpbId}";
+    ViewBag.Title = "Edit Material Withdrawal (BPB)";
+    ViewBag.pTitle = $"Edit Material Withdrawal (BPB) {Model.Header.BpbId}";
     Layout = "_Layout";
     
     // Serialize lines for Alpine.js
@@ -44,7 +44,7 @@
                     <div class="row">
                         <div class="col d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
-                                BPB Header - @Model.Header.BpbId
+                                Material Withdrawal (BPB) - @Model.Header.BpbId
                                 @Html.Raw(Model.Header.BpbStatusName)
                                 <span x-show="isHeaderSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
                             </h5>
@@ -64,6 +64,7 @@
                 </div>
                 <div class="card-body">
                     <form id="headerForm" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="RecId" value="@Model.Header.RecId" />
                         <input type="hidden" name="BpbId" value="@Model.Header.BpbId" />
                         <input type="hidden" name="RefType" value="Production" />
