@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__sql-mcp__describe_entities",
+      "mcp__sql-mcp__read_records",
+      "mcp__sql-mcp__execute_entity",
+      "Bash(python3:*)",
+      "Bash(ls C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Sql/dbo/StoredProcedures/*_Insert*.sql C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Sql/dbo/StoredProcedures/*_Update*.sql C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Sql/dbo/StoredProcedures/*_Delete*.sql C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Sql/dbo/StoredProcedures/*Insert*.sql C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Sql/dbo/StoredProcedures/*Update*.sql C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Sql/dbo/StoredProcedures/*Delete*.sql)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r getApiErrorMessage /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Web/wwwroot/js --include=*.js)",
+      "Bash(grep -r getApiErrorMessage /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Web/wwwroot/js --include=*.js -A 2 -B 1)",
+      "Bash(for f:*)",
+      "Bash(do cp:*)",
+      "Bash(cp \"C:\\\\Users\\\\chaidir.ali\\\\RiderProjects\\\\ResearchApps\\\\.claude\\\\worktrees\\\\agent-a904e709\\\\ResearchApps.AzureSql\\\\dbo\\\\StoredProcedures$f\" \"C:\\\\Users\\\\chaidir.ali\\\\RiderProjects\\\\ResearchApps\\\\ResearchApps.AzureSql\\\\dbo\\\\StoredProcedures$f\")",
+      "Bash(done)",
+      "Bash(SRC=\"C:/Users/chaidir.ali/RiderProjects/ResearchApps/.claude/worktrees/agent-a904e709\")",
+      "Bash(DST=\"C:/Users/chaidir.ali/RiderProjects/ResearchApps\")",
+      "Bash(cp \"$SRC/ResearchApps.AzureSql/dbo/StoredProcedures/$f\" \"$DST/ResearchApps.AzureSql/dbo/StoredProcedures/$f\")",
+      "Bash(SRC=\"C:/Users/chaidir.ali/RiderProjects/ResearchApps/.claude/worktrees/agent-a5d51904\")",
+      "Bash(__NEW_LINE_bc75a18f9d460833__ cp:*)",
+      "Bash(cp \"$SRC/ResearchApps.Web/wwwroot/js/bpbs/bpb-edit.js\" \"$DST/ResearchApps.Web/wwwroot/js/bpbs/bpb-edit.js\")",
+      "Bash(cp \"$SRC/ResearchApps.Web/wwwroot/js/bpbs/bpb-index.js\" \"$DST/ResearchApps.Web/wwwroot/js/bpbs/bpb-index.js\")",
+      "Bash(cp \"$SRC/ResearchApps.Web/Views/Shared/_Layout.cshtml\" \"$DST/ResearchApps.Web/Views/Shared/_Layout.cshtml\")",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Domain -name *.cs -path */Properties/*)",
+      "Bash(grep -rn \"AssemblyCompany\\\\|AssemblyTitle\\\\|AssemblyVersion\" C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Domain/ --include=*.cs)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

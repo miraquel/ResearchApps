@@ -1,0 +1,7145 @@
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.7.92/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "Data Source=10.10.10.211;Initial Catalog=ResearchDb;User ID=userresearch;Password=research@123;TrustServerCertificate=true;",
+    "options": {
+      "set-session-context": false
+    }
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api",
+      "request-body-strict": true
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "mcp": {
+      "enabled": true,
+      "path": "/mcp",
+      "description": "ResearchApps SQL MCP endpoint over operational data and approved procedures.",
+      "dml-tools": {
+        "describe-entities": true,
+        "create-record": true,
+        "read-records": true,
+        "update-record": true,
+        "delete-record": true,
+        "execute-entity": true
+      }
+    },
+    "host": {
+      "cors": {
+        "origins": [],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "AppService"
+      },
+      "mode": "development"
+    }
+  },
+  "entities": {
+    "Bpb": {
+      "source": {
+        "object": "dbo.Bpb",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for BPB domain data and operational attributes."
+    },
+    "BpbLine": {
+      "source": {
+        "object": "dbo.BpbLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the BPB workflow."
+    },
+    "BpbStatus": {
+      "source": {
+        "object": "dbo.BpbStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for BPB processes."
+    },
+    "Budget": {
+      "source": {
+        "object": "dbo.Budget",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for budget domain data and operational attributes."
+    },
+    "Co": {
+      "source": {
+        "object": "dbo.Co",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for customer order domain data and operational attributes."
+    },
+    "CoLine": {
+      "source": {
+        "object": "dbo.CoLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the customer order workflow."
+    },
+    "CoStatus": {
+      "source": {
+        "object": "dbo.CoStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for customer order processes."
+    },
+    "CoType": {
+      "source": {
+        "object": "dbo.CoType",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Type master table for customer order categorization."
+    },
+    "Customer": {
+      "source": {
+        "object": "dbo.Customer",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for customer domain data and operational attributes."
+    },
+    "Do": {
+      "source": {
+        "object": "dbo.Do",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for delivery order domain data and operational attributes."
+    },
+    "DoLine": {
+      "source": {
+        "object": "dbo.DoLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the delivery order workflow."
+    },
+    "DoStatus": {
+      "source": {
+        "object": "dbo.DoStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for delivery order processes."
+    },
+    "Gr": {
+      "source": {
+        "object": "dbo.Gr",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for goods receipt domain data and operational attributes."
+    },
+    "GrLine": {
+      "source": {
+        "object": "dbo.GrLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the goods receipt workflow."
+    },
+    "GrStatus": {
+      "source": {
+        "object": "dbo.GrStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for goods receipt processes."
+    },
+    "InventBegin": {
+      "source": {
+        "object": "dbo.InventBegin",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Opening balance table storing initial inventory quantities and values."
+    },
+    "InventLock": {
+      "source": {
+        "object": "dbo.InventLock",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for inventory domain data and operational attributes."
+    },
+    "InventSum": {
+      "source": {
+        "object": "dbo.InventSum",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for inventory domain data and operational attributes."
+    },
+    "InventTrans": {
+      "source": {
+        "object": "dbo.InventTrans",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Transaction history table capturing inventory movement events and audit data."
+    },
+    "Item": {
+      "source": {
+        "object": "dbo.Item",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for item master domain data and operational attributes."
+    },
+    "ItemBegin": {
+      "source": {
+        "object": "dbo.ItemBegin",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Opening balance table storing initial item master quantities and values."
+    },
+    "ItemDept": {
+      "source": {
+        "object": "dbo.ItemDept",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Department reference table for item and transaction ownership."
+    },
+    "ItemGroup01": {
+      "source": {
+        "object": "dbo.ItemGroup01",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for item master domain data and operational attributes."
+    },
+    "ItemGroup02": {
+      "source": {
+        "object": "dbo.ItemGroup02",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for item master domain data and operational attributes."
+    },
+    "ItemTrans": {
+      "source": {
+        "object": "dbo.ItemTrans",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Transaction history table capturing item master movement events and audit data."
+    },
+    "ItemType": {
+      "source": {
+        "object": "dbo.ItemType",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Type master table for item master categorization."
+    },
+    "Mc": {
+      "source": {
+        "object": "dbo.Mc",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for material consumption domain data and operational attributes."
+    },
+    "McLine": {
+      "source": {
+        "object": "dbo.McLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the material consumption workflow."
+    },
+    "McStatus": {
+      "source": {
+        "object": "dbo.McStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for material consumption processes."
+    },
+    "Notification": {
+      "source": {
+        "object": "dbo.Notification",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Notification queue table storing user-facing alerts and read-state metadata."
+    },
+    "Php": {
+      "source": {
+        "object": "dbo.Php",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for production handover domain data and operational attributes."
+    },
+    "PhpLine": {
+      "source": {
+        "object": "dbo.PhpLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the production handover workflow."
+    },
+    "PhpStatus": {
+      "source": {
+        "object": "dbo.PhpStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for production handover processes."
+    },
+    "Po": {
+      "source": {
+        "object": "dbo.Po",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for purchase order domain data and operational attributes."
+    },
+    "PoLine": {
+      "source": {
+        "object": "dbo.PoLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the purchase order workflow."
+    },
+    "PoStatus": {
+      "source": {
+        "object": "dbo.PoStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for purchase order processes."
+    },
+    "Pr": {
+      "source": {
+        "object": "dbo.Pr",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for purchase request domain data and operational attributes."
+    },
+    "PrLine": {
+      "source": {
+        "object": "dbo.PrLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the purchase request workflow."
+    },
+    "PrStatus": {
+      "source": {
+        "object": "dbo.PrStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for purchase request processes."
+    },
+    "Prod": {
+      "source": {
+        "object": "dbo.Prod",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for production domain data and operational attributes."
+    },
+    "ProdStatus": {
+      "source": {
+        "object": "dbo.ProdStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for production processes."
+    },
+    "Ps": {
+      "source": {
+        "object": "dbo.Ps",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for packing slip domain data and operational attributes."
+    },
+    "PsLine": {
+      "source": {
+        "object": "dbo.PsLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the packing slip workflow."
+    },
+    "PsStatus": {
+      "source": {
+        "object": "dbo.PsStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for packing slip processes."
+    },
+    "Report": {
+      "source": {
+        "object": "dbo.Report",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Report catalog table storing report definitions and metadata."
+    },
+    "ReportParameter": {
+      "source": {
+        "object": "dbo.ReportParameter",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Report parameter table defining runtime inputs for report execution."
+    },
+    "SalesPrice": {
+      "source": {
+        "object": "dbo.SalesPrice",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for sales pricing domain data and operational attributes."
+    },
+    "Si": {
+      "source": {
+        "object": "dbo.Si",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for sales invoice domain data and operational attributes."
+    },
+    "SiLine": {
+      "source": {
+        "object": "dbo.SiLine",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Line-detail table storing itemized records for the sales invoice workflow."
+    },
+    "SiStatus": {
+      "source": {
+        "object": "dbo.SiStatus",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for sales invoice processes."
+    },
+    "Status": {
+      "source": {
+        "object": "dbo.Status",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for status processes."
+    },
+    "Supplier": {
+      "source": {
+        "object": "dbo.Supplier",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for supplier domain data and operational attributes."
+    },
+    "Tenants": {
+      "source": {
+        "object": "dbo.Tenants",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Master table for tenants domain data and operational attributes."
+    },
+    "Top": {
+      "source": {
+        "object": "dbo.Top",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Terms-of-payment master table used by purchasing and sales transactions."
+    },
+    "Unit": {
+      "source": {
+        "object": "dbo.Unit",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Unit-of-measure master table for quantity normalization and display."
+    },
+    "Wf": {
+      "source": {
+        "object": "dbo.Wf",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Workflow table storing approval definitions, transitions, and status actions."
+    },
+    "WfForm": {
+      "source": {
+        "object": "dbo.WfForm",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Workflow table storing approval definitions, transitions, and status actions."
+    },
+    "WfStatusAction": {
+      "source": {
+        "object": "dbo.WfStatusAction",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Reference table defining status values for workflow processes."
+    },
+    "WfTrans": {
+      "source": {
+        "object": "dbo.WfTrans",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Transaction history table capturing workflow movement events and audit data."
+    },
+    "Wh": {
+      "source": {
+        "object": "dbo.Wh",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "description": "Warehouse master table storing warehouse codes and descriptive attributes."
+    },
+    "AspNetRoleClaims": {
+      "source": {
+        "object": "identity.AspNetRoleClaims",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity claims table used for role and user claim assignments."
+    },
+    "AspNetRoles": {
+      "source": {
+        "object": "identity.AspNetRoles",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity roles table defining authorization roles."
+    },
+    "AspNetUserClaims": {
+      "source": {
+        "object": "identity.AspNetUserClaims",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity claims table used for role and user claim assignments."
+    },
+    "AspNetUserLogins": {
+      "source": {
+        "object": "identity.AspNetUserLogins",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity external login mappings for authenticated users."
+    },
+    "AspNetUserRoles": {
+      "source": {
+        "object": "identity.AspNetUserRoles",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity roles table defining authorization roles."
+    },
+    "AspNetUserTokens": {
+      "source": {
+        "object": "identity.AspNetUserTokens",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity token storage for user authentication sessions."
+    },
+    "AspNetUsers": {
+      "source": {
+        "object": "identity.AspNetUsers",
+        "type": "table"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "read"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mcp": {
+        "dml-tools": false
+      },
+      "rest": {
+        "enabled": false
+      },
+      "graphql": {
+        "enabled": false
+      },
+      "description": "Identity users table for authentication and profile metadata."
+    },
+    "BpbLine_SelectByBpb": {
+      "source": {
+        "object": "dbo.BpbLine_SelectByBpb",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged BPB result sets."
+    },
+    "BpbLine_SelectById": {
+      "source": {
+        "object": "dbo.BpbLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one BPB record by identifier with related details."
+    },
+    "BpbLine_Update": {
+      "source": {
+        "object": "dbo.BpbLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing BPB records and related audit fields."
+    },
+    "Bpb_Delete": {
+      "source": {
+        "object": "dbo.Bpb_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes BPB records according to business rules."
+    },
+    "Bpb_Insert": {
+      "source": {
+        "object": "dbo.Bpb_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new BPB records using validated business defaults."
+    },
+    "Bpb_Rpt": {
+      "source": {
+        "object": "dbo.Bpb_Rpt",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for BPB analysis and exports."
+    },
+    "Bpb_Select": {
+      "source": {
+        "object": "dbo.Bpb_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged BPB result sets."
+    },
+    "Bpb_SelectById": {
+      "source": {
+        "object": "dbo.Bpb_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one BPB record by identifier with related details."
+    },
+    "Bpb_Update": {
+      "source": {
+        "object": "dbo.Bpb_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing BPB records and related audit fields."
+    },
+    "BudgetCbo": {
+      "source": {
+        "object": "dbo.BudgetCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for budget selectors."
+    },
+    "Budget_Delete": {
+      "source": {
+        "object": "dbo.Budget_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes budget records according to business rules."
+    },
+    "Budget_Insert": {
+      "source": {
+        "object": "dbo.Budget_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new budget records using validated business defaults."
+    },
+    "Budget_Select": {
+      "source": {
+        "object": "dbo.Budget_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged budget result sets."
+    },
+    "Budget_SelectById": {
+      "source": {
+        "object": "dbo.Budget_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one budget record by identifier with related details."
+    },
+    "Budget_Update": {
+      "source": {
+        "object": "dbo.Budget_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing budget records and related audit fields."
+    },
+    "CoLine_Delete": {
+      "source": {
+        "object": "dbo.CoLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes customer order records according to business rules."
+    },
+    "CoLine_SelectByCo": {
+      "source": {
+        "object": "dbo.CoLine_SelectByCo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged customer order result sets."
+    },
+    "CoLine_SelectById": {
+      "source": {
+        "object": "dbo.CoLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one customer order record by identifier with related details."
+    },
+    "CoLine_Update": {
+      "source": {
+        "object": "dbo.CoLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing customer order records and related audit fields."
+    },
+    "Co_ApproveById": {
+      "source": {
+        "object": "dbo.Co_ApproveById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that approves customer order records and advances workflow status."
+    },
+    "Co_CloseByNo": {
+      "source": {
+        "object": "dbo.Co_CloseByNo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that closes customer order records and finalizes their lifecycle state."
+    },
+    "Co_Delete": {
+      "source": {
+        "object": "dbo.Co_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes customer order records according to business rules."
+    },
+    "Co_HdOsSelect": {
+      "source": {
+        "object": "dbo.Co_HdOsSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged customer order result sets."
+    },
+    "Co_Insert": {
+      "source": {
+        "object": "dbo.Co_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new customer order records using validated business defaults."
+    },
+    "Co_OsByCoLineId": {
+      "source": {
+        "object": "dbo.Co_OsByCoLineId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Outstanding-balance procedure returning open customer order quantities or amounts."
+    },
+    "Co_OsById": {
+      "source": {
+        "object": "dbo.Co_OsById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Outstanding-balance procedure returning open customer order quantities or amounts."
+    },
+    "Co_OsSelect": {
+      "source": {
+        "object": "dbo.Co_OsSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged customer order result sets."
+    },
+    "Co_RecallById": {
+      "source": {
+        "object": "dbo.Co_RecallById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that recalls customer order records from the approval workflow."
+    },
+    "Co_RejectById": {
+      "source": {
+        "object": "dbo.Co_RejectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that rejects customer order records and records workflow outcome."
+    },
+    "Co_RptDetail": {
+      "source": {
+        "object": "dbo.Co_RptDetail",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for customer order analysis and exports."
+    },
+    "Co_RptSummary": {
+      "source": {
+        "object": "dbo.Co_RptSummary",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for customer order analysis and exports."
+    },
+    "Co_Select": {
+      "source": {
+        "object": "dbo.Co_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged customer order result sets."
+    },
+    "Co_SelectById": {
+      "source": {
+        "object": "dbo.Co_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one customer order record by identifier with related details."
+    },
+    "Co_SubmitById": {
+      "source": {
+        "object": "dbo.Co_SubmitById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that submits customer order records into the approval workflow."
+    },
+    "Co_TypeCbo": {
+      "source": {
+        "object": "dbo.Co_TypeCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for customer order selectors."
+    },
+    "Co_Update": {
+      "source": {
+        "object": "dbo.Co_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing customer order records and related audit fields."
+    },
+    "Co_Workflow": {
+      "source": {
+        "object": "dbo.Co_Workflow",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Workflow procedure that executes approval-state transitions for customer order records."
+    },
+    "Customer_Cbo": {
+      "source": {
+        "object": "dbo.Customer_Cbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for customer selectors."
+    },
+    "Customer_Delete": {
+      "source": {
+        "object": "dbo.Customer_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes customer records according to business rules."
+    },
+    "Customer_Insert": {
+      "source": {
+        "object": "dbo.Customer_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new customer records using validated business defaults."
+    },
+    "Customer_Select": {
+      "source": {
+        "object": "dbo.Customer_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged customer result sets."
+    },
+    "Customer_SelectById": {
+      "source": {
+        "object": "dbo.Customer_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one customer record by identifier with related details."
+    },
+    "Customer_Update": {
+      "source": {
+        "object": "dbo.Customer_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing customer records and related audit fields."
+    },
+    "DashboardGetBudgetByDepartment": {
+      "source": {
+        "object": "dbo.DashboardGetBudgetByDepartment",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetLowStockItems": {
+      "source": {
+        "object": "dbo.DashboardGetLowStockItems",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetModuleCounts": {
+      "source": {
+        "object": "dbo.DashboardGetModuleCounts",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetPendingApprovals": {
+      "source": {
+        "object": "dbo.DashboardGetPendingApprovals",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetPrTrend": {
+      "source": {
+        "object": "dbo.DashboardGetPrTrend",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetRecentPrs": {
+      "source": {
+        "object": "dbo.DashboardGetRecentPrs",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetSalesTrend": {
+      "source": {
+        "object": "dbo.DashboardGetSalesTrend",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetStatistics": {
+      "source": {
+        "object": "dbo.DashboardGetStatistics",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DashboardGetTopItems": {
+      "source": {
+        "object": "dbo.DashboardGetTopItems",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Dashboard analytics procedure returning aggregated KPI and trend data for operational monitoring."
+    },
+    "DoLineSelectById": {
+      "source": {
+        "object": "dbo.DoLineSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one delivery order record by identifier with related details."
+    },
+    "DoLine_Delete": {
+      "source": {
+        "object": "dbo.DoLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes delivery order records according to business rules."
+    },
+    "DoLine_SelectByDo": {
+      "source": {
+        "object": "dbo.DoLine_SelectByDo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged delivery order result sets."
+    },
+    "DoLine_SelectById": {
+      "source": {
+        "object": "dbo.DoLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one delivery order record by identifier with related details."
+    },
+    "DoLine_Update": {
+      "source": {
+        "object": "dbo.DoLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing delivery order records and related audit fields."
+    },
+    "Do_Delete": {
+      "source": {
+        "object": "dbo.Do_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes delivery order records according to business rules."
+    },
+    "Do_HdOsSelect": {
+      "source": {
+        "object": "dbo.Do_HdOsSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged delivery order result sets."
+    },
+    "Do_Insert": {
+      "source": {
+        "object": "dbo.Do_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new delivery order records using validated business defaults."
+    },
+    "Do_OsByDoLineId": {
+      "source": {
+        "object": "dbo.Do_OsByDoLineId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Outstanding-balance procedure returning open delivery order quantities or amounts."
+    },
+    "Do_OsById": {
+      "source": {
+        "object": "dbo.Do_OsById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Outstanding-balance procedure returning open delivery order quantities or amounts."
+    },
+    "Do_OsSelect": {
+      "source": {
+        "object": "dbo.Do_OsSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged delivery order result sets."
+    },
+    "Do_Rpt": {
+      "source": {
+        "object": "dbo.Do_Rpt",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for delivery order analysis and exports."
+    },
+    "Do_Select": {
+      "source": {
+        "object": "dbo.Do_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged delivery order result sets."
+    },
+    "Do_SelectById": {
+      "source": {
+        "object": "dbo.Do_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one delivery order record by identifier with related details."
+    },
+    "Do_SelectCompositeById": {
+      "source": {
+        "object": "dbo.Do_SelectCompositeById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one delivery order record by identifier with related details."
+    },
+    "Do_Update": {
+      "source": {
+        "object": "dbo.Do_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing delivery order records and related audit fields."
+    },
+    "GrLine_Delete": {
+      "source": {
+        "object": "dbo.GrLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes goods receipt records according to business rules."
+    },
+    "GrLine_Insert": {
+      "source": {
+        "object": "dbo.GrLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new goods receipt records using validated business defaults."
+    },
+    "GrLine_SelectByGr": {
+      "source": {
+        "object": "dbo.GrLine_SelectByGr",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged goods receipt result sets."
+    },
+    "GrLine_SelectById": {
+      "source": {
+        "object": "dbo.GrLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one goods receipt record by identifier with related details."
+    },
+    "GrLine_Update": {
+      "source": {
+        "object": "dbo.GrLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing goods receipt records and related audit fields."
+    },
+    "Gr_Delete": {
+      "source": {
+        "object": "dbo.Gr_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes goods receipt records according to business rules."
+    },
+    "Gr_Insert": {
+      "source": {
+        "object": "dbo.Gr_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new goods receipt records using validated business defaults."
+    },
+    "Gr_Rpt": {
+      "source": {
+        "object": "dbo.Gr_Rpt",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for goods receipt analysis and exports."
+    },
+    "Gr_Select": {
+      "source": {
+        "object": "dbo.Gr_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged goods receipt result sets."
+    },
+    "Gr_SelectById": {
+      "source": {
+        "object": "dbo.Gr_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one goods receipt record by identifier with related details."
+    },
+    "Gr_Update": {
+      "source": {
+        "object": "dbo.Gr_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing goods receipt records and related audit fields."
+    },
+    "InventLock_Close": {
+      "source": {
+        "object": "dbo.InventLock_Close",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that closes inventory records and finalizes their lifecycle state."
+    },
+    "InventLock_Job": {
+      "source": {
+        "object": "dbo.InventLock_Job",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for inventory operations exposed through execute-entity."
+    },
+    "InventLock_Open": {
+      "source": {
+        "object": "dbo.InventLock_Open",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that opens inventory processing sessions and related locks."
+    },
+    "InventLock_Select": {
+      "source": {
+        "object": "dbo.InventLock_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged inventory result sets."
+    },
+    "Invent_Closing": {
+      "source": {
+        "object": "dbo.Invent_Closing",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for inventory operations exposed through execute-entity."
+    },
+    "ItemDeptCbo": {
+      "source": {
+        "object": "dbo.ItemDeptCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for item master selectors."
+    },
+    "ItemDeptDelete": {
+      "source": {
+        "object": "dbo.ItemDeptDelete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes item master records according to business rules."
+    },
+    "ItemDeptInsert": {
+      "source": {
+        "object": "dbo.ItemDeptInsert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new item master records using validated business defaults."
+    },
+    "ItemDeptSelect": {
+      "source": {
+        "object": "dbo.ItemDeptSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemDeptSelectById": {
+      "source": {
+        "object": "dbo.ItemDeptSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one item master record by identifier with related details."
+    },
+    "ItemDeptSelect_bck": {
+      "source": {
+        "object": "dbo.ItemDeptSelect_bck",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemDeptUpdate": {
+      "source": {
+        "object": "dbo.ItemDeptUpdate",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing item master records and related audit fields."
+    },
+    "ItemGroup01_Cbo": {
+      "source": {
+        "object": "dbo.ItemGroup01_Cbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for item master selectors."
+    },
+    "ItemGroup01_Delete": {
+      "source": {
+        "object": "dbo.ItemGroup01_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes item master records according to business rules."
+    },
+    "ItemGroup01_Insert": {
+      "source": {
+        "object": "dbo.ItemGroup01_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new item master records using validated business defaults."
+    },
+    "ItemGroup01_Select": {
+      "source": {
+        "object": "dbo.ItemGroup01_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemGroup01_SelectById": {
+      "source": {
+        "object": "dbo.ItemGroup01_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one item master record by identifier with related details."
+    },
+    "ItemGroup01_Update": {
+      "source": {
+        "object": "dbo.ItemGroup01_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing item master records and related audit fields."
+    },
+    "ItemGroup02_Cbo": {
+      "source": {
+        "object": "dbo.ItemGroup02_Cbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for item master selectors."
+    },
+    "ItemGroup02_Delete": {
+      "source": {
+        "object": "dbo.ItemGroup02_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes item master records according to business rules."
+    },
+    "ItemGroup02_Insert": {
+      "source": {
+        "object": "dbo.ItemGroup02_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new item master records using validated business defaults."
+    },
+    "ItemGroup02_Select": {
+      "source": {
+        "object": "dbo.ItemGroup02_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemGroup02_SelectById": {
+      "source": {
+        "object": "dbo.ItemGroup02_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one item master record by identifier with related details."
+    },
+    "ItemGroup02_Update": {
+      "source": {
+        "object": "dbo.ItemGroup02_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing item master records and related audit fields."
+    },
+    "ItemSelect_bck": {
+      "source": {
+        "object": "dbo.ItemSelect_bck",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemTypeCbo": {
+      "source": {
+        "object": "dbo.ItemTypeCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for item master selectors."
+    },
+    "ItemTypeDelete": {
+      "source": {
+        "object": "dbo.ItemTypeDelete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes item master records according to business rules."
+    },
+    "ItemTypeInsert": {
+      "source": {
+        "object": "dbo.ItemTypeInsert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new item master records using validated business defaults."
+    },
+    "ItemTypeSelect": {
+      "source": {
+        "object": "dbo.ItemTypeSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemTypeSelectById": {
+      "source": {
+        "object": "dbo.ItemTypeSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one item master record by identifier with related details."
+    },
+    "ItemTypeSelect_bck": {
+      "source": {
+        "object": "dbo.ItemTypeSelect_bck",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "ItemTypeUpdate": {
+      "source": {
+        "object": "dbo.ItemTypeUpdate",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing item master records and related audit fields."
+    },
+    "Item_Cbo": {
+      "source": {
+        "object": "dbo.Item_Cbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for item master selectors."
+    },
+    "Item_Delete": {
+      "source": {
+        "object": "dbo.Item_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes item master records according to business rules."
+    },
+    "Item_Insert": {
+      "source": {
+        "object": "dbo.Item_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new item master records using validated business defaults."
+    },
+    "Item_Select": {
+      "source": {
+        "object": "dbo.Item_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged item master result sets."
+    },
+    "Item_SelectById": {
+      "source": {
+        "object": "dbo.Item_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one item master record by identifier with related details."
+    },
+    "Item_Update": {
+      "source": {
+        "object": "dbo.Item_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing item master records and related audit fields."
+    },
+    "McLine_Delete": {
+      "source": {
+        "object": "dbo.McLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes material consumption records according to business rules."
+    },
+    "McLine_Insert": {
+      "source": {
+        "object": "dbo.McLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new material consumption records using validated business defaults."
+    },
+    "McLine_SelectById": {
+      "source": {
+        "object": "dbo.McLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one material consumption record by identifier with related details."
+    },
+    "McLine_SelectByMc": {
+      "source": {
+        "object": "dbo.McLine_SelectByMc",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged material consumption result sets."
+    },
+    "Mc_Delete": {
+      "source": {
+        "object": "dbo.Mc_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes material consumption records according to business rules."
+    },
+    "Mc_Insert": {
+      "source": {
+        "object": "dbo.Mc_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new material consumption records using validated business defaults."
+    },
+    "Mc_Rpt": {
+      "source": {
+        "object": "dbo.Mc_Rpt",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for material consumption analysis and exports."
+    },
+    "Mc_Select": {
+      "source": {
+        "object": "dbo.Mc_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged material consumption result sets."
+    },
+    "Mc_SelectById": {
+      "source": {
+        "object": "dbo.Mc_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one material consumption record by identifier with related details."
+    },
+    "Mc_Update": {
+      "source": {
+        "object": "dbo.Mc_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing material consumption records and related audit fields."
+    },
+    "Notification_CleanupOld": {
+      "source": {
+        "object": "dbo.Notification_CleanupOld",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for notification operations exposed through execute-entity."
+    },
+    "Notification_Delete": {
+      "source": {
+        "object": "dbo.Notification_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes notification records according to business rules."
+    },
+    "Notification_GetCount": {
+      "source": {
+        "object": "dbo.Notification_GetCount",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for notification operations exposed through execute-entity."
+    },
+    "Notification_Insert": {
+      "source": {
+        "object": "dbo.Notification_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new notification records using validated business defaults."
+    },
+    "Notification_MarkAllAsRead": {
+      "source": {
+        "object": "dbo.Notification_MarkAllAsRead",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for notification operations exposed through execute-entity."
+    },
+    "Notification_MarkAsRead": {
+      "source": {
+        "object": "dbo.Notification_MarkAsRead",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for notification operations exposed through execute-entity."
+    },
+    "Notification_SelectByUserId": {
+      "source": {
+        "object": "dbo.Notification_SelectByUserId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one notification record by identifier with related details."
+    },
+    "Notification_SelectUnreadByUserId": {
+      "source": {
+        "object": "dbo.Notification_SelectUnreadByUserId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one notification record by identifier with related details."
+    },
+    "PhpLine_Delete": {
+      "source": {
+        "object": "dbo.PhpLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes production handover records according to business rules."
+    },
+    "PhpLine_Insert": {
+      "source": {
+        "object": "dbo.PhpLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new production handover records using validated business defaults."
+    },
+    "PhpLine_SelectById": {
+      "source": {
+        "object": "dbo.PhpLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one production handover record by identifier with related details."
+    },
+    "PhpLine_SelectByPhp": {
+      "source": {
+        "object": "dbo.PhpLine_SelectByPhp",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged production handover result sets."
+    },
+    "PhpLine_Update": {
+      "source": {
+        "object": "dbo.PhpLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing production handover records and related audit fields."
+    },
+    "Php_Delete": {
+      "source": {
+        "object": "dbo.Php_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes production handover records according to business rules."
+    },
+    "Php_Insert": {
+      "source": {
+        "object": "dbo.Php_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new production handover records using validated business defaults."
+    },
+    "Php_Rpt": {
+      "source": {
+        "object": "dbo.Php_Rpt",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for production handover analysis and exports."
+    },
+    "Php_Select": {
+      "source": {
+        "object": "dbo.Php_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged production handover result sets."
+    },
+    "Php_SelectById": {
+      "source": {
+        "object": "dbo.Php_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one production handover record by identifier with related details."
+    },
+    "Php_Update": {
+      "source": {
+        "object": "dbo.Php_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing production handover records and related audit fields."
+    },
+    "PoLine_Delete": {
+      "source": {
+        "object": "dbo.PoLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes purchase order records according to business rules."
+    },
+    "PoLine_Insert": {
+      "source": {
+        "object": "dbo.PoLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new purchase order records using validated business defaults."
+    },
+    "PoLine_SelectById": {
+      "source": {
+        "object": "dbo.PoLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one purchase order record by identifier with related details."
+    },
+    "PoLine_SelectByPo": {
+      "source": {
+        "object": "dbo.PoLine_SelectByPo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase order result sets."
+    },
+    "PoLine_Update": {
+      "source": {
+        "object": "dbo.PoLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing purchase order records and related audit fields."
+    },
+    "Po_ApproveById": {
+      "source": {
+        "object": "dbo.Po_ApproveById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that approves purchase order records and advances workflow status."
+    },
+    "Po_CloseById": {
+      "source": {
+        "object": "dbo.Po_CloseById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that closes purchase order records and finalizes their lifecycle state."
+    },
+    "Po_Delete": {
+      "source": {
+        "object": "dbo.Po_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes purchase order records according to business rules."
+    },
+    "Po_Insert": {
+      "source": {
+        "object": "dbo.Po_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new purchase order records using validated business defaults."
+    },
+    "Po_OsSelect": {
+      "source": {
+        "object": "dbo.Po_OsSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase order result sets."
+    },
+    "Po_OsSelectById": {
+      "source": {
+        "object": "dbo.Po_OsSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one purchase order record by identifier with related details."
+    },
+    "Po_RecallById": {
+      "source": {
+        "object": "dbo.Po_RecallById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that recalls purchase order records from the approval workflow."
+    },
+    "Po_RejectById": {
+      "source": {
+        "object": "dbo.Po_RejectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that rejects purchase order records and records workflow outcome."
+    },
+    "Po_Select": {
+      "source": {
+        "object": "dbo.Po_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase order result sets."
+    },
+    "Po_SelectById": {
+      "source": {
+        "object": "dbo.Po_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one purchase order record by identifier with related details."
+    },
+    "Po_SubmitById": {
+      "source": {
+        "object": "dbo.Po_SubmitById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that submits purchase order records into the approval workflow."
+    },
+    "Po_Update": {
+      "source": {
+        "object": "dbo.Po_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing purchase order records and related audit fields."
+    },
+    "PrLine_Delete": {
+      "source": {
+        "object": "dbo.PrLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes purchase request records according to business rules."
+    },
+    "PrLine_Insert": {
+      "source": {
+        "object": "dbo.PrLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new purchase request records using validated business defaults."
+    },
+    "PrLine_SelectById": {
+      "source": {
+        "object": "dbo.PrLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one purchase request record by identifier with related details."
+    },
+    "PrLine_SelectByPr": {
+      "source": {
+        "object": "dbo.PrLine_SelectByPr",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase request result sets."
+    },
+    "PrLine_SelectForPo": {
+      "source": {
+        "object": "dbo.PrLine_SelectForPo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase request result sets."
+    },
+    "PrLine_Update": {
+      "source": {
+        "object": "dbo.PrLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing purchase request records and related audit fields."
+    },
+    "PrStatusCbo": {
+      "source": {
+        "object": "dbo.PrStatusCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for purchase request selectors."
+    },
+    "Pr_ApproveById": {
+      "source": {
+        "object": "dbo.Pr_ApproveById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that approves purchase request records and advances workflow status."
+    },
+    "Pr_CloseById": {
+      "source": {
+        "object": "dbo.Pr_CloseById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that closes purchase request records and finalizes their lifecycle state."
+    },
+    "Pr_Delete": {
+      "source": {
+        "object": "dbo.Pr_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes purchase request records according to business rules."
+    },
+    "Pr_Insert": {
+      "source": {
+        "object": "dbo.Pr_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new purchase request records using validated business defaults."
+    },
+    "Pr_OsByPrLineId": {
+      "source": {
+        "object": "dbo.Pr_OsByPrLineId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Outstanding-balance procedure returning open purchase request quantities or amounts."
+    },
+    "Pr_OsSelect": {
+      "source": {
+        "object": "dbo.Pr_OsSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase request result sets."
+    },
+    "Pr_RecallById": {
+      "source": {
+        "object": "dbo.Pr_RecallById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that recalls purchase request records from the approval workflow."
+    },
+    "Pr_RejectById": {
+      "source": {
+        "object": "dbo.Pr_RejectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that rejects purchase request records and records workflow outcome."
+    },
+    "Pr_Select": {
+      "source": {
+        "object": "dbo.Pr_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged purchase request result sets."
+    },
+    "Pr_SelectById": {
+      "source": {
+        "object": "dbo.Pr_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one purchase request record by identifier with related details."
+    },
+    "Pr_SubmitById": {
+      "source": {
+        "object": "dbo.Pr_SubmitById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Action procedure that submits purchase request records into the approval workflow."
+    },
+    "Pr_Update": {
+      "source": {
+        "object": "dbo.Pr_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing purchase request records and related audit fields."
+    },
+    "Prod_Delete": {
+      "source": {
+        "object": "dbo.Prod_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes production records according to business rules."
+    },
+    "Prod_Insert": {
+      "source": {
+        "object": "dbo.Prod_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new production records using validated business defaults."
+    },
+    "Prod_Select": {
+      "source": {
+        "object": "dbo.Prod_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged production result sets."
+    },
+    "Prod_SelectById": {
+      "source": {
+        "object": "dbo.Prod_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one production record by identifier with related details."
+    },
+    "Prod_SelectByProdId": {
+      "source": {
+        "object": "dbo.Prod_SelectByProdId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one production record by identifier with related details."
+    },
+    "Prod_Update": {
+      "source": {
+        "object": "dbo.Prod_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing production records and related audit fields."
+    },
+    "PsLine_Delete": {
+      "source": {
+        "object": "dbo.PsLine_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes packing slip records according to business rules."
+    },
+    "PsLine_Insert": {
+      "source": {
+        "object": "dbo.PsLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new packing slip records using validated business defaults."
+    },
+    "PsLine_SelectById": {
+      "source": {
+        "object": "dbo.PsLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one packing slip record by identifier with related details."
+    },
+    "PsLine_SelectByPs": {
+      "source": {
+        "object": "dbo.PsLine_SelectByPs",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged packing slip result sets."
+    },
+    "PsLine_Update": {
+      "source": {
+        "object": "dbo.PsLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing packing slip records and related audit fields."
+    },
+    "Ps_Delete": {
+      "source": {
+        "object": "dbo.Ps_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes packing slip records according to business rules."
+    },
+    "Ps_Insert": {
+      "source": {
+        "object": "dbo.Ps_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new packing slip records using validated business defaults."
+    },
+    "Ps_Rpt": {
+      "source": {
+        "object": "dbo.Ps_Rpt",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for packing slip analysis and exports."
+    },
+    "Ps_Select": {
+      "source": {
+        "object": "dbo.Ps_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged packing slip result sets."
+    },
+    "Ps_SelectById": {
+      "source": {
+        "object": "dbo.Ps_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one packing slip record by identifier with related details."
+    },
+    "Ps_Update": {
+      "source": {
+        "object": "dbo.Ps_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing packing slip records and related audit fields."
+    },
+    "Rep_InventTrans_ByItem": {
+      "source": {
+        "object": "dbo.Rep_InventTrans_ByItem",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for rep operations exposed through execute-entity."
+    },
+    "Rep_StockCard_Monthly": {
+      "source": {
+        "object": "dbo.Rep_StockCard_Monthly",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for rep operations exposed through execute-entity."
+    },
+    "Rep_Tools": {
+      "source": {
+        "object": "dbo.Rep_Tools",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for rep operations exposed through execute-entity."
+    },
+    "Rep_ToolsAnalysis": {
+      "source": {
+        "object": "dbo.Rep_ToolsAnalysis",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Business procedure for rep operations exposed through execute-entity."
+    },
+    "ReportCbo": {
+      "source": {
+        "object": "dbo.ReportCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportDelete": {
+      "source": {
+        "object": "dbo.ReportDelete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportInsert": {
+      "source": {
+        "object": "dbo.ReportInsert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportParameterDelete": {
+      "source": {
+        "object": "dbo.ReportParameterDelete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportParameterDeleteByReportId": {
+      "source": {
+        "object": "dbo.ReportParameterDeleteByReportId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportParameterInsert": {
+      "source": {
+        "object": "dbo.ReportParameterInsert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportParameterSelectById": {
+      "source": {
+        "object": "dbo.ReportParameterSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportParameterSelectByReportId": {
+      "source": {
+        "object": "dbo.ReportParameterSelectByReportId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportParameterUpdate": {
+      "source": {
+        "object": "dbo.ReportParameterUpdate",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportSelect": {
+      "source": {
+        "object": "dbo.ReportSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportSelectById": {
+      "source": {
+        "object": "dbo.ReportSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "ReportUpdate": {
+      "source": {
+        "object": "dbo.ReportUpdate",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Reporting procedure returning formatted result sets for reporting analysis and exports."
+    },
+    "SalesPrice_Delete": {
+      "source": {
+        "object": "dbo.SalesPrice_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes sales pricing records according to business rules."
+    },
+    "SalesPrice_Insert": {
+      "source": {
+        "object": "dbo.SalesPrice_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new sales pricing records using validated business defaults."
+    },
+    "SalesPrice_Select": {
+      "source": {
+        "object": "dbo.SalesPrice_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged sales pricing result sets."
+    },
+    "SalesPrice_SelectById": {
+      "source": {
+        "object": "dbo.SalesPrice_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one sales pricing record by identifier with related details."
+    },
+    "SalesPrice_Update": {
+      "source": {
+        "object": "dbo.SalesPrice_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing sales pricing records and related audit fields."
+    },
+    "SiLine_Insert": {
+      "source": {
+        "object": "dbo.SiLine_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new sales invoice records using validated business defaults."
+    },
+    "SiLine_SelectById": {
+      "source": {
+        "object": "dbo.SiLine_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one sales invoice record by identifier with related details."
+    },
+    "SiLine_SelectBySi": {
+      "source": {
+        "object": "dbo.SiLine_SelectBySi",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged sales invoice result sets."
+    },
+    "SiLine_Update": {
+      "source": {
+        "object": "dbo.SiLine_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing sales invoice records and related audit fields."
+    },
+    "Si_Delete": {
+      "source": {
+        "object": "dbo.Si_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes sales invoice records according to business rules."
+    },
+    "Si_Insert": {
+      "source": {
+        "object": "dbo.Si_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new sales invoice records using validated business defaults."
+    },
+    "Si_Select": {
+      "source": {
+        "object": "dbo.Si_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged sales invoice result sets."
+    },
+    "Si_SelectById": {
+      "source": {
+        "object": "dbo.Si_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one sales invoice record by identifier with related details."
+    },
+    "Si_Update": {
+      "source": {
+        "object": "dbo.Si_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing sales invoice records and related audit fields."
+    },
+    "StatusCbo": {
+      "source": {
+        "object": "dbo.StatusCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for status selectors."
+    },
+    "SupplierCbo": {
+      "source": {
+        "object": "dbo.SupplierCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for supplier selectors."
+    },
+    "Supplier_Delete": {
+      "source": {
+        "object": "dbo.Supplier_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes supplier records according to business rules."
+    },
+    "Supplier_Insert": {
+      "source": {
+        "object": "dbo.Supplier_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new supplier records using validated business defaults."
+    },
+    "Supplier_Select": {
+      "source": {
+        "object": "dbo.Supplier_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged supplier result sets."
+    },
+    "Supplier_SelectById": {
+      "source": {
+        "object": "dbo.Supplier_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one supplier record by identifier with related details."
+    },
+    "Supplier_Update": {
+      "source": {
+        "object": "dbo.Supplier_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing supplier records and related audit fields."
+    },
+    "Top_Cbo": {
+      "source": {
+        "object": "dbo.Top_Cbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for terms of payment selectors."
+    },
+    "Top_Delete": {
+      "source": {
+        "object": "dbo.Top_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes terms of payment records according to business rules."
+    },
+    "Top_Insert": {
+      "source": {
+        "object": "dbo.Top_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new terms of payment records using validated business defaults."
+    },
+    "Top_Select": {
+      "source": {
+        "object": "dbo.Top_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged terms of payment result sets."
+    },
+    "Top_SelectById": {
+      "source": {
+        "object": "dbo.Top_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one terms of payment record by identifier with related details."
+    },
+    "Top_Update": {
+      "source": {
+        "object": "dbo.Top_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing terms of payment records and related audit fields."
+    },
+    "UnitCbo": {
+      "source": {
+        "object": "dbo.UnitCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for unit of measure selectors."
+    },
+    "UnitDelete": {
+      "source": {
+        "object": "dbo.UnitDelete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes unit of measure records according to business rules."
+    },
+    "UnitInsert": {
+      "source": {
+        "object": "dbo.UnitInsert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new unit of measure records using validated business defaults."
+    },
+    "UnitSelect": {
+      "source": {
+        "object": "dbo.UnitSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged unit of measure result sets."
+    },
+    "UnitSelectById": {
+      "source": {
+        "object": "dbo.UnitSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one unit of measure record by identifier with related details."
+    },
+    "UnitSelect_bck": {
+      "source": {
+        "object": "dbo.UnitSelect_bck",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged unit of measure result sets."
+    },
+    "UnitUpdate": {
+      "source": {
+        "object": "dbo.UnitUpdate",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing unit of measure records and related audit fields."
+    },
+    "WfForm_Cbo": {
+      "source": {
+        "object": "dbo.WfForm_Cbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for workflow selectors."
+    },
+    "WfForm_Delete": {
+      "source": {
+        "object": "dbo.WfForm_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes workflow records according to business rules."
+    },
+    "WfForm_Insert": {
+      "source": {
+        "object": "dbo.WfForm_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new workflow records using validated business defaults."
+    },
+    "WfForm_Select": {
+      "source": {
+        "object": "dbo.WfForm_Select",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged workflow result sets."
+    },
+    "WfForm_SelectById": {
+      "source": {
+        "object": "dbo.WfForm_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one workflow record by identifier with related details."
+    },
+    "WfForm_Update": {
+      "source": {
+        "object": "dbo.WfForm_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing workflow records and related audit fields."
+    },
+    "WfTrans_SelectByRefId": {
+      "source": {
+        "object": "dbo.WfTrans_SelectByRefId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one workflow record by identifier with related details."
+    },
+    "Wf_Delete": {
+      "source": {
+        "object": "dbo.Wf_Delete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes workflow records according to business rules."
+    },
+    "Wf_Insert": {
+      "source": {
+        "object": "dbo.Wf_Insert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new workflow records using validated business defaults."
+    },
+    "Wf_SelectById": {
+      "source": {
+        "object": "dbo.Wf_SelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one workflow record by identifier with related details."
+    },
+    "Wf_SelectByWfFormId": {
+      "source": {
+        "object": "dbo.Wf_SelectByWfFormId",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one workflow record by identifier with related details."
+    },
+    "Wf_Update": {
+      "source": {
+        "object": "dbo.Wf_Update",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing workflow records and related audit fields."
+    },
+    "WhCbo": {
+      "source": {
+        "object": "dbo.WhCbo",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Lookup procedure returning compact option-list data for warehouse selectors."
+    },
+    "WhDelete": {
+      "source": {
+        "object": "dbo.WhDelete",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Delete procedure that removes warehouse records according to business rules."
+    },
+    "WhInsert": {
+      "source": {
+        "object": "dbo.WhInsert",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Create procedure that inserts new warehouse records using validated business defaults."
+    },
+    "WhSelect": {
+      "source": {
+        "object": "dbo.WhSelect",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged warehouse result sets."
+    },
+    "WhSelectById": {
+      "source": {
+        "object": "dbo.WhSelectById",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns one warehouse record by identifier with related details."
+    },
+    "WhSelect_bck": {
+      "source": {
+        "object": "dbo.WhSelect_bck",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Read procedure that returns filtered and paged warehouse result sets."
+    },
+    "WhUpdate": {
+      "source": {
+        "object": "dbo.WhUpdate",
+        "type": "stored-procedure"
+      },
+      "permissions": [
+        {
+          "role": "authenticated",
+          "actions": [
+            "execute"
+          ]
+        },
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "description": "Update procedure that modifies existing warehouse records and related audit fields."
+    }
+  }
+}
