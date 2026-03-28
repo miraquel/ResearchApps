@@ -80,7 +80,7 @@ public class BudgetsController : Controller
     [Authorize(PermissionConstants.Budgets.Create)]
     public ActionResult Create()
     {
-        return View(new BudgetVm { StatusId = 1 });
+        return View(new BudgetVm { StatusId = 1, StartDate = DateTime.Today, EndDate = DateTime.Today });
     }
 
     // POST: Budgets/Create

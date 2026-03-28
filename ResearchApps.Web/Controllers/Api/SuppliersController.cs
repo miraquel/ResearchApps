@@ -54,7 +54,8 @@ public class SuppliersController : ControllerBase
     {
         if (id != supplier.SupplierId)
         {
-            return BadRequest("Supplier ID mismatch.");
+            var mismatchResponse = ServiceResponse.Failure("Supplier ID mismatch.", StatusCodes.Status400BadRequest);
+            return StatusCode(mismatchResponse.StatusCode, mismatchResponse);
         }
         
         var response = await _supplierService.SupplierUpdate(supplier, cancellationToken);

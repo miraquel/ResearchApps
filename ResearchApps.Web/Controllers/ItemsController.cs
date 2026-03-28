@@ -220,7 +220,8 @@ public class ItemsController : Controller
         }
         catch
         {
-            return View();
+            TempData["ErrorMessage"] = "An error occurred while deleting the item.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

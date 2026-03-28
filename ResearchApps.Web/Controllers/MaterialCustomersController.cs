@@ -13,10 +13,14 @@ namespace ResearchApps.Web.Controllers;
 public class MaterialCustomersController : Controller
 {
     private readonly IMaterialCustomerService _materialCustomerService;
+    private readonly ILogger<MaterialCustomersController> _logger;
 
-    public MaterialCustomersController(IMaterialCustomerService materialCustomerService)
+    public MaterialCustomersController(
+        IMaterialCustomerService materialCustomerService,
+        ILogger<MaterialCustomersController> logger)
     {
         _materialCustomerService = materialCustomerService;
+        _logger = logger;
     }
 
     // GET: MaterialCustomers
@@ -108,7 +112,8 @@ public class MaterialCustomersController : Controller
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError(string.Empty, ex.Message);
+            _logger.LogError(ex, "Failed to create Material Customer");
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while creating the material customer.");
             return View(collection);
         }
     }
@@ -165,8 +170,10 @@ public class MaterialCustomersController : Controller
             var viewModel = await _materialCustomerService.GetMaterialCustomer(collection.RecId, cancellationToken);
             return View(viewModel.Data);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to update Material Customer {RecId}", collection.RecId);
+            ModelState.AddModelError(string.Empty, "An unexpected error occurred while updating the material customer.");
             var viewModel = await _materialCustomerService.GetMaterialCustomer(collection.RecId, cancellationToken);
             return View(viewModel.Data);
         }
@@ -214,8 +221,10 @@ public class MaterialCustomersController : Controller
             TempData["ErrorMessage"] = response.Message ?? "Failed to delete Material Customer.";
             return RedirectToAction(nameof(Index));
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to delete Material Customer {RecId}", recId);
+            TempData["ErrorMessage"] = "An unexpected error occurred while deleting the material customer.";
             return RedirectToAction(nameof(Index));
         }
     }

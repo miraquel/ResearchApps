@@ -182,7 +182,8 @@ public class ItemTypesController : Controller
         }
         catch
         {
-            return View();
+            TempData["ErrorMessage"] = "An error occurred while deleting the item type.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
