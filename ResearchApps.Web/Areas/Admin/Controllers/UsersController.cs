@@ -190,6 +190,18 @@ public class UsersController : Controller
             return View(model);
         }
 
+        // Enforce tenant user limit when creating from within a tenant site
+        if (IsTenantSite && _tenantInfo!.MaxUsers > 0)
+        {
+            var userCount = await _userManager.Users.CountAsync();
+            if (userCount >= _tenantInfo.MaxUsers)
+            {
+                ModelState.AddModelError(string.Empty, $"User limit of {_tenantInfo.MaxUsers} has been reached for this tenant.");
+                ViewBag.IsTenantSite = IsTenantSite;
+                return View(model);
+            }
+        }
+
         var user = new AppIdentityUser
         {
             UserName = model.UserName,

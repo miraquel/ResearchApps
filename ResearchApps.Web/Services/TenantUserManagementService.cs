@@ -8,7 +8,7 @@ namespace ResearchApps.Web.Services;
 public interface ITenantUserManagementService
 {
     Task<List<TenantUserItem>> ListUsersAsync(string connectionString, CancellationToken ct = default);
-    Task<(bool Success, string Message)> CreateUserAsync(string connectionString, TenantUserCreate model, CancellationToken ct = default);
+    Task<(bool Success, string Message)> CreateUserAsync(string connectionString, TenantUserCreate model, int maxUsers = 0, CancellationToken ct = default);
     Task<(bool Success, string Message)> ResetPasswordAsync(string connectionString, string userId, string newPassword, CancellationToken ct = default);
 }
 
@@ -77,13 +77,25 @@ public class TenantUserManagementService : ITenantUserManagementService
         return users;
     }
 
-    public async Task<(bool Success, string Message)> CreateUserAsync(string connectionString, TenantUserCreate model, CancellationToken ct = default)
+    public async Task<(bool Success, string Message)> CreateUserAsync(string connectionString, TenantUserCreate model, int maxUsers = 0, CancellationToken ct = default)
     {
         var hasher = new PasswordHasher<AppIdentityUser>();
         var passwordHash = hasher.HashPassword(new AppIdentityUser(), model.Password);
 
         await using var conn = new SqlConnection(connectionString);
         await conn.OpenAsync(ct);
+
+        // Check user limit
+        if (maxUsers > 0)
+        {
+            await using (var limitCmd = conn.CreateCommand())
+            {
+                limitCmd.CommandText = "SELECT COUNT(1) FROM [identity].[AspNetUsers]";
+                var count = (int)await limitCmd.ExecuteScalarAsync(ct)!;
+                if (count >= maxUsers)
+                    return (false, $"User limit of {maxUsers} has been reached for this tenant.");
+            }
+        }
 
         // Check uniqueness
         await using (var checkCmd = conn.CreateCommand())

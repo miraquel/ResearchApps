@@ -26,6 +26,11 @@ public class AppTenantInfo : ITenantInfo
     public string? LogoUrl { get; set; }
 
     /// <summary>
+    /// Maximum number of users allowed for this tenant. 0 means unlimited.
+    /// </summary>
+    public int MaxUsers { get; set; } = 0;
+
+    /// <summary>
     /// JSON-serialized set of enabled feature flag keys (see TenantFeatureConstants).
     /// Example: ["PurchaseRequisitions","CustomerOrders","Budget"]
     /// </summary>

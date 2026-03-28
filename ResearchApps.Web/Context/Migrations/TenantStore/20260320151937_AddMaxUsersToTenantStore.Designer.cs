@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResearchApps.Web.Context;
 
@@ -11,9 +12,11 @@ using ResearchApps.Web.Context;
 namespace ResearchApps.Web.Context.Migrations.TenantStore
 {
     [DbContext(typeof(TenantStoreDbContext))]
-    partial class TenantStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260320151937_AddMaxUsersToTenantStore")]
+    partial class AddMaxUsersToTenantStore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

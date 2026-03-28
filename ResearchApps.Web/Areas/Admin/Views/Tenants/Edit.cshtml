@@ -57,6 +57,14 @@
                     <span asp-validation-for="LogoUrl" class="text-danger"></span>
                 </div>
             </div>
+            <div class="row mb-4">
+                <label asp-for="MaxUsers" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <input asp-for="MaxUsers" class="form-control" type="number" min="0" />
+                    <span asp-validation-for="MaxUsers" class="text-danger"></span>
+                    <small class="form-text text-muted">Maximum number of users allowed for this tenant. Set to 0 for unlimited.</small>
+                </div>
+            </div>
 
             <!-- Features -->
             <hr class="my-4" />
@@ -98,8 +106,8 @@
                 }
             </div>
 
-            <div class="row justify-content-end">
-                <div class="col-sm-10">
+            <div class="row justify-content-start">
+                <div class="col-sm-12">
                     <button type="button" class="btn btn-primary" id="update-tenant-btn">Update Tenant</button>
                     <a asp-area="Admin" asp-controller="Tenants" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
                 </div>

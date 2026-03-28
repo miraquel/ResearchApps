@@ -115,6 +115,7 @@ public class TenantsController : Controller
             IsActive = tenant.IsActive,
             CreatedDate = tenant.CreatedDate,
             LogoUrl = tenant.LogoUrl,
+            MaxUsers = tenant.MaxUsers,
             EnabledFeatures = tenant.GetFeatures()
         };
 
@@ -153,7 +154,8 @@ public class TenantsController : Controller
             ConnectionString = model.ConnectionString,
             IsActive = model.IsActive,
             CreatedDate = DateTime.UtcNow,
-            LogoUrl = model.LogoUrl
+            LogoUrl = model.LogoUrl,
+            MaxUsers = model.MaxUsers
         };
         tenant.SetFeatures(model.EnabledFeatures ?? []);
 
@@ -183,6 +185,7 @@ public class TenantsController : Controller
             ConnectionString = tenant.ConnectionString ?? string.Empty,
             IsActive = tenant.IsActive,
             LogoUrl = tenant.LogoUrl,
+            MaxUsers = tenant.MaxUsers,
             EnabledFeatures = tenant.GetFeatures().ToList()
         };
 
@@ -213,6 +216,7 @@ public class TenantsController : Controller
         tenant.ConnectionString = model.ConnectionString;
         tenant.IsActive = model.IsActive;
         tenant.LogoUrl = model.LogoUrl;
+        tenant.MaxUsers = model.MaxUsers;
         tenant.SetFeatures(model.EnabledFeatures ?? []);
 
         await _tenantDb.SaveChangesAsync(cancellationToken);
@@ -289,6 +293,8 @@ public class TenantsController : Controller
 
         ViewBag.TenantId = id;
         ViewBag.TenantName = tenant.Name ?? tenant.Identifier ?? "—";
+        ViewBag.MaxUsers = tenant.MaxUsers;
+        ViewBag.UserCount = users.Count;
         return View(users);
     }
 
@@ -299,6 +305,16 @@ public class TenantsController : Controller
         var tenant = await _tenantDb.TenantInfo.AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         if (tenant is null) return NotFound();
+
+        if (tenant.MaxUsers > 0 && !string.IsNullOrEmpty(tenant.ConnectionString))
+        {
+            var users = await _tenantUserService.ListUsersAsync(tenant.ConnectionString, cancellationToken);
+            if (users.Count >= tenant.MaxUsers)
+            {
+                TempData["ErrorMessage"] = $"User limit of {tenant.MaxUsers} has been reached for this tenant.";
+                return RedirectToAction(nameof(TenantUsers), new { id });
+            }
+        }
 
         ViewBag.TenantId = id;
         ViewBag.TenantName = tenant.Name ?? tenant.Identifier ?? "—";
@@ -323,7 +339,7 @@ public class TenantsController : Controller
             return View(model);
         }
 
-        var (success, message) = await _tenantUserService.CreateUserAsync(tenant.ConnectionString, model, cancellationToken);
+        var (success, message) = await _tenantUserService.CreateUserAsync(tenant.ConnectionString, model, tenant.MaxUsers, cancellationToken);
         TempData[success ? "SuccessMessage" : "ErrorMessage"] = message;
         return RedirectToAction(nameof(TenantUsers), new { id });
     }
@@ -377,6 +393,7 @@ public class TenantsController : Controller
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public string? LogoUrl { get; set; }
+        public int MaxUsers { get; set; }
         public HashSet<string> EnabledFeatures { get; set; } = [];
     }
 
@@ -404,6 +421,10 @@ public class TenantsController : Controller
         [StringLength(512)]
         [Display(Name = "Logo URL")]
         public string? LogoUrl { get; set; }
+
+        [Range(0, int.MaxValue)]
+        [Display(Name = "Max Users")]
+        public int MaxUsers { get; set; } = 0;
 
         public List<string> EnabledFeatures { get; set; } = [];
     }
@@ -434,6 +455,10 @@ public class TenantsController : Controller
         [StringLength(512)]
         [Display(Name = "Logo URL")]
         public string? LogoUrl { get; set; }
+
+        [Range(0, int.MaxValue)]
+        [Display(Name = "Max Users")]
+        public int MaxUsers { get; set; } = 0;
 
         public List<string> EnabledFeatures { get; set; } = [];
     }

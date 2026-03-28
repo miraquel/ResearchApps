@@ -28,6 +28,7 @@ public class TenantStoreDbContext : EFCoreStoreDbContext<AppTenantInfo>
             entity.Property(e => e.ConnectionString).HasMaxLength(512);
             entity.Property(e => e.LogoUrl).HasMaxLength(512);
             entity.Property(e => e.FeaturesJson).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.MaxUsers).HasDefaultValue(0);
             entity.HasIndex(e => e.Identifier).IsUnique();
         });
     }
