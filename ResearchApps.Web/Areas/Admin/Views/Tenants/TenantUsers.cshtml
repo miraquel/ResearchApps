@@ -10,12 +10,32 @@
 
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
-        <h5 class="mb-0">Users — @ViewBag.TenantName</h5>
         <div>
-            <a asp-area="Admin" asp-controller="Tenants" asp-action="CreateTenantUser" asp-route-id="@ViewBag.TenantId"
-               class="btn btn-sm btn-primary">
-                <i class="ri-add-line me-1"></i> Create User
-            </a>
+            <h5 class="mb-0">Users — @ViewBag.TenantName</h5>
+            @if ((int)ViewBag.MaxUsers > 0)
+            {
+                var atLimit = (int)ViewBag.UserCount >= (int)ViewBag.MaxUsers;
+                <small class="text-@(atLimit ? "danger" : "muted")">@ViewBag.UserCount / @ViewBag.MaxUsers users</small>
+            }
+            else
+            {
+                <small class="text-muted">@ViewBag.UserCount users</small>
+            }
+        </div>
+        <div>
+            @if ((int)ViewBag.MaxUsers == 0 || (int)ViewBag.UserCount < (int)ViewBag.MaxUsers)
+            {
+                <a asp-area="Admin" asp-controller="Tenants" asp-action="CreateTenantUser" asp-route-id="@ViewBag.TenantId"
+                   class="btn btn-sm btn-primary">
+                    <i class="ri-add-line me-1"></i> Create User
+                </a>
+            }
+            else
+            {
+                <button class="btn btn-sm btn-secondary" disabled title="User limit reached">
+                    <i class="ri-add-line me-1"></i> Create User
+                </button>
+            }
             <a asp-area="Admin" asp-controller="Tenants" asp-action="Details" asp-route-id="@ViewBag.TenantId"
                class="btn btn-sm btn-secondary ms-1">
                 Back to Tenant
