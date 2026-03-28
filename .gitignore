@@ -33,3 +33,6 @@ appsettings.Development.json
 # Logs
 **/Logs/
 *.log
+
+# Test results
+TestResults/
