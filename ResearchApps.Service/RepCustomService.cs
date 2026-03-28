@@ -25,8 +25,8 @@ public partial class RepCustomService : IRepCustomService
     [LoggerMessage(LogLevel.Information, "Generating ToolsAnalysis report for Year={Year}, Month={Month}")]
     partial void LogGeneratingToolsAnalysis(int year, int month);
 
-    [LoggerMessage(LogLevel.Error, "Error generating Custom report: {Message}")]
-    partial void LogError(string message);
+    [LoggerMessage(LogLevel.Error, "Error generating custom report ({ReportType}) for Year={Year}, Month={Month}")]
+    partial void LogError(Exception exception, string reportType, int year, int month);
 
     public async Task<ServiceResponse<IEnumerable<RepToolsVm>>> RepTools(int year, int month, CancellationToken ct)
     {
@@ -39,8 +39,10 @@ public partial class RepCustomService : IRepCustomService
         }
         catch (Exception ex)
         {
-            LogError(ex.Message);
-            return ServiceResponse<IEnumerable<RepToolsVm>>.Failure(ex.Message, 500);
+            LogError(ex, "Tools", year, month);
+            return ServiceResponse<IEnumerable<RepToolsVm>>.Failure(
+                "An internal error occurred while generating the tools report.",
+                500);
         }
     }
 
@@ -55,8 +57,10 @@ public partial class RepCustomService : IRepCustomService
         }
         catch (Exception ex)
         {
-            LogError(ex.Message);
-            return ServiceResponse<IEnumerable<RepToolsAnalysisVm>>.Failure(ex.Message, 500);
+            LogError(ex, "ToolsAnalysis", year, month);
+            return ServiceResponse<IEnumerable<RepToolsAnalysisVm>>.Failure(
+                "An internal error occurred while generating the tools analysis report.",
+                500);
         }
     }
 }

@@ -123,7 +123,7 @@ public class PoRepo : IPoRepo
         parameters.Add("@SubTotal", po.SubTotal);
         parameters.Add("@Ppn", po.Ppn);
         parameters.Add("@Total", po.Total);
-        parameters.Add("@Notes", po.Notes);
+        parameters.Add("@Notes", po.Notes ?? string.Empty);
         parameters.Add("@PoStatusId", po.PoStatusId);
         parameters.Add("@CreatedBy", po.CreatedBy);
 
@@ -147,7 +147,7 @@ public class PoRepo : IPoRepo
         parameters.Add("@Pic", po.Pic);
         parameters.Add("@PoDate", po.PoDate);
         parameters.Add("@IsPpn", po.IsPpn);
-        parameters.Add("@Notes", po.Notes);
+        parameters.Add("@Notes", po.Notes ?? string.Empty);
         parameters.Add("@ModifiedBy", po.ModifiedBy);
 
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);

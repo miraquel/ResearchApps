@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using ResearchApps.Common.Exceptions;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
 using ResearchApps.Service.Interface;
@@ -103,64 +104,99 @@ public partial class PoService : IPoService
     public async Task<ServiceResponse> PoSubmitById(int recId, CancellationToken ct)
     {
         LogSubmittingPo(recId, _userClaimDto.Username);
+        try
+        {
+            await _poRepo.PoSubmitById(recId, _userClaimDto.Username, ct);
+            _dbTransaction.Commit();
 
-        await _poRepo.PoSubmitById(recId, _userClaimDto.Username, ct);
-        _dbTransaction.Commit();
-        
-        var result = await _poRepo.PoSelectById(recId, ct) ?? throw new InvalidOperationException("Purchase order not found after submission.");
-        LogPoSubmitted(recId, result.CurrentApprover ?? "N/A");
+            var result = await _poRepo.PoSelectById(recId, ct) ?? throw new InvalidOperationException("Purchase order not found after submission.");
+            LogPoSubmitted(recId, result.CurrentApprover ?? "N/A");
 
-        return ServiceResponse<PoVm>.Success(
-            new PoVm { Header = _mapper.MapToVm(result), Lines = new List<PoLineVm>() },
-            "Purchase order submitted successfully.");
+            return ServiceResponse<PoVm>.Success(
+                new PoVm { Header = _mapper.MapToVm(result), Lines = new List<PoLineVm>() },
+                "Purchase order submitted successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPoWorkflowFailed(recId, "submit", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PoRecallById(int recId, CancellationToken ct)
     {
         LogRecallingPo(recId, _userClaimDto.Username);
+        try
+        {
+            await _poRepo.PoRecallById(recId, _userClaimDto.Username, ct);
+            _dbTransaction.Commit();
 
-        await _poRepo.PoRecallById(recId, _userClaimDto.Username, ct);
-        _dbTransaction.Commit();
+            LogPoRecalled(recId);
 
-        LogPoRecalled(recId);
-
-        return ServiceResponse.Success("Purchase order recalled successfully.");
+            return ServiceResponse.Success("Purchase order recalled successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPoWorkflowFailed(recId, "recall", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PoApproveById(PoWorkflowActionVm action, CancellationToken ct)
     {
         LogApprovingPo(action.RecId, _userClaimDto.Username);
+        try
+        {
+            await _poRepo.PoApproveById(action.RecId, action.Notes ?? "", _userClaimDto.Username, ct);
+            _dbTransaction.Commit();
 
-        await _poRepo.PoApproveById(action.RecId, action.Notes ?? "", _userClaimDto.Username, ct);
-        _dbTransaction.Commit();
+            LogPoApproved(action.RecId);
 
-        LogPoApproved(action.RecId);
-
-        return ServiceResponse.Success("Purchase order approved successfully.");
+            return ServiceResponse.Success("Purchase order approved successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPoWorkflowFailed(action.RecId, "approve", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PoRejectById(PoWorkflowActionVm action, CancellationToken ct)
     {
         LogRejectingPo(action.RecId, _userClaimDto.Username);
+        try
+        {
+            await _poRepo.PoRejectById(action.RecId, action.Notes, _userClaimDto.Username, ct);
+            _dbTransaction.Commit();
 
-        await _poRepo.PoRejectById(action.RecId, action.Notes, _userClaimDto.Username, ct);
-        _dbTransaction.Commit();
+            LogPoRejected(action.RecId);
 
-        LogPoRejected(action.RecId);
-
-        return ServiceResponse.Success("Purchase order rejected successfully.");
+            return ServiceResponse.Success("Purchase order rejected successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPoWorkflowFailed(action.RecId, "reject", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> PoCloseById(int recId, CancellationToken ct)
     {
         LogClosingPo(recId, _userClaimDto.Username);
+        try
+        {
+            await _poRepo.PoCloseById(recId, _userClaimDto.Username, ct);
+            _dbTransaction.Commit();
 
-        await _poRepo.PoCloseById(recId, _userClaimDto.Username, ct);
-        _dbTransaction.Commit();
+            LogPoClosed(recId);
 
-        LogPoClosed(recId);
-
-        return ServiceResponse.Success("Purchase order closed successfully.");
+            return ServiceResponse.Success("Purchase order closed successfully.");
+        }
+        catch (RepoException ex)
+        {
+            LogPoWorkflowFailed(recId, "close", ex.Message);
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     #endregion
@@ -227,6 +263,9 @@ public partial class PoService : IPoService
 
     [LoggerMessage(LogLevel.Information, "Purchase order {RecId} closed")]
     partial void LogPoClosed(int recId);
+
+    [LoggerMessage(LogLevel.Warning, "PO workflow action '{Action}' failed for RecId {RecId}: {Reason}")]
+    partial void LogPoWorkflowFailed(int recId, string action, string reason);
 
     [LoggerMessage(LogLevel.Information, "Retrieving workflow history for PO RefId: {RefId}")]
     partial void LogRetrievingWfHistoryForPoRefId(string refId);
