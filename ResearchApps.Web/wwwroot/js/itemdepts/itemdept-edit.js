@@ -1,9 +1,9 @@
 /**
- * ItemGroup01 Edit Page Component
+ * ItemDept Edit Page Component
  * @param {number|null} initialStatusId - Pre-selected Status ID
  * @returns {Object} Alpine.js component
  */
-function itemgroup01Edit(initialStatusId = null) {
+function itemdeptEdit(initialStatusId = null) {
     return {
         statusSelect: null,
         initialStatusId: initialStatusId,
@@ -31,7 +31,7 @@ function itemgroup01Edit(initialStatusId = null) {
                                 setTimeout(() => self.statusSelect.setValue(self.initialStatusId.toString()), 100);
                             }
                         } catch (error) {
-                            console.error('[ItemGroup01 Edit] Error loading Status:', error);
+                            console.error('[ItemDept Edit] Error loading Status:', error);
                             callback();
                         }
                     },
@@ -41,10 +41,11 @@ function itemgroup01Edit(initialStatusId = null) {
                     onInitialize: function() { this.load(''); }
                 });
             } catch (error) {
-                console.error('[ItemGroup01 Edit] Error initializing Status TomSelect:', error);
+                console.error('[ItemDept Edit] Error initializing Status TomSelect:', error);
             }
         }
     };
 }
 
-window.itemgroup01Edit = itemgroup01Edit;
+window.itemdeptEdit = itemdeptEdit;
+

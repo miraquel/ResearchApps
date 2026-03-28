@@ -269,7 +269,23 @@ document.addEventListener('alpine:init', () => {
             const nav = document.getElementById('navbar-nav');
             if (!nav) return;
 
-            const link = nav.querySelector(`[href="${path}"]`);
+            // Try exact match first
+            let link = nav.querySelector(`[href="${path}"]`);
+
+            // Fall back to longest prefix match (e.g. /Items matches /Items/Details/1000)
+            if (!link) {
+                let bestMatch = null;
+                let bestLength = 0;
+                nav.querySelectorAll('[href]').forEach(el => {
+                    const href = el.getAttribute('href');
+                    if (href && href !== '/' && path.startsWith(href + '/') && href.length > bestLength) {
+                        bestMatch = el;
+                        bestLength = href.length;
+                    }
+                });
+                link = bestMatch;
+            }
+
             if (link) this._setActiveMenuItem(link);
         },
 

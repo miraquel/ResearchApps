@@ -1,46 +1,47 @@
 /**
  * Unit Edit Page Component
- * Handles form initialization for unit editing with status dropdown
- * @param {number} initialStatusId - Pre-selected Status ID for edit mode
+ * @param {number|null} initialStatusId - Pre-selected Status ID
  * @returns {Object} Alpine.js component
  */
-function unitEdit(initialStatusId) {
+function unitEdit(initialStatusId = null) {
     return {
-        /**
-         * Initialize component and populate status dropdown
-         * @returns {void}
-         */
+        statusSelect: null,
+        initialStatusId: initialStatusId,
+
         init() {
-            this.initStatusSelect(initialStatusId);
-            console.log('[Unit Edit] Component initialized');
+            this.initStatusSelect();
         },
 
-        /**
-         * Initialize status dropdown with Active/Inactive options and pre-select value
-         * @param {number} selectedStatusId - Status ID to pre-select
-         * @returns {void}
-         */
-        initStatusSelect(selectedStatusId) {
-            const select = document.getElementById('statusSelect');
-            if (!select) return;
-
-            // Add status options
-            const options = [
-                { value: '1', text: 'Active' },
-                { value: '0', text: 'Inactive' }
-            ];
-
-            options.forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt.value;
-                option.textContent = opt.text;
-                select.appendChild(option);
-            });
-
-            // Set pre-selected value
-            if (selectedStatusId !== null && selectedStatusId !== undefined) {
-                select.value = selectedStatusId.toString();
-                console.log('[Unit Edit] Pre-selected Status ID:', selectedStatusId);
+        initStatusSelect() {
+            const self = this;
+            try {
+                this.statusSelect = new TomSelect('#StatusId', {
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: ['text'],
+                    load: async (query, callback) => {
+                        try {
+                            const response = await fetch('/api/Status/cbo', {
+                                headers: { 'X-TomSelect': 'true' }
+                            });
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            const data = await response.json();
+                            callback(data);
+                            if (self.initialStatusId !== null && self.statusSelect) {
+                                setTimeout(() => self.statusSelect.setValue(self.initialStatusId.toString()), 100);
+                            }
+                        } catch (error) {
+                            console.error('[Unit Edit] Error loading Status:', error);
+                            callback();
+                        }
+                    },
+                    placeholder: '-- Select Status --',
+                    allowEmptyOption: false,
+                    create: false,
+                    onInitialize: function() { this.load(''); }
+                });
+            } catch (error) {
+                console.error('[Unit Edit] Error initializing Status TomSelect:', error);
             }
         }
     };
@@ -48,3 +49,4 @@ function unitEdit(initialStatusId) {
 
 // Make available globally
 window.unitEdit = unitEdit;
+

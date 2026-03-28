@@ -44,20 +44,18 @@ function supplierEdit(initialTopId) {
                             const data = await response.json();
                             callback(data);
                             
-                            // Set selected value after options are loaded
                             if (selectedTopId) {
-                                this.topSelect.setValue(selectedTopId.toString(), true);
-                                console.log('[Supplier Edit] Pre-selected TOP ID:', selectedTopId);
+                                setTimeout(() => this.topSelect.setValue(selectedTopId.toString()), 100);
                             }
                         } catch (error) {
                             console.error('[Supplier Edit] Error loading TOP data:', error);
-                            showError('Failed to load TOP options. Please refresh the page.');
                             callback();
                         }
                     },
                     placeholder: '-- Select TOP --',
                     allowEmptyOption: true,
-                    create: false
+                    create: false,
+                    onInitialize: function() { this.load(''); }
                 });
 
                 console.log('[Supplier Edit] TomSelect initialized successfully');

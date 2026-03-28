@@ -43,13 +43,13 @@ function supplierCreate() {
                             callback(data);
                         } catch (error) {
                             console.error('[Supplier Create] Error loading TOP data:', error);
-                            showError('Failed to load TOP options. Please refresh the page.');
                             callback();
                         }
                     },
                     placeholder: '-- Select TOP --',
-                    allowEmptyOption: true,
-                    create: false
+                    allowEmptyOption: false,
+                    create: false,
+                    onInitialize: function() { this.load(''); }
                 });
 
                 console.log('[Supplier Create] TomSelect initialized successfully');

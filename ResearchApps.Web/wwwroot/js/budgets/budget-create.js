@@ -35,9 +35,9 @@ function budgetCreate() {
                 dateFormat: 'Y-m-d',
                 altInput: true,
                 altFormat: 'd M Y',
+                defaultDate: this.$refs.startDate.value || 'today',
                 onChange: function (selectedDates) {
                     if (selectedDates.length > 0 && self.endDatePicker) {
-                        // Set min date on end date picker
                         self.endDatePicker.set('minDate', selectedDates[0]);
                     }
                 }
@@ -47,7 +47,8 @@ function budgetCreate() {
             this.endDatePicker = flatpickr(this.$refs.endDate, {
                 dateFormat: 'Y-m-d',
                 altInput: true,
-                altFormat: 'd M Y'
+                altFormat: 'd M Y',
+                defaultDate: this.$refs.endDate.value || 'today'
             });
 
             console.log('[Budget Create] Date pickers initialized');

@@ -1,6 +1,6 @@
 /**
  * Item edit page component
- * Handles TomSelect initialization with preselected values for ItemType, ItemDept, Unit, and Warehouse dropdowns
+ * Handles TomSelect initialization with preselected values for ItemType, ItemDept, Unit, Warehouse, and Status dropdowns
  * @param {Object} config - Configuration object with initial values
  * @returns {Object} Alpine.js component
  */
@@ -27,6 +27,9 @@ function itemEdit(config = {}) {
         /** @type {TomSelect|null} TomSelect instance for Warehouse dropdown */
         warehouseSelect: null,
 
+        /** @type {TomSelect|null} TomSelect instance for Status dropdown */
+        statusSelect: null,
+
         /** @type {string|null} Image preview data URL */
         imagePreview: null,
 
@@ -40,6 +43,7 @@ function itemEdit(config = {}) {
         init() {
             this.initializeComponents();
             this.preselectValues();
+            this.initStatusSelect();
         },
 
         /**
@@ -145,6 +149,43 @@ function itemEdit(config = {}) {
         },
 
         /**
+         * Initialize TomSelect for Status dropdown, loading options from API
+         * @returns {void}
+         */
+        initStatusSelect() {
+            const self = this;
+            try {
+                this.statusSelect = new TomSelect('#StatusId', {
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: ['text'],
+                    load: async (query, callback) => {
+                        try {
+                            const response = await fetch('/api/Status/cbo', {
+                                headers: { 'X-TomSelect': 'true' }
+                            });
+                            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                            const data = await response.json();
+                            callback(data);
+                            if (self.config.statusId !== null && self.statusSelect) {
+                                setTimeout(() => self.statusSelect.setValue(self.config.statusId.toString()), 100);
+                            }
+                        } catch (error) {
+                            console.error('[Item Edit] Error loading Status data:', error);
+                            callback();
+                        }
+                    },
+                    placeholder: '-- Select Status --',
+                    allowEmptyOption: false,
+                    create: false,
+                    onInitialize: function() { this.load(''); }
+                });
+            } catch (error) {
+                console.error('[Item Edit] Error initializing Status TomSelect:', error);
+            }
+        },
+
+        /**
          * Handle image file upload
          * @param {Event} event - File input change event
          * @returns {void}
@@ -192,3 +233,4 @@ function itemEdit(config = {}) {
 
 // Make available globally
 window.itemEdit = itemEdit;
+
