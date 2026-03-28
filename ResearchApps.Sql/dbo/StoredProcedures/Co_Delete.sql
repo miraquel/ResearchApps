@@ -3,18 +3,35 @@ CREATE PROCEDURE [dbo].[Co_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @CoId nvarchar(20)
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @CoId = CoId FROM Co WHERE RecId = @RecId
+	DECLARE @CoId nvarchar(20);
 
-	--* Co Line *--
-	DELETE FROM [CoLine]
-	WHERE CoId = @CoId
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Co WHERE RecId = @RecId)
+		BEGIN
+			THROW 50001, 'Customer Order not found.', 1;
+		END;
 
-	--* Co Header *--
-	DELETE FROM [Co]
-	WHERE RecId = @RecId
+		IF (SELECT CoStatusId FROM Co WHERE RecId = @RecId) <> 0
+		BEGIN
+			THROW 50002, 'Only Draft Customer Orders can be deleted.', 1;
+		END;
+
+		SELECT @CoId = CoId FROM Co WHERE RecId = @RecId;
+
+		--* Co Line *--
+		DELETE FROM [CoLine]
+		WHERE CoId = @CoId;
+
+		--* Co Header *--
+		DELETE FROM [Co]
+		WHERE RecId = @RecId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
 
 GO
-

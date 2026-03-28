@@ -3,38 +3,50 @@ CREATE PROCEDURE [dbo].[DoLine_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @DoId nvarchar(20), @Qty decimal(18,2), @CostPrice decimal(18,2), @Onhand decimal(18,2)
-		, @ItemId int, @WhId int
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
-	--* Init *--
-	SELECT @DoId = a.DoId 
-		, @Qty = Qty
-		, @CostPrice = Price
-		, @ItemId = ItemId
-		, @WhId = WhId 
-	FROM DoLine a JOIN Do b ON b.DoId = a.DoId
-	WHERE DoLineId = @DoLineId
+    DECLARE @DoId nvarchar(20), @Qty decimal(18,2), @CostPrice decimal(18,2), @Onhand decimal(18,2)
+        , @ItemId int, @WhId int;
 
-	--* cek  stock *--
-	IF @Qty < 0 
-	BEGIN
-		SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId
-		IF @Onhand < -1*@Qty
-		BEGIN
-			SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar)
-			RETURN
-		END
-	END
+    BEGIN TRY
+        --* Init *--
+        SELECT @DoId = a.DoId
+            , @Qty = Qty
+            , @CostPrice = Price
+            , @ItemId = ItemId
+            , @WhId = WhId
+        FROM DoLine a JOIN Do b ON b.DoId = a.DoId
+        WHERE DoLineId = @DoLineId;
 
-	--* Do Line *--
-	DELETE FROM [DoLine]
-	WHERE DoLineId = @DoLineId
+        IF @DoId IS NULL
+        BEGIN
+            THROW 50001, 'Delivery order line not found.', 1;
+        END;
 
-	--* InventTrans *--
-	DELETE FROM [InventTrans]
-	WHERE [RefType] = 'Delivery Order' AND [RefId] = cast(@DoLineId as nvarchar)
+        --* cek stock *--
+        IF @Qty < 0
+        BEGIN
+            SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
+            IF @Onhand < -1 * @Qty
+            BEGIN
+                DECLARE @ErrorMessage nvarchar(200) =
+                    'Transaksi gagal, stock yg tersedia hanya ' + CAST(ISNULL(@Onhand, 0) as nvarchar);
+                THROW 50002, @ErrorMessage, 1;
+            END
+        END
 
-	SELECT '1:::' + @DoId
+        --* Do Line *--
+        DELETE FROM [DoLine]
+        WHERE DoLineId = @DoLineId;
+
+        --* InventTrans *--
+        DELETE FROM [InventTrans]
+        WHERE [RefType] = 'Delivery Order' AND [RefId] = CAST(@DoLineId as nvarchar);
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH;
 END
 
 GO

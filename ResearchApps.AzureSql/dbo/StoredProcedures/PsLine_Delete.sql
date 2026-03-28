@@ -3,35 +3,42 @@ CREATE PROCEDURE [dbo].[PsLine_Delete]
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @PsId nvarchar(20), @Qty numeric(32,16), @Onhand numeric(32,16), @ItemId int, @WhId int
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	--* Init *--
-	SELECT @PsId = PsId
-		, @Qty = Qty
-		, @ItemId = ItemId
-		, @WhId = WhId 
-	FROM PsLine WHERE PsLineId = @PsLineId
+	DECLARE @PsId nvarchar(20), @Qty numeric(32,16), @Onhand numeric(32,16), @ItemId int, @WhId int;
 
-	--* cek  stock *--
-	IF @Qty > 0 
-	BEGIN
-		SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId
-		IF @Onhand < @Qty
+	BEGIN TRY
+		--* Init *--
+		SELECT @PsId = PsId
+			, @Qty = Qty
+			, @ItemId = ItemId
+			, @WhId = WhId
+		FROM PsLine WHERE PsLineId = @PsLineId;
+
+		--* cek  stock *--
+		IF @Qty > 0
 		BEGIN
-			SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar)
-			RETURN
+			SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
+			IF @Onhand < @Qty
+			BEGIN
+				SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar);
+				RETURN;
+			END
 		END
-	END
 
-	--* Ps Line *--
-	DELETE FROM [PsLine]
-	WHERE PsLineId = @PsLineId
+		--* Ps Line *--
+		DELETE FROM [PsLine]
+		WHERE PsLineId = @PsLineId;
 
-	--* InventTrans *--
-	DELETE FROM [InventTrans]
-	WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar)
+		--* InventTrans *--
+		DELETE FROM [InventTrans]
+		WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar);
 
-	SELECT '1:::' + @PsId
+		SELECT '1:::' + @PsId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
 GO
-

@@ -1,43 +1,49 @@
 CREATE PROCEDURE [dbo].[PrLine_Update]
-@PrLineId int, 
-@ItemId int, 
+@PrLineId int,
+@ItemId int,
 @RequestDate date,
-@Qty numeric(32,16) = 0, 
-@Price numeric(32,16) = 0, 
-@Notes nvarchar(100)='', 
+@Qty numeric(32,16) = 0,
+@Price numeric(32,16) = 0,
+@Notes nvarchar(100)='',
 @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	DECLARE @PrId nvarchar(20), @ItemName nvarchar(100), @UnitId int, @Total decimal(18,2)
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-	SELECT @PrId = PrId FROM PrLine WHERE PrLineId = @PrLineId
-	SELECT @ItemName = ItemName, @UnitId = UnitId FROM Item WHERE ItemId = @ItemId
+	DECLARE @PrId nvarchar(20), @ItemName nvarchar(100), @UnitId int, @Total decimal(18,2);
 
-	--* Pr Line *--
-	UPDATE [PrLine]
-	SET [ItemId] = @ItemId
-		, [ItemName] = @ItemName
-		, [RequestDate] = @RequestDate
-		, [Qty] = @Qty
-		, [UnitId] = @UnitId
-		, [Price] = @Price
-		, [Notes] = @Notes
-		, [ModifiedDate] = GETDATE()
-		, [ModifiedBy] = @ModifiedBy
-	WHERE PrLineId = @PrLineId
+	BEGIN TRY
+		SELECT @PrId = PrId FROM PrLine WHERE PrLineId = @PrLineId;
+		SELECT @ItemName = ItemName, @UnitId = UnitId FROM Item WHERE ItemId = @ItemId;
 
-	--* Pr Header *--
+		--* Pr Line *--
+		UPDATE [PrLine]
+		SET [ItemId] = @ItemId
+			, [ItemName] = @ItemName
+			, [RequestDate] = @RequestDate
+			, [Qty] = @Qty
+			, [UnitId] = @UnitId
+			, [Price] = @Price
+			, [Notes] = @Notes
+			, [ModifiedDate] = GETDATE()
+			, [ModifiedBy] = @ModifiedBy
+		WHERE PrLineId = @PrLineId;
 
-	SELECT @Total = SUM(Qty * Price)
-	FROM PrLine
-	WHERE PrId = @PrId
+		--* Pr Header *--
+		SELECT @Total = SUM(Qty * Price)
+		FROM PrLine
+		WHERE PrId = @PrId;
 
-	UPDATE [Pr]
-	SET Total = @Total
-	WHERE PrId = @PrId
+		UPDATE [Pr]
+		SET Total = @Total
+		WHERE PrId = @PrId;
 
-	SELECT @PrId
+		SELECT @PrId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
 
 GO
-

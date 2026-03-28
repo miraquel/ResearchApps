@@ -3,45 +3,39 @@ CREATE PROCEDURE [dbo].[Po_SubmitById]
 	@ModifiedBy nvarchar(20)
 AS
 BEGIN
-	IF EXISTS (SELECT PoId FROM Po WHERE RecId = @RecId)
-	BEGIN	
-		DECLARE @WfTransId int, @RefId nvarchar(20), @Index int, @UserId nvarchar(20), @WfFormId int
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
-		SET @WfFormId = 3 --FormPo
-	
-		--Cari nomor dok yang mau diapprove
-		SELECT @RefId = PoId FROM Po 
-		WHERE RecId = @RecId
+    BEGIN TRY
+	    IF NOT EXISTS (SELECT 1 FROM Po WHERE RecId = @RecId)
+	    BEGIN
+	        THROW 50001, 'Purchase Order not found.', 1;
+	    END;
 
-		--Cari user yang harus mengaprove
+        IF NOT EXISTS (SELECT 1 FROM PoLine b JOIN Po a ON b.PoId = a.PoId WHERE a.RecId = @RecId)
+        BEGIN
+            THROW 50002, 'Purchase Order has no lines and cannot be submitted.', 1;
+        END;
+
+		DECLARE @WfTransId int, @RefId nvarchar(20), @UserId nvarchar(20), @WfFormId int;
+		SET @WfFormId = 3; --FormPo
+		SELECT @RefId = PoId FROM Po WHERE RecId = @RecId;
 		IF EXISTS (SELECT 1 FROM [Wf] WHERE [WfFormId] = @WfFormId AND [Index] = 1)
 		BEGIN
-			SELECT @UserId = [UserId]
-			FROM [Wf]
-			WHERE [WfFormId] = @WfFormId --FormCo
-				AND [Index] = 1
-	
+			SELECT @UserId = [UserId] FROM [Wf] WHERE [WfFormId] = @WfFormId AND [Index] = 1;
 			INSERT INTO WfTrans ([WfId],[WfFormId],[RefId],[Index], [UserId], [WfStatusActionId], [ActionDate], [CreatedDate], [Notes])
 			SELECT WfId, @WfFormId, @RefId, [Index], [UserId], 0, '1900-01-01', GETDATE(), ''
-				FROM [Wf]
-				WHERE [WfFormId] = @WfFormId
-					AND [Index] = 1
-						
-			SET @WfTransId = SCOPE_IDENTITY() 
-					
-			UPDATE Po
-			SET PoStatusId = 4
-				,[WfTransId] = @WfTransId
-			WHERE RecId = @RecId
+				FROM [Wf] WHERE [WfFormId] = @WfFormId AND [Index] = 1;
+			SET @WfTransId = SCOPE_IDENTITY();
+			UPDATE Po SET PoStatusId = 4, [WfTransId] = @WfTransId WHERE RecId = @RecId;
 		END
 		ELSE
-		BEGIN -- tidak ada workflow
-			UPDATE Po
-			SET PoStatusId = 1
-				,[WfTransId] = 0
-			WHERE RecId = @RecId
+		BEGIN
+			UPDATE Po SET PoStatusId = 1, [WfTransId] = 0 WHERE RecId = @RecId;
 		END
-	END
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH;
 END
 GO
-

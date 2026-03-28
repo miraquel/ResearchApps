@@ -1,38 +1,50 @@
 CREATE PROCEDURE [dbo].[Do_Delete]
-    @RecId int,
-    @ModifiedBy nvarchar(20) = 'system'
+@RecId int,
+@ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-    DECLARE @DoId nvarchar(20), @DoLineId int
+	SET NOCOUNT ON;
+	SET XACT_ABORT ON;
 
-    SELECT @DoId = DoId FROM Do WHERE RecId = @RecId
+	DECLARE @DoId nvarchar(20), @DoLineId int;
 
-    --* Do Line *--
-    DECLARE x_cursor CURSOR FOR
-        SELECT DoLineId
-        FROM [DoLine]
-        WHERE DoId = @DoId
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Do WHERE RecId = @RecId)
+		BEGIN
+			THROW 50001, 'Delivery Order not found.', 1;
+		END;
 
-    OPEN x_cursor
+		SELECT @DoId = DoId FROM Do WHERE RecId = @RecId;
 
-    FETCH NEXT FROM x_cursor
-        INTO @DoLineId
+		--* Do Line *--
+		DECLARE x_cursor CURSOR FOR
+		SELECT DoLineId
+		FROM [DoLine]
+		WHERE DoId = @DoId;
 
-    WHILE @@FETCH_STATUS = 0
-        BEGIN
-            EXEC [DoLine_Delete] @DoLineId
+		OPEN x_cursor;
 
-            -- Get the next vendor.  
-            FETCH NEXT FROM x_cursor
-                INTO @DoLineId
-        END
-    CLOSE x_cursor;
-    DEALLOCATE x_cursor;
+		FETCH NEXT FROM x_cursor
+		INTO @DoLineId;
 
-    --* Do Header *--
-    DELETE FROM [Do]
-    WHERE RecId = @RecId
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+			EXEC [DoLine_Delete] @DoLineId;
+
+			-- Get the next vendor.
+			FETCH NEXT FROM x_cursor
+			INTO @DoLineId;
+		END;
+		CLOSE x_cursor;
+		DEALLOCATE x_cursor;
+
+		--* Do Header *--
+		DELETE FROM [Do]
+		WHERE RecId = @RecId;
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH;
 END
 
 GO
-

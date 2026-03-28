@@ -59,8 +59,6 @@ BEGIN
 
 	--* Proses Inventory Closing *--
 	EXEC [Invent_Closing] @Year = @Year, @Month = @Month, @CreatedBy = 'system'
-
-	SELECT 'ok'
 END
 GO
 

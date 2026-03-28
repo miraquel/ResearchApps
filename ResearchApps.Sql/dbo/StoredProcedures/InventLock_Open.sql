@@ -39,8 +39,6 @@ BEGIN
 		, ModifiedBy = @ModifiedBy
 		, ModifiedDate = GETDATE()
 	WHERE [RecId] = @RecId
-
-	SELECT 'ok'
 END
 
 GO

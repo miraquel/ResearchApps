@@ -204,8 +204,6 @@ BEGIN
 	FROM @StockTrans 
 	ORDER BY ItemId
 
-	SELECT '1:::'
-
 	--SELECT * FROM @StockTrans WHERE ItemId = 2194 ORDER BY ItemId
 	--SELECT * FROM ItemBegin WHERE ItemId = 2194
 	--SELECT * FROM InventTrans WHERE ItemId = 2194
