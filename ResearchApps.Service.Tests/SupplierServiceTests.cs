@@ -135,6 +135,32 @@ public class SupplierServiceTests
     }
 
     [Fact]
+    public async Task SupplierInsert_WhenOptionalFieldsAreNull_CoercesNullToEmptyString()
+    {
+        // Fax, Npwp, and Notes are NOT NULL in the DB — null must never reach the repo
+        var supplierVm = new SupplierVm
+        {
+            SupplierName = "New Supplier",
+            Fax = null,
+            Npwp = null,
+            Notes = null
+        };
+        Domain.Supplier? captured = null;
+
+        _supplierRepoMock
+            .Setup(x => x.SupplierInsert(It.IsAny<Domain.Supplier>(), _ct))
+            .Callback<Domain.Supplier, CancellationToken>((s, _) => captured = s)
+            .ReturnsAsync(new Domain.Supplier { SupplierId = 1 });
+
+        await _sut.SupplierInsert(supplierVm, _ct);
+
+        Assert.NotNull(captured);
+        Assert.Equal(string.Empty, captured.Fax);
+        Assert.Equal(string.Empty, captured.Npwp);
+        Assert.Equal(string.Empty, captured.Notes);
+    }
+
+    [Fact]
     public async Task SupplierInsert_WhenRepoThrowsRepoException_ReturnsFailure400WithNoCommit()
     {
         var supplierVm = new SupplierVm { SupplierName = "Duplicate Supplier" };
@@ -181,6 +207,33 @@ public class SupplierServiceTests
 
         Assert.NotNull(captured);
         Assert.Equal(_userClaimDto.Username, captured.ModifiedBy);
+    }
+
+    [Fact]
+    public async Task SupplierUpdate_WhenOptionalFieldsAreNull_CoercesNullToEmptyString()
+    {
+        // Fax, Npwp, and Notes are NOT NULL in the DB — null must never reach the repo
+        var supplierVm = new SupplierVm
+        {
+            SupplierId = 1,
+            SupplierName = "Updated Supplier",
+            Fax = null,
+            Npwp = null,
+            Notes = null
+        };
+        Domain.Supplier? captured = null;
+
+        _supplierRepoMock
+            .Setup(x => x.SupplierUpdate(It.IsAny<Domain.Supplier>(), _ct))
+            .Callback<Domain.Supplier, CancellationToken>((s, _) => captured = s)
+            .ReturnsAsync(new Domain.Supplier { SupplierId = 1 });
+
+        await _sut.SupplierUpdate(supplierVm, _ct);
+
+        Assert.NotNull(captured);
+        Assert.Equal(string.Empty, captured.Fax);
+        Assert.Equal(string.Empty, captured.Npwp);
+        Assert.Equal(string.Empty, captured.Notes);
     }
 
     [Fact]
