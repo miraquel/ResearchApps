@@ -2,6 +2,7 @@ CREATE TABLE [dbo].[InventTrans] (
     [RecId]        INT              IDENTITY (1, 1) NOT NULL,
     [ItemId]       INT              NOT NULL,
     [WhId]         INT              NOT NULL,
+    [InventDimId]  INT              NOT NULL,
     [TransDate]    DATETIME         CONSTRAINT [DF__InventTra__Trans__58D1301D] DEFAULT ('1900-01-01T00:00:00.000') NOT NULL,
     [RefType]      NVARCHAR (20)    NOT NULL,
     [RefId]        INT              NOT NULL,
@@ -14,6 +15,7 @@ CREATE TABLE [dbo].[InventTrans] (
     [ModifiedDate] DATETIME         NOT NULL,
     [ModifiedBy]   NVARCHAR (20)    NOT NULL,
     CONSTRAINT [PK_dbo.InventTrans] PRIMARY KEY CLUSTERED ([RecId] ASC),
+    CONSTRAINT [FK_dbo.InventTrans_dbo.InventDim_InventDimId] FOREIGN KEY ([InventDimId]) REFERENCES [dbo].[InventDim] ([InventDimId]),
     CONSTRAINT [FK_dbo.InventTrans_dbo.Item_ItemId] FOREIGN KEY ([ItemId]) REFERENCES [dbo].[Item] ([ItemId]),
     CONSTRAINT [FK_dbo.InventTrans_dbo.Wh_WhId] FOREIGN KEY ([WhId]) REFERENCES [dbo].[Wh] ([WhId])
 );
