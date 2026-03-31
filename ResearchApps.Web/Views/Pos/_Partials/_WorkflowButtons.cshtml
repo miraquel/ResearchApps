@@ -16,7 +16,7 @@
 @* Submit button - only shown to creator when PR status is Draft (0) *@
 @if (Model.PoStatusId == PoStatusConstants.Draft && isCreator)
 {
-    <button type="button" class="btn btn-sm btn-info" @@click="workflow.showModal('submit')">
+    <button type="button" class="btn btn-sm btn-info" @@click="lines.length > 0 ? workflow.showModal('submit') : showNotificationModal('Please add at least one line item before submitting.', true)">
         <i class="ri-send-plane-line"></i> Submit
     </button>
 }
@@ -32,8 +32,8 @@
     </button>
 }
 
-@* Recall button - only shown to creator when PR status is Pending Approval (4) *@
-@if (Model.PoStatusId == PoStatusConstants.InReview && isCreator)
+@* Recall button - only shown to creator when PO status is Pending Approval (4) or Rejected (5) *@
+@if (Model.PoStatusId is PoStatusConstants.InReview or PoStatusConstants.Rejected && isCreator)
 {
     <button type="button" class="btn btn-sm btn-warning" @@click="workflow.showModal('recall')">
         <i class="ri-arrow-go-back-line"></i> Recall

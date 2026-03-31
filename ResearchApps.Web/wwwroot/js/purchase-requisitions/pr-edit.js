@@ -94,10 +94,22 @@ function prEdit(config = {}) {
                 defaultDate: this.config.prDate
             });
             
-            // Initialize Budget TomSelect
+            // Initialize Budget TomSelect with rich dropdown display
             this.budgetSelect = initTomSelect('#Header_BudgetId', {
                 url: '/api/Budgets/cbo',
-                placeholder: 'Select Budget'
+                placeholder: 'Select Budget',
+                render: {
+                    option: function(data) {
+                        const remAmt = Number(data.remAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        return `<div class="d-flex flex-column py-1">
+                            <span class="fw-semibold">${data.text}</span>
+                            <small class="text-muted">${data.startDate} &ndash; ${data.endDate}&ensp;&bull;&ensp;Remaining: ${remAmt}</small>
+                        </div>`;
+                    },
+                    item: function(data) {
+                        return `<div>${data.text}</div>`;
+                    }
+                }
             });
             
             // Pre-select current budget

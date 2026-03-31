@@ -256,33 +256,48 @@ function poIndex() {
          */
         async exportToExcel() {
             if (this.isExporting) return;
-            
+            this.isExporting = true;
+
             try {
-                this.isExporting = true;
-                
                 // Build query parameters
                 const params = new URLSearchParams();
                 params.append('sortBy', this.sortBy);
                 params.append('sortAsc', this.sortAsc);
 
-                // Add non-empty filters
                 Object.entries(this.filters).forEach(([key, value]) => {
                     if (value && value.trim() !== '') {
                         params.append(`filters[${key}]`, value);
                     }
                 });
 
-                // Call export endpoint (to be implemented)
-                const url = `/Pos/Export?${params.toString()}`;
-                window.location.href = url;
-                
-                // Reset state after a delay
-                setTimeout(() => {
-                    this.isExporting = false;
-                }, 2000);
+                const response = await fetch(`/Pos/Export?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData?.message || `Server error: ${response.status} ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `PurchaseOrders_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                showNotificationModal('Excel file exported successfully');
             } catch (error) {
                 console.error('Export failed:', error);
-                alert('Failed to export data. Please try again.');
+                showNotificationModal(error.message || 'Failed to export to Excel', true);
+            } finally {
                 this.isExporting = false;
             }
         },

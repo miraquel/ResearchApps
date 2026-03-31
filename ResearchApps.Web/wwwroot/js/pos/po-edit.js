@@ -272,9 +272,15 @@ function poEdit(initialLines = [], config = {}) {
         /**
          * Calculate line amount
          */
+        parseDecimal(val) {
+            // Handle Indonesian locale format: 1.000,50 → 1000.50
+            const s = String(val || '').replace(/\./g, '').replace(',', '.');
+            return parseFloat(s) || 0;
+        },
+
         calculateLineAmount() {
-            const qty = parseFloat(this.lineModal.data.qty) || 0;
-            const price = parseFloat(this.lineModal.data.price) || 0;
+            const qty = this.parseDecimal(this.lineModal.data.qty);
+            const price = this.parseDecimal(this.lineModal.data.price);
             this.lineModal.data.amount = qty * price;
         },
 
@@ -297,8 +303,8 @@ function poEdit(initialLines = [], config = {}) {
                     PrLineId: this.lineModal.data.prLineId,
                     ItemId: this.lineModal.data.itemId,
                     DeliveryDate: this.lineModal.data.deliveryDate || null,
-                    Qty: parseFloat(this.lineModal.data.qty),
-                    Price: parseFloat(this.lineModal.data.price),
+                    Qty: this.parseDecimal(this.lineModal.data.qty),
+                    Price: this.parseDecimal(this.lineModal.data.price),
                     UnitId: this.lineModal.data.unitId,
                     Notes: this.lineModal.data.notes || ''
                 };
