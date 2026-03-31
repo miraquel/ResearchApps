@@ -1,47 +1,47 @@
 CREATE PROCEDURE [dbo].[BpbLine_Update]
-@BpbLineId int,
-@ItemId int,
-@WhId int,
-@Qty numeric(32,16) = 0,
-@Notes nvarchar(100)='',
-@ModifiedBy nvarchar(20) = 'system'
+    @BpbLineId int,
+    @ItemId int,
+    @WhId int,
+    @Qty numeric(32,16) = 0,
+    @Notes nvarchar(100)='',
+    @ModifiedBy nvarchar(20) = 'system'
 AS
 BEGIN
-	SET NOCOUNT ON;
-	SET XACT_ABORT ON;
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
-	DECLARE @BpbId nvarchar(20);
-	DECLARE @Price decimal(18,2);
+    DECLARE @BpbId nvarchar(20);
+    DECLARE @Price decimal(18,2);
 
-	BEGIN TRY
+    BEGIN TRY
 
-		SELECT @BpbId = BpbId FROM BpbLine WHERE BpbLineId = @BpbLineId;
-		SELECT @Price = Price FROM [BpbLine] WHERE BpbLineId = @BpbLineId;
+        SELECT @BpbId = BpbId FROM BpbLine WHERE BpbLineId = @BpbLineId;
+        SELECT @Price = Price FROM [BpbLine] WHERE BpbLineId = @BpbLineId;
 
-		--* Bpb Line *--
-		UPDATE [BpbLine]
-		SET [ItemId] = @ItemId
-			, [WhId] = @WhId
-			, [Qty] = @Qty
-			, [Price] = @Price
-			, [Notes] = @Notes
-			, [ModifiedDate] = GETDATE()
-			, [ModifiedBy] = @ModifiedBy
-		WHERE BpbLineId = @BpbLineId;
+        --* Bpb Line *--
+        UPDATE [BpbLine]
+        SET [ItemId] = @ItemId
+          , [WhId] = @WhId
+          , [Qty] = @Qty
+          , [Price] = @Price
+          , [Notes] = @Notes
+          , [ModifiedDate] = GETDATE()
+          , [ModifiedBy] = @ModifiedBy
+        WHERE BpbLineId = @BpbLineId;
 
-		--* InventTrans *--
-		UPDATE [InventTrans]
-		SET Qty = -1*@Qty
-			, Value = -1*@Qty * @Price
-			, WhId = @WhId
-		WHERE [RefType] = 'Pengambilan Barang' AND [RefId] = cast(@BpbLineId as nvarchar);
+        --* InventTrans *--
+        UPDATE [InventTrans]
+        SET Qty = -1*@Qty
+          , Value = -1*@Qty * @Price
+          , WhId = @WhId
+        WHERE [RefType] = 'Pengambilan Barang' AND [RefId] = cast(@BpbLineId as nvarchar);
 
-		SELECT @BpbId;
+        SELECT @BpbId AS BpbId;
 
-	END TRY
-	BEGIN CATCH
-		THROW;
-	END CATCH;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH;
 END
 
 GO

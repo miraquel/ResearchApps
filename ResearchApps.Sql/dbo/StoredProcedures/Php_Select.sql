@@ -71,7 +71,7 @@ BEGIN
         [Notes],
         [PhpStatusId],
         [PhpStatusName] = CASE [PhpStatusId]
-            WHEN 0 THEN CONCAT('<span class="badge bg-warning">', [PhpStatusName], '</span>')
+            WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [PhpStatusName], '</span>')
             WHEN 1 THEN CONCAT('<span class="badge bg-success">', [PhpStatusName], '</span>')
             WHEN 2 THEN CONCAT('<span class="badge bg-primary">', [PhpStatusName], '</span>')
             WHEN 3 THEN CONCAT('<span class="badge bg-danger">', [PhpStatusName], '</span>')

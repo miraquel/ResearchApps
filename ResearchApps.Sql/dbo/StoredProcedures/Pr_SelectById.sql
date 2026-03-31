@@ -13,11 +13,11 @@ BEGIN
       ,a.[Notes]
       ,a.[PrStatusId]
 	  ,[PrStatusName] = CASE
-		  WHEN a.[PrStatusId] = 0 THEN CONCAT('<span class="badge bg-warning">',s.PrStatusName,'</span>')  
-		  WHEN a.[PrStatusId] = 1 THEN CONCAT('<span class="badge bg-primary">',s.PrStatusName,'</span>') 
+		  WHEN a.[PrStatusId] = 0 THEN CONCAT('<span class="badge bg-secondary">',s.PrStatusName,'</span>')  
+		  WHEN a.[PrStatusId] = 1 THEN CONCAT('<span class="badge bg-success">',s.PrStatusName,'</span>') 
 		  WHEN a.[PrStatusId] = 2 THEN CONCAT('<span class="badge bg-info">',s.PrStatusName,'</span>')
 	      WHEN a.[PrStatusId] = 3 THEN CONCAT('<span class="badge bg-success">',s.PrStatusName,'</span>') 
-          WHEN a.[PrStatusId] = 4 THEN CONCAT('<span class="badge bg-secondary">',s.PrStatusName,'</span>') 
+          WHEN a.[PrStatusId] = 4 THEN CONCAT('<span class="badge bg-warning">',s.PrStatusName,'</span>') 
           WHEN a.[PrStatusId] = 5 THEN CONCAT('<span class="badge bg-danger">',s.PrStatusName,'</span>') 
           ELSE s.PrStatusName
 		END

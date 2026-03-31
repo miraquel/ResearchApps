@@ -39,7 +39,7 @@ BEGIN
 		SET Total = @Total
 		WHERE PrId = @PrId;
 
-		SELECT @PrId;
+		SELECT @PrId AS PrId;
 	END TRY
 	BEGIN CATCH
 		THROW;

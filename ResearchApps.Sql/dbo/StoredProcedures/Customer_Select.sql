@@ -80,7 +80,7 @@ BEGIN
         [Notes],
         [StatusId],
         [StatusName] = CASE [StatusId]
-            WHEN 0 THEN CONCAT('<span class="badge bg-warning">', [StatusName], '</span>')
+            WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [StatusName], '</span>')
             WHEN 1 THEN CONCAT('<span class="badge bg-success">', [StatusName], '</span>')
             WHEN 2 THEN CONCAT('<span class="badge bg-danger">', [StatusName], '</span>')
             ELSE 'NA'

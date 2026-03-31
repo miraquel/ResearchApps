@@ -34,7 +34,7 @@ BEGIN
       ,a.[McStatusId]
 	  ,s.[McStatusName]
 	  ,[McStatusNameFormatted] = CASE   
-		  WHEN a.[McStatusId] = 0 THEN CONCAT('<span class="badge bg-warning">',s.[McStatusName],'</span>')  
+		  WHEN a.[McStatusId] = 0 THEN CONCAT('<span class="badge bg-secondary">',s.[McStatusName],'</span>')  
 		  WHEN a.[McStatusId] = 1 THEN CONCAT('<span class="badge bg-success">',s.[McStatusName],'</span>')  
 		  WHEN a.[McStatusId] = 2 THEN CONCAT('<span class="badge bg-primary">',s.[McStatusName],'</span>')  
 		  WHEN a.[McStatusId] = 3 THEN CONCAT('<span class="badge bg-danger">',s.[McStatusName],'</span>')  

@@ -65,7 +65,7 @@ BEGIN
 		JOIN [Co] e ON e.CoId = d.CoId
 		WHERE a.SiId = @SiId;
 
-		SELECT '1:::' + @SiId;
+		SELECT @SiId AS SiId;
 
 	END TRY
 	BEGIN CATCH

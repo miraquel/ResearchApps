@@ -20,8 +20,7 @@ BEGIN
 				WHERE PoCustomer IS NOT NULL AND PoCustomer <> '' AND PoCustomer = @PoCustomer and CustomerId = @CustomerId AND RecId <> @RecId
 			)
 		BEGIN
-			SELECT -1 as RecId, -1 as CoId;
-			RETURN;
+			THROW 50000, N'PO Customer number already exists for this customer.', 1;
 		END
 
 		UPDATE [Co]
@@ -34,8 +33,6 @@ BEGIN
 			,[ModifiedBy] = @ModifiedBy
 			,[ModifiedDate] = GETDATE()
 		WHERE RecId = @RecId;
-
-		SELECT @RecId as RecId;
 	END TRY
 	BEGIN CATCH
 		THROW;

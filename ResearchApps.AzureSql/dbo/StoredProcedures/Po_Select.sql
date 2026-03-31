@@ -106,11 +106,11 @@ BEGIN
         [Notes],
         [PoStatusId],
         [PoStatusName] = CASE [PoStatusId]
-            WHEN 0 THEN CONCAT('<span class="badge bg-warning">', [PoStatusName], '</span>')
+            WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [PoStatusName], '</span>')
             WHEN 1 THEN CONCAT('<span class="badge bg-success">', [PoStatusName], '</span>')
-            WHEN 2 THEN CONCAT('<span class="badge bg-info">', [PoStatusName], '</span>')
-            WHEN 3 THEN CONCAT('<span class="badge bg-info">', [PoStatusName], '</span>')
-            WHEN 4 THEN CONCAT('<span class="badge bg-secondary">', [PoStatusName], '</span>')
+            WHEN 2 THEN CONCAT('<span class="badge bg-primary">', [PoStatusName], '</span>')
+            WHEN 3 THEN CONCAT('<span class="badge bg-danger">', [PoStatusName], '</span>')
+            WHEN 4 THEN CONCAT('<span class="badge bg-warning">', [PoStatusName], '</span>')
             WHEN 5 THEN CONCAT('<span class="badge bg-danger">', [PoStatusName], '</span>')
             ELSE 'NA'
         END,

@@ -15,7 +15,7 @@ BEGIN
             THROW 50002, 'Purchase Order has no lines.', 1;
         END;
 		DECLARE @WfTransId int;
-		SELECT @WfTransId = WfTransId FROM Po WHERE RecId = @RecId AND PoStatusId = 4;
+		SELECT @WfTransId = WfTransId FROM Po WHERE RecId = @RecId AND PoStatusId IN (4, 5);
 		IF @WfTransId IS NOT NULL
 		BEGIN
 			UPDATE [WfTrans] SET [WfStatusActionId] = 3 WHERE [WfTransId] = @WfTransId;

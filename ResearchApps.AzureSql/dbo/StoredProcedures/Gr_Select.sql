@@ -86,7 +86,7 @@ BEGIN
                          [Notes],
                          [GrStatusId],
         [GrStatusName] = CASE [GrStatusId]
-                             WHEN 0 THEN CONCAT('<span class="badge bg-warning">', [GrStatusName], '</span>')
+                             WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [GrStatusName], '</span>')
                              WHEN 1 THEN CONCAT('<span class="badge bg-success">', [GrStatusName], '</span>')
                              ELSE 'NA'
                              END,

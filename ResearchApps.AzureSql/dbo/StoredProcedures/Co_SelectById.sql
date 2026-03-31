@@ -21,9 +21,9 @@ BEGIN
       ,[CoStatusName] = CASE
         WHEN a.[CoStatusId] = 0 THEN CONCAT('<span class="badge bg-secondary">',s.[CoStatusName],'</span>')
         WHEN a.[CoStatusId] = 1 THEN CONCAT('<span class="badge bg-success">',s.[CoStatusName],'</span>')
-        WHEN a.[CoStatusId] = 2 THEN CONCAT('<span class="badge bg-warning">',s.[CoStatusName],'</span>')
-        WHEN a.[CoStatusId] = 3 THEN CONCAT('<span class="badge bg-active">',s.[CoStatusName],'</span>')
-        WHEN a.[CoStatusId] = 4 THEN CONCAT('<span class="badge bg-primary">',s.[CoStatusName],'</span>')
+        WHEN a.[CoStatusId] = 2 THEN CONCAT('<span class="badge bg-danger">',s.[CoStatusName],'</span>')
+        WHEN a.[CoStatusId] = 3 THEN CONCAT('<span class="badge bg-primary">',s.[CoStatusName],'</span>')
+        WHEN a.[CoStatusId] = 4 THEN CONCAT('<span class="badge bg-warning">',s.[CoStatusName],'</span>')
         WHEN a.[CoStatusId] = 5 THEN CONCAT('<span class="badge bg-danger">',s.[CoStatusName],'</span>')
         ELSE 'NA'
         END

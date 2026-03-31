@@ -22,7 +22,7 @@ BEGIN
 			SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
 			IF @Onhand < @Qty
 			BEGIN
-				SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar);
+				SELECT 'Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar) AS Result;
 				RETURN;
 			END
 		END
@@ -35,7 +35,7 @@ BEGIN
 		DELETE FROM [InventTrans]
 		WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar);
 
-		SELECT '1:::' + @PsId;
+		SELECT @PsId AS Result;
 	END TRY
 	BEGIN CATCH
 		THROW;

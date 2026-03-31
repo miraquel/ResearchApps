@@ -109,9 +109,9 @@ BEGIN
         [CoStatusName] = CASE [CoStatusId]
             WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [CoStatusName], '</span>')
             WHEN 1 THEN CONCAT('<span class="badge bg-success">', [CoStatusName], '</span>')
-            WHEN 2 THEN CONCAT('<span class="badge bg-warning">', [CoStatusName], '</span>')
-            WHEN 3 THEN CONCAT('<span class="badge bg-active">', [CoStatusName], '</span>')
-            WHEN 4 THEN CONCAT('<span class="badge bg-primary">', [CoStatusName], '</span>')
+            WHEN 2 THEN CONCAT('<span class="badge bg-danger">', [CoStatusName], '</span>')
+            WHEN 3 THEN CONCAT('<span class="badge bg-primary">', [CoStatusName], '</span>')
+            WHEN 4 THEN CONCAT('<span class="badge bg-warning">', [CoStatusName], '</span>')
             WHEN 5 THEN CONCAT('<span class="badge bg-danger">', [CoStatusName], '</span>')
             ELSE 'NA'
             END,

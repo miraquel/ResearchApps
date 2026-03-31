@@ -35,7 +35,7 @@ BEGIN
 			, WhId = @WhId
 		WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar);
 
-		SELECT @PsId;
+		SELECT @PsId AS PsId;
 	END TRY
 	BEGIN CATCH
 		THROW;
