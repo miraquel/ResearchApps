@@ -39,7 +39,28 @@
       "Bash(grep -v \"//\")",
       "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Service/obj -name *.g.cs)",
       "Bash(head -5 find C:/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Mapper/obj -name *.g.cs)",
-      "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps -path */obj/* -name *.cs)"
+      "Bash(find C:/Users/chaidir.ali/RiderProjects/ResearchApps -path */obj/* -name *.cs)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Service.Vm -name Po*.cs)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Domain -name Po*.cs)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Service.Vm -name Php*)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps -name RepInventTrans*.sql)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps -name Rep_InventTrans*.sql)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -iname *status* -type f)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -name *.sql -type f)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -name *Status*.sql -path */Seed/*)",
+      "Bash(grep -r 'INSERT INTO.*Status' C:Userschaidir.aliRiderProjectsResearchApps --include=*.sql)",
+      "Bash(grep -r 'INSERT INTO \\\\[dbo\\\\]\\\\.\\\\[.*Status\\\\]' C:Userschaidir.aliRiderProjectsResearchApps --include=*.sql)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -name *.dacpac -o -name *.sql -path *seed*)",
+      "Bash(find C:Userschaidir.aliRiderProjectsResearchApps -name *StatusConstants.cs)",
+      "Bash(xargs cat:*)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.AzureSql/Security -name *.sql)",
+      "Bash(find /c/Users/chaidir.ali/RiderProjects/ResearchApps -name *ClaimsPrincipal* -o -name *UserClaimsPrincipal*)",
+      "Bash(dotnet add:*)",
+      "Bash(python3 -c \":*)",
+      "Read(//c/Users/chaidir.ali/AppData/Roaming/.claude/**)",
+      "Read(//c/Users/chaidir.ali/.claude/projects/**)",
+      "Bash(echo $HOME)",
+      "Read(//c/Users/chaidir.ali/.claude/**)"
     ]
   }
 }
