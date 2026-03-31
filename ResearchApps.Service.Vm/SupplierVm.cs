@@ -31,7 +31,8 @@ public class SupplierVm
     public string? Fax { get; set; }
     
     [Required]
-    [EmailAddress]
+    [RegularExpression(@"^\s*[^\s@;]+@[^\s@;]+(\.[^\s@;]+)+(\s*;\s*[^\s@;]+@[^\s@;]+(\.[^\s@;]+)+)*\s*$",
+        ErrorMessage = "Please enter valid email address(es), separated by semicolons.")]
     [StringLength(100)]
     [Display(Name = "Email")]
     public string? Email { get; set; }

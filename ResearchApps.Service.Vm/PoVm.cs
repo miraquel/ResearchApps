@@ -47,7 +47,7 @@ public class PoHeaderVm
     [Display(Name = "Total Amount")]
     public decimal Total { get; set; }
 
-    [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters")]
+    [StringLength(100, ErrorMessage = "Notes cannot exceed 100 characters")]
     [Display(Name = "Notes")]
     public string? Notes { get; set; }
 
