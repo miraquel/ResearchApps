@@ -217,7 +217,15 @@ public class PrsController : Controller
                 TempData["ErrorMessage"] = "You are not authorized to submit this PR.";
                 return RedirectToAction(nameof(Details), new { id = recId });
             }
-            
+
+            // Verify at least one line exists
+            var prComposite = await _prService.GetPurchaseRequisition(recId, cancellationToken);
+            if (prComposite is not { IsSuccess: true, Data: not null } || !prComposite.Data.Lines.Any())
+            {
+                TempData["ErrorMessage"] = "Cannot submit a purchase requisition with no line items.";
+                return RedirectToAction(nameof(Details), new { id = recId });
+            }
+
             var response = await _prService.PrSubmitById(recId, cancellationToken);
             
             if (response.IsSuccess)

@@ -329,10 +329,9 @@ function bpbEdit(initialLines, config) {
             let url = '/api/Bpbs/line';
             let method = 'POST';
             
-            if (this.lineModal.mode === 'edit' && this.lineModal.data.bpbRecId) {
-                url = `/api/Bpbs/line/${this.lineModal.data.bpbRecId}`;
+            if (this.lineModal.mode === 'edit' && this.lineModal.data.bpbLineId) {
+                url = `/api/Bpbs/line/${this.lineModal.data.bpbLineId}`;
                 method = 'PUT';
-                payload.bpbRecId = this.lineModal.data.bpbRecId;
                 payload.BpbLineId = this.lineModal.data.bpbLineId;
             }
             

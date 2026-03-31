@@ -35,6 +35,26 @@ function itemCreate() {
          */
         init() {
             this.initializeComponents();
+            this._interceptFormSubmit();
+        },
+
+        /**
+         * Override form.submit() to strip thousand-separator commas from decimal
+         * fields before the multipart POST is sent, ensuring model binding succeeds
+         * regardless of the server's current culture.
+         * @returns {void}
+         */
+        _interceptFormSubmit() {
+            const form = document.getElementById('item-form');
+            if (!form) return;
+            const nativeSubmit = HTMLFormElement.prototype.submit.bind(form);
+            form.submit = () => {
+                ['BufferStock', 'PurchasePrice', 'SalesPrice', 'CostPrice'].forEach(name => {
+                    const el = form.querySelector(`[name="${name}"]`);
+                    if (el) el.value = el.value.replace(/,/g, '');
+                });
+                nativeSubmit();
+            };
         },
 
         /**

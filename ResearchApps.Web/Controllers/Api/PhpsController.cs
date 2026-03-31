@@ -49,7 +49,7 @@ public class PhpsController : ControllerBase
     // PUT api/Phps/{id}
     [HttpPut("{id:int}")]
     [Authorize(PermissionConstants.Phps.Edit)]
-    public async Task<IActionResult> PutAsync(int id, [FromForm] PhpHeaderVm phpHeader, CancellationToken cancellationToken)
+    public async Task<IActionResult> PutAsync(int id, [FromBody] PhpHeaderVm phpHeader, CancellationToken cancellationToken)
     {
         if (phpHeader.RecId != id)
         {
