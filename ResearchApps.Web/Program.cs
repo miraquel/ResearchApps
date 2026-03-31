@@ -112,7 +112,11 @@ try
         }
     });
 
-    builder.Services.AddControllersWithViews();
+    var mvcBuilder = builder.Services.AddControllersWithViews();
+    if (builder.Environment.IsDevelopment())
+    {
+        mvcBuilder.AddRazorRuntimeCompilation();
+    }
     builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddEndpointsApiExplorer();
@@ -191,6 +195,7 @@ try
 
     app.UseHttpsRedirection();
     app.UseRouting();
+    app.UseStaticFiles();
 
     app.UseMultiTenant();
     app.UseAuthentication();
