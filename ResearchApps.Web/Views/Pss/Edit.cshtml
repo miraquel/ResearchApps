@@ -12,7 +12,10 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Edit Penyesuaian Stock - @Model.Header.PsId</h5>
-                    <span class="badge bg-info">@Model.Lines.Count() line(s)</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-info">@Model.Lines.Count() line(s)</span>
+                        <span class="fw-semibold text-primary">Total: @Model.Header.Amount.ToString("N0")</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form id="ps-form" 
