@@ -5,16 +5,16 @@ public class Customer
     public int CustomerId { get; set; }
     public string CustomerName { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
-    public string? City { get; set; }
-    public string? Telp { get; set; }
-    public string? Fax { get; set; }
-    public string? Email { get; set; }
+    public string City { get; set; } = string.Empty;
+    public string Telp { get; set; } = string.Empty;
+    public string Fax { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     public string? ContactPerson { get; set; }
     public int TopId { get; set; }
     public string? TopName { get; set; }
     public bool IsPpn { get; set; }
-    public string? Npwp { get; set; }
-    public string? Notes { get; set; }
+    public string Npwp { get; set; } = string.Empty;
+    public string Notes { get; set; } = string.Empty;
     public int StatusId { get; set; } = 1;
     public string? StatusName { get; set; }
     public DateTime CreatedDate { get; set; }

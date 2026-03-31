@@ -12,11 +12,11 @@ public class GoodsReceiptHeader
     public int SupplierId { get; set; }
     public string? SupplierName { get; set; }
     
-    public string? RefNo { get; set; }
+    public string RefNo { get; set; } = string.Empty;
     public decimal SubTotal { get; set; }
     public decimal Ppn { get; set; }
     public decimal Total { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
 
     // Status (0=Draft, 1=Posted)
     public int GrStatusId { get; set; } = 1;

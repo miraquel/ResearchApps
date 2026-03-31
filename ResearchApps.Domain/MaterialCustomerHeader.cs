@@ -10,9 +10,9 @@ public class MaterialCustomerHeader
     public string? McDateStr { get; set; }
     public int CustomerId { get; set; }
     public string? CustomerName { get; set; }
-    public string? SjNo { get; set; }
-    public string? RefNo { get; set; }
-    public string? Notes { get; set; }
+    public string SjNo { get; set; } = string.Empty;
+    public string RefNo { get; set; } = string.Empty;
+    public string Notes { get; set; } = string.Empty;
     public int McStatusId { get; set; } = 1;
     public string? McStatusName { get; set; }
     public DateTime CreatedDate { get; set; }

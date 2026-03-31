@@ -557,4 +557,6 @@ public partial class MapperlyMapper
     // RepToolsAnalysis (Report: Tools Analysis)
     public partial RepToolsAnalysisVm MapToVm(RepToolsAnalysis repToolsAnalysis);
     public partial IEnumerable<RepToolsAnalysisVm> MapToVm(IEnumerable<RepToolsAnalysis> repToolsAnalysisList);
+
+    private static string NullToEmpty(string? value) => value ?? string.Empty;
 }

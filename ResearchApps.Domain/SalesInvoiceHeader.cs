@@ -9,10 +9,10 @@ public class SalesInvoiceHeader
     public string? CustomerName { get; set; }
     public string? CustomerAddress { get; set; }
     public string? CustomerTelp { get; set; }
-    public string? PoNo { get; set; }
-    public string? TaxNo { get; set; }
+    public string PoNo { get; set; } = string.Empty;
+    public string TaxNo { get; set; } = string.Empty;
     public decimal Amount { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
     public int SiStatusId { get; set; } = 1;
     public string? SiStatusName { get; set; }
     public DateTime CreatedDate { get; set; }

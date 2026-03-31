@@ -9,10 +9,10 @@ public class PhpHeader
     // Business Fields
     public DateTime PhpDate { get; set; }
     public string? PhpDateStr { get; set; }
-    public string? Descr { get; set; }
-    public string? RefId { get; set; }
+    public string Descr { get; set; } = string.Empty;
+    public string RefId { get; set; } = string.Empty;
     public decimal Amount { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
 
     // Status (0=Draft, 1=Active, 2=Closed, 3=Cancelled)
     public int PhpStatusId { get; set; } = 1;

@@ -7,15 +7,15 @@ public class DeliveryOrderHeader
     public string? DoDateStr { get; set; }
     public int CustomerId { get; set; }
     public string? CustomerName { get; set; }
-    public string? CoId { get; set; }
+    public string CoId { get; set; } = string.Empty;
     public string? PoCustomer { get; set; }
-    public string? Dn { get; set; }
-    public string? RefId { get; set; }
-    public string? Descr { get; set; }
+    public string Dn { get; set; } = string.Empty;
+    public string RefId { get; set; } = string.Empty;
+    public string Descr { get; set; } = string.Empty;
     public decimal SubTotal { get; set; }
     public decimal Ppn { get; set; }
     public decimal Total { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
     public int DoStatusId { get; set; } = 1;
     public string? DoStatusName { get; set; }
     public DateTime CreatedDate { get; set; }

@@ -12,10 +12,10 @@ public class BpbHeader
     // Business Fields
     public DateTime BpbDate { get; set; }
     public string? BpbDateStr { get; set; }
-    public string? Descr { get; set; }
-    public string? RefId { get; set; }    // e.g., ProdId
+    public string Descr { get; set; } = string.Empty;
+    public string RefId { get; set; } = string.Empty;    // e.g., ProdId
     public decimal Amount { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
 
     // Status (0=Draft, 1=Posted)
     public int BpbStatusId { get; set; } = 1;

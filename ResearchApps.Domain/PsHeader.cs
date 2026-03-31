@@ -5,9 +5,9 @@ public class PsHeader
     public string PsId { get; set; } = string.Empty;
     public DateTime PsDate { get; set; }
     public string? PsDateStr { get; set; }
-    public string? Descr { get; set; }
+    public string Descr { get; set; } = string.Empty;
     public decimal Amount { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
     public int PsStatusId { get; set; } = 1;
     public string? PsStatusName { get; set; }
     public DateTime CreatedDate { get; set; }
