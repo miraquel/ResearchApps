@@ -14,6 +14,27 @@ function supplierCreate() {
          */
         init() {
             this.initTopSelect();
+            this.initEmailTrim();
+        },
+
+        /**
+         * Normalise email field before form submission
+         * Trims whitespace around each semicolon-separated address
+         * @returns {void}
+         */
+        initEmailTrim() {
+            const form = this.$el.querySelector('form');
+            if (!form) return;
+            form.addEventListener('submit', () => {
+                const emailInput = form.querySelector('input[name="Email"]');
+                if (emailInput) {
+                    emailInput.value = emailInput.value
+                        .split(';')
+                        .map(e => e.trim())
+                        .filter(e => e.length > 0)
+                        .join(';');
+                }
+            });
         },
 
         /**
@@ -27,6 +48,7 @@ function supplierCreate() {
                     valueField: 'value',
                     labelField: 'text',
                     searchField: ['text'],
+                    preload: true,
                     load: async (query, callback) => {
                         try {
                             const response = await fetch('/api/Tops/cbo', {

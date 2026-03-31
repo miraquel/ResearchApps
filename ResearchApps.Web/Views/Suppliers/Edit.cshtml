@@ -6,7 +6,7 @@
     Layout = "_Layout";
 }
 
-<div x-data="supplierEdit(@Model.TopId)">
+<div x-data="supplierEdit(@Model.TopId, @Model.StatusId)">
     @Html.AntiForgeryToken()
     
     <div class="row">
@@ -53,7 +53,9 @@
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" type="email" class="form-control" required />
+                            <input asp-for="Email" type="text" class="form-control" required
+                                   placeholder="email1@example.com;email2@example.com" />
+                            <div class="form-text">Separate multiple emails with a semicolon (;)</div>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                     </div>
@@ -96,11 +98,7 @@
 
                         <div class="mb-3">
                             <label asp-for="StatusId" class="form-label"></label>
-                            <select asp-for="StatusId" class="form-select" required>
-                                <option value="">-- Select Status --</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
+                            <select asp-for="StatusId" id="StatusId" class="form-select"></select>
                             <span asp-validation-for="StatusId" class="text-danger"></span>
                         </div>
 

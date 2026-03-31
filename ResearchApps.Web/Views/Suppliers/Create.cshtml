@@ -40,7 +40,9 @@
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" type="email" class="form-control" required />
+                            <input asp-for="Email" type="text" class="form-control" required
+                                   placeholder="email1@example.com;email2@example.com" />
+                            <div class="form-text">Separate multiple emails with a semicolon (;)</div>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
                     </div>
@@ -80,15 +82,7 @@
                             <div class="form-text">Check if supplier subject to 11% PPN/VAT</div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="StatusId" class="form-label"></label>
-                            <select asp-for="StatusId" class="form-select" required>
-                                <option value="">-- Select Status --</option>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                            <span asp-validation-for="StatusId" class="text-danger"></span>
-                        </div>
+                        <input type="hidden" asp-for="StatusId" value="1" />
 
                         <div class="mb-3">
                             <label asp-for="Notes" class="form-label"></label>
