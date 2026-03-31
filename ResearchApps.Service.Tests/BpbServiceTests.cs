@@ -368,7 +368,7 @@ public class BpbServiceTests
     }
 
     [Fact]
-    public async Task BpbLineInsert_WhenRepoThrows_DoesNotCommitTransaction()
+    public async Task BpbLineInsert_WhenRepoThrows_ReturnsFailureAndDoesNotCommit()
     {
         var lineVm = new BpbLineVm { BpbRecId = 1, ItemId = 10, Qty = 5 };
 
@@ -376,9 +376,10 @@ public class BpbServiceTests
             .Setup(x => x.BpbLineInsert(It.IsAny<BpbLine>(), _ct))
             .ThrowsAsync(new InvalidOperationException("Database error"));
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _sut.BpbLineInsert(lineVm, _ct));
+        var result = await _sut.BpbLineInsert(lineVm, _ct);
 
+        Assert.False(result.IsSuccess);
+        Assert.Contains("Database error", result.Errors!);
         _dbTransactionMock.Verify(x => x.Commit(), Times.Never);
     }
 }
