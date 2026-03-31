@@ -1,4 +1,6 @@
 using System.Data;
+
+using System.Data.Common;
 using Dapper;
 using ResearchApps.Common.Exceptions;
 using ResearchApps.Domain;
@@ -237,15 +239,22 @@ public class CustomerOrderRepo : ICustomerOrderRepo
         parameters.Add("@ModifiedBy", customerOrder.ModifiedBy);
 
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
-        
+
         var command = new CommandDefinition(
             query,
             parameters,
             _dbTransaction,
             cancellationToken: cancellationToken,
             commandType: CommandType.StoredProcedure);
-        
-        await _dbConnection.ExecuteAsync(command);
+
+        try
+        {
+            await _dbConnection.ExecuteAsync(command);
+        }
+        catch (DbException ex)
+        {
+            throw new RepoException(ex.Message);
+        }
     }
 
     public async Task CoDelete(int recId, CancellationToken cancellationToken)

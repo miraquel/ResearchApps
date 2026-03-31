@@ -241,12 +241,7 @@ public class SupplierRepo : ISupplierRepo
 
         var result = await _dbConnection.QueryFirstAsync<Supplier>(command);
         
-        if (result.SupplierId == -1)
-        {
-            throw new RepoException<Supplier>("Supplier name already exists", supplier);
-        }
-
-        return result;
+        return result.SupplierId == -1 ? throw new RepoException<Supplier>("Supplier name already exists", supplier) : result;
     }
 
     public async Task SupplierDelete(int supplierId, string modifiedBy, CancellationToken cancellationToken)
