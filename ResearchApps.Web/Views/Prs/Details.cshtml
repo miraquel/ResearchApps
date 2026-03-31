@@ -215,6 +215,11 @@
 </div>
 
 @section scripts {
+    <script>
+        window.prLinesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.Lines?.Select(l => new { prLineId = l.PrLineId }) ?? Enumerable.Empty<object>()
+        ));
+    </script>
     <script src="~/js/components/workflow-component.js"></script>
     <script src="~/js/purchase-requisitions/pr-details.js"></script>
     <script>

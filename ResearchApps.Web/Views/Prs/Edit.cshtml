@@ -185,7 +185,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped align-middle">
+                        <table class="table table-bordered table-striped align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th class="text-center" style="width: 50px;">#</th>
@@ -195,13 +195,14 @@
                                     <th class="text-center" style="width: 80px;">Unit</th>
                                     <th class="text-end" style="width: 120px;">Price</th>
                                     <th class="text-end" style="width: 120px;">Amount</th>
+                                    <th>Notes</th>
                                     <th class="text-center" style="width: 120px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <template x-if="lines.length === 0">
                                     <tr>
-                                        <td colspan="8" class="text-center py-4 text-muted">
+                                        <td colspan="9" class="text-center py-4 text-muted">
                                             <i class="ri-file-list-3-line fs-1"></i>
                                             <p class="mb-0">No lines added yet. Click "Add Line" to get started.</p>
                                         </td>
@@ -210,22 +211,23 @@
                                 <template x-for="(line, index) in lines" :key="index">
                                     <tr>
                                         <td class="text-center" x-text="index + 1"></td>
-                                        <td x-text="line?.itemName || '-'"></td>
+                                        <td x-text="line?.itemName ? line.itemId + ' \u2013 ' + line.itemName : '-'"></td>
                                         <td class="text-center" x-text="line?.requestDateStr || '-'"></td>
                                         <td class="text-end" x-text="(line?.qty || 0).toLocaleString()"></td>
                                         <td class="text-center" x-text="line?.unitName || '-'"></td>
                                         <td class="text-end" x-text="(line?.price || 0).toLocaleString()"></td>
                                         <td class="text-end" x-text="(line?.amount || 0).toLocaleString()"></td>
+                                        <td><span x-text="line?.notes || '-'" class="text-muted small"></span></td>
                                         <td class="text-center">
                                             <template x-if="isDraft">
                                                 <div>
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-success me-1" 
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-success me-1"
                                                             @@click="showLineModal('edit', line)">
                                                         <i class="ri-edit-line"></i>
                                                     </button>
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-danger" 
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-danger"
                                                             @@click="confirmDeleteLine(line)">
                                                         <i class="ri-delete-bin-line"></i>
                                                     </button>
@@ -240,7 +242,7 @@
                                 <tr>
                                     <th colspan="6" class="text-end">Total:</th>
                                     <th class="text-end" x-text="calculateTotal().toLocaleString()"></th>
-                                    <th></th>
+                                    <th colspan="2"></th>
                                 </tr>
                             </tfoot>
                         </table>
@@ -272,10 +274,10 @@
                         <div class="col-md-12">
                             <label class="form-label">Item <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <input type="text" 
-                                       class="form-control bg-light" 
-                                       x-model="lineModal.data.itemName" 
-                                       readonly 
+                                <input type="text"
+                                       class="form-control bg-light"
+                                       :value="lineModal.data.itemId && lineModal.data.itemName ? lineModal.data.itemId + ' \u2013 ' + lineModal.data.itemName : (lineModal.data.itemName || '')"
+                                       readonly
                                        placeholder="Click Browse to select an item"
                                        :class="{ 'is-invalid': lineModal.errors.itemId }" />
                                 <button type="button" 

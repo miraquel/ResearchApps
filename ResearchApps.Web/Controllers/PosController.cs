@@ -1,5 +1,8 @@
+using System.Drawing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using ResearchApps.Common.Constants;
 using ResearchApps.Web.Filters;
 using ResearchApps.Service.Interface;
@@ -63,6 +66,93 @@ public class PosController : Controller
         }
 
         return PartialView("_Partials/_PoListContainer", new PagedListVm<PoVm>());
+    }
+
+    [Authorize(PermissionConstants.PurchaseOrders.Index)]
+    public async Task<IActionResult> Export(
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortAsc = true,
+        [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new PagedListRequestVm
+        {
+            PageNumber = 1,
+            PageSize = 100000,
+            SortBy = sortBy ?? "PoDate",
+            IsSortAscending = sortAsc,
+            Filters = filters ?? new Dictionary<string, string>()
+        };
+
+        var response = await _poService.PoSelect(request, cancellationToken);
+
+        if (!response.IsSuccess || response.Data == null || !response.Data.Items.Any())
+            return NotFound(new { message = "No data found to export." });
+
+        var dataList = response.Data.Items.ToList();
+
+        using var package = new ExcelPackage();
+        var worksheet = package.Workbook.Worksheets.Add("Purchase Orders");
+
+        var headers = new[]
+        {
+            "PO Number", "PO Date", "Supplier", "PIC", "Ref No.",
+            "Sub Total", "VAT", "Total", "Status",
+            "Created By", "Created Date", "Modified By", "Modified Date"
+        };
+
+        for (int i = 0; i < headers.Length; i++)
+            worksheet.Cells[1, i + 1].Value = headers[i];
+
+        using (var range = worksheet.Cells[1, 1, 1, headers.Length])
+        {
+            range.Style.Font.Bold = true;
+            range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            range.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(79, 129, 189));
+            range.Style.Font.Color.SetColor(Color.White);
+            range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+        }
+
+        int row = 2;
+        foreach (var po in dataList)
+        {
+            worksheet.Cells[row, 1].Value = po.PoId;
+            worksheet.Cells[row, 2].Value = po.PoDate;
+            worksheet.Cells[row, 2].Style.Numberformat.Format = "dd MMM yyyy";
+            worksheet.Cells[row, 3].Value = po.SupplierName;
+            worksheet.Cells[row, 4].Value = po.Pic;
+            worksheet.Cells[row, 5].Value = po.RefNo;
+            worksheet.Cells[row, 6].Value = po.SubTotal;
+            worksheet.Cells[row, 6].Style.Numberformat.Format = "#,##0.00";
+            worksheet.Cells[row, 7].Value = po.Ppn;
+            worksheet.Cells[row, 7].Style.Numberformat.Format = "#,##0.00";
+            worksheet.Cells[row, 8].Value = po.Total;
+            worksheet.Cells[row, 8].Style.Numberformat.Format = "#,##0.00";
+            worksheet.Cells[row, 9].Value = po.PoStatusName;
+            worksheet.Cells[row, 10].Value = po.CreatedBy;
+            worksheet.Cells[row, 11].Value = po.CreatedDate;
+            worksheet.Cells[row, 11].Style.Numberformat.Format = "dd MMM yyyy HH:mm";
+            worksheet.Cells[row, 12].Value = po.ModifiedBy;
+            worksheet.Cells[row, 13].Value = po.ModifiedDate;
+            worksheet.Cells[row, 13].Style.Numberformat.Format = "dd MMM yyyy HH:mm";
+            row++;
+        }
+
+        worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+        if (row > 2)
+        {
+            using var dataRange = worksheet.Cells[2, 1, row - 1, headers.Length];
+            dataRange.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+            dataRange.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            dataRange.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+            dataRange.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+        }
+
+        var fileContents = package.GetAsByteArray();
+        var fileName = $"PurchaseOrders_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     #endregion
@@ -157,10 +247,11 @@ public class PosController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // Only allow editing if status is Draft (0)
-        if (poResponse.Data.Header.PoStatusId != PoStatusConstants.Draft)
+        // Only allow editing if status is Draft or Rejected
+        if (poResponse.Data.Header.PoStatusId != PoStatusConstants.Draft &&
+            poResponse.Data.Header.PoStatusId != PoStatusConstants.Rejected)
         {
-            TempData["ErrorMessage"] = "Only Draft purchase orders can be edited.";
+            TempData["ErrorMessage"] = "Only Draft or Rejected purchase orders can be edited.";
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -179,11 +270,13 @@ public class PosController : Controller
     [Authorize(PermissionConstants.PurchaseOrders.Edit)]
     public async Task<IActionResult> Edit([FromForm] PoHeaderVm header, CancellationToken cancellationToken)
     {
-        // Verify still Draft before update
+        // Verify still Draft or Rejected before update
         var currentPo = await _poService.PoSelectById(header.RecId, cancellationToken);
-        if (currentPo is { IsSuccess: true, Data: not null } && currentPo.Data.Header.PoStatusId != PoStatusConstants.Draft)
+        if (currentPo is { IsSuccess: true, Data: not null } &&
+            currentPo.Data.Header.PoStatusId != PoStatusConstants.Draft &&
+            currentPo.Data.Header.PoStatusId != PoStatusConstants.Rejected)
         {
-            TempData["ErrorMessage"] = "Only Draft purchase orders can be edited.";
+            TempData["ErrorMessage"] = "Only Draft or Rejected purchase orders can be edited.";
             return RedirectToAction(nameof(Details), new { id = header.RecId });
         }
 
@@ -304,6 +397,14 @@ public class PosController : Controller
                 TempData["ErrorMessage"] = "You are not authorized to submit this purchase order.";
                 return RedirectToAction(nameof(Details), new { id = action.RecId });
             }
+        }
+
+        // Verify at least one line exists
+        var linesCheck = await _poLineService.PoLineSelectByPo(action.RecId, cancellationToken);
+        if (linesCheck is not { IsSuccess: true, Data: not null } || !linesCheck.Data.Any())
+        {
+            TempData["ErrorMessage"] = "Cannot submit a purchase order with no line items.";
+            return RedirectToAction(nameof(Details), new { id = action.RecId });
         }
 
         var response = await _poService.PoSubmitById(action.RecId, cancellationToken);

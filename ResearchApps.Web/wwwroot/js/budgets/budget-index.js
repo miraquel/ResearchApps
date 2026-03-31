@@ -5,6 +5,7 @@
 function budgetIndex() {
     return {
         isLoading: false,
+        isExporting: false,
         sortBy: 'BudgetId',
         sortAsc: false,
         startDateFilterPicker: null,
@@ -184,6 +185,70 @@ function budgetIndex() {
             if (this.endDateFilterPicker) this.endDateFilterPicker.clear();
 
             this.fetchList();
+        },
+
+        /**
+         * Export budgets to Excel with current filters and sorting
+         * @returns {Promise<void>}
+         */
+        async exportToExcel() {
+            this.isExporting = true;
+
+            try {
+                const params = new URLSearchParams();
+
+                Object.keys(this.filters).forEach(key => {
+                    if (this.filters[key] && this.filters[key].toString().trim() !== '') {
+                        params.append(`Filters[${key}]`, this.filters[key]);
+                    }
+                });
+
+                params.append('SortBy', this.sortBy);
+                params.append('IsSortAscending', this.sortAsc);
+                params.append('PageNumber', 1);
+                params.append('PageSize', 999999);
+
+                const response = await fetch(`/api/Budgets/export?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData?.message || `Server error: ${response.status} ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Budgets_${new Date().toISOString().slice(0, 10)}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                if (window.showSuccess) {
+                    window.showSuccess('Excel file exported successfully');
+                } else if (typeof showNotificationModal === 'function') {
+                    showNotificationModal('Excel file exported successfully');
+                }
+
+            } catch (error) {
+                console.error('[Budget Index] Export error:', error);
+
+                if (window.showError) {
+                    window.showError(error.message || 'Failed to export to Excel');
+                } else if (typeof showNotificationModal === 'function') {
+                    showNotificationModal(error.message || 'Failed to export to Excel', true);
+                }
+            } finally {
+                this.isExporting = false;
+            }
         },
 
         /**

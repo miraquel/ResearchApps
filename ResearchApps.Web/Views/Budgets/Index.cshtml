@@ -33,6 +33,17 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
+                    @* Export to Excel button *@
+                    <button type="button" class="btn btn-success me-2" @@click="exportToExcel()" :disabled="isExporting">
+                        <span x-show="!isExporting">
+                            <i class="ri-file-excel-2-line align-bottom me-1"></i> Export to Excel
+                        </span>
+                        <span x-show="isExporting" x-cloak>
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            Exporting...
+                        </span>
+                    </button>
+
                     @* Create button *@
                     <a href="/Budgets/Create" class="btn btn-primary">
                         <i class="ri-add-line align-bottom me-1"></i> Create

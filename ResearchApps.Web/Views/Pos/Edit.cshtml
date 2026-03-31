@@ -143,7 +143,7 @@
                                           name="Header.Notes" 
                                           class="form-control"
                                           rows="3"
-                                          maxlength="500">@Model.Header.Notes</textarea>
+                                          maxlength="100">@Model.Header.Notes</textarea>
                             </div>
                         </div>
 
@@ -182,55 +182,57 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-bordered table-striped align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
+                                    <th class="text-center" style="width: 50px;">#</th>
                                     <th>Item</th>
-                                    <th class="text-end">Qty</th>
-                                    <th>Unit</th>
-                                    <th class="text-end">Price</th>
-                                    <th class="text-end">Amount</th>
+                                    <th class="text-center" style="width: 120px;">Delivery Date</th>
+                                    <th class="text-end" style="width: 100px;">Qty</th>
+                                    <th class="text-center" style="width: 80px;">Unit</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                    <th class="text-end" style="width: 120px;">Amount</th>
                                     <th>Notes</th>
-                                    <th class="text-center">Actions</th>
+                                    <th class="text-center" style="width: 120px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <template x-for="line in lines" :key="line.poLineId">
+                                <template x-if="lines.length === 0">
                                     <tr>
-                                        <td x-text="line.itemName"></td>
+                                        <td colspan="9" class="text-center py-4 text-muted">
+                                            <i class="ri-file-list-3-line fs-1"></i>
+                                            <p class="mb-0">No line items yet. Click "Add Line" to get started.</p>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="(line, index) in lines" :key="line.poLineId">
+                                    <tr>
+                                        <td class="text-center" x-text="index + 1"></td>
+                                        <td x-text="line?.itemName ? line.itemId + ' \u2013 ' + line.itemName : '-'"></td>
+                                        <td class="text-center" x-text="line?.deliveryDate || '-'"></td>
                                         <td class="text-end" x-text="formatNumber(line.qty)"></td>
-                                        <td x-text="line.unitName"></td>
+                                        <td class="text-center" x-text="line?.unitName || '-'"></td>
                                         <td class="text-end" x-text="formatNumber(line.price)"></td>
                                         <td class="text-end" x-text="formatNumber(line.amount)"></td>
-                                        <td><span x-text="line.notes || '-'" class="text-muted"></span></td>
+                                        <td><span x-text="line?.notes || '-'" class="text-muted small"></span></td>
                                         <td class="text-center">
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-soft-primary" 
-                                                    @@click="showLineModal('edit', line)"
-                                                    title="Edit">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-success me-1"
+                                                    @@click="showLineModal('edit', line)">
                                                 <i class="ri-edit-line"></i>
                                             </button>
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-soft-danger" 
-                                                    @@click="confirmDeleteLine(line)"
-                                                    title="Delete">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger"
+                                                    @@click="confirmDeleteLine(line)">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
                                         </td>
                                     </tr>
                                 </template>
-                                <template x-if="lines.length === 0">
-                                    <tr>
-                                        <td colspan="8" class="text-center py-4 text-muted">
-                                            <i class="ri-inbox-line" style="font-size: 3rem;"></i>
-                                            <p class="mt-2">No line items yet. Click "Add Line" to get started.</p>
-                                        </td>
-                                    </tr>
-                                </template>
                             </tbody>
-                            <tfoot class="table-light" x-show="lines.length > 0">
+                            <tfoot class="table-light">
                                 <tr>
-                                    <th colspan="4" class="text-end">Total:</th>
+                                    <th colspan="6" class="text-end">Total:</th>
                                     <th class="text-end" x-text="formatNumber(calculateTotal())"></th>
                                     <th colspan="2"></th>
                                 </tr>
