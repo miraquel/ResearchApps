@@ -8,7 +8,7 @@ public class Pr
     public int BudgetId { get; set; }
     public string BudgetName { get; set; } = string.Empty;
     public decimal? Total { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
     public int PrStatusId { get; set; }
     public string? PrStatusName { get; set; }
     public DateTime CreatedDate { get; set; }

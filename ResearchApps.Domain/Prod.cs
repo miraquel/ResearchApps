@@ -15,7 +15,7 @@ public class Prod
     public decimal ResultQty { get; set; }
     public decimal ResultValue { get; set; }
     public decimal CostPrice { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
     public int ProdStatusId { get; set; } = 1;
     public string? ProdStatusName { get; set; }
     public DateTime CreatedDate { get; set; }

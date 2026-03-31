@@ -16,7 +16,7 @@ public class Po
     public decimal SubTotal { get; set; }
     public decimal Ppn { get; set; }
     public decimal Total { get; set; }
-    public string? Notes { get; set; }
+    public string Notes { get; set; } = string.Empty;
 
     // Workflow Fields
     public int PoStatusId { get; set; }
