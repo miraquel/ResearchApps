@@ -119,12 +119,18 @@ public partial class BpbService : IBpbService
         LogInsertingBpbLineByUser(bpbLine.BpbRecId, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(bpbLine);
         entity.CreatedBy = _userClaimDto.Username;
-        
-        var id = await _bpbRepo.BpbLineInsert(entity, cancellationToken);
-        
-        _dbTransaction.Commit();
-        LogBpbLineInsertedSuccessfully(id);
-        return ServiceResponse<int>.Success(id, "BPB line inserted successfully.", StatusCodes.Status201Created);
+
+        try
+        {
+            var id = await _bpbRepo.BpbLineInsert(entity, cancellationToken);
+            _dbTransaction.Commit();
+            LogBpbLineInsertedSuccessfully(id);
+            return ServiceResponse<int>.Success(id, "BPB line inserted successfully.", StatusCodes.Status201Created);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResponse<int>.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse<int>> BpbLineUpdate(BpbLineVm bpbLine, CancellationToken cancellationToken)

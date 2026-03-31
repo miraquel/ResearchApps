@@ -69,10 +69,17 @@ public partial class CustomerOrderService : ICustomerOrderService
         LogUpdatingCoByUser(customerOrderHeader.RecId, customerOrderHeader.CoId, _userClaimDto.Username);
         var entity = _mapper.MapToEntity(customerOrderHeader);
         entity.ModifiedBy = _userClaimDto.Username;
-        await _customerOrderRepo.CoUpdate(entity, cancellationToken);
-        _dbTransaction.Commit();
-        LogCoUpdatedSuccessfully(customerOrderHeader.RecId);
-        return ServiceResponse.Success("Customer Order updated successfully.");
+        try
+        {
+            await _customerOrderRepo.CoUpdate(entity, cancellationToken);
+            _dbTransaction.Commit();
+            LogCoUpdatedSuccessfully(customerOrderHeader.RecId);
+            return ServiceResponse.Success("Customer Order updated successfully.");
+        }
+        catch (RepoException ex)
+        {
+            return ServiceResponse.Failure(ex.Message, StatusCodes.Status400BadRequest);
+        }
     }
 
     public async Task<ServiceResponse> CoDelete(int recId, CancellationToken cancellationToken)
