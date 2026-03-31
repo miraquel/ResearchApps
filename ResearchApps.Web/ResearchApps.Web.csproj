@@ -17,6 +17,7 @@
         <PackageReference Include="Finbuckle.MultiTenant" Version="10.0.3" />
         <PackageReference Include="Finbuckle.MultiTenant.AspNetCore" Version="10.0.3" />
         <PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="10.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.5" />
         <PackageReference Include="Microsoft.SqlServer.DacFx" Version="162.4.92" />
         <PackageReference Include="System.IO.Packaging" Version="9.0.4" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.1" />
