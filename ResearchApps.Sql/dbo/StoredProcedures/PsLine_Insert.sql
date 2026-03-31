@@ -26,7 +26,7 @@ BEGIN
 			SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
 			IF ISNULL(@Onhand,0) < -1*@Qty
 			BEGIN
-				SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(ISNULL(@Onhand,0) as nvarchar);
+				SELECT 'Transaksi gagal, stock yg tersedia hanya ' + cast(ISNULL(@Onhand,0) as nvarchar) AS Result;
 				RETURN;
 			END
 		END
@@ -48,7 +48,12 @@ BEGIN
 		(@ItemId, @WhId, @PsDate, 'Penyesuaian Stock', @PsLineId, @PsId, @Qty, @Qty*ISNULL(@CostPrice,0)
 		,GETDATE(), @CreatedBy, GETDATE(), @CreatedBy);
 
-		SELECT '1:::' + @PsId;
+		--* Update Ps header Amount *--
+		UPDATE [Ps]
+		SET [Amount] = (SELECT ISNULL(SUM(ABS([Qty]) * [Price]), 0) FROM [PsLine] WHERE [PsId] = @PsId)
+		WHERE [RecId] = @RecId;
+
+		SELECT @PsId AS Result;
 	END TRY
 	BEGIN CATCH
 		THROW;

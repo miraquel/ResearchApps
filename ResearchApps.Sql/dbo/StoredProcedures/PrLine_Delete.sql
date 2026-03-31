@@ -24,7 +24,7 @@ BEGIN
 		SET Total = isnull(@Total,0)
 		WHERE PrId = @PrId;
 
-		SELECT @PrId;
+		SELECT @PrId AS PrId;
 	END TRY
 	BEGIN CATCH
 		THROW;

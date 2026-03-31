@@ -14,6 +14,7 @@ BEGIN
 		,[BudgetName] = @BudgetName
 		,[StartDate] = @StartDate
 		,[EndDate] = @EndDate
+		,[RemAmount] = [RemAmount] + (@Amount - [Amount])
 		,[Amount] = @Amount
 		, ModifiedBy = @ModifiedBy
 		, ModifiedDate = GETDATE()

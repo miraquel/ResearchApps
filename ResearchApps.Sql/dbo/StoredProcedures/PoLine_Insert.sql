@@ -66,7 +66,7 @@ BEGIN
 			WHERE PoId = @PoId;
 		END
 
-		SELECT @PoId;
+		SELECT @PoId AS PoId;
 	END TRY
 	BEGIN CATCH
 		THROW;

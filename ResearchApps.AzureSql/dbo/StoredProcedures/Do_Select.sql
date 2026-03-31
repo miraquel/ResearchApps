@@ -72,9 +72,9 @@ BEGIN
         [Notes],
         [DoStatusId],
         [DoStatusName] = CASE [DoStatusId]
-            WHEN 0 THEN CONCAT('<span class="badge bg-warning">', [DoStatusName], '</span>')
+            WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [DoStatusName], '</span>')
             WHEN 1 THEN CONCAT('<span class="badge bg-success">', [DoStatusName], '</span>')
-            WHEN 2 THEN CONCAT('<span class="badge bg-primary">', [DoStatusName], '</span>')
+            WHEN 2 THEN CONCAT('<span class="badge bg-success">', [DoStatusName], '</span>')
             WHEN 3 THEN CONCAT('<span class="badge bg-danger">', [DoStatusName], '</span>')
             ELSE 'NA'
         END,

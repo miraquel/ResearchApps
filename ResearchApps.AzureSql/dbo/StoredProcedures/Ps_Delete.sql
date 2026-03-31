@@ -7,6 +7,8 @@ BEGIN
 	SET XACT_ABORT ON;
 
 	DECLARE @PsId nvarchar(20), @PsLineId int;
+	DECLARE @LineDeleteResult TABLE (Result nvarchar(500));
+	DECLARE @LineDeleteMsg nvarchar(500);
 
 	BEGIN TRY
 		IF NOT EXISTS (SELECT 1 FROM Ps WHERE RecId = @RecId)
@@ -29,9 +31,16 @@ BEGIN
 
 		WHILE @@FETCH_STATUS = 0
 		BEGIN
-			EXEC [PsLine_Delete] @PsLineId;
+			DELETE FROM @LineDeleteResult;
+			INSERT INTO @LineDeleteResult EXEC [PsLine_Delete] @PsLineId;
+			SELECT TOP 1 @LineDeleteMsg = Result FROM @LineDeleteResult;
+			IF LEFT(ISNULL(@LineDeleteMsg, ''), 2) = '-1'
+			BEGIN
+				CLOSE x_cursor;
+				DEALLOCATE x_cursor;
+				THROW 50002, 'Gagal menghapus baris: stock tidak mencukupi untuk membalik transaksi.', 1;
+			END;
 
-			-- Get the next vendor.
 			FETCH NEXT FROM x_cursor
 			INTO @PsLineId;
 		END;
@@ -42,7 +51,7 @@ BEGIN
 		DELETE FROM [Ps]
 		WHERE RecId = @RecId;
 
-		SELECT @PsId;
+		SELECT @PsId AS PsId;
 	END TRY
 	BEGIN CATCH
 		THROW;

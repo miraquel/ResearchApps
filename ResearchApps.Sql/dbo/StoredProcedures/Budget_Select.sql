@@ -88,7 +88,7 @@ BEGIN
             WHEN 0 THEN CONCAT('<span class="badge bg-secondary">', [StatusName], '</span>')
             WHEN 1 THEN CONCAT('<span class="badge bg-success">', [StatusName], '</span>')
             WHEN 2 THEN CONCAT('<span class="badge bg-warning">', [StatusName], '</span>')
-            WHEN 3 THEN CONCAT('<span class="badge bg-active">', [StatusName], '</span>')
+            WHEN 3 THEN CONCAT('<span class="badge bg-success">', [StatusName], '</span>')
             WHEN 4 THEN CONCAT('<span class="badge bg-primary">', [StatusName], '</span>')
             WHEN 5 THEN CONCAT('<span class="badge bg-danger">', [StatusName], '</span>')
             ELSE 'NA'
