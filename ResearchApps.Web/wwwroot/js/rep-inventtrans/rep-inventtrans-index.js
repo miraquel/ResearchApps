@@ -33,13 +33,16 @@ function repInventTransIndex() {
             }
 
             // Initialize Flatpickr for date fields
+            const toLocalDateStr = (d) => {
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+            };
+
             this.startDatePicker = flatpickr(this.$refs.startDateInput, {
                 dateFormat: 'd M Y',
                 allowInput: false,
                 onChange: (selectedDates) => {
-                    this.startDate = selectedDates.length > 0 
-                        ? selectedDates[0].toISOString().split('T')[0] 
-                        : '';
+                    this.startDate = selectedDates.length > 0 ? toLocalDateStr(selectedDates[0]) : '';
                 }
             });
 
@@ -47,9 +50,7 @@ function repInventTransIndex() {
                 dateFormat: 'd M Y',
                 allowInput: false,
                 onChange: (selectedDates) => {
-                    this.endDate = selectedDates.length > 0 
-                        ? selectedDates[0].toISOString().split('T')[0] 
-                        : '';
+                    this.endDate = selectedDates.length > 0 ? toLocalDateStr(selectedDates[0]) : '';
                 }
             });
 

@@ -137,9 +137,11 @@ public class ItemsController : ControllerBase
             worksheet.Cells[row, 11].Value = item.SalesPrice;
             worksheet.Cells[row, 12].Value = item.CostPrice;
             worksheet.Cells[row, 13].Value = item.StatusId == 1 ? "Active" : "Inactive";
-            worksheet.Cells[row, 14].Value = item.CreatedDate.ToString("dd MMM yyyy HH:mm");
+            worksheet.Cells[row, 14].Value = item.CreatedDate;
+            worksheet.Cells[row, 14].Style.Numberformat.Format = "dd MMM yyyy HH:mm";
             worksheet.Cells[row, 15].Value = item.CreatedBy;
-            worksheet.Cells[row, 16].Value = item.ModifiedDate.ToString("dd MMM yyyy HH:mm");
+            worksheet.Cells[row, 16].Value = item.ModifiedDate;
+            worksheet.Cells[row, 16].Style.Numberformat.Format = "dd MMM yyyy HH:mm";
             worksheet.Cells[row, 17].Value = item.ModifiedBy;
             row++;
         }
