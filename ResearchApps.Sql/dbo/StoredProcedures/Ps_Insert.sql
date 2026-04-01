@@ -1,3 +1,4 @@
+--EXEC [Ps_Insert] '3 Mar 2026', 'test ID 37100', '', 1, 'admin'
 CREATE PROCEDURE [dbo].[Ps_Insert]
 @PsDate datetime,
 @Descr nvarchar(50),

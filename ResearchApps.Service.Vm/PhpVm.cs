@@ -9,6 +9,6 @@ public class PhpVm
     public IEnumerable<PhpLineVm> Lines { get; set; } = [];
 
     public string Status => Header.PhpStatusName ?? "Unknown";
-    public bool CanEdit => Header.PhpStatusId == 0;   // Only Draft
-    public bool CanDelete => Header.PhpStatusId == 0; // Only Draft can be deleted
+    public bool CanEdit => Header.PhpStatusId == 0 || Header.PhpStatusId == 1;   // Draft or Active
+    public bool CanDelete => Header.PhpStatusId == 0 || Header.PhpStatusId == 1; // Draft or Active
 }

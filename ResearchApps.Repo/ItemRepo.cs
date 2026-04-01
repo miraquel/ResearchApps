@@ -32,6 +32,11 @@ public class ItemRepo : IItemRepo
         {
             parameters.Add("@Term", cboRequest.Term);
         }
+
+        if (cboRequest.ItemType.HasValue)
+        {
+            parameters.Add("@ItemType", cboRequest.ItemType.Value);
+        }
         
         await _dbConnection.ExecuteAsync("SET ARITHABORT ON", transaction: _dbTransaction);
         var command = new CommandDefinition(

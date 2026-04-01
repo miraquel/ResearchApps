@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[InventSum] (
     [RecId]        INT              IDENTITY (1, 1) NOT NULL,
     [ItemId]       INT              NOT NULL,
-    [WhId]         INT              NOT NULL,
+    [WhId]         INT              CONSTRAINT [DF_InventSum_WhId] DEFAULT ((0)) NOT NULL,
     [InventDimId]  INT              NOT NULL,
     [Qty]          NUMERIC (32, 16) NOT NULL,
     [Value]        NUMERIC (32, 16) NOT NULL,

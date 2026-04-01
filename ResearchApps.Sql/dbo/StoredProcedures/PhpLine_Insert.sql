@@ -13,6 +13,7 @@ BEGIN
 
 	DECLARE @PhpId nvarchar(20), @PhpDate datetime;
 	DECLARE @PhpLineId int, @CostPrice decimal(18,2);
+	DECLARE @InventDimId int;
 
 	BEGIN TRY
 		--validasi Warehouse
@@ -50,12 +51,21 @@ BEGIN
 
 		SELECT @PhpLineId = SCOPE_IDENTITY();
 
+		--* InventDim *--
+		IF EXISTS (SELECT InventDimId FROM InventDim WHERE WhId = @WhId AND LocationId = 1)
+		BEGIN
+			SELECT @InventDimId = InventDimId FROM InventDim WHERE WhId = @WhId AND LocationId = 1;
+		END
+		ELSE
+		BEGIN
+			INSERT INTO InventDim (WhId, LocationId, CreatedDate, CreatedBy)
+				VALUES (@WhId, 1, GETDATE(), @CreatedBy);
+			SET @InventDimId = SCOPE_IDENTITY();
+		END
+
 		--* InventTrans *--
-		INSERT INTO [InventTrans]
-		([ItemId],[WhId],[TransDate],[RefType],[RefId],[RefNo],[Qty],[Value],[CreatedDate],[CreatedBy],[ModifiedDate],[ModifiedBy])
-		VALUES
-		(@ItemId, @WhId, @PhpDate, 'Hasil Produksi', @PhpLineId, @PhpId, @Qty, (@Qty*@CostPrice)
-		,GETDATE(), @CreatedBy, GETDATE(), @CreatedBy);
+		DECLARE @Value decimal(18,2) = @Qty * @CostPrice;
+		EXEC InventTrans_Insert @ItemId, @InventDimId, @PhpDate, 'Hasil Produksi', @PhpLineId, @PhpId, @Qty, @Value, @CreatedBy;
 
 		--* Prod Result *--
 		UPDATE Prod

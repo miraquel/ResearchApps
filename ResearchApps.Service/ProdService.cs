@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using ResearchApps.Domain.Common;
 using ResearchApps.Mapper;
 using ResearchApps.Repo.Interface;
 using ResearchApps.Service.Interface;
@@ -12,6 +13,7 @@ namespace ResearchApps.Service;
 public partial class ProdService : IProdService
 {
     private readonly IProdRepo _prodRepo;
+    private readonly IItemRepo _itemRepo;
     private readonly IDbTransaction _dbTransaction;
     private readonly UserClaimDto _userClaimDto;
     private readonly ILogger<ProdService> _logger;
@@ -19,11 +21,13 @@ public partial class ProdService : IProdService
 
     public ProdService(
         IProdRepo prodRepo,
+        IItemRepo itemRepo,
         IDbTransaction dbTransaction,
         UserClaimDto userClaimDto,
         ILogger<ProdService> logger)
     {
         _prodRepo = prodRepo;
+        _itemRepo = itemRepo;
         _dbTransaction = dbTransaction;
         _userClaimDto = userClaimDto;
         _logger = logger;
@@ -53,8 +57,17 @@ public partial class ProdService : IProdService
         return ServiceResponse<ProdVm>.Success(_mapper.MapToVm(entity), "Production record retrieved successfully.");
     }
 
+    private async Task<bool> IsFinishedGoodAsync(int itemId, CancellationToken ct)
+    {
+        var items = await _itemRepo.CboAsync(new CboRequest { Id = itemId, ItemType = 5 }, ct);
+        return items.Any();
+    }
+
     public async Task<ServiceResponse<ProdVm>> InsertAsync(ProdVm prodVm, CancellationToken ct)
     {
+        if (!await IsFinishedGoodAsync(prodVm.ItemId, ct))
+            return ServiceResponse<ProdVm>.Failure("Selected item is not a Finished Good (ItemType 5).", 422);
+
         LogCreatingProd(prodVm.ItemName ?? "N/A", _userClaimDto.Username);
 
         var entity = _mapper.MapToEntity(prodVm);
@@ -79,6 +92,9 @@ public partial class ProdService : IProdService
 
     public async Task<ServiceResponse<ProdVm>> UpdateAsync(ProdVm prodVm, CancellationToken ct)
     {
+        if (!await IsFinishedGoodAsync(prodVm.ItemId, ct))
+            return ServiceResponse<ProdVm>.Failure("Selected item is not a Finished Good (ItemType 5).", 422);
+
         LogUpdatingProd(prodVm.RecId, _userClaimDto.Username);
 
         var entity = _mapper.MapToEntity(prodVm);
