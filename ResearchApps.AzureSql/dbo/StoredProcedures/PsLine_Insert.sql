@@ -2,7 +2,6 @@ CREATE PROCEDURE [dbo].[PsLine_Insert]
 @RecId int,
 @ItemId int,
 @WhId int,
-@LocationId int = 1,
 @Qty numeric(32,16) = 0,
 @Notes nvarchar(100)='',
 @CreatedBy nvarchar(20) = 'system'
@@ -13,7 +12,6 @@ BEGIN
 
 	DECLARE @PsId nvarchar(20), @PsDate datetime;
 	DECLARE @PsLineId int, @CostPrice numeric(32,16), @Onhand numeric(32,16);
-	DECLARE @Value numeric(32,16);
 
 	BEGIN TRY
 		--* Init *--
@@ -22,15 +20,13 @@ BEGIN
 		IF isnull(@CostPrice,0) = 0
 			SELECT @CostPrice = CostPrice FROM Item WHERE ItemId = @ItemId;
 
-		SET @Value = @Qty * ISNULL(@CostPrice, 0);
-
 		--* cek  stock *--
 		IF @Qty < 0
 		BEGIN
 			SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
 			IF ISNULL(@Onhand,0) < -1*@Qty
 			BEGIN
-				SELECT '-1:::Transaksi gagal, stock yg tersedia hanya ' + cast(ISNULL(@Onhand,0) as nvarchar);
+				SELECT 'Transaksi gagal, stock yg tersedia hanya ' + cast(ISNULL(@Onhand,0) as nvarchar) AS Result;
 				RETURN;
 			END
 		END
@@ -46,17 +42,18 @@ BEGIN
 		SELECT @PsLineId = SCOPE_IDENTITY();
 
 		--* InventTrans *--
-		EXEC InventTrans_Insert @ItemId, @WhId, @LocationId, @PsDate, 'Penyesuaian Stock', @PsLineId, @PsId
-			, @Qty
-			, @Value
-			, @CreatedBy;
+		INSERT INTO [InventTrans]
+		([ItemId],[WhId],[TransDate],[RefType],[RefId],[RefNo],[Qty],[Value],[CreatedDate],[CreatedBy],[ModifiedDate],[ModifiedBy])
+		VALUES
+		(@ItemId, @WhId, @PsDate, 'Penyesuaian Stock', @PsLineId, @PsId, @Qty, @Qty*ISNULL(@CostPrice,0)
+		,GETDATE(), @CreatedBy, GETDATE(), @CreatedBy);
 
 		--* Update Ps header Amount *--
 		UPDATE [Ps]
 		SET [Amount] = (SELECT ISNULL(SUM(ABS([Qty]) * [Price]), 0) FROM [PsLine] WHERE [PsId] = @PsId)
 		WHERE [RecId] = @RecId;
 
-		SELECT @PsId;
+		SELECT @PsId AS Result;
 	END TRY
 	BEGIN CATCH
 		THROW;

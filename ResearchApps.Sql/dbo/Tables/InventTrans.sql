@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[InventTrans] (
     [RecId]        INT              IDENTITY (1, 1) NOT NULL,
     [ItemId]       INT              NOT NULL,
-    [WhId]         INT              NOT NULL,
+    [WhId]         INT              CONSTRAINT [DF_InventTrans_WhId] DEFAULT ((0)) NOT NULL,
     [InventDimId]  INT              NOT NULL,
     [TransDate]    DATETIME         CONSTRAINT [DF__InventTra__Trans__58D1301D] DEFAULT ('1900-01-01T00:00:00.000') NOT NULL,
     [RefType]      NVARCHAR (20)    NOT NULL,
@@ -22,4 +22,5 @@ CREATE TABLE [dbo].[InventTrans] (
 
 
 GO
+
 

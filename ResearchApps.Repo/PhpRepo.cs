@@ -111,6 +111,9 @@ public class PhpRepo : IPhpRepo
         var parameters = new DynamicParameters();
 
         parameters.Add("@RecId", php.RecId);
+        parameters.Add("@PhpDate", php.PhpDate.Date, DbType.Date);
+        parameters.Add("@Descr", php.Descr ?? string.Empty);
+        parameters.Add("@RefId", php.RefId ?? string.Empty);
         parameters.Add("@Notes", php.Notes ?? string.Empty);
         parameters.Add("@ModifiedBy", php.ModifiedBy);
 

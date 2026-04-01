@@ -10,19 +10,19 @@ public class PsVm
     public string Status => Header.PsStatusName ?? "Unknown";
     
     /// <summary>
-    /// Can edit only when in Draft status (0)
+    /// Can edit when Active (no workflow integration)
     /// </summary>
-    public bool CanEdit => Header.PsStatusId == 0;
-    
+    public bool CanEdit => Header.PsStatusId == 1;
+
     /// <summary>
-    /// Can delete only when in Draft status (0)
+    /// Can delete when Active (no workflow integration)
     /// </summary>
-    public bool CanDelete => Header.PsStatusId == 0;
-    
+    public bool CanDelete => Header.PsStatusId == 1;
+
     /// <summary>
-    /// Can add lines only when in Draft status (0)
+    /// Can add lines when Active (no workflow integration)
     /// </summary>
-    public bool CanAddLine => Header.PsStatusId == 0;
+    public bool CanAddLine => Header.PsStatusId == 1;
     
     /// <summary>
     /// Total amount calculated from lines

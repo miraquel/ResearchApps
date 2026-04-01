@@ -1,4 +1,4 @@
---EXEC [PsLine_Insert_new] 6, 37100, 1, 1, 100, '', admin
+--EXEC [PsLine_Insert_new] 6, 37100, 1, 1, -10, '', admin
 CREATE PROCEDURE [dbo].[PsLine_Insert_new]
 @RecId int,
 @ItemId int,
@@ -15,6 +15,7 @@ BEGIN
 	DECLARE @PsId nvarchar(20), @PsDate datetime;
 	DECLARE @PsLineId int, @CostPrice numeric(32,16), @Onhand numeric(32,16);
 	DECLARE @Value numeric(32,16)
+	DECLARE @InventDimId int
 
 	BEGIN TRY
 		--* Init *--
@@ -36,24 +37,32 @@ BEGIN
 			END
 		END
 
+		--* InventDim *--
+		IF EXISTS (SELECT InventDimId FROM InventDim WHERE WhId = @WhId AND LocationId = @LocationId)
+		BEGIN --jika sudah ada, ambil InventDimId nya
+			SELECT @InventDimId = InventDimId
+			FROM InventDim WHERE WhId = @WhId AND LocationId = @LocationId
+		END
+		ELSE
+		BEGIN --jika belum ada, buat InventDimId baru
+			INSERT INTO InventDim (WhId, LocationId, CreatedDate, CreatedBy)
+				VALUES (@WhId,@LocationId,GETDATE(),@CreatedBy) 
+
+			SET @InventDimId = SCOPE_IDENTITY()
+		END
+
 		--* Ps Line *--
 		INSERT INTO [PsLine]
-		([PsId], [ItemId], [WhId], [Qty], [Price], [Notes]
+		([PsId], [ItemId], [WhId], [InventDimId], [Qty], [Price], [Notes]
 		  ,[CreatedDate], [CreatedBy], [ModifiedDate], [ModifiedBy])
 		VALUES
-		(@PsId, @ItemId, @WhId, @Qty, ISNULL(@CostPrice,0), @Notes
+		(@PsId, @ItemId, @WhId, @InventDimId, @Qty, ISNULL(@CostPrice,0), @Notes
 		,GETDATE(), @CreatedBy, GETDATE(), @CreatedBy);
 
 		SELECT @PsLineId = SCOPE_IDENTITY();
 
 		--* InventTrans *--
-		--INSERT INTO [InventTrans]
-		--([ItemId],[WhId],[TransDate],[RefType],[RefId],[RefNo],[Qty],[Value],[CreatedDate],[CreatedBy],[ModifiedDate],[ModifiedBy])
-		--VALUES
-		--(@ItemId, @WhId, @PsDate, 'Penyesuaian Stock', @PsLineId, @PsId, @Qty, @Qty*ISNULL(@CostPrice,0)
-		--,GETDATE(), @CreatedBy, GETDATE(), @CreatedBy);
-
-		EXEC InventTrans_Insert @ItemId,@WhId,@LocationId,@PsDate,'Penyesuaian Stock',@PsLineId,@PsId
+		EXEC InventTrans_Insert @ItemId,@InventDimId,@PsDate,'Penyesuaian Stock',@PsLineId,@PsId
 			,@Qty
 			,@Value
 			,@CreatedBy
