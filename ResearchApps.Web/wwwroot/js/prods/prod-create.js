@@ -41,7 +41,7 @@ function prodCreateForm() {
             
             // Initialize Item TomSelect
             this.itemSelect = initTomSelect('#ItemId', {
-                url: '/api/Items/cbo',
+                url: '/api/Items/cbo?ItemType=5',
                 placeholder: 'Select Item',
                 maxOptions: 50
             });

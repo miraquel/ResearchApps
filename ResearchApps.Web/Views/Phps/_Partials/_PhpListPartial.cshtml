@@ -22,7 +22,7 @@
                                 <i class="ri-eye-line me-2"></i>View Details
                             </a>
                         </li>
-                        @if (item.PhpStatusId == 0)
+                        @if (item.PhpStatusId == 0 || item.PhpStatusId == 1)
                         {
                             <li>
                                 <a class="dropdown-item" href="/Phps/Edit/@item.RecId">

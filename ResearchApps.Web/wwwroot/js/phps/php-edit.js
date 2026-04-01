@@ -10,12 +10,16 @@ function phpEdit(initialLines, config) {
             refId: config.refId,
             notes: config.notes
         },
-        
+
         // Lines state
         lines: initialLines || [],
-        
+
         // UI state
+        isActive: config.canEdit,
         isHeaderSaving: false,
+
+        // Date picker instance
+        datePicker: null,
         
         // Line modal state
         lineModal: {
@@ -62,8 +66,23 @@ function phpEdit(initialLines, config) {
         warehouseSelect: null,
         
         init() {
-            // Nothing to initialize on page load
-            // TomSelect will be initialized when modal opens
+            if (this.isActive) {
+                this.$nextTick(() => {
+                    const dateEl = this.$refs.phpDatePicker;
+                    if (dateEl && typeof flatpickr !== 'undefined') {
+                        this.datePicker = flatpickr(dateEl, {
+                            dateFormat: 'Y-m-d',
+                            defaultDate: this.header.phpDate,
+                            altInput: true,
+                            altFormat: 'd M Y',
+                            allowInput: true,
+                            onChange: (selectedDates, dateStr) => {
+                                this.header.phpDate = dateStr;
+                            }
+                        });
+                    }
+                });
+            }
         },
         
         showNotification(message, isError = false) {
@@ -82,6 +101,9 @@ function phpEdit(initialLines, config) {
                 const payload = {
                     RecId: this.header.recId,
                     PhpId: this.header.phpId,
+                    PhpDate: this.header.phpDate,
+                    Descr: this.header.descr,
+                    RefId: this.header.refId,
                     Notes: this.header.notes
                 };
                 

@@ -47,7 +47,7 @@
                 var qtyClass = line.Qty >= 0 ? "text-success" : "text-danger";
                 <tr>
                     <td class="text-center">@lineNo</td>
-                    <td>@line.ItemName</td>
+                    <td>@(line.ItemName != null ? $"{line.ItemId} \u2013 {line.ItemName}" : "-")</td>
                     <td>@line.WhName</td>
                     <td class="text-end @qtyClass fw-semibold">@line.Qty.ToString("N2")</td>
                     <td>@line.UnitName</td>

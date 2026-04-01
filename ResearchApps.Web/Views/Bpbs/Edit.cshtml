@@ -148,7 +148,7 @@
                                 <template x-for="(line, index) in lines" :key="line.bpbLineId || index">
                                     <tr>
                                         <td x-text="index + 1"></td>
-                                        <td x-text="line.itemName"></td>
+                                        <td x-text="line.itemName ? line.itemId + ' \u2013 ' + line.itemName : '-'"></td>
                                         <td x-text="line.whName"></td>
                                         <td class="text-end" x-text="formatNumber(line.qty)"></td>
                                         <td x-text="line.unitName"></td>
