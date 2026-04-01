@@ -319,8 +319,8 @@ function bpbEdit(initialLines, config) {
             
             const payload = {
                 BpbRecId: this.header.recId,
-                ItemId: this.lineModal.data.itemId,
-                WhId: this.lineModal.data.whId,
+                ItemId: parseInt(this.lineModal.data.itemId),
+                WhId: parseInt(this.lineModal.data.whId),
                 Qty: parseFloat(this.lineModal.data.qty),
                 ProdId: this.header.refId || '',
                 Notes: this.lineModal.data.notes || ''
@@ -351,7 +351,7 @@ function bpbEdit(initialLines, config) {
                     // Refresh page to get updated lines and totals
                     window.location.reload();
                 } else {
-                    this.showNotification(result.message || 'Error saving line', true);
+                    this.showNotification(result.errors?.[0] || result.message || 'Error saving line', true);
                 }
             } catch (error) {
                 console.error('Save line error:', error);

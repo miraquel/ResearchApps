@@ -43,7 +43,7 @@ function prodEditForm(config) {
             
             // Initialize Item TomSelect
             this.itemSelect = initTomSelect('#ItemId', {
-                url: '/api/Items/cbo',
+                url: '/api/Items/cbo?ItemType=5',
                 placeholder: 'Select Item',
                 maxOptions: 50
             });
@@ -63,7 +63,7 @@ function prodEditForm(config) {
             if (this.itemSelect && this.config.itemId) {
                 this.itemSelect.addOption({
                     value: this.config.itemId.toString(),
-                    text: this.config.itemName || 'Loading...'
+                    text: this.config.itemName ? `${this.config.itemId} ${this.config.itemName}` : 'Loading...'
                 });
                 this.itemSelect.setValue(this.config.itemId.toString());
             }

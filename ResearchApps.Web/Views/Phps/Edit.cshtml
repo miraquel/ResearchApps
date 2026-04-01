@@ -29,6 +29,7 @@
     var configJson = System.Text.Json.JsonSerializer.Serialize(new {
         recId = Model.Header.RecId,
         phpId = Model.Header.PhpId,
+        canEdit = Model.CanEdit,
         phpDate = Model.Header.PhpDate.ToString("yyyy-MM-dd"),
         descr = Model.Header.Descr ?? "",
         refId = Model.Header.RefId ?? "",
@@ -48,7 +49,7 @@
                         <div class="col d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
                                 PHP Header
-                                <span class="badge bg-@(Model.Header.PhpStatusId == 0 ? "warning" : "success")">
+                                <span class="badge bg-@(Model.Header.PhpStatusId == 0 ? "warning" : Model.Header.PhpStatusId == 1 ? "success" : "secondary")">
                                     @Model.Header.PhpStatusName
                                 </span>
                                 <span x-show="isHeaderSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
@@ -85,14 +86,16 @@
                                 <div class="row mb-3">
                                     <div class="col-12">
                                         <div class="form-group">
-                                            <label class="form-label">PHP Date <span class="text-danger">*</span></label>
+                                            <label class="form-label">PHP Date <span class="text-danger" x-show="isActive">*</span></label>
                                             <div class="input-group">
-                                                <input type="text" 
-                                                       class="form-control bg-light" 
+                                                <input type="text"
+                                                       x-ref="phpDatePicker"
+                                                       class="form-control"
+                                                       :class="{ 'bg-light': !isActive }"
                                                        id="Header_PhpDate"
                                                        name="PhpDate"
                                                        value="@Model.Header.PhpDate.ToString("dd MMM yyyy")"
-                                                       readonly />
+                                                       :readonly="!isActive" />
                                                 <span class="input-group-text"><i class="ri-calendar-line"></i></span>
                                             </div>
                                         </div>
@@ -106,22 +109,26 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label class="form-label">Description</label>
-                                            <input type="text" 
-                                                   class="form-control bg-light"
-                                                   value="@Model.Header.Descr"
-                                                   readonly />
+                                            <input type="text"
+                                                   class="form-control"
+                                                   :class="{ 'bg-light': !isActive }"
+                                                   x-model="header.descr"
+                                                   :readonly="!isActive"
+                                                   maxlength="200" />
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row mb-3">
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label class="form-label">Reference ID</label>
-                                            <input type="text" 
-                                                   class="form-control bg-light"
-                                                   value="@Model.Header.RefId"
-                                                   readonly />
+                                            <input type="text"
+                                                   class="form-control"
+                                                   :class="{ 'bg-light': !isActive }"
+                                                   x-model="header.refId"
+                                                   :readonly="!isActive"
+                                                   maxlength="50" />
                                         </div>
                                     </div>
                                 </div>
@@ -133,34 +140,28 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label class="form-label">Notes</label>
-                                            <textarea name="Notes" 
-                                                      class="form-control" 
+                                            <textarea name="Notes"
+                                                      class="form-control"
+                                                      :class="{ 'bg-light': !isActive }"
                                                       rows="2"
+                                                      :readonly="!isActive"
                                                       x-model="header.notes">@Model.Header.Notes</textarea>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <div class="card bg-light mb-0">
-                                            <div class="card-body py-2 px-3">
-                                                <table class="table table-borderless table-sm mb-0">
-                                                    <tr class="border-top">
-                                                        <td class="fw-bold fs-6">Total Amount:</td>
-                                                        <td class="text-end fw-bold text-primary fs-6">@Model.Header.Amount.ToString("N0")</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-1">
+                                    <span class="text-muted fw-semibold small text-uppercase ls-1">Total Amount</span>
+                                    <span class="fw-bold fs-4 text-primary">@Model.Header.Amount.ToString("N0")</span>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="row mt-3">
                             <div class="col-12 d-flex gap-2">
-                                <button type="submit" 
+                                <button type="submit"
+                                        x-show="isActive"
+                                        x-cloak
                                         class="btn btn-primary"
                                         :disabled="isHeaderSaving"
                                         @@click.prevent="saveHeader()">
@@ -194,7 +195,7 @@
                                 PHP Lines
                                 <span x-show="lineModal.isSaving" x-cloak class="spinner-border spinner-border-sm text-primary ms-2"></span>
                             </h5>
-                            <button type="button" class="btn btn-sm btn-success" @@click="showAddLineModal()">
+                            <button type="button" class="btn btn-sm btn-success" x-show="isActive" x-cloak @@click="showAddLineModal()">
                                 <i class="ri-add-line me-1"></i> Add Line
                             </button>
                         </div>
@@ -236,12 +237,16 @@
                                         <td x-text="line.prodId || '-'"></td>
                                         <td x-text="line.notes || '-'"></td>
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-info" @@click="editLine(index)" title="Edit">
-                                                <i class="ri-edit-line"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-danger" @@click="confirmDeleteLine(index)" title="Delete">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
+                                            <template x-if="isActive">
+                                                <div class="d-flex gap-1 justify-content-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" @@click="editLine(index)" title="Edit">
+                                                        <i class="ri-pencil-line"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" @@click="confirmDeleteLine(index)" title="Delete">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                            </template>
                                         </td>
                                     </tr>
                                 </template>
@@ -259,105 +264,125 @@
          x-show="lineModal.show"
          x-cloak
          tabindex="-1"
+         style="background-color: rgba(0,0,0,0.5);"
          @@click.self="closeLineModal()"
          @@keydown.escape.window="closeLineModal()">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="ri-file-list-3-line me-2"></i>
-                        <span x-text="lineModal.mode === 'add' ? 'Add Line' : 'Edit Line'"></span>
-                    </h5>
+                <div class="modal-header border-bottom-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-semibold">
+                            <i :class="lineModal.mode === 'add' ? 'ri-add-circle-line me-2 text-success' : 'ri-edit-circle-line me-2 text-primary'"></i>
+                            <span x-text="lineModal.mode === 'add' ? 'Add PHP Line' : 'Edit PHP Line'"></span>
+                        </h5>
+                        <p class="text-muted small mb-0">Select a production order, then fill in quantity and destination warehouse.</p>
+                    </div>
                     <button type="button" class="btn-close" @@click="closeLineModal()"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Production Order <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="text" 
-                                       class="form-control bg-light" 
-                                       :class="{ 'is-invalid': lineModal.errors.prodId }"
-                                       x-model="lineModal.data.prodDisplayText" 
-                                       readonly 
-                                       placeholder="Click to select production order" />
-                                <button type="button" 
-                                        class="btn btn-primary" 
+                <div class="modal-body pt-3">
+
+                    <!-- Section A: Production Order -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-uppercase small text-muted ls-1 mb-2">
+                            <i class="ri-settings-3-line me-1"></i> Production Order <span class="text-danger">*</span>
+                        </label>
+                        <div class="border rounded overflow-hidden" :class="lineModal.errors.prodId ? 'border-danger' : 'border-secondary-subtle'">
+                            <!-- Selector row -->
+                            <div class="input-group" style="border-bottom: 1px solid var(--bs-border-color);">
+                                <span class="input-group-text bg-light border-0 rounded-0"><i class="ri-file-list-3-line text-muted"></i></span>
+                                <input type="text"
+                                       class="form-control bg-light border-0 rounded-0"
+                                       x-model="lineModal.data.prodDisplayText"
+                                       readonly
+                                       placeholder="Click 'Select' to choose a production order" />
+                                <button type="button"
+                                        class="btn btn-primary"
                                         @@click="openProdSelector()">
-                                    <i class="ri-search-line"></i>
+                                    <i class="ri-search-line me-1"></i> Select
                                 </button>
                             </div>
-                            <div class="invalid-feedback" x-show="lineModal.errors.prodId" x-text="lineModal.errors.prodId"></div>
+                            <!-- Item info — shown after production is selected -->
+                            <template x-if="lineModal.data.itemId">
+                                <div class="p-3 bg-success-subtle d-flex align-items-center gap-3">
+                                    <i class="ri-box-3-line fs-4 text-success flex-shrink-0"></i>
+                                    <div>
+                                        <div class="fw-semibold text-dark" x-text="lineModal.data.itemName"></div>
+                                        <div class="small text-muted">Unit: <span class="fw-medium text-body" x-text="lineModal.data.unitName || '—'"></span></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <!-- Placeholder when no production selected -->
+                            <template x-if="!lineModal.data.itemId">
+                                <div class="p-3 text-center text-muted small bg-light">
+                                    <i class="ri-information-line me-1"></i> Item and unit will appear here once a production order is selected.
+                                </div>
+                            </template>
+                        </div>
+                        <div class="text-danger small mt-1" x-show="lineModal.errors.prodId" x-text="lineModal.errors.prodId"></div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- Section B: Line Details -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-uppercase small text-muted ls-1 mb-3">
+                            <i class="ri-scales-3-line me-1"></i> Line Details
+                        </label>
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text"
+                                           class="form-control text-end"
+                                           inputmode="numeric"
+                                           x-mask:dynamic="$money($input, '.', ',')"
+                                           x-model="lineModal.data.qty"
+                                           :class="{ 'is-invalid': lineModal.errors.qty }"
+                                           aria-label="Quantity" />
+                                    <span class="input-group-text" x-text="lineModal.data.unitName || 'Unit'"></span>
+                                    <div class="invalid-feedback" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label">Destination Warehouse <span class="text-danger">*</span></label>
+                                <select class="form-select"
+                                        x-ref="warehouseSelect"
+                                        data-tomselect
+                                        data-url="/api/Warehouses/cbo"
+                                        :class="{ 'is-invalid': lineModal.errors.whId }"
+                                        required
+                                        aria-label="Destination Warehouse">
+                                    <option value="">Select Warehouse</option>
+                                </select>
+                                <div class="invalid-feedback" x-show="lineModal.errors.whId" x-text="lineModal.errors.whId"></div>
+                                <div class="form-text"><i class="ri-error-warning-line me-1 text-warning"></i>Warehouse TL (ID=1) is not allowed.</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Notes</label>
+                                <input type="text"
+                                       class="form-control"
+                                       x-model="lineModal.data.notes"
+                                       placeholder="Optional — enter any remarks for this line"
+                                       maxlength="100"
+                                       aria-label="Notes" />
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Item <span class="text-danger">*</span></label>
-                            <input type="text" 
-                                   class="form-control bg-light" 
-                                   x-model="lineModal.data.itemName" 
-                                   readonly 
-                                   placeholder="Auto-filled from production order" />
-                            <small class="text-muted">Item will be auto-filled when you select a production order</small>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Qty <span class="text-danger">*</span></label>
-                            <input type="text" 
-                                   class="form-control text-end" 
-                                   inputmode="numeric"
-                                   x-mask:dynamic="$money($input, '.', ',')"
-                                   x-model="lineModal.data.qty"
-                                   :class="{ 'is-invalid': lineModal.errors.qty }" />
-                            <div class="invalid-feedback" x-show="lineModal.errors.qty" x-text="lineModal.errors.qty"></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Unit</label>
-                            <input type="text" 
-                                   class="form-control bg-light text-center" 
-                                   x-model="lineModal.data.unitName" 
-                                   readonly 
-                                   placeholder="Auto-filled" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Warehouse <span class="text-danger">*</span></label>
-                            <select class="form-control form-select"
-                                    x-ref="warehouseSelect"
-                                    data-tomselect
-                                    data-url="/api/Warehouses/cbo"
-                                    :class="{ 'is-invalid': lineModal.errors.whId }"
-                                    required>
-                                <option value="">Select Warehouse</option>
-                            </select>
-                            <div class="invalid-feedback" x-show="lineModal.errors.whId" x-text="lineModal.errors.whId"></div>
-                            <small class="text-muted">Note: Warehouse TL (ID=1) is not allowed</small>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Notes</label>
-                            <input type="text" 
-                                   class="form-control"
-                                   x-model="lineModal.data.notes"
-                                   placeholder="Enter notes (optional)"
-                                   maxlength="100" />
-                        </div>
-                    </div>
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @@click="closeLineModal()">
+                <div class="modal-footer border-top bg-light rounded-bottom">
+                    <button type="button" class="btn btn-outline-secondary" @@click="closeLineModal()">
                         <i class="ri-close-line me-1"></i> Cancel
                     </button>
-                    <button type="button" 
-                            class="btn btn-primary"
+                    <button type="button"
+                            class="btn btn-primary px-4"
                             :disabled="lineModal.isSaving"
                             @@click="saveLine()">
                         <span x-show="!lineModal.isSaving">
                             <i class="ri-save-line me-1"></i> Save Line
                         </span>
                         <span x-show="lineModal.isSaving" x-cloak>
-                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                             Saving...
                         </span>
                     </button>
@@ -365,13 +390,11 @@
             </div>
         </div>
     </div>
-    <div class="modal-backdrop fade show" x-show="lineModal.show && !prodModal.show" x-cloak></div>
-    
     <!-- Production Selector Modal -->
     <div class="modal fade" 
          :class="{ 'show d-block': prodModal.show }"
-         :style="prodModal.show ? 'background: rgba(0,0,0,0.5);' : ''"
          x-show="prodModal.show"
+         style="background-color: rgba(0,0,0,0.5);"
          x-cloak
          tabindex="-1"
          @@click.self="prodModal.show = false"
@@ -396,7 +419,7 @@
                         </div>
                     </div>
                     <div class="table-responsive" style="max-height: 400px;">
-                        <table class="table table-bordered table-hover align-middle">
+                        <table class="table table-sm table-bordered table-hover align-middle">
                             <thead class="table-light sticky-top">
                                 <tr>
                                     <th style="width: 120px;">Prod ID</th>
@@ -452,6 +475,7 @@
          x-show="showDeleteConfirm"
          x-cloak
          tabindex="-1"
+         style="background-color: rgba(0,0,0,0.5);"
          @@click.self="showDeleteConfirm = false"
          @@keydown.escape.window="showDeleteConfirm = false">
         <div class="modal-dialog modal-dialog-centered">
@@ -484,7 +508,6 @@
             </div>
         </div>
     </div>
-    <div class="modal-backdrop fade show" x-show="showDeleteConfirm" x-cloak></div>
 </div>
 
 @section scripts {

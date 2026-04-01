@@ -53,6 +53,9 @@
                         </span>
                     </div>
                 </div>
+                <div class="mt-1">
+                    <span class="text-muted fs-11">from @mc.ActiveCos.ToString("N0") active orders</span>
+                </div>
             </div>
         </div>
     </div>
@@ -73,7 +76,7 @@
                     </div>
                 </div>
                 <div class="mt-1">
-                    <span class="text-muted fs-11">Revenue: <span class="fw-medium text-dark">@mc.SiRevenue.ToString("C0")</span></span>
+                    <span class="text-muted fs-11">Revenue: <span class="fw-medium text-dark">@mc.SiRevenue.ToString("N0")</span></span>
                 </div>
             </div>
         </div>
@@ -107,7 +110,7 @@
 <div class="row g-2">
     <!-- Procurement: POs -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm mb-2">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
             <div class="card-body py-2 px-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -133,7 +136,7 @@
 
     <!-- Inventory: Items -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm mb-2">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
             <div class="card-body py-2 px-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -162,7 +165,7 @@
 
     <!-- Production -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm mb-2">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card">
             <div class="card-body py-2 px-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -184,7 +187,7 @@
 
     <!-- My Approvals -->
     <div class="col-xl-3 col-md-6">
-        <div class="card card-animate border shadow-sm mb-2 @(mc.MyPendingApprovals > 0 ? "border-warning" : "")">
+        <div class="card card-animate border shadow-sm mb-2 dashboard-kpi-card @(mc.MyPendingApprovals > 0 ? "border-warning" : "")">
             <div class="card-body py-2 px-3">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -220,8 +223,8 @@
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <span class="fw-medium fs-13">Budget Utilization</span>
                     <span class="fs-12">
-                        <span class="fw-semibold">@mc.UsedBudget.ToString("C0")</span>
-                        <span class="text-muted">/ @mc.TotalBudget.ToString("C0")</span>
+                        <span class="fw-semibold">@mc.UsedBudget.ToString("N0")</span>
+                        <span class="text-muted">/ @mc.TotalBudget.ToString("N0")</span>
                         <span class="badge @(mc.BudgetUtilizationPercentage > 90 ? "bg-danger" : mc.BudgetUtilizationPercentage > 70 ? "bg-warning" : "bg-success") ms-1">@mc.BudgetUtilizationPercentage.ToString("F1")%</span>
                     </span>
                 </div>
@@ -233,7 +236,7 @@
                     <div class="progress-bar @barClass" role="progressbar" style="width: @pct.ToString("F1")%;" aria-valuenow="@pct.ToString("F1")" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <div class="d-flex justify-content-between mt-1">
-                    <span class="text-muted fs-11">Available: <span class="fw-medium text-success">@mc.AvailableBudget.ToString("C0")</span></span>
+                    <span class="text-muted fs-11">Available: <span class="fw-medium text-success">@mc.AvailableBudget.ToString("N0")</span></span>
                     @if (mc.UnreadNotifications > 0)
                     {
                         <span class="badge bg-danger-subtle text-danger fs-10"><i class="ri-notification-3-line"></i> @mc.UnreadNotifications unread notifications</span>
@@ -298,7 +301,7 @@
                                     <tr>
                                         <td class="ps-3"><a href="@Url.Action("Edit", "Prs", new { id = a.RecId })" class="fw-medium link-primary fs-12">@a.PrId</a></td>
                                         <td class="fs-12 text-truncate" style="max-width: 120px;" title="@a.PrName">@a.PrName</td>
-                                        <td class="pe-3 text-end fs-12">@a.Total.ToString("C0")</td>
+                                        <td class="pe-3 text-end fs-12">@a.Total.ToString("N0")</td>
                                     </tr>
                                 }
                             }
@@ -386,7 +389,7 @@
                                     <tr>
                                         <td class="ps-3 fs-12 text-truncate" style="max-width: 120px;" title="@item.ItemName">@item.ItemName</td>
                                         <td class="text-end"><span class="badge bg-primary-subtle text-primary fs-10">@item.RequestCount</span></td>
-                                        <td class="pe-3 text-end fs-12">@item.TotalAmount.ToString("C0")</td>
+                                        <td class="pe-3 text-end fs-12">@item.TotalAmount.ToString("N0")</td>
                                     </tr>
                                 }
                             }
@@ -444,7 +447,7 @@
                                         <td class="ps-3"><a href="@Url.Action("Edit", "Prs", new { id = pr.PrId })" class="fw-medium link-primary fs-12">@pr.PrId</a></td>
                                         <td class="fs-12 text-truncate" style="max-width: 100px;" title="@pr.PrName">@pr.PrName</td>
                                         <td class="fs-12">@pr.PrDate.ToString("dd MMM yy")</td>
-                                        <td class="text-end fs-12">@pr.Total.ToString("C0")</td>
+                                        <td class="text-end fs-12">@pr.Total.ToString("N0")</td>
                                         <td class="pe-3 text-center"><span class="badge bg-@pr.StatusBadge fs-10">@pr.PrStatusName</span></td>
                                     </tr>
                                 }

@@ -186,7 +186,8 @@ public class PssController : Controller
     public async Task<IActionResult> Lines(int id, CancellationToken cancellationToken)
     {
         var response = await _psService.PsLineSelectByPs(id, cancellationToken);
-        
+        ViewBag.CanEdit = true;
+        ViewBag.PsRecId = id;
         return PartialView("_Partials/_PsLineList", response is not { IsSuccess: true } ? [] : response.Data);
     }
 

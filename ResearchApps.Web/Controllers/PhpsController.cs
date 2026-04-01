@@ -116,13 +116,7 @@ public class PhpsController : Controller
     {
         var response = await _phpService.GetPhp(id, cancellationToken);
         if (response is { IsSuccess: true })
-        {
-            // Only allow editing if status is Draft (0)
-            if (response.Data == null || response.Data.Header.PhpStatusId == PhpStatusConstants.Draft) 
-                return View(response.Data);
-            TempData["ErrorMessage"] = "Only Draft Php can be edited.";
-            return RedirectToAction(nameof(Details), new { id });
-        }
+            return View(response.Data);
         TempData["ErrorMessage"] = response.Message ?? "Php not found.";
         return RedirectToAction(nameof(Index));
     }
@@ -138,9 +132,11 @@ public class PhpsController : Controller
             // Verify the Php is still in Draft status before allowing update
             var currentPhp = await _phpService.PhpSelectById(collection.RecId, cancellationToken);
 
-            if (currentPhp is { IsSuccess: true, Data: not null } && currentPhp.Data.PhpStatusId != PhpStatusConstants.Draft)
+            if (currentPhp is { IsSuccess: true, Data: not null } &&
+                currentPhp.Data.PhpStatusId != PhpStatusConstants.Draft &&
+                currentPhp.Data.PhpStatusId != PhpStatusConstants.Active)
             {
-                TempData["ErrorMessage"] = "Only Draft Php can be edited.";
+                TempData["ErrorMessage"] = "Only Draft or Active Php can be edited.";
                 return RedirectToAction(nameof(Details), new { id = collection.RecId });
             }
 
@@ -191,10 +187,10 @@ public class PhpsController : Controller
         var response = await _phpService.GetPhp(id, cancellationToken);
         if (response is { IsSuccess: true })
         {
-            // Only allow deleting if status is Draft (0)
-            if (response.Data == null || response.Data.Header.PhpStatusId == PhpStatusConstants.Draft) 
+            // Only allow deleting if status is Draft or Active
+            if (response.Data == null || response.Data.Header.PhpStatusId == PhpStatusConstants.Draft || response.Data.Header.PhpStatusId == PhpStatusConstants.Active) 
                 return View(response.Data);
-            TempData["ErrorMessage"] = "Only Draft Php can be deleted.";
+            TempData["ErrorMessage"] = "Only Draft or Active Php can be deleted.";
             return RedirectToAction(nameof(Details), new { id });
         }
         TempData["ErrorMessage"] = response.Message ?? "Php not found.";
@@ -212,9 +208,11 @@ public class PhpsController : Controller
             // Verify the Php is still in Draft status before allowing delete
             var currentPhp = await _phpService.PhpSelectById(id, cancellationToken);
 
-            if (currentPhp is { IsSuccess: true, Data: not null } && currentPhp.Data.PhpStatusId != PhpStatusConstants.Draft)
+            if (currentPhp is { IsSuccess: true, Data: not null } &&
+                currentPhp.Data.PhpStatusId != PhpStatusConstants.Draft &&
+                currentPhp.Data.PhpStatusId != PhpStatusConstants.Active)
             {
-                TempData["ErrorMessage"] = "Only Draft Php can be deleted.";
+                TempData["ErrorMessage"] = "Only Draft or Active Php can be deleted.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
