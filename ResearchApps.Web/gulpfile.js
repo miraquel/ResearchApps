@@ -1,3 +1,4 @@
+const path = require('path');
 const del = require('del');
 const gulp = require('gulp');
 const npmdist = require('gulp-npm-dist');
@@ -33,7 +34,9 @@ const paths = {
             files: './wwwroot/assets/scss/**/*',
             main: [
                 './wwwroot/assets/scss/config/material/bootstrap.scss',
-                './wwwroot/assets/scss/config/material/custom.scss'
+                './wwwroot/assets/scss/config/material/app.scss',
+                './wwwroot/assets/scss/config/material/custom.scss',
+                './wwwroot/assets/scss/icons.scss'
             ]
         }
     }
@@ -49,7 +52,9 @@ gulp.task('scss', function () {
   return gulp
       .src(paths.src.scss.main)
       .pipe(sourcemaps.init())
-      .pipe(sass().on('error', sass.logError))
+      .pipe(sass({
+          includePaths: [path.resolve('./')]
+      }).on('error', sass.logError))
       .pipe(
           autoprefixer()
       )
@@ -57,11 +62,10 @@ gulp.task('scss', function () {
       .pipe(cleanCSS())
       .pipe(
           rename({
-              // rename app.css to icons.min.css
               suffix: ".min"
           })
       )
-      .pipe(sourcemaps.write("./")) // source maps for icons.min.css
+      .pipe(sourcemaps.write("./"))
       .pipe(gulp.dest(paths.src.css.dir));
 });
 
@@ -79,5 +83,12 @@ gulp.task('clean:velzon', function (callback) {
   callback();
 });
 
-gulp.task('build', gulp.series(gulp.parallel('clean:velzon', 'copy:libs'), 'scss'));
-gulp.task('default', gulp.series(gulp.parallel('clean:velzon', 'copy:libs', 'scss'), gulp.parallel('watch')));
+// Write a build stamp so MSBuild incremental targets can detect up-to-date outputs
+gulp.task('stamp', function (callback) {
+  const fs = require('fs');
+  fs.writeFileSync('./wwwroot/assets/css/.build-stamp', new Date().toISOString());
+  callback();
+});
+
+gulp.task('build', gulp.series(gulp.parallel('clean:velzon', 'copy:libs'), 'scss', 'stamp'));
+gulp.task('default', gulp.series(gulp.parallel('clean:velzon', 'copy:libs', 'scss'), 'stamp', gulp.parallel('watch')));

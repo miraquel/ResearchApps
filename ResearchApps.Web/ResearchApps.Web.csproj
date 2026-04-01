@@ -60,14 +60,41 @@
       <Content Remove="Areas\Identity\Pages\Account\LoginWithRecoveryCode.cshtml" />
       <Content Remove="Areas\Identity\Pages\Account\RegisterConfirmation.cshtml" />
       <Content Remove="Areas\Identity\Pages\Account\ConfirmEmailChange.cshtml" />
-      <Content Update="package.old.json">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
+
       <Content Remove="wwwroot\assets\js\README.md" />
       <Content Remove="wwwroot\assets\sounds\README.md" />
     </ItemGroup>
+
+    <!-- Frontend build integration: SCSS source files for incremental build detection -->
+    <ItemGroup>
+      <FrontendSassFiles Include="wwwroot\assets\scss\**\*.scss" />
+    </ItemGroup>
+
+    <!--
+      NpmRestore: runs 'npm install' only when package-lock.json changes.
+      Outputs a stamp file so subsequent builds skip this step when up-to-date.
+    -->
+    <Target Name="NpmRestore"
+            Inputs="package-lock.json"
+            Outputs="node_modules\.npm-restore-stamp"
+            BeforeTargets="Build;Publish">
+      <Message Text="[Frontend] Running npm install..." Importance="high" />
+      <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
+      <Touch Files="node_modules\.npm-restore-stamp" AlwaysCreate="true" />
+    </Target>
+
+    <!--
+      FrontendBuild: compiles SCSS only when any .scss source file is newer than the build stamp.
+      Depends on NpmRestore so node_modules are always ready first.
+    -->
+    <Target Name="FrontendBuild"
+            DependsOnTargets="NpmRestore"
+            Inputs="@(FrontendSassFiles)"
+            Outputs="wwwroot\assets\css\.build-stamp"
+            BeforeTargets="Build;Publish">
+      <Message Text="[Frontend] Compiling SCSS assets..." Importance="high" />
+      <Exec Command="npm run build:css" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    </Target>
 
     <ItemGroup>
       <Compile Remove="Areas\Identity\Pages\Account\ConfirmEmailChange.cshtml.cs" />
