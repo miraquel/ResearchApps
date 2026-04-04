@@ -1,29 +1,28 @@
+@charset "UTF-8";
 /*
   Sky ERP — Custom Design System v2
   Font: Plus Jakarta Sans (Google Fonts)
   Aesthetic: Refined Corporate Precision
   Consistent, pleasant, professional ERP UI
 */
-
 /* ── 1. GOOGLE FONTS ─────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap");
 /* ── 2. DESIGN TOKENS ────────────────────── */
 :root {
-  --sky-font:          'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --sky-radius:        10px;
-  --sky-radius-sm:     7px;
-  --sky-radius-xs:     5px;
-  --sky-shadow:        0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.05);
-  --sky-shadow-hover:  0 4px 14px rgba(15,23,42,.09), 0 8px 28px rgba(15,23,42,.07);
-  --sky-border:        #e8ecf3;
-  --sky-border-input:  #d0d7e2;
-  --sky-easing:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --sky-duration:      0.17s;
+  --sky-font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --sky-radius: 10px;
+  --sky-radius-sm: 7px;
+  --sky-radius-xs: 5px;
+  --sky-shadow: 0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.05);
+  --sky-shadow-hover: 0 4px 14px rgba(15,23,42,.09), 0 8px 28px rgba(15,23,42,.07);
+  --sky-border: #e8ecf3;
+  --sky-border-input: #d0d7e2;
+  --sky-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --sky-duration: 0.17s;
   /* Override primary to a refined indigo-blue */
-  --sky-primary:       #3d5ce6;
+  --sky-primary: #3d5ce6;
   --sky-primary-hover: #2f4ad4;
-  --sky-primary-glow:  rgba(61,92,230,.18);
+  --sky-primary-glow: rgba(61,92,230,.18);
 }
 
 /* ── 3. BASE FONT ────────────────────────── */
@@ -64,11 +63,11 @@ body,
   color: #1e2d40;
 }
 
-[data-bs-theme="dark"] .page-title-box {
-  border-color: rgba(255,255,255,.07);
+[data-bs-theme=dark] .page-title-box {
+  border-color: rgba(255, 255, 255, 0.07);
 }
 
-[data-bs-theme="dark"] .page-title-box h4 {
+[data-bs-theme=dark] .page-title-box h4 {
   color: #cbd5e1;
 }
 
@@ -86,13 +85,16 @@ body,
 .card {
   border: 1px solid var(--sky-border) !important;
   border-radius: var(--sky-radius) !important;
-  box-shadow: var(--sky-shadow) !important;
-  transition: box-shadow var(--sky-duration) var(--sky-easing),
-              transform var(--sky-duration) var(--sky-easing) !important;
+  -webkit-box-shadow: var(--sky-shadow) !important;
+          box-shadow: var(--sky-shadow) !important;
+  -webkit-transition: -webkit-box-shadow var(--sky-duration) var(--sky-easing), -webkit-transform var(--sky-duration) var(--sky-easing) !important;
+  transition: -webkit-box-shadow var(--sky-duration) var(--sky-easing), -webkit-transform var(--sky-duration) var(--sky-easing) !important;
+  transition: box-shadow var(--sky-duration) var(--sky-easing), transform var(--sky-duration) var(--sky-easing) !important;
+  transition: box-shadow var(--sky-duration) var(--sky-easing), transform var(--sky-duration) var(--sky-easing), -webkit-box-shadow var(--sky-duration) var(--sky-easing), -webkit-transform var(--sky-duration) var(--sky-easing) !important;
 }
 
-[data-bs-theme="dark"] .card {
-  border-color: rgba(255,255,255,.07) !important;
+[data-bs-theme=dark] .card {
+  border-color: rgba(255, 255, 255, 0.07) !important;
 }
 
 .card-header {
@@ -102,9 +104,9 @@ body,
   padding: 0.875rem 1.25rem !important;
 }
 
-[data-bs-theme="dark"] .card-header {
-  background: rgba(255,255,255,.025) !important;
-  border-color: rgba(255,255,255,.07) !important;
+[data-bs-theme=dark] .card-header {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
 }
 
 .card-title {
@@ -114,7 +116,7 @@ body,
   color: #1e2d40;
 }
 
-[data-bs-theme="dark"] .card-title {
+[data-bs-theme=dark] .card-title {
   color: #e2e8f0;
 }
 
@@ -124,29 +126,47 @@ body,
 
 /* Hover lift on interactive cards */
 .card-animate {
-  transition: box-shadow var(--sky-duration) var(--sky-easing),
-              transform var(--sky-duration) var(--sky-easing) !important;
+  -webkit-transition: -webkit-box-shadow var(--sky-duration) var(--sky-easing), -webkit-transform var(--sky-duration) var(--sky-easing) !important;
+  transition: -webkit-box-shadow var(--sky-duration) var(--sky-easing), -webkit-transform var(--sky-duration) var(--sky-easing) !important;
+  transition: box-shadow var(--sky-duration) var(--sky-easing), transform var(--sky-duration) var(--sky-easing) !important;
+  transition: box-shadow var(--sky-duration) var(--sky-easing), transform var(--sky-duration) var(--sky-easing), -webkit-box-shadow var(--sky-duration) var(--sky-easing), -webkit-transform var(--sky-duration) var(--sky-easing) !important;
 }
 
 .card-animate:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--sky-shadow-hover) !important;
+  -webkit-transform: translateY(-2px);
+          transform: translateY(-2px);
+  -webkit-box-shadow: var(--sky-shadow-hover) !important;
+          box-shadow: var(--sky-shadow-hover) !important;
 }
 
 /* ── 7. DASHBOARD KPI CARDS ──────────────── */
 .dashboard-kpi-card {
   border-left: 3px solid var(--vz-primary, var(--sky-primary)) !important;
   min-height: 80px;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 .dashboard-kpi-card .card-body {
   min-height: 60px;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 /* ── 8. TABLES ───────────────────────────── */
@@ -165,7 +185,7 @@ body,
   padding: 0.7rem 0.75rem !important;
 }
 
-[data-bs-theme="dark"] .table thead th {
+[data-bs-theme=dark] .table thead th {
   color: #94a3b8 !important;
 }
 
@@ -175,15 +195,16 @@ body,
 }
 
 .table-hover tbody tr {
+  -webkit-transition: background-color 0.12s ease;
   transition: background-color 0.12s ease;
 }
 
 .table-hover tbody tr:hover > * {
-  background-color: rgba(61,92,230,.04) !important;
+  background-color: rgba(61, 92, 230, 0.04) !important;
 }
 
-[data-bs-theme="dark"] .table-hover tbody tr:hover > * {
-  background-color: rgba(255,255,255,.04) !important;
+[data-bs-theme=dark] .table-hover tbody tr:hover > * {
+  background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 /* Table light header background */
@@ -192,9 +213,9 @@ thead.table-light tr th {
   background-color: #f8f9fb !important;
 }
 
-[data-bs-theme="dark"] .table-light,
-[data-bs-theme="dark"] thead.table-light tr th {
-  background-color: rgba(255,255,255,.04) !important;
+[data-bs-theme=dark] .table-light,
+[data-bs-theme=dark] thead.table-light tr th {
+  background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 /* ── 9. BUTTONS ──────────────────────────── */
@@ -203,27 +224,33 @@ thead.table-light tr th {
   font-weight: 600 !important;
   letter-spacing: 0.01em;
   border-radius: var(--sky-radius-sm) !important;
+  -webkit-transition: all var(--sky-duration) var(--sky-easing) !important;
   transition: all var(--sky-duration) var(--sky-easing) !important;
 }
 
 .btn:hover:not(:disabled) {
-  transform: translateY(-1px);
+  -webkit-transform: translateY(-1px);
+          transform: translateY(-1px);
 }
 
 .btn:active:not(:disabled) {
-  transform: translateY(0);
+  -webkit-transform: translateY(0);
+          transform: translateY(0);
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 14px var(--sky-primary-glow) !important;
+  -webkit-box-shadow: 0 4px 14px var(--sky-primary-glow) !important;
+          box-shadow: 0 4px 14px var(--sky-primary-glow) !important;
 }
 
 .btn-success:hover:not(:disabled) {
-  box-shadow: 0 4px 14px rgba(16,185,129,.25) !important;
+  -webkit-box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
+          box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
 }
 
 .btn-danger:hover:not(:disabled) {
-  box-shadow: 0 4px 14px rgba(239,68,68,.25) !important;
+  -webkit-box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
+          box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
 }
 
 .btn-sm {
@@ -264,15 +291,18 @@ thead.table-light tr th {
   border-radius: var(--sky-radius-sm) !important;
   border-color: var(--sky-border-input) !important;
   font-size: 0.875rem !important;
-  transition: border-color var(--sky-duration) ease,
-              box-shadow var(--sky-duration) ease !important;
+  -webkit-transition: border-color var(--sky-duration) ease, -webkit-box-shadow var(--sky-duration) ease !important;
+  transition: border-color var(--sky-duration) ease, -webkit-box-shadow var(--sky-duration) ease !important;
+  transition: border-color var(--sky-duration) ease, box-shadow var(--sky-duration) ease !important;
+  transition: border-color var(--sky-duration) ease, box-shadow var(--sky-duration) ease, -webkit-box-shadow var(--sky-duration) ease !important;
   padding: 0.48rem 0.75rem !important;
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--vz-primary, var(--sky-primary)) !important;
-  box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+  -webkit-box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+          box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
   outline: none !important;
 }
 
@@ -284,7 +314,7 @@ thead.table-light tr th {
   margin-bottom: 0.35rem !important;
 }
 
-[data-bs-theme="dark"] .form-label {
+[data-bs-theme=dark] .form-label {
   color: #94a3b8;
 }
 
@@ -295,8 +325,8 @@ thead.table-light tr th {
   font-size: 0.875rem;
 }
 
-[data-bs-theme="dark"] .input-group-text {
-  background: rgba(255,255,255,.05) !important;
+[data-bs-theme=dark] .input-group-text {
+  background: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* Textarea */
@@ -321,10 +351,21 @@ textarea.form-control {
   border-left-width: 4px !important;
 }
 
-.alert-danger  { border-left-color: #ef4444 !important; }
-.alert-success { border-left-color: #22c55e !important; }
-.alert-warning { border-left-color: #f59e0b !important; }
-.alert-info    { border-left-color: #3b82f6 !important; }
+.alert-danger {
+  border-left-color: #ef4444 !important;
+}
+
+.alert-success {
+  border-left-color: #22c55e !important;
+}
+
+.alert-warning {
+  border-left-color: #f59e0b !important;
+}
+
+.alert-info {
+  border-left-color: #3b82f6 !important;
+}
 
 /* ── 13. NAVIGATION TABS ─────────────────── */
 .nav-tabs-custom .nav-link {
@@ -337,6 +378,56 @@ textarea.form-control {
 .nav-tabs .nav-link {
   font-size: 0.83rem !important;
   font-weight: 600 !important;
+}
+
+/* ── 13b. NAV BORDER-TOP (card-header tab navigation) ──── */
+/* Inactive: muted slate so active tab pops by color contrast */
+.nav-border-top .nav-link {
+  font-size: 0.83rem !important;
+  font-weight: 500 !important;
+  color: #64748b !important;
+  -webkit-transition: color var(--sky-duration) var(--sky-easing), border-color var(--sky-duration) var(--sky-easing) !important;
+  transition: color var(--sky-duration) var(--sky-easing), border-color var(--sky-duration) var(--sky-easing) !important;
+}
+
+.nav-border-top .nav-link:hover:not(.active) {
+  color: #334155 !important;
+}
+
+/* Active: primary color + heavier weight */
+.nav-border-top .nav-link.active {
+  font-weight: 600 !important;
+  color: var(--vz-primary) !important;
+}
+
+/* Dark mode */
+[data-bs-theme=dark] .nav-border-top .nav-link {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme=dark] .nav-border-top .nav-link:hover:not(.active) {
+  color: #cbd5e1 !important;
+}
+
+[data-bs-theme=dark] .nav-border-top .nav-link.active {
+  color: var(--vz-primary) !important;
+}
+
+/* Flush card-header vertical padding — transfer into nav-link padding
+   so the header height is driven by the tabs, not the container */
+.card-header:has(.nav-border-top) {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.card-header:has(.nav-border-top) .nav-link {
+  padding-top: 0.875rem !important;
+  padding-bottom: 0.875rem !important;
+}
+
+/* Breathing room between tabs */
+.nav-border-top {
+  gap: 0.25rem;
 }
 
 /* ── 14. SIDEBAR REFINEMENTS ─────────────── */
@@ -360,8 +451,8 @@ textarea.form-control {
   border-bottom: 1px solid var(--sky-border);
 }
 
-[data-bs-theme="dark"] #page-topbar {
-  border-color: rgba(255,255,255,.07);
+[data-bs-theme=dark] #page-topbar {
+  border-color: rgba(255, 255, 255, 0.07);
 }
 
 /* ── 16. FOOTER ──────────────────────────── */
@@ -371,8 +462,8 @@ textarea.form-control {
   border-top: 1px solid var(--sky-border) !important;
 }
 
-[data-bs-theme="dark"] .footer {
-  border-color: rgba(255,255,255,.07) !important;
+[data-bs-theme=dark] .footer {
+  border-color: rgba(255, 255, 255, 0.07) !important;
 }
 
 /* ── 17. PROGRESS BAR ────────────────────── */
@@ -383,6 +474,7 @@ textarea.form-control {
 
 .progress-bar {
   border-radius: 10px;
+  -webkit-transition: width 0.6s ease;
   transition: width 0.6s ease;
 }
 
@@ -390,7 +482,8 @@ textarea.form-control {
 .modal-content {
   border-radius: var(--sky-radius) !important;
   border: 1px solid var(--sky-border) !important;
-  box-shadow: 0 20px 60px rgba(15,23,42,.18) !important;
+  -webkit-box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18) !important;
+          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18) !important;
 }
 
 .modal-header {
@@ -399,9 +492,9 @@ textarea.form-control {
   background: #f8f9fb;
 }
 
-[data-bs-theme="dark"] .modal-header {
-  background: rgba(255,255,255,.03) !important;
-  border-color: rgba(255,255,255,.08) !important;
+[data-bs-theme=dark] .modal-header {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .modal-title {
@@ -413,15 +506,16 @@ textarea.form-control {
   border-top: 1px solid var(--sky-border) !important;
 }
 
-[data-bs-theme="dark"] .modal-footer {
-  border-color: rgba(255,255,255,.08) !important;
+[data-bs-theme=dark] .modal-footer {
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* ── 19. DROPDOWN MENUS ──────────────────── */
 .dropdown-menu {
   border: 1px solid var(--sky-border) !important;
   border-radius: var(--sky-radius-sm) !important;
-  box-shadow: 0 8px 32px rgba(15,23,42,.12) !important;
+  -webkit-box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12) !important;
+          box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12) !important;
   font-size: 0.845rem !important;
 }
 
@@ -429,6 +523,7 @@ textarea.form-control {
   font-weight: 500 !important;
   border-radius: var(--sky-radius-xs) !important;
   padding: 0.45rem 1rem !important;
+  -webkit-transition: background-color 0.12s ease !important;
   transition: background-color 0.12s ease !important;
 }
 
@@ -437,6 +532,7 @@ textarea.form-control {
   font-size: 0.8rem !important;
   font-weight: 600 !important;
   border-radius: var(--sky-radius-xs) !important;
+  -webkit-transition: all var(--sky-duration) ease !important;
   transition: all var(--sky-duration) ease !important;
 }
 
@@ -450,13 +546,15 @@ textarea.form-control {
 
 .ts-wrapper.focus .ts-control {
   border-color: var(--vz-primary, var(--sky-primary)) !important;
-  box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+  -webkit-box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+          box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
 }
 
 .ts-dropdown {
   border: 1px solid var(--sky-border) !important;
   border-radius: var(--sky-radius-sm) !important;
-  box-shadow: 0 8px 24px rgba(15,23,42,.1) !important;
+  -webkit-box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1) !important;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1) !important;
   font-size: 0.855rem !important;
   font-family: var(--sky-font) !important;
 }
@@ -482,13 +580,17 @@ textarea.form-control {
   font-size: 0.855rem !important;
   font-family: var(--sky-font) !important;
   padding: 0.4rem 0.7rem;
+  -webkit-transition: border-color var(--sky-duration) ease, -webkit-box-shadow var(--sky-duration) ease;
+  transition: border-color var(--sky-duration) ease, -webkit-box-shadow var(--sky-duration) ease;
   transition: border-color var(--sky-duration) ease, box-shadow var(--sky-duration) ease;
+  transition: border-color var(--sky-duration) ease, box-shadow var(--sky-duration) ease, -webkit-box-shadow var(--sky-duration) ease;
 }
 
 .dataTables_filter input:focus {
   outline: none;
   border-color: var(--vz-primary, var(--sky-primary)) !important;
-  box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+  -webkit-box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+          box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
 }
 
 .dataTables_length select {
@@ -507,7 +609,8 @@ textarea.form-control {
 .flatpickr-calendar {
   border-radius: var(--sky-radius) !important;
   border: 1px solid var(--sky-border) !important;
-  box-shadow: 0 8px 32px rgba(15,23,42,.12) !important;
+  -webkit-box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12) !important;
+          box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12) !important;
   font-family: var(--sky-font) !important;
 }
 
@@ -515,7 +618,8 @@ textarea.form-control {
 .toast {
   border-radius: var(--sky-radius-sm) !important;
   border: none !important;
-  box-shadow: 0 8px 28px rgba(15,23,42,.14) !important;
+  -webkit-box-shadow: 0 8px 28px rgba(15, 23, 42, 0.14) !important;
+          box-shadow: 0 8px 28px rgba(15, 23, 42, 0.14) !important;
 }
 
 .toast-header {
@@ -529,12 +633,21 @@ textarea.form-control {
 }
 
 /* ── 25. SPINNER / LOADING ───────────────── */
-@keyframes spin {
-  100% { transform: rotate(360deg); }
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
 }
-
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
 .spin {
-  animation: spin 0.7s linear infinite;
+  -webkit-animation: spin 0.7s linear infinite;
+          animation: spin 0.7s linear infinite;
   display: inline-block;
 }
 
@@ -552,23 +665,18 @@ textarea.form-control {
 }
 
 /* ── 27. PAGE CONTENT SPACING ────────────── */
-.page-content {
-  padding: 1.25rem 1.25rem 60px calc(1.25rem + var(--vz-sidebar-width, 250px)) !important;
-}
-
 /* ── 28. OFFCANVAS / CUSTOMIZER ──────────── */
 .offcanvas {
   border-radius: var(--sky-radius) 0 0 var(--sky-radius) !important;
 }
 
 /* ── 29. UTILITY ─────────────────────────── */
-
 /* Subtle page background warmth */
 body {
   background-color: #f4f6f9 !important;
 }
 
-[data-bs-theme="dark"] body {
+[data-bs-theme=dark] body {
   background-color: unset !important;
 }
 
