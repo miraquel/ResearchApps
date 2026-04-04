@@ -76,6 +76,21 @@
         --#{$prefix}vertical-menu-title-color:                          #{$vertical-menu-title-color};
         --#{$prefix}vertical-menu-box-shadow:                           #{$vertical-menu-box-shadow};
         --#{$prefix}vertical-menu-dropdown-box-shadow:                  #{$vertical-menu-dropdown-box-shadow};
+        @if variable-exists(sidebar-user-bg) {
+            --#{$prefix}sidebar-user-bg:                                #{$sidebar-user-bg};
+        } @else {
+            --#{$prefix}sidebar-user-bg:                                #f3f6f9;
+        }
+        @if variable-exists(sidebar-user-name-text) {
+            --#{$prefix}sidebar-user-name-text:                         #{$sidebar-user-name-text};
+        } @else {
+            --#{$prefix}sidebar-user-name-text:                         #32373b;
+        }
+        @if variable-exists(sidebar-user-name-sub-text) {
+            --#{$prefix}sidebar-user-name-sub-text:                     #{$sidebar-user-name-sub-text};
+        } @else {
+            --#{$prefix}sidebar-user-name-sub-text:                     #7c7f90;
+        }
         
         &[data-sidebar="dark"] {
             //vertical dark
@@ -93,6 +108,21 @@
             --#{$prefix}twocolumn-menu-iconview-bg:                     #{$dark-twocolumn-menu-iconview-bg};
             --#{$prefix}vertical-menu-box-shadow:                       #{$dark-vertical-menu-box-shadow};
             --#{$prefix}vertical-menu-dropdown-box-shadow:              #{$dark-vertical-menu-dropdown-box-shadow};
+            @if variable-exists(dark-sidebar-user-bg) {
+                --#{$prefix}sidebar-user-bg:                            #{$dark-sidebar-user-bg};
+            } @else {
+                --#{$prefix}sidebar-user-bg:                            rgba(255, 255, 255, 0.08);
+            }
+            @if variable-exists(dark-sidebar-user-name-text) {
+                --#{$prefix}sidebar-user-name-text:                     #{$dark-sidebar-user-name-text};
+            } @else {
+                --#{$prefix}sidebar-user-name-text:                     #fff;
+            }
+            @if variable-exists(dark-sidebar-user-name-sub-text) {
+                --#{$prefix}sidebar-user-name-sub-text:                 #{$dark-sidebar-user-name-sub-text};
+            } @else {
+                --#{$prefix}sidebar-user-name-sub-text:                 #adadb4;
+            }
         }
     }
 }

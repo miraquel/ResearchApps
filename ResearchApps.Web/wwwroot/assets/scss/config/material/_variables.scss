@@ -330,7 +330,7 @@ $success:       $green;
 $info:          $cyan;
 $warning:       $yellow;
 $danger:        $red;
-$light:         $gray-100;
+$light:         #f1f4f7;
 $dark:          $gray-900;
 
 
@@ -353,36 +353,36 @@ $theme-colors: (
 // scss-docs-end theme-colors-map
 
 // scss-docs-start theme-text-variables
-$primary-text-emphasis:   shade-color($primary, 15%);
-$secondary-text-emphasis: shade-color($secondary, 15%);
-$success-text-emphasis:   shade-color($success, 15%);
-$info-text-emphasis:      shade-color($info, 15%);
-$warning-text-emphasis:   shade-color($warning, 15%);
-$danger-text-emphasis:    shade-color($danger, 15%);
-$light-text-emphasis:     $gray-400;
-$dark-text-emphasis:      $gray-800;
+$primary-text-emphasis:   shade-color($primary, 25%);
+$secondary-text-emphasis: shade-color($secondary, 25%);
+$success-text-emphasis:   shade-color($success, 25%);
+$info-text-emphasis:      shade-color($info, 25%);
+$warning-text-emphasis:   shade-color($warning, 25%);
+$danger-text-emphasis:    shade-color($danger, 25%);
+$light-text-emphasis:     shade-color($light, 25%);
+$dark-text-emphasis:      shade-color($dark, 25%);
 // scss-docs-end theme-text-variables
 
 // scss-docs-start theme-bg-subtle-variables
-$primary-bg-subtle:       tint-color($primary, 85%);
-$secondary-bg-subtle:     tint-color($secondary, 85%);
-$success-bg-subtle:       tint-color($success, 85%);
-$info-bg-subtle:          tint-color($info, 85%);
-$warning-bg-subtle:       tint-color($warning, 85%);
-$danger-bg-subtle:        tint-color($danger, 85%);
-$light-bg-subtle:         mix($gray-100, $white);
-$dark-bg-subtle:          $gray-300;
+$primary-bg-subtle:       rgba($primary, 0.15);
+$secondary-bg-subtle:     rgba($secondary, 0.15);
+$success-bg-subtle:       rgba($success, 0.15);
+$info-bg-subtle:          rgba($info, 0.15);
+$warning-bg-subtle:       rgba($warning, 0.15);
+$danger-bg-subtle:        rgba($danger, 0.15);
+$light-bg-subtle:         rgba($light, 0.15);
+$dark-bg-subtle:          rgba($dark, 0.15);
 // scss-docs-end theme-bg-subtle-variables
 
 // scss-docs-start theme-border-subtle-variables
-$primary-border-subtle:   tint-color($primary, 60%);
-$secondary-border-subtle: tint-color($secondary, 60%);
-$success-border-subtle:   tint-color($success, 60%);
-$info-border-subtle:      tint-color($info, 60%);
-$warning-border-subtle:   tint-color($warning, 60%);
-$danger-border-subtle:    tint-color($danger, 60%);
-$light-border-subtle:     $gray-200;
-$dark-border-subtle:      $gray-500;
+$primary-border-subtle:   rgba($primary, 0.3);
+$secondary-border-subtle: rgba($secondary, 0.3);
+$success-border-subtle:   rgba($success, 0.3);
+$info-border-subtle:      rgba($info, 0.3);
+$warning-border-subtle:   rgba($warning, 0.3);
+$danger-border-subtle:    rgba($danger, 0.3);
+$light-border-subtle:     rgba($light, 0.3);
+$dark-border-subtle:      rgba($dark, 0.3);
 // scss-docs-end theme-border-subtle-variables
 
 // Characters which are escaped by the escape-svg function
@@ -487,7 +487,7 @@ $body-emphasis-color:       $gray-900;
 $link-color:                              $primary;
 $link-decoration:                         none;
 $link-shade-percentage:                   20%;
-$link-hover-color:                        $primary;
+$link-hover-color:                        shade-color($link-color, $link-shade-percentage);
 $link-hover-decoration:                   null;
 
 $stretched-link-pseudo-element:           after;

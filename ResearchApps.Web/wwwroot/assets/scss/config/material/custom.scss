@@ -1,7 +1,613 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://themesbrand.com/
-Contact: support@themesbrand.com
-File: Custom Css File
+  Sky ERP — Custom Design System v2
+  Font: Plus Jakarta Sans (Google Fonts)
+  Aesthetic: Refined Corporate Precision
+  Consistent, pleasant, professional ERP UI
 */
+
+/* ── 1. GOOGLE FONTS ─────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
+/* ── 2. DESIGN TOKENS ────────────────────── */
+:root {
+  --sky-font:          'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sky-radius:        10px;
+  --sky-radius-sm:     7px;
+  --sky-radius-xs:     5px;
+  --sky-shadow:        0 1px 3px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.05);
+  --sky-shadow-hover:  0 4px 14px rgba(15,23,42,.09), 0 8px 28px rgba(15,23,42,.07);
+  --sky-border:        #e8ecf3;
+  --sky-border-input:  #d0d7e2;
+  --sky-easing:        cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --sky-duration:      0.17s;
+  /* Override primary to a refined indigo-blue */
+  --sky-primary:       #3d5ce6;
+  --sky-primary-hover: #2f4ad4;
+  --sky-primary-glow:  rgba(61,92,230,.18);
+}
+
+/* ── 3. BASE FONT ────────────────────────── */
+body,
+.navbar-nav .nav-link,
+.btn,
+.table,
+.card,
+.dropdown-item,
+.form-control,
+.form-select,
+.form-label,
+.modal-title,
+.toast,
+.alert,
+.badge,
+.breadcrumb,
+.page-title-box,
+.nav-tabs,
+.nav-pills {
+  font-family: var(--sky-font) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── 4. PAGE TITLE AREA ──────────────────── */
+.page-title-box {
+  padding-bottom: 14px !important;
+  margin-bottom: 18px !important;
+  border-bottom: 1px solid var(--sky-border);
+}
+
+.page-title-box h4 {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.055em !important;
+  text-transform: uppercase;
+  color: #1e2d40;
+}
+
+[data-bs-theme="dark"] .page-title-box {
+  border-color: rgba(255,255,255,.07);
+}
+
+[data-bs-theme="dark"] .page-title-box h4 {
+  color: #cbd5e1;
+}
+
+/* ── 5. BREADCRUMB ───────────────────────── */
+.breadcrumb {
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+}
+
+.breadcrumb-item.active {
+  color: #64748b;
+}
+
+/* ── 6. CARDS ────────────────────────────── */
+.card {
+  border: 1px solid var(--sky-border) !important;
+  border-radius: var(--sky-radius) !important;
+  box-shadow: var(--sky-shadow) !important;
+  transition: box-shadow var(--sky-duration) var(--sky-easing),
+  transform var(--sky-duration) var(--sky-easing) !important;
+}
+
+[data-bs-theme="dark"] .card {
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+.card-header {
+  background: #f8f9fb !important;
+  border-bottom: 1px solid var(--sky-border) !important;
+  border-radius: var(--sky-radius) var(--sky-radius) 0 0 !important;
+  padding: 0.875rem 1.25rem !important;
+}
+
+[data-bs-theme="dark"] .card-header {
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+.card-title {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  color: #1e2d40;
+}
+
+[data-bs-theme="dark"] .card-title {
+  color: #e2e8f0;
+}
+
+.card-body {
+  padding: 1.25rem !important;
+}
+
+/* Hover lift on interactive cards */
+.card-animate {
+  transition: box-shadow var(--sky-duration) var(--sky-easing),
+  transform var(--sky-duration) var(--sky-easing) !important;
+}
+
+.card-animate:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sky-shadow-hover) !important;
+}
+
+/* ── 7. DASHBOARD KPI CARDS ──────────────── */
+.dashboard-kpi-card {
+  border-left: 3px solid var(--vz-primary, var(--sky-primary)) !important;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dashboard-kpi-card .card-body {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ── 8. TABLES ───────────────────────────── */
+.table {
+  font-size: 0.855rem !important;
+}
+
+.table thead tr th,
+.table thead th {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.065em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+  white-space: nowrap;
+  padding: 0.7rem 0.75rem !important;
+}
+
+[data-bs-theme="dark"] .table thead th {
+  color: #94a3b8 !important;
+}
+
+.table tbody tr td {
+  padding: 0.65rem 0.75rem !important;
+  vertical-align: middle;
+}
+
+.table-hover tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.table-hover tbody tr:hover > * {
+  background-color: rgba(61,92,230,.04) !important;
+}
+
+[data-bs-theme="dark"] .table-hover tbody tr:hover > * {
+  background-color: rgba(255,255,255,.04) !important;
+}
+
+/* Table light header background */
+.table-light,
+thead.table-light tr th {
+  background-color: #f8f9fb !important;
+}
+
+[data-bs-theme="dark"] .table-light,
+[data-bs-theme="dark"] thead.table-light tr th {
+  background-color: rgba(255,255,255,.04) !important;
+}
+
+/* ── 9. BUTTONS ──────────────────────────── */
+.btn {
+  font-size: 0.83rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  border-radius: var(--sky-radius-sm) !important;
+  transition: all var(--sky-duration) var(--sky-easing) !important;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 14px var(--sky-primary-glow) !important;
+}
+
+.btn-success:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(16,185,129,.25) !important;
+}
+
+.btn-danger:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(239,68,68,.25) !important;
+}
+
+.btn-sm {
+  font-size: 0.78rem !important;
+  padding: 0.3rem 0.7rem !important;
+}
+
+/* ── 9b. INPUT GROUP RADIUS FIX ─────────── */
+/* .btn uses --vz-btn-border-radius (Velzon) AND our global !important.
+   Zero both out for every child, then restore corners on edges only. */
+.input-group > .form-control,
+.input-group > .form-select,
+.input-group > .btn,
+.input-group > .input-group-text {
+  --vz-btn-border-radius: 0;
+  border-radius: 0 !important;
+}
+
+.input-group > .form-control:first-child,
+.input-group > .form-select:first-child,
+.input-group > .btn:first-child,
+.input-group > .input-group-text:first-child {
+  --vz-btn-border-radius: var(--sky-radius-sm);
+  border-radius: var(--sky-radius-sm) 0 0 var(--sky-radius-sm) !important;
+}
+
+.input-group > .form-control:last-child,
+.input-group > .form-select:last-child,
+.input-group > .btn:last-child,
+.input-group > .input-group-text:last-child {
+  --vz-btn-border-radius: var(--sky-radius-sm);
+  border-radius: 0 var(--sky-radius-sm) var(--sky-radius-sm) 0 !important;
+}
+
+/* ── 10. FORM CONTROLS ───────────────────── */
+.form-control,
+.form-select {
+  border-radius: var(--sky-radius-sm) !important;
+  border-color: var(--sky-border-input) !important;
+  font-size: 0.875rem !important;
+  transition: border-color var(--sky-duration) ease,
+  box-shadow var(--sky-duration) ease !important;
+  padding: 0.48rem 0.75rem !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--vz-primary, var(--sky-primary)) !important;
+  box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+  outline: none !important;
+}
+
+.form-label {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  color: #475569;
+  margin-bottom: 0.35rem !important;
+}
+
+[data-bs-theme="dark"] .form-label {
+  color: #94a3b8;
+}
+
+.input-group-text {
+  border-radius: var(--sky-radius-sm) !important;
+  border-color: var(--sky-border-input) !important;
+  background: #f8f9fb !important;
+  font-size: 0.875rem;
+}
+
+[data-bs-theme="dark"] .input-group-text {
+  background: rgba(255,255,255,.05) !important;
+}
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ── 11. BADGES ──────────────────────────── */
+.badge {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em;
+  border-radius: 5px !important;
+  padding: 0.3em 0.65em !important;
+}
+
+/* ── 12. ALERTS ──────────────────────────── */
+.alert {
+  border-radius: var(--sky-radius-sm) !important;
+  font-size: 0.875rem !important;
+  border-left-width: 4px !important;
+}
+
+.alert-danger  { border-left-color: #ef4444 !important; }
+.alert-success { border-left-color: #22c55e !important; }
+.alert-warning { border-left-color: #f59e0b !important; }
+.alert-info    { border-left-color: #3b82f6 !important; }
+
+/* ── 13. NAVIGATION TABS ─────────────────── */
+.nav-tabs-custom .nav-link {
+  font-size: 0.83rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  padding: 0.55rem 1rem !important;
+}
+
+.nav-tabs .nav-link {
+  font-size: 0.83rem !important;
+  font-weight: 600 !important;
+}
+
+/* ── 14. SIDEBAR REFINEMENTS ─────────────── */
+.app-menu .menu-title > span {
+  font-size: 0.67rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+}
+
+.navbar-menu .navbar-nav .nav-sm .nav-link {
+  font-size: 0.835rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.005em;
+  padding-top: 0.45rem !important;
+  padding-bottom: 0.45rem !important;
+}
+
+/* ── 15. TOPBAR BORDER ───────────────────── */
+#page-topbar {
+  border-bottom: 1px solid var(--sky-border);
+}
+
+[data-bs-theme="dark"] #page-topbar {
+  border-color: rgba(255,255,255,.07);
+}
+
+/* ── 16. FOOTER ──────────────────────────── */
+.footer {
+  font-size: 0.8rem !important;
+  color: #94a3b8;
+  border-top: 1px solid var(--sky-border) !important;
+}
+
+[data-bs-theme="dark"] .footer {
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+/* ── 17. PROGRESS BAR ────────────────────── */
+.progress {
+  border-radius: 10px;
+  background: #f1f5f9;
+}
+
+.progress-bar {
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* ── 18. MODALS ──────────────────────────── */
+.modal-content {
+  border-radius: var(--sky-radius) !important;
+  border: 1px solid var(--sky-border) !important;
+  box-shadow: 0 20px 60px rgba(15,23,42,.18) !important;
+}
+
+.modal-header {
+  border-radius: var(--sky-radius) var(--sky-radius) 0 0 !important;
+  border-bottom: 1px solid var(--sky-border) !important;
+  background: #f8f9fb;
+}
+
+[data-bs-theme="dark"] .modal-header {
+  background: rgba(255,255,255,.03) !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+
+.modal-title {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--sky-border) !important;
+}
+
+[data-bs-theme="dark"] .modal-footer {
+  border-color: rgba(255,255,255,.08) !important;
+}
+
+/* ── 19. DROPDOWN MENUS ──────────────────── */
+.dropdown-menu {
+  border: 1px solid var(--sky-border) !important;
+  border-radius: var(--sky-radius-sm) !important;
+  box-shadow: 0 8px 32px rgba(15,23,42,.12) !important;
+  font-size: 0.845rem !important;
+}
+
+.dropdown-item {
+  font-weight: 500 !important;
+  border-radius: var(--sky-radius-xs) !important;
+  padding: 0.45rem 1rem !important;
+  transition: background-color 0.12s ease !important;
+}
+
+/* ── 20. PAGINATION ──────────────────────── */
+.pagination .page-link {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  border-radius: var(--sky-radius-xs) !important;
+  transition: all var(--sky-duration) ease !important;
+}
+
+/* ── 21. TOMSELECT REFINEMENTS ───────────── */
+.ts-wrapper .ts-control {
+  border-radius: var(--sky-radius-sm) !important;
+  border-color: var(--sky-border-input) !important;
+  font-size: 0.875rem !important;
+  font-family: var(--sky-font) !important;
+}
+
+.ts-wrapper.focus .ts-control {
+  border-color: var(--vz-primary, var(--sky-primary)) !important;
+  box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+}
+
+.ts-dropdown {
+  border: 1px solid var(--sky-border) !important;
+  border-radius: var(--sky-radius-sm) !important;
+  box-shadow: 0 8px 24px rgba(15,23,42,.1) !important;
+  font-size: 0.855rem !important;
+  font-family: var(--sky-font) !important;
+}
+
+.ts-dropdown .option,
+.ts-dropdown .optgroup-header {
+  font-family: var(--sky-font) !important;
+  padding: 0.45rem 0.85rem !important;
+}
+
+/* ── 22. DATATABLES FIXES ────────────────── */
+.dataTables_wrapper .dropdown-menu {
+  z-index: 9999;
+}
+
+.dataTables_wrapper tbody {
+  overflow: visible !important;
+}
+
+.dataTables_filter input {
+  border-radius: var(--sky-radius-sm) !important;
+  border: 1px solid var(--sky-border-input) !important;
+  font-size: 0.855rem !important;
+  font-family: var(--sky-font) !important;
+  padding: 0.4rem 0.7rem;
+  transition: border-color var(--sky-duration) ease, box-shadow var(--sky-duration) ease;
+}
+
+.dataTables_filter input:focus {
+  outline: none;
+  border-color: var(--vz-primary, var(--sky-primary)) !important;
+  box-shadow: 0 0 0 3px var(--sky-primary-glow) !important;
+}
+
+.dataTables_length select {
+  border-radius: var(--sky-radius-sm) !important;
+  border-color: var(--sky-border-input) !important;
+  font-size: 0.855rem !important;
+}
+
+.dataTables_info,
+.dataTables_length {
+  font-size: 0.8rem !important;
+  color: #64748b;
+}
+
+/* ── 23. FLATPICKR ───────────────────────── */
+.flatpickr-calendar {
+  border-radius: var(--sky-radius) !important;
+  border: 1px solid var(--sky-border) !important;
+  box-shadow: 0 8px 32px rgba(15,23,42,.12) !important;
+  font-family: var(--sky-font) !important;
+}
+
+/* ── 24. TOAST NOTIFICATIONS ─────────────── */
+.toast {
+  border-radius: var(--sky-radius-sm) !important;
+  border: none !important;
+  box-shadow: 0 8px 28px rgba(15,23,42,.14) !important;
+}
+
+.toast-header {
+  border-radius: var(--sky-radius-sm) var(--sky-radius-sm) 0 0 !important;
+  font-weight: 600 !important;
+  font-size: 0.83rem !important;
+}
+
+.toast-body {
+  font-size: 0.855rem !important;
+}
+
+/* ── 25. SPINNER / LOADING ───────────────── */
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* ── 26. HTMX INDICATOR ──────────────────── */
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator {
+  display: inline-block;
+}
+
+.htmx-request.htmx-indicator {
+  display: inline-block;
+}
+
+/* ── 27. PAGE CONTENT SPACING ────────────── */
+//.page-content {
+//  padding: 1.25rem 1.25rem 60px calc(1.25rem + var(--vz-sidebar-width, 250px)) !important;
+//}
+
+/* ── 28. OFFCANVAS / CUSTOMIZER ──────────── */
+.offcanvas {
+  border-radius: var(--sky-radius) 0 0 var(--sky-radius) !important;
+}
+
+/* ── 29. UTILITY ─────────────────────────── */
+
+/* Subtle page background warmth */
+body {
+  background-color: #f4f6f9 !important;
+}
+
+[data-bs-theme="dark"] body {
+  background-color: unset !important;
+}
+
+/* Consistent link style in tables */
+.table a.fw-medium,
+.table a.link-primary {
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+.table a.fw-medium:hover,
+.table a.link-primary:hover {
+  text-decoration: underline !important;
+}
+
+/* Improve empty state in tables */
+.table td .text-muted i.ri-inbox-line {
+  display: block;
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+/* Section divider inside card-body */
+.card-body hr {
+  border-color: var(--sky-border);
+  margin: 1rem 0;
+  opacity: 1;
+}
+
+/* Consistent detail label/value pattern */
+.table-borderless td.fw-bold {
+  color: #64748b;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  font-weight: 600 !important;
+}
+
+/* Smooth avatar icons */
+.avatar-title {
+  border-radius: 8px !important;
+  font-size: 1.1rem !important;
+}

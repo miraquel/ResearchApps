@@ -31,11 +31,10 @@ const paths = {
         },
         scss: {
             dir: './wwwroot/assets/scss',
-            files: './wwwroot/assets/scss/**/*',
-            main: [
-                './wwwroot/assets/scss/config/material/bootstrap.scss',
-                './wwwroot/assets/scss/config/material/app.scss',
-                './wwwroot/assets/scss/config/material/custom.scss',
+             files: './wwwroot/assets/scss/**/*',
+             main: [
+                './wwwroot/assets/scss/config/minimal/bootstrap.scss',
+                './wwwroot/assets/scss/config/minimal/custom.scss',
                 './wwwroot/assets/scss/icons.scss'
             ]
         }
@@ -69,6 +68,22 @@ gulp.task('scss', function () {
       .pipe(gulp.dest(paths.src.css.dir));
 });
 
+// Copies app.update.css → app.css and generates app.min.css.
+// app.update.css is the authoritative source: it contains the multi-theme CSS
+// variable blocks (all themes: galaxy, minimal, material, etc.) followed by the
+// compiled component CSS (waves, buttons, alerts, plugins, pages).
+// The SCSS compilation cannot regenerate the multi-theme blocks on its own, so
+// this task is the correct build step for app.css / app.min.css.
+gulp.task('minify-app', function () {
+  return gulp
+      .src('./wwwroot/assets/css/app.update.css')
+      .pipe(rename('app.css'))
+      .pipe(gulp.dest(paths.src.css.dir))
+      .pipe(cleanCSS())
+      .pipe(rename('app.min.css'))
+      .pipe(gulp.dest(paths.src.css.dir));
+});
+
 gulp.task('copy:libs', function () {
   return gulp
       .src(npmdist(), { base: paths.base.node.dir })
@@ -90,5 +105,5 @@ gulp.task('stamp', function (callback) {
   callback();
 });
 
-gulp.task('build', gulp.series(gulp.parallel('clean:velzon', 'copy:libs'), 'scss', 'stamp'));
-gulp.task('default', gulp.series(gulp.parallel('clean:velzon', 'copy:libs', 'scss'), 'stamp', gulp.parallel('watch')));
+gulp.task('build', gulp.series(gulp.parallel('clean:velzon', 'copy:libs'), gulp.parallel('scss', 'minify-app'), 'stamp'));
+gulp.task('default', gulp.series(gulp.parallel('clean:velzon', 'copy:libs', 'scss', 'minify-app'), 'stamp', gulp.parallel('watch')));

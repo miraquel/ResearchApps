@@ -42,3 +42,4 @@ TestResults/
 
 # Playwright artifacts
 .playwright-mcp/
+.gstack/
