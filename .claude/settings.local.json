@@ -90,7 +90,10 @@
       "Bash(dotnet run:*)",
       "Bash(head -20 grep -n \"ItemType\\\\|CboRequest\" /c/Users/chaidir.ali/RiderProjects/ResearchApps/ResearchApps.Mapper/ItemMapper.cs)",
       "Bash(/dev/null grep:*)",
-      "mcp__plugin_playwright_playwright__browser_close"
+      "mcp__plugin_playwright_playwright__browser_close",
+      "Bash(node_modules/.bin/gulp scss:*)",
+      "Bash(node_modules/.bin/gulp minify-app:*)",
+      "Bash(sed:*)"
     ]
   }
 }
