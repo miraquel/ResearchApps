@@ -75,7 +75,7 @@ public class PssController : Controller
     {
         var response = await _psService.GetPs(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Penyesuaian Stock not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Penyesuaian Stock not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -126,7 +126,7 @@ public class PssController : Controller
         {
             return View(response.Data);
         }
-        TempData["ErrorMessage"] = response.Message ?? "Penyesuaian Stock not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Penyesuaian Stock not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -177,7 +177,7 @@ public class PssController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["ErrorMessage"] = response.Message ?? "Failed to delete Penyesuaian Stock.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Penyesuaian Stock.");
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -210,7 +210,7 @@ public class PssController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to add line.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to add line.");
         }
         
         return RedirectToAction(nameof(Edit), new { id = line.PsRecId });
@@ -235,7 +235,7 @@ public class PssController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to update line.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to update line.");
         }
         
         return RedirectToAction(nameof(Edit), new { id = line.PsRecId });
@@ -254,7 +254,7 @@ public class PssController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete line.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete line.");
         }
         
         return RedirectToAction(nameof(Edit), new { id = psRecId });

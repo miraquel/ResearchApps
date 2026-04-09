@@ -76,7 +76,7 @@ public class SalesInvoicesController : Controller
     {
         var response = await _salesInvoiceService.GetSalesInvoice(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Sales Invoice not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Sales Invoice not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -128,7 +128,7 @@ public class SalesInvoicesController : Controller
             TempData["ErrorMessage"] = "Only Draft Sales Invoices can be edited.";
             return RedirectToAction(nameof(Details), new { id });
         }
-        TempData["ErrorMessage"] = response.Message ?? "Sales Invoice not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Sales Invoice not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -195,7 +195,7 @@ public class SalesInvoicesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["ErrorMessage"] = response.Message ?? "Failed to delete Sales Invoice.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Sales Invoice.");
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -231,7 +231,7 @@ public class SalesInvoicesController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to add line.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to add line.");
         }
         
         return RedirectToAction(nameof(Edit), new { id = line.SiRecId });

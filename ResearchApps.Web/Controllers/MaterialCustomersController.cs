@@ -76,7 +76,7 @@ public class MaterialCustomersController : Controller
     {
         var response = await _materialCustomerService.GetMaterialCustomer(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Material Customer not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Material Customer not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -127,7 +127,7 @@ public class MaterialCustomersController : Controller
         {
             return View(response.Data);
         }
-        TempData["ErrorMessage"] = response.Message ?? "Material Customer not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Material Customer not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -191,7 +191,7 @@ public class MaterialCustomersController : Controller
             TempData["ErrorMessage"] = "Only Draft Material Customers can be deleted.";
             return RedirectToAction(nameof(Details), new { id });
         }
-        TempData["ErrorMessage"] = response.Message ?? "Material Customer not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Material Customer not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -218,7 +218,7 @@ public class MaterialCustomersController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete Material Customer.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Material Customer.");
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)

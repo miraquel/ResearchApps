@@ -175,7 +175,7 @@ public class ItemTypesController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Item Type.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Item Type.");
             }
 
             return RedirectToAction(nameof(Index));

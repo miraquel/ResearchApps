@@ -63,11 +63,11 @@ public class InventLocksController : Controller
         
         if (response.IsSuccess)
         {
-            TempData["SuccessMessage"] = response.Message ?? "Inventory closing process completed successfully.";
+            TempData["SuccessMessage"] = response.GetErrorMessage("Inventory closing process completed successfully.");
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to close inventory.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to close inventory.");
         }
         
         return RedirectToAction(nameof(Index));
@@ -86,11 +86,11 @@ public class InventLocksController : Controller
         
         if (response.IsSuccess)
         {
-            TempData["SuccessMessage"] = response.Message ?? "Inventory unlocked successfully.";
+            TempData["SuccessMessage"] = response.GetErrorMessage("Inventory unlocked successfully.");
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to unlock inventory.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to unlock inventory.");
         }
         
         return RedirectToAction(nameof(Index));
@@ -109,11 +109,11 @@ public class InventLocksController : Controller
         
         if (response.IsSuccess)
         {
-            TempData["SuccessMessage"] = response.Message ?? "Inventory closing process completed successfully.";
+            TempData["SuccessMessage"] = response.GetErrorMessage("Inventory closing process completed successfully.");
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to run inventory closing.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to run inventory closing.");
         }
         
         return RedirectToAction(nameof(Index));

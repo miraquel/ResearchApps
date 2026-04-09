@@ -167,7 +167,7 @@ public class WarehousesController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Warehouse.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Warehouse.");
             }
             return RedirectToAction(nameof(Index));
         }

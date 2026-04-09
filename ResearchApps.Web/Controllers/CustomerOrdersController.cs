@@ -78,7 +78,7 @@ public class CustomerOrdersController : Controller
     {
         var response = await _customerOrderService.GetCustomerOrder(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Customer Order not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Customer Order not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -130,7 +130,7 @@ public class CustomerOrdersController : Controller
             TempData["ErrorMessage"] = "Only Draft Customer Orders can be edited.";
             return RedirectToAction(nameof(Details), new { id });
         }
-        TempData["ErrorMessage"] = response.Message ?? "Customer Order not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Customer Order not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -222,7 +222,7 @@ public class CustomerOrdersController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to submit Customer Order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to submit Customer Order.");
         }
         return RedirectToAction("Details", new { id = action.RecId });
     }
@@ -255,7 +255,7 @@ public class CustomerOrdersController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to recall Customer Order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to recall Customer Order.");
         }
         return RedirectToAction("Details", new { id = action.RecId });
     }
@@ -290,7 +290,7 @@ public class CustomerOrdersController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to reject Customer Order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to reject Customer Order.");
         }
         return RedirectToAction("Details", new { id = action.RecId });
     }
@@ -324,7 +324,7 @@ public class CustomerOrdersController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to close Customer Order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to close Customer Order.");
         }
         return RedirectToAction("Details", new { id = action.RecId });
     }
@@ -363,7 +363,7 @@ public class CustomerOrdersController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to approve Customer Order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to approve Customer Order.");
         }
         return RedirectToAction("Details", new { id = action.RecId });
     }
@@ -380,7 +380,7 @@ public class CustomerOrdersController : Controller
             TempData["ErrorMessage"] = "Only Draft Customer Orders can be deleted.";
             return RedirectToAction(nameof(Details), new { id });
         }
-        TempData["ErrorMessage"] = response.Message ?? "Customer Order not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Customer Order not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -407,7 +407,7 @@ public class CustomerOrdersController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete Customer Order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Customer Order.");
             return RedirectToAction(nameof(Index));
         }
         catch

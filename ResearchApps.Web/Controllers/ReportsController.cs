@@ -175,7 +175,7 @@ public class ReportsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Report.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Report.");
             }
             return RedirectToAction(nameof(Index));
         }
@@ -236,10 +236,7 @@ public class ReportsController : Controller
                 return RedirectToAction(nameof(Preview), new { id = generateVm.ReportId });
             }
 
-            if (response.Message != null) 
-            {
-                TempData["ErrorMessage"] = response.Message;
-            }
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to generate report.");
             return View(generateVm);
         }
         catch (Exception ex)

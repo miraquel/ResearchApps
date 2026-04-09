@@ -25,7 +25,7 @@ namespace ResearchApps.Web.Controllers
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
             if (response is { IsSuccess: true }) return View(response.Data);
-            TempData["ErrorMessage"] = response.Message ?? "PR Line not found.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("PR Line not found.");
             return RedirectToAction("Index", "Prs");
         }
 
@@ -76,7 +76,7 @@ namespace ResearchApps.Web.Controllers
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
             if (response is { IsSuccess: true }) return View(response.Data);
-            TempData["ErrorMessage"] = response.Message ?? "PR Line not found.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("PR Line not found.");
             return RedirectToAction("Index", "Prs");
         }
 
@@ -112,7 +112,7 @@ namespace ResearchApps.Web.Controllers
         {
             var response = await _prLineService.PrLineSelectById(id, cancellationToken);
             if (response is { IsSuccess: true }) return View(response.Data);
-            TempData["ErrorMessage"] = response.Message ?? "PR Line not found.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("PR Line not found.");
             return RedirectToAction("Index", "Prs");
         }
 
@@ -132,7 +132,7 @@ namespace ResearchApps.Web.Controllers
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = response.Message ?? "Failed to delete PR Line.";
+                    TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete PR Line.");
                 }
 
                 return RedirectToAction("Index", "Prs");

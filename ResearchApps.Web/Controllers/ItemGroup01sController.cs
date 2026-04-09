@@ -159,7 +159,7 @@ public class ItemGroup01sController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Item Group 01.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Item Group 01.");
             }
             return RedirectToAction(nameof(Index));
         }

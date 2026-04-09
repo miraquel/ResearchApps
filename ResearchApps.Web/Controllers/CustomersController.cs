@@ -74,7 +74,7 @@ public class CustomersController : Controller
     {
         var response = await _customerService.CustomerSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Customer not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Customer not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -120,7 +120,7 @@ public class CustomersController : Controller
     {
         var response = await _customerService.CustomerSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Customer not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Customer not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -183,7 +183,7 @@ public class CustomersController : Controller
     {
         var response = await _customerService.CustomerSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Customer not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Customer not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -202,7 +202,7 @@ public class CustomersController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete customer.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete customer.");
             return RedirectToAction(nameof(Index));
         }
         catch

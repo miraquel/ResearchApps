@@ -89,7 +89,7 @@ public class BpbsController : Controller
     {
         var response = await _bpbService.GetBpb(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "BPB not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("BPB not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -133,7 +133,7 @@ public class BpbsController : Controller
     {
         var response = await _bpbService.GetBpb(id, cancellationToken);
         if (response is { IsSuccess: true, Data: not null }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "BPB not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("BPB not found.");
         return RedirectToAction(nameof(Index));
 
     }
@@ -179,7 +179,7 @@ public class BpbsController : Controller
             return RedirectToAction("Details", new { id });
         }
 
-        TempData["ErrorMessage"] = response.Message ?? "BPB not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("BPB not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -196,7 +196,7 @@ public class BpbsController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["ErrorMessage"] = response.Message ?? "Failed to delete BPB.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete BPB.");
         return RedirectToAction("Delete", new { id });
     }
 }

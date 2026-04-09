@@ -173,7 +173,7 @@ public class TopsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete TOP.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete TOP.");
             }
 
             return RedirectToAction(nameof(Index));

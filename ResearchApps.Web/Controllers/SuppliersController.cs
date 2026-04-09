@@ -72,7 +72,7 @@ public class SuppliersController : Controller
     {
         var response = await _supplierService.SupplierSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Supplier not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Supplier not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -118,7 +118,7 @@ public class SuppliersController : Controller
     {
         var response = await _supplierService.SupplierSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Supplier not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Supplier not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -157,7 +157,7 @@ public class SuppliersController : Controller
     {
         var response = await _supplierService.SupplierSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Supplier not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Supplier not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -176,7 +176,7 @@ public class SuppliersController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete supplier.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete supplier.");
             return RedirectToAction(nameof(Index));
         }
         catch

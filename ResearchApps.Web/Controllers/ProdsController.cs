@@ -182,7 +182,7 @@ public class ProdsController : Controller
                 TempData["SuccessMessage"] = "Production record deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete production record.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete production record.");
             return RedirectToAction(nameof(Delete), new { id });
         }
         catch

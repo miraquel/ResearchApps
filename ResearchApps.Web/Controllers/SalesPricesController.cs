@@ -172,7 +172,7 @@ public class SalesPricesController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Sales Price.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Sales Price.");
             }
 
             return RedirectToAction(nameof(Index));

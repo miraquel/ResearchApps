@@ -301,7 +301,7 @@ public class PosController : Controller
             return RedirectToAction(nameof(Edit), new { id = header.RecId });
         }
 
-        ModelState.AddModelError(string.Empty, response.Message ?? "Failed to update purchase order.");
+        ModelState.AddModelError(string.Empty, response.GetErrorMessage("Failed to update purchase order."));
         
         var linesResp = await _poLineService.PoLineSelectByPo(header.RecId, cancellationToken);
         var vm = new PoVm
@@ -375,7 +375,7 @@ public class PosController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["ErrorMessage"] = response.Message ?? "Failed to delete purchase order.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete purchase order.");
         return RedirectToAction(nameof(Details), new { id });
     }
 
@@ -423,7 +423,7 @@ public class PosController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to submit purchase order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to submit purchase order.");
         }
 
         return RedirectToAction(nameof(Details), new { id = action.RecId });
@@ -463,7 +463,7 @@ public class PosController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to approve purchase order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to approve purchase order.");
         }
 
         return RedirectToAction(nameof(Details), new { id = action.RecId });
@@ -501,7 +501,7 @@ public class PosController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to reject purchase order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to reject purchase order.");
         }
 
         return RedirectToAction(nameof(Details), new { id = action.RecId });
@@ -537,7 +537,7 @@ public class PosController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to recall purchase order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to recall purchase order.");
         }
 
         return RedirectToAction(nameof(Details), new { id = action.RecId });
@@ -574,7 +574,7 @@ public class PosController : Controller
         }
         else
         {
-            TempData["ErrorMessage"] = response.Message ?? "Failed to close purchase order.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to close purchase order.");
         }
 
         return RedirectToAction(nameof(Details), new { id = action.RecId });

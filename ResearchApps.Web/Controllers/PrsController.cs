@@ -82,7 +82,7 @@ public class PrsController : Controller
     {
         var response = await _prService.GetPurchaseRequisition(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "PR not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("PR not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -129,7 +129,7 @@ public class PrsController : Controller
     {
         var response = await _prService.PrSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "PR not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("PR not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -169,7 +169,7 @@ public class PrsController : Controller
     {
         var response = await _prService.PrSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "PR not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("PR not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -189,7 +189,7 @@ public class PrsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete PR.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete PR.");
             }
 
             return RedirectToAction(nameof(Index));
@@ -245,7 +245,7 @@ public class PrsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to submit PR.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to submit PR.");
             }
 
             return RedirectToAction(nameof(Details), new { id = recId });
@@ -299,7 +299,7 @@ public class PrsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to approve PR.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to approve PR.");
             }
 
             return RedirectToAction(nameof(Details), new { id = action.RecId });
@@ -347,7 +347,7 @@ public class PrsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to reject PR.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to reject PR.");
             }
 
             return RedirectToAction(nameof(Details), new { id = action.RecId });
@@ -393,7 +393,7 @@ public class PrsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to recall PR.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to recall PR.");
             }
 
             return RedirectToAction(nameof(Details), new { id = action.RecId });

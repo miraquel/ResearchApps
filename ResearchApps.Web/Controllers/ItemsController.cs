@@ -214,7 +214,7 @@ public class ItemsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Item.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Item.");
             }
             return RedirectToAction(nameof(Index));
         }

@@ -79,7 +79,7 @@ public class DeliveryOrdersController : Controller
     {
         var response = await _deliveryOrderService.GetDeliveryOrderViewModel(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Delivery Order not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Delivery Order not found.");
         return RedirectToAction(nameof(Index));
     }
     
@@ -121,7 +121,7 @@ public class DeliveryOrdersController : Controller
                 return RedirectToAction("Edit", new { id = response.Data.RecId });
             }
 
-            ModelState.AddModelError(string.Empty, response.Message ?? "Failed to create delivery order.");
+            ModelState.AddModelError(string.Empty, response.GetErrorMessage("Failed to create delivery order."));
             return View(vm);
         }
         catch (Exception e)
@@ -138,7 +138,7 @@ public class DeliveryOrdersController : Controller
     {
         var response = await _deliveryOrderService.GetDeliveryOrderViewModel(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Delivery Order not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Delivery Order not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -161,7 +161,7 @@ public class DeliveryOrdersController : Controller
             return RedirectToAction("Details", new { id = collection.RecId });
         }
 
-        ModelState.AddModelError(string.Empty, response.Message ?? "Failed to update delivery order.");
+        ModelState.AddModelError(string.Empty, response.GetErrorMessage("Failed to update delivery order."));
         var viewModel = await _deliveryOrderService.GetDeliveryOrderViewModel(collection.RecId, cancellationToken);
         return View(viewModel.Data);
     }
@@ -172,7 +172,7 @@ public class DeliveryOrdersController : Controller
     {
         var response = await _deliveryOrderService.DoSelectById(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Delivery Order not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Delivery Order not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -189,7 +189,7 @@ public class DeliveryOrdersController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        TempData["ErrorMessage"] = response.Message ?? "Failed to delete Delivery Order.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Delivery Order.");
         return RedirectToAction(nameof(Index));
     }
 

@@ -166,7 +166,7 @@ public class UnitsController : Controller
             }
             else
             {
-                TempData["ErrorMessage"] = response.Message ?? "Failed to delete Unit.";
+                TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Unit.");
             }
             return RedirectToAction(nameof(Index));
         }

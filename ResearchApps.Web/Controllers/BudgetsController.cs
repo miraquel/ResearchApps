@@ -72,7 +72,7 @@ public class BudgetsController : Controller
     {
         var response = await _budgetService.BudgetSelectByIdAsync(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Budget not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Budget not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -118,7 +118,7 @@ public class BudgetsController : Controller
     {
         var response = await _budgetService.BudgetSelectByIdAsync(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Budget not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Budget not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -157,7 +157,7 @@ public class BudgetsController : Controller
     {
         var response = await _budgetService.BudgetSelectByIdAsync(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Budget not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Budget not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -176,7 +176,7 @@ public class BudgetsController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete budget.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete budget.");
             return RedirectToAction(nameof(Index));
         }
         catch

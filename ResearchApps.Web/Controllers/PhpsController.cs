@@ -61,7 +61,7 @@ public class PhpsController : Controller
     {
         var response = await _phpService.GetPhp(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Php not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Php not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -117,7 +117,7 @@ public class PhpsController : Controller
         var response = await _phpService.GetPhp(id, cancellationToken);
         if (response is { IsSuccess: true })
             return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Php not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Php not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -193,7 +193,7 @@ public class PhpsController : Controller
             TempData["ErrorMessage"] = "Only Draft or Active Php can be deleted.";
             return RedirectToAction(nameof(Details), new { id });
         }
-        TempData["ErrorMessage"] = response.Message ?? "Php not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Php not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -223,7 +223,7 @@ public class PhpsController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete Php.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Php.");
             return RedirectToAction(nameof(Details), new { id });
         }
         catch
