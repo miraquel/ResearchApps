@@ -33,7 +33,7 @@
                     {
                         <text>You need to be authenticated to access this resource.</text>
                     }
-                    else
+                    else if (ViewData["ErrorMessage"] == null)
                     {
                         <text>An error occurred while processing your request.</text>
                     }

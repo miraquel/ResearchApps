@@ -19,6 +19,17 @@ public class GlobalExceptionHandler : IExceptionHandler
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        // UseExceptionHandler rewrites Request.Path to "/Home/Error" before this handler is
+        // invoked, so obtain the original path from IExceptionHandlerPathFeature.
+        var pathFeature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
+        var originalPath = pathFeature?.Path ?? httpContext.Request.Path.ToString();
+
+        // Only handle API requests with JSON responses.
+        // MVC/HTML requests return false so the middleware re-executes to /Home/Error.
+        var acceptHeader = httpContext.Request.Headers.Accept.ToString();
+        var isApiRequest = originalPath.StartsWith("/api", StringComparison.OrdinalIgnoreCase)
+                           || (acceptHeader.Contains("application/json") && !acceptHeader.Contains("text/html"));
+        
         var (statusCode, logLevel) = exception switch
         {
             ArgumentException => (StatusCodes.Status400BadRequest, LogLevel.Warning),
@@ -29,11 +40,6 @@ public class GlobalExceptionHandler : IExceptionHandler
             SqlException => (StatusCodes.Status500InternalServerError, LogLevel.Error),
             _ => (StatusCodes.Status500InternalServerError, LogLevel.Error)
         };
-        
-        // UseExceptionHandler rewrites Request.Path to "/Home/Error" before this handler is
-        // invoked, so obtain the original path from IExceptionHandlerPathFeature.
-        var pathFeature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
-        var originalPath = pathFeature?.Path ?? httpContext.Request.Path.ToString();
 
         _logger.Log(
             logLevel, 
@@ -43,6 +49,14 @@ public class GlobalExceptionHandler : IExceptionHandler
             originalPath,
             httpContext.User.Identity?.Name ?? "Anonymous",
             httpContext.TraceIdentifier);
+
+        // For MVC/HTML requests, let the middleware re-execute to /Home/Error.
+        // Still set the status code so the error page reflects the correct HTTP status.
+        if (!isApiRequest)
+        {
+            httpContext.Response.StatusCode = statusCode;
+            return false;
+        }
 
         httpContext.Response.StatusCode = statusCode;
         

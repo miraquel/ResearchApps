@@ -16,6 +16,9 @@ public class ServiceResponse
     
     [JsonIgnore]
     public bool IsSuccess => Errors == null || Errors.Count == 0;
+
+    public string GetErrorMessage(string fallback = "An error occurred")
+        => Errors?.Count > 0 ? string.Join("; ", Errors) : fallback;
     
     [JsonIgnore] // Don't serialize - used by filter
     public int StatusCode { get; init; } = 200;

@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using ResearchApps.Service.Interface;
 using ResearchApps.Web.Models;
 
@@ -27,31 +29,28 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error(int? statusCode = null)
     {
+        var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+        var exception = exceptionFeature?.Error;
+
         var errorViewModel = new ErrorViewModel 
         { 
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
             StatusCode = statusCode ?? HttpContext.Response.StatusCode
         };
         
-        // Handle specific status codes if needed
-        if (statusCode.HasValue)
+        var errorMessage = exception switch
         {
-            switch (statusCode.Value)
+            SqlException { Number: >= 50000 } ex => ex.Message,
+            _ => statusCode switch
             {
-                case 404:
-                    ViewData["ErrorMessage"] = "Page not found.";
-                    break;
-                case 403:
-                    ViewData["ErrorMessage"] = "Access forbidden.";
-                    break;
-                case 401:
-                    ViewData["ErrorMessage"] = "Unauthorized access.";
-                    break;
-                default:
-                    ViewData["ErrorMessage"] = "An error occurred.";
-                    break;
+                404 => "Page not found.",
+                403 => "Access forbidden.",
+                401 => "Unauthorized access.",
+                _   => null
             }
-        }
+        };
+
+        ViewData["ErrorMessage"] = errorMessage;
         
         return View(errorViewModel);
     }
