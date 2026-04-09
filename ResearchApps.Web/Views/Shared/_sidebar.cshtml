@@ -205,6 +205,7 @@
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.ItemGroup02s) && User.HasClaim("permission", PermissionConstants.ItemGroup02s.Index)) ||
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.Warehouses) && User.HasClaim("permission", PermissionConstants.Warehouses.Index)) ||
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.Units) && User.HasClaim("permission", PermissionConstants.Units.Index)) ||
+                                             (TenantFeatures.IsEnabled(TenantFeatureConstants.Locations) && User.HasClaim("permission", PermissionConstants.Locations.Index)) ||
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.StockAdjustments) && User.HasClaim("permission", PermissionConstants.StockAdjustments.Index)) ||
                                              (TenantFeatures.IsEnabled(TenantFeatureConstants.StockReport) && User.HasClaim("permission", PermissionConstants.StockReport.Index));
                 }
@@ -292,7 +293,18 @@
                                     </li>
                                 }
                                 </tenant-feature>
-                                
+
+                                <tenant-feature name="@TenantFeatureConstants.Locations">
+                                @if (User.HasClaim("permission", PermissionConstants.Locations.Index))
+                                {
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("Index", "Locations", new { Area = "" })" class="nav-link" data-key="t-locations">
+                                            Locations
+                                        </a>
+                                    </li>
+                                }
+                                </tenant-feature>
+
                                 <tenant-feature name="@TenantFeatureConstants.StockAdjustments">
                                 @if (User.HasClaim("permission", PermissionConstants.StockAdjustments.Index))
                                 {

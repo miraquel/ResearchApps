@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IItemGroup02Service, ItemGroup02Service>();
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IUnitService, UnitService>();
+        services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<IPrService, PrService>();
         services.AddScoped<IPrLineService, PrLineService>();
         services.AddScoped<IBudgetService, BudgetService>();

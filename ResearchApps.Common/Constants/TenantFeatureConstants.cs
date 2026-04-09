@@ -30,6 +30,7 @@ public static class TenantFeatureConstants
     public const string ItemGroup02s = "ItemGroup02s";
     public const string Warehouses = "Warehouses";
     public const string Units = "Units";
+    public const string Locations = "Locations";
     public const string StockAdjustments = "StockAdjustments";
     public const string StockReport = "StockReport";
 
@@ -76,6 +77,7 @@ public static class TenantFeatureConstants
         public const string ItemGroup02s = "ItemGroup02s";
         public const string Warehouses = "Warehouses";
         public const string Units = "Units";
+        public const string Locations = "Locations";
         public const string StockAdjustments = "StockAdjustments";
         public const string StockReport = "StockReport";
     }
@@ -133,6 +135,7 @@ public static class TenantFeatureConstants
                 (ItemGroup02s, "Item Group 02"),
                 (Warehouses, "Warehouses"),
                 (Units, "Units"),
+                (Locations, "Locations"),
                 (StockAdjustments, "Stock Adjustments"),
                 (StockReport, "Stock Report")
             ],

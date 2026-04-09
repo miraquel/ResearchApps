@@ -1,0 +1,56 @@
+@model ResearchApps.Service.Vm.LocationVm
+
+@{
+    ViewBag.Title = "Edit Location";
+    ViewBag.pTitle = $"Edit Location: {Model.LocationName}";
+    Layout = "_Layout";
+}
+
+@* Alpine.js component for location edit form *@
+<div x-data="locationEdit(@Model.StatusId)">
+    @* Form card *@
+    <div class="card">
+        <div class="card-body">
+            <form id="location-form" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="LocationId" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="LocationName" class="form-label"></label>
+                            <input asp-for="LocationName" class="form-control" placeholder="Enter location name" required />
+                            <span asp-validation-for="LocationName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StatusId" class="form-label"></label>
+                            <select asp-for="StatusId" class="form-select"></select>
+                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary"
+                            data-confirm
+                            data-confirm-modal="saveLocationModal"
+                            data-confirm-form="#location-form"
+                            data-confirm-validate="true"
+                            data-confirm-title="Confirm Save"
+                            data-confirm-message="Are you sure you want to save changes to this location?">
+                        <i class="ri-save-line align-bottom me-1"></i> Save
+                    </button>
+                    <a asp-action="Index" class="btn btn-soft-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/js/locations/location-edit.js"></script>
+}

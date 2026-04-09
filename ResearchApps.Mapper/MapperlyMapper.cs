@@ -88,6 +88,14 @@ public partial class MapperlyMapper
     public partial UnitVm MapToVm(Unit unit);
     public partial IEnumerable<UnitVm> MapToVm(IEnumerable<Unit> unitDto);
     public partial PagedListVm<UnitVm> MapToVm(PagedList<Unit> pagedListDto);
+
+    // Location
+    public partial Location MapToEntity(LocationVm locationDto);
+    public partial IEnumerable<Location> MapToEntity(IEnumerable<LocationVm> locationDto);
+    public partial PagedList<Location> MapToEntity(PagedListVm<LocationVm> pagedListDto);
+    public partial LocationVm MapToVm(Location location);
+    public partial IEnumerable<LocationVm> MapToVm(IEnumerable<Location> locationDto);
+    public partial PagedListVm<LocationVm> MapToVm(PagedList<Location> pagedListDto);
     
     // Pr
     public partial Pr MapToEntity(PrVm prDto);

@@ -42,6 +42,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IItemGroup02Repo, ItemGroup02Repo>();
         services.AddScoped<IStatusRepo, StatusRepo>();
         services.AddScoped<IUnitRepo, UnitRepo>();
+        services.AddScoped<ILocationRepo, LocationRepo>();
         services.AddScoped<IPrRepo, PrRepo>();
         services.AddScoped<IPrLineRepo, PrLineRepo>();
         services.AddScoped<IBudgetRepo, BudgetRepo>();

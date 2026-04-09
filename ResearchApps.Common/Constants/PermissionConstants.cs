@@ -88,6 +88,15 @@ public static class PermissionConstants
         public const string Delete = "Units.Delete";
         public const string Details = "Units.Details";
     }
+
+    public static class Locations
+    {
+        public const string Index = "Locations.Index";
+        public const string Create = "Locations.Create";
+        public const string Edit = "Locations.Edit";
+        public const string Delete = "Locations.Delete";
+        public const string Details = "Locations.Details";
+    }
     
     public static class Status
     {
