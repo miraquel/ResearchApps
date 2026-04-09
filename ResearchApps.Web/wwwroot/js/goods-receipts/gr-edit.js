@@ -255,10 +255,8 @@ function grEdit(initialLines, config) {
             this.isHeaderSaving = true;
             try {
                 const formData = new FormData(form);
-                formData.set('IsPpn', document.getElementById('Header_IsPpn').checked);
-                
                 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                
+
                 const response = await fetch(`/api/GoodsReceipts/${this.header.recId}`, {
                     method: 'PUT',
                     headers: {
@@ -266,13 +264,13 @@ function grEdit(initialLines, config) {
                     },
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
-                if (data) {
+
+                if (response.ok) {
                     this.showNotification('Header saved successfully');
                 } else {
-                    this.showNotification(data.message || 'Failed to save header', true);
+                    this.showNotification(data.message || data.Message || 'Failed to save header', true);
                 }
             } catch (error) {
                 console.error('Save header error:', error);
@@ -323,10 +321,10 @@ function grEdit(initialLines, config) {
                 whId: line.whId || 1,
                 notes: line.notes || ''
             };
-            
+
             // Fetch outstanding data for validation
             this.fetchOutstandingForEdit(line.poLineId);
-            
+
             this.lineModal.show = true;
         },
         

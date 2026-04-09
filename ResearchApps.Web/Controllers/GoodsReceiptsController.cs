@@ -31,7 +31,7 @@ public class GoodsReceiptsController : Controller
     public async Task<IActionResult> List(
         [FromQuery] int page = 1,
         [FromQuery] string? sortBy = null,
-        [FromQuery] bool sortAsc = true,
+        [FromQuery] bool sortAsc = false,
         [FromQuery(Name = "filters")] Dictionary<string, string>? filters = null,
         CancellationToken cancellationToken = default)
     {
@@ -72,7 +72,7 @@ public class GoodsReceiptsController : Controller
     {
         var response = await _goodsReceiptService.GetGoodsReceipt(id, cancellationToken);
         if (response is { IsSuccess: true }) return View(response.Data);
-        TempData["ErrorMessage"] = response.Message ?? "Goods Receipt not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Goods Receipt not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -119,13 +119,9 @@ public class GoodsReceiptsController : Controller
         var response = await _goodsReceiptService.GetGoodsReceipt(id, cancellationToken);
         if (response is { IsSuccess: true })
         {
-            // Only allow editing if status is Draft (0)
-            if (response.Data == null || response.Data.Header.GrStatusId == GrStatusConstants.Draft) 
-                return View(response.Data);
-            TempData["ErrorMessage"] = "Only Draft Goods Receipts can be edited.";
-            return RedirectToAction(nameof(Details), new { id });
+            return View(response.Data);
         }
-        TempData["ErrorMessage"] = response.Message ?? "Goods Receipt not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Goods Receipt not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -193,13 +189,9 @@ public class GoodsReceiptsController : Controller
         var response = await _goodsReceiptService.GetGoodsReceipt(id, cancellationToken);
         if (response is { IsSuccess: true })
         {
-            // Only allow deleting if status is Draft (0)
-            if (response.Data == null || response.Data.Header.GrStatusId == GrStatusConstants.Draft) 
-                return View(response.Data);
-            TempData["ErrorMessage"] = "Only Draft Goods Receipts can be deleted.";
-            return RedirectToAction(nameof(Details), new { id });
+            return View(response.Data);
         }
-        TempData["ErrorMessage"] = response.Message ?? "Goods Receipt not found.";
+        TempData["ErrorMessage"] = response.GetErrorMessage("Goods Receipt not found.");
         return RedirectToAction(nameof(Index));
     }
 
@@ -227,7 +219,7 @@ public class GoodsReceiptsController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["ErrorMessage"] = response.Message ?? "Failed to delete Goods Receipt.";
+            TempData["ErrorMessage"] = response.GetErrorMessage("Failed to delete Goods Receipt.");
             return RedirectToAction(nameof(Details), new { id });
         }
         catch

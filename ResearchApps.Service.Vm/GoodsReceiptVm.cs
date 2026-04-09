@@ -10,6 +10,6 @@ public class GoodsReceiptVm
     public IEnumerable<PoLineOutstandingVm> Outstanding { get; set; } = [];
     
     public string Status => Header.GrStatusName ?? "Unknown";
-    public bool CanEdit => Header.GrStatusId == 0;   // Only Draft
-    public bool CanDelete => Header.GrStatusId == 0; // Only Draft can be deleted
+    public bool CanEdit => Header.GrStatusId is 0 or 1;
+    public bool CanDelete => Header.GrStatusId is 0 or 1;
 }

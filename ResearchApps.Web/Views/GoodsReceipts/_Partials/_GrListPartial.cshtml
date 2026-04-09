@@ -21,7 +21,7 @@
                                 <i class="ri-eye-line me-2"></i>View Details
                             </a>
                         </li>
-                        @if (item.GrStatusId == 0)
+                        @if (item.GrStatusId is 0 or 1)
                         {
                             <li>
                                 <a class="dropdown-item" href="/GoodsReceipts/Edit/@item.RecId">

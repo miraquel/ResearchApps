@@ -245,13 +245,16 @@
                                 <template x-for="(line, index) in lines" :key="line.grLineId || index">
                                     <tr>
                                         <td class="text-center" x-text="index + 1"></td>
-                                        <td x-text="line.itemName"></td>
+                                        <td>
+                                                <div x-text="line.itemName"></div>
+                                                <small class="text-muted" x-text="line.itemId"></small>
+                                            </td>
                                         <td class="text-end" x-text="formatNumber(line.qty)"></td>
                                         <td class="text-center" x-text="line.unitName"></td>
                                         <td class="text-end" x-text="formatNumber(line.price)"></td>
                                         <td class="text-end" x-text="formatNumber(line.amount)"></td>
                                         <td x-text="line.notes || '-'"></td>
-                                        <td class="text-center">
+                                        <td class="text-center text-nowrap">
                                             <button type="button" class="btn btn-sm btn-info" @@click="editLine(index)" title="Edit">
                                                 <i class="ri-edit-line"></i>
                                             </button>
@@ -320,8 +323,8 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label class="form-label">Qty <span class="text-danger">*</span></label>
-                            <input type="text" 
-                                   class="form-control text-end" 
+                            <input type="text"
+                                   class="form-control text-end"
                                    inputmode="numeric"
                                    x-mask:dynamic="$money($input, '.', ',')"
                                    x-model="lineModal.data.qty"
@@ -330,10 +333,10 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Unit</label>
-                            <input type="text" 
-                                   class="form-control bg-light" 
+                            <input type="text"
+                                   class="form-control bg-light"
                                    x-model="lineModal.data.unitName"
-                                   readonly 
+                                   readonly
                                    placeholder="From PO Line" />
                         </div>
                         <div class="col-md-4">
@@ -398,7 +401,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-danger">
-                        <i class="ri-delete-bin-line me-2"></i>Confirm Delete
+                        <i class="ri-alert-line"></i> Confirm Delete
                     </h5>
                     <button type="button" class="btn-close" @@click="deleteModal.show = false"></button>
                 </div>
