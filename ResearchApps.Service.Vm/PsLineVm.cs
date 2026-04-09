@@ -23,9 +23,15 @@ public class PsLineVm
     [Display(Name = "Warehouse")]
     [Required(ErrorMessage = "Warehouse is required")]
     public int WhId { get; set; }
-    
+
     [Display(Name = "Warehouse")]
     public string? WhName { get; set; }
+
+    [Display(Name = "Location")]
+    public int LocationId { get; set; } = 1;
+
+    [Display(Name = "Location")]
+    public string? LocationName { get; set; }
     
     [Display(Name = "Quantity")]
     [Required(ErrorMessage = "Quantity is required")]

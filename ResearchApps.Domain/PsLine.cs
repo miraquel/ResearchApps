@@ -9,6 +9,8 @@ public class PsLine
     public string? ItemName { get; set; }
     public int WhId { get; set; }
     public string? WhName { get; set; }
+    public int LocationId { get; set; } = 1;
+    public string? LocationName { get; set; }
     public decimal Qty { get; set; }
     public string? UnitName { get; set; }
     public decimal Price { get; set; }

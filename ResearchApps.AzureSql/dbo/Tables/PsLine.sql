@@ -19,19 +19,3 @@ CREATE TABLE [dbo].[PsLine] (
 );
 GO
 
-ALTER TABLE [dbo].[PsLine]
-    ADD CONSTRAINT [PK_dbo.PsLine] PRIMARY KEY CLUSTERED ([PsLineId] ASC);
-GO
-
-ALTER TABLE [dbo].[PsLine]
-    ADD CONSTRAINT [FK_dbo.PsLine_dbo.Ps_PsId] FOREIGN KEY ([PsId]) REFERENCES [dbo].[Ps] ([PsId]);
-GO
-
-ALTER TABLE [dbo].[PsLine]
-    ADD CONSTRAINT [FK_dbo.PsLine_dbo.Item_ItemId] FOREIGN KEY ([ItemId]) REFERENCES [dbo].[Item] ([ItemId]);
-GO
-
-ALTER TABLE [dbo].[PsLine]
-    ADD CONSTRAINT [FK_dbo.PsLine_dbo.Wh_WhId] FOREIGN KEY ([WhId]) REFERENCES [dbo].[Wh] ([WhId]);
-GO
-

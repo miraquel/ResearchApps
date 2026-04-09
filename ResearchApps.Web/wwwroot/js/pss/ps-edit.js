@@ -16,6 +16,7 @@ function psEditForm() {
         // TomSelect instances
         lineItemSelect: null,
         lineWhSelect: null,
+        lineLocationSelect: null,
         
         // Bootstrap modal instance
         addLineModal: null,
@@ -68,6 +69,10 @@ function psEditForm() {
                 this.lineWhSelect.destroy();
                 this.lineWhSelect = null;
             }
+            if (this.lineLocationSelect) {
+                this.lineLocationSelect.destroy();
+                this.lineLocationSelect = null;
+            }
             
             // Small delay to ensure modal is shown
             setTimeout(() => {
@@ -77,12 +82,19 @@ function psEditForm() {
                     placeholder: 'Select Item',
                     maxOptions: 50
                 });
-                
+
                 // Warehouse select
                 this.lineWhSelect = initTomSelect('#LineWhId', {
                     url: '/api/Warehouses/cbo',
                     placeholder: 'Select Warehouse',
                     maxOptions: 50
+                });
+
+                // Location select
+                this.lineLocationSelect = initTomSelect('#LineLocationId', {
+                    url: '/api/Locations/Cbo',
+                    placeholder: 'Select Location',
+                    maxOptions: 100
                 });
             }, 100);
         },
@@ -101,6 +113,9 @@ function psEditForm() {
             }
             if (this.lineWhSelect) {
                 this.lineWhSelect.clear();
+            }
+            if (this.lineLocationSelect) {
+                this.lineLocationSelect.clear();
             }
         },
         
@@ -134,6 +149,13 @@ function psEditForm() {
                                 text: line.whName
                             });
                             this.lineWhSelect.setValue(line.whId.toString());
+                        }
+                        if (this.lineLocationSelect && line.locationId) {
+                            this.lineLocationSelect.addOption({
+                                value: line.locationId.toString(),
+                                text: line.locationName || line.locationId.toString()
+                            });
+                            this.lineLocationSelect.setValue(line.locationId.toString());
                         }
                     }, 200);
                     

@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using ResearchApps.Domain.Common;
 using ResearchApps.Mapper;
@@ -159,19 +160,26 @@ public partial class PsService : IPsService
 
     public async Task<ServiceResponse<string>> PsLineDelete(int psLineId, CancellationToken cancellationToken)
     {
-        LogDeletingPsLine(psLineId, _userClaimDto.Username);
-        var result = await _psRepo.PsLineDelete(psLineId, _userClaimDto.Username, cancellationToken);
-        
-        // Check for error response (format: "-1:::error message")
-        if (result.StartsWith("-1:::"))
+        try
         {
-            var errorMessage = result.Substring(5);
-            return ServiceResponse<string>.Failure(errorMessage, StatusCodes.Status400BadRequest);
+            LogDeletingPsLine(psLineId, _userClaimDto.Username);
+            var result = await _psRepo.PsLineDelete(psLineId, _userClaimDto.Username, cancellationToken);
+
+            _dbTransaction.Commit();
+            LogPsLineDeletedSuccessfully(psLineId);
+            return ServiceResponse<string>.Success(result, "Penyesuaian Stock line deleted successfully.");
         }
-        
-        _dbTransaction.Commit();
-        LogPsLineDeletedSuccessfully(psLineId);
-        return ServiceResponse<string>.Success(result, "Penyesuaian Stock line deleted successfully.");
+        catch (SqlException ex) when (ex.Number >= 50000)
+        {
+            _dbTransaction.Rollback();
+            return ServiceResponse<string>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _dbTransaction.Rollback();
+            _logger.LogError(ex, "Error deleting PS line {PsLineId}", psLineId);
+            return ServiceResponse<string>.Failure("An error occurred while deleting the PS line. Please try again later.", StatusCodes.Status500InternalServerError);
+        }
     }
 
     public async Task<ServiceResponse<PsVm>> GetPs(int recId, CancellationToken cancellationToken)

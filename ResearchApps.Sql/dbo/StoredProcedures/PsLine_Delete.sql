@@ -7,6 +7,7 @@ BEGIN
 	SET XACT_ABORT ON;
 
 	DECLARE @PsId nvarchar(20), @Qty numeric(32,16), @Onhand numeric(32,16), @ItemId int, @WhId int;
+	DECLARE @InsertErrMsg nvarchar(2048);
 
 	BEGIN TRY
 		--* Init *--
@@ -22,8 +23,8 @@ BEGIN
 			SELECT @Onhand = Qty FROM InventSum WHERE ItemId = @ItemId AND WhId = @WhId;
 			IF @Onhand < @Qty
 			BEGIN
-				SELECT 'Transaksi gagal, stock yg tersedia hanya ' + cast(@Onhand as nvarchar) AS Result;
-				RETURN;
+				SET @InsertErrMsg = 'Stock tidak mencukupi untuk melakukan transaksi ini,' + ' stock yang tersedia hanya ' + cast(@Onhand as nvarchar);
+			    THROW 50000, @InsertErrMsg, 1;
 			END
 		END
 

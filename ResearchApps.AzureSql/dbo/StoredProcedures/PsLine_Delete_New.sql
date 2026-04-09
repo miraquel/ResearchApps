@@ -7,12 +7,13 @@ BEGIN
 	SET NOCOUNT ON;
 	SET XACT_ABORT ON;
 
-	DECLARE @PsId nvarchar(20), @Qty numeric(32,16), @Onhand numeric(32,16), @ItemId int, @InventDimId int;
+	DECLARE @PsId nvarchar(20), @Qty numeric(32,16), @Price numeric(32,16), @Onhand numeric(32,16), @ItemId int, @InventDimId int;
 
 	BEGIN TRY
 		--* Init *--
 		SELECT @PsId = PsId
 			, @Qty = Qty
+			, @Price = Price
 			, @ItemId = ItemId
 			, @InventDimId = InventDimId
 		FROM PsLine WHERE PsLineId = @PsLineId;
@@ -35,6 +36,13 @@ BEGIN
 		--* InventTrans *--
 		DELETE FROM [InventTrans]
 		WHERE [RefType] = 'Penyesuaian Stock' AND [RefId] = cast(@PsLineId as nvarchar);
+
+		UPDATE InventSum 
+		SET QTY = Qty - @Qty
+			, Value = Value - (@Qty*@Price)
+			, ModifiedBy = @ModifiedBy
+			, ModifiedDate = GETDATE()
+		WHERE ItemId = @ItemId and InventDimId = @InventDimId
 
 		SELECT @PsId AS Result;
 	END TRY

@@ -242,6 +242,7 @@ public class PsRepo : IPsRepo
         parameters.Add("@RecId", psLine.PsRecId);
         parameters.Add("@ItemId", psLine.ItemId);
         parameters.Add("@WhId", psLine.WhId);
+        parameters.Add("@LocationId", psLine.LocationId);
         parameters.Add("@Qty", psLine.Qty);
         parameters.Add("@Notes", psLine.Notes ?? string.Empty);
         parameters.Add("@CreatedBy", psLine.CreatedBy);
